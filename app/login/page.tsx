@@ -4,7 +4,7 @@ import "intl-tel-input/build/css/intlTelInput.css";
 import { useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { signIn, useSession, getSession } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
 import toast from "react-hot-toast";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { sendOtp } from "@/store/actions/authActions";
@@ -96,12 +96,23 @@ export default function LoginPage() {
 
     if (mode === "password") {
       try {
-        // Step 1: Get token directly from Magento
-        const tokenRes = await fetch(
-          "/api/auth/callback/credentials",
-          { method: "HEAD" } // just to warm up
-        ).catch(() => null);
+        // Step 1: Get token directly from Magento API
+        const magentoRes = await fetch("/api/kleverapi/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username: email, password }),
+        });
+        const magentoData = await magentoRes.json();
+        const magentoToken = typeof magentoData === "string"
+          ? magentoData.replace(/"/g, "").trim()
+          : magentoData?.token || magentoData;
 
+        if (magentoRes.ok && magentoToken) {
+          // Store token in localStorage immediately
+          localStorage.setItem("token", String(magentoToken).replace(/"/g, "").trim());
+        }
+
+        // Step 2: Also do NextAuth signIn for session/middleware
         const res = await signIn("credentials", {
           email,
           password,
@@ -109,34 +120,10 @@ export default function LoginPage() {
         });
 
         if (res?.ok) {
-          // Step 2: Get session and store token in localStorage
-          // Retry getSession a few times as cookie may not be ready immediately
-          let accessToken: string | null = null;
-          for (let i = 0; i < 3; i++) {
-            const session: any = await getSession();
-            if (session?.accessToken) {
-              accessToken = session.accessToken;
-              break;
-            }
-            await new Promise(r => setTimeout(r, 500));
-          }
-
-          if (accessToken) {
-            localStorage.setItem("token", accessToken);
-          } else {
-            // Fallback: fetch token directly from Magento
-            try {
-              const magentoRes = await fetch("/api/auth/session");
-              const sessionData = await magentoRes.json();
-              if (sessionData?.accessToken) {
-                localStorage.setItem("token", sessionData.accessToken);
-              }
-            } catch {}
-          }
-
           toast.success("Login Successful");
           router.replace("/products");
         } else {
+          localStorage.removeItem("token");
           toast.error("Login failed. Please check your credentials.");
         }
       } catch {
@@ -145,8 +132,22 @@ export default function LoginPage() {
         setLoading(false);
       }
     } else {
-      // OTP Login using NextAuth signIn
+      // OTP Login
       try {
+        // Step 1: Get token via OTP API
+        const otpRes = await fetch("/api/login-otp", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "platform": "web" },
+          body: JSON.stringify({ mobile: mobileNumber, otp, countryCode }),
+        });
+        const otpData = await otpRes.json();
+        const otpToken = otpData?.token || (otpData?.customer?.token);
+
+        if (otpRes.ok && otpToken) {
+          localStorage.setItem("token", String(otpToken).trim());
+        }
+
+        // Step 2: Also do NextAuth signIn for session/middleware
         const res = await signIn("credentials", {
           mobile: mobileNumber,
           otp: otp,
@@ -155,24 +156,10 @@ export default function LoginPage() {
         });
 
         if (res?.ok) {
-          // Get session and store token in localStorage
-          let accessToken: string | null = null;
-          for (let i = 0; i < 3; i++) {
-            const session: any = await getSession();
-            if (session?.accessToken) {
-              accessToken = session.accessToken;
-              break;
-            }
-            await new Promise(r => setTimeout(r, 500));
-          }
-
-          if (accessToken) {
-            localStorage.setItem("token", accessToken);
-          }
-
           toast.success("Login Successful");
           router.replace("/products");
         } else {
+          localStorage.removeItem("token");
           toast.error(res?.error || "Login Failed. Invalid OTP.");
         }
       } catch (err) {
