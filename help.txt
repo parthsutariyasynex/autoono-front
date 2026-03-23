@@ -1,0 +1,138 @@
+    "token": "eyJraWQiOiIxIiwiYWxnIjoiSFMyNTYifQ.eyJ1aWQiOjQ3LCJ1dHlwaWQiOjMsImlhdCI6MTc3MTk0MDg0NCwiZXhwIjoxNzcxOTQ0NDQ0fQ.03PiI7h1fikOfz7uOIN-ZOOEFJdgUmpKDaHE1nYtqe8",
+    "customer": {
+
+
+
+            {
+        "email": "parth.synex@gmail.com",
+        "password": "Parthu@12345"
+    }
+
+
+
+  {
+    "email": "alice@klever.ae",
+    "password": "Klever#231"
+  }
+
+https://altalayi-demo.btire.com/admin/customer/index/edit/id/1353/key/bc33e95835b7e550b30b8eb27411c84af5a2badb399cd6361c7acf96f81aae12/#
+
+product list url:- https://altalayi-demo.btire.com/en/all-tyres/car-tyres.html
+ 
+product api with page:- https://altalayi-demo.btire.com/rest/V1/kleverapi/favorite-products?pageSize=10&currentPage=1
+
+
+
+
+
+mongo db string without encoded :- mongodb+srv://parthsutariyasynex:Synex@123@cluster0.xwwburc.mongodb.net/?appName=Cluster0
+MONGODB_DB_NAME=my_app
+
+
+mongo db string with encoded :- MONGODB_URI=mongodb+srv://parthsutariyasynex:Synex%40123@cluster0.xwwburc.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
+MONGODB_DB_NAME=my_app
+
+
+
+
+
+
+You are a senior frontend developer expert in Next.js, Magento 2 REST API, and eCommerce architecture.
+
+I want to build a Product Page in Next.js using Magento 2 API.
+
+Requirements:
+
+1. Framework:
+- Use Next.js 14+ with App Router
+- Use modern React (hooks)
+- Use fetch or axios for API calls
+- Use Context API or Zustand for state management
+
+2. Authentication:
+- User must login using Magento API (integration token or customer token)
+- Store token securely (cookies or localStorage)
+- Product page should ONLY be visible if user is logged in
+- If not logged in, redirect to login page
+
+3. Product List:
+- Fetch product list from Magento API endpoint:
+  /rest/V1/products
+
+- Display:
+  - product image
+  - product name
+  - price
+  - Add to Cart button
+  - Add to Favorite button
+  - Remove button
+
+4. Add to Cart:
+- Use Magento API:
+  /rest/V1/carts/mine/items
+
+5. Add to Favorite:
+- Use custom state (or Magento wishlist API if available)
+
+6. Remove Product:
+- Remove from cart using Magento API
+
+7. Code Structure:
+Provide complete code with:
+
+- Folder structure
+- Login Page
+- Product Page
+- API functions
+- Auth Guard
+- Cart functionality
+- Favorite functionality
+
+8. UI:
+- Use simple modern UI
+- Tailwind CSS preferred
+
+9. Important:
+- Use clean, production-level code
+- Use reusable components
+- Add comments
+
+10. Bonus:
+- Use loading state
+- Use error handling
+
+Output format:
+Provide complete working Next.js code step-by-step.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Multi location delivery page continue to work shipping-methods get method  after dashboard complate 
+
+
+
+
+ let orderedBy = "";
+    if (item.billing_address) {
+        orderedBy = `${item.billing_address.firstname || ""} ${item.billing_address.lastname || ""}`.trim();
+    }
+   check this code  after run my orderpage api

@@ -1,0 +1,206 @@
+/* @import "tailwindcss"; */
+
+/* optional custom */
+
+/* body {
+  font-family: Arial, Helvetica, sans-serif;
+} */
+
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=Rubik:wght@300;400;500;700&display=swap');
+@import "tailwindcss";
+
+body {
+  font-family: 'Open Sans', Arial, Helvetica, sans-serif;
+}
+
+.rubik-sans {
+  font-family: 'Rubik', sans-serif;
+}
+
+.tracking-premium {
+  letter-spacing: 0.6px;
+}
+
+/* Custom Scrollbars */
+.card-scrollbar::-webkit-scrollbar {
+  width: 10px;
+}
+
+.card-scrollbar::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.card-scrollbar::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 10px;
+  border: 2px solid #f1f1f1;
+}
+
+.card-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #E5E7EB;
+  border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #D1D5DB;
+}
+
+/* --- Retro DatePicker (Grid Style) --- */
+.react-datepicker-wrapper {
+  width: 100%;
+}
+
+.retro-datepicker-popper {
+  z-index: 9999 !important;
+}
+
+.retro-datepicker {
+  background-color: #EEEEEE !important;
+  border: 1px solid #CCCCCC !important;
+  border-radius: 0 !important;
+  font-family: Arial, sans-serif !important;
+  padding: 0 !important;
+  width: 240px !important;
+  /* Proper Set Width */
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+.retro-datepicker .react-datepicker__month-container {
+  background-color: #EEEEEE !important;
+  width: 100% !important;
+  float: none !important;
+}
+
+.retro-datepicker .react-datepicker__header {
+  background-color: #EEEEEE !important;
+  border-bottom: none !important;
+  padding: 0 !important;
+}
+
+.retro-datepicker .react-datepicker__day-names {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  margin: 0 10px !important;
+  border-top: 1px solid #CCCCCC;
+}
+
+.retro-datepicker .react-datepicker__day-name {
+  width: 100% !important;
+  margin: 0 !important;
+  padding: 6px 0 !important;
+  border: none !important;
+  color: #000 !important;
+  font-weight: 900 !important;
+  text-transform: uppercase !important;
+  font-size: 11px !important;
+  background: white;
+}
+
+.retro-datepicker .react-datepicker__month {
+  margin: 0 10px 10px 10px !important;
+  background: white;
+}
+
+.retro-datepicker .react-datepicker__week {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+}
+
+.retro-datepicker .react-datepicker__day {
+  width: 100% !important;
+  margin: 0 !important;
+  padding: 6px 0 !important;
+  /* Balanced Padding */
+  border: none !important;
+  border-radius: 0 !important;
+  color: #444 !important;
+  font-size: 13px !important;
+  background: white;
+}
+
+/* Today highlight (Pale Red) */
+.retro-datepicker .react-datepicker__day--today {
+  background-color: #FFE4E1 !important;
+  color: #000 !important;
+  font-weight: bold !important;
+}
+
+/* Selected highlight (Amber) */
+.retro-datepicker .react-datepicker__day--selected,
+.retro-datepicker .react-datepicker__day--keyboard-selected {
+  background-color: #FFD24D !important;
+  color: #000 !important;
+  font-weight: bold !important;
+}
+
+.retro-datepicker .react-datepicker__day:hover {
+  background-color: #f0f0f0 !important;
+}
+
+.retro-datepicker .react-datepicker__day--outside-month {
+  color: #CCCCCC !important;
+}
+
+.retro-datepicker .react-datepicker__triangle {
+  display: none !important;
+}
+
+/* Navigation arrows */
+.retro-datepicker .react-datepicker__navigation {
+  top: 8px !important;
+}
+
+.retro-datepicker .react-datepicker__navigation--previous {
+  left: 10px !important;
+}
+
+.retro-datepicker .react-datepicker__navigation--next {
+  right: 10px !important;
+}
+
+.retro-datepicker .react-datepicker__navigation-icon::before {
+  border-color: #D4A017 !important;
+  border-width: 2px 2px 0 0 !important;
+}
+
+/* Month/year header */
+.retro-datepicker .react-datepicker__current-month {
+  font-size: 14px !important;
+  font-weight: 700 !important;
+  color: #000 !important;
+  padding: 8px 0 !important;
+  background-color: #EEEEEE !important;
+}
+
+/* Disabled days */
+.retro-datepicker .react-datepicker__day--disabled {
+  color: #ccc !important;
+  cursor: not-allowed !important;
+}
+
+/* Pickup datepicker wrapper */
+.pickup-datepicker .react-datepicker-wrapper {
+  width: 100%;
+}
+
+.pickup-datepicker .react-datepicker__input-container {
+  width: 100%;
+}
+
+.pickup-datepicker .react-datepicker-popper {
+  z-index: 110 !important;
+}
