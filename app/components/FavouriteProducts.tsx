@@ -7,6 +7,7 @@ import { formatPrice } from "@/utils/helpers";
 import { toast } from "react-hot-toast";
 import ProductEnquiryModal from "./ProductEnquiryModal";
 import ProductDialog from "./ProductDialog";
+import Drawer from "./Drawer";
 import { api } from "@/lib/api/api-client";
 import Pagination from "@/components/Pagination";
 import { useCart } from "@/modules/cart/context/CartContext";
@@ -460,47 +461,44 @@ export default function FavouriteProducts() {
             )}
 
             {/* Product Details Modal */}
-            {selectedProduct && (
-                <ProductDialog
-                    product={selectedProduct}
-                    onClose={() => setSelectedProduct(null)}
-                />
-            )}
+            <ProductDialog
+                product={selectedProduct}
+                isOpen={!!selectedProduct}
+                onClose={() => setSelectedProduct(null)}
+            />
 
             {/* Image Preview Modal */}
-            {isImageModalOpen && selectedImage && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4 animate-in fade-in duration-300" onClick={() => setIsImageModalOpen(false)}>
-                    <div className="relative max-w-2xl w-full bg-white rounded-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300 ease-out" onClick={e => e.stopPropagation()}>
-                        {/* Header */}
-                        <div className="bg-[#f5a623] px-6 py-4 flex items-center justify-between border-b border-[#f5a623]/20">
-                            <h3 className="text-[12px] font-black text-black uppercase tracking-[0.1em] flex items-center gap-2">
-                                <span className="w-2 h-2 bg-black rounded-full"></span>
-                                Product Image Preview
-                            </h3>
-                            <button
-                                className="w-8 h-8 bg-white/40 hover:bg-white text-black rounded-lg flex items-center justify-center transition-all shadow-sm"
-                                onClick={() => setIsImageModalOpen(false)}
-                            >
-                                <X size={18} strokeWidth={3} />
-                            </button>
-                        </div>
+            <Drawer isOpen={isImageModalOpen && !!selectedImage} onClose={() => setIsImageModalOpen(false)}>
+                <div className="flex flex-col h-full bg-white">
+                    {/* Header */}
+                    <div className="bg-[#f5a623] px-8 py-6 flex items-center justify-center relative border-b border-[#f5a623]/20 flex-shrink-0">
+                        <h3 className="text-[14px] font-black text-black uppercase tracking-[0.1em] flex items-center gap-2">
+                            <span className="w-2 h-2 bg-black rounded-full"></span>
+                            Product Image Preview
+                        </h3>
+                    </div>
 
-                        {/* Image Container */}
-                        <div className="p-10 bg-white flex items-center justify-center min-h-[400px]">
-                            <img
-                                src={selectedImage}
-                                alt="Product Preview"
-                                className="max-w-full max-h-[70vh] object-contain rounded-lg"
-                            />
-                        </div>
+                    {/* Image Container */}
+                    <div className="flex-1 p-8 bg-white flex items-center justify-center overflow-auto">
+                        <img
+                            src={selectedImage || ''}
+                            alt="Product Preview"
+                            className="max-w-full max-h-full object-contain rounded-xl shadow-lg border border-gray-100"
+                        />
+                    </div>
 
-                        {/* Footer Tip */}
-                        <div className="px-6 py-3 bg-gray-50 border-t border-gray-100 flex justify-center">
-                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest italic">Click outside or press X to close</p>
-                        </div>
+                    {/* Footer Tip */}
+                    <div className="px-8 py-6 bg-gray-50 border-t border-gray-100 flex flex-col items-center gap-4">
+                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest italic text-center">Swipe or scroll to explore image</p>
+                        <button
+                            onClick={() => setIsImageModalOpen(false)}
+                            className="w-full py-4 bg-black text-white font-black uppercase tracking-widest rounded shadow-lg hover:bg-gray-800 transition-all text-xs"
+                        >
+                            Close Preview
+                        </button>
                     </div>
                 </div>
-            )}
+            </Drawer>
         </div>
     );
 }

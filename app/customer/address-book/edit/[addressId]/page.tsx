@@ -33,12 +33,28 @@ export default function EditAddressPage() {
         const fetchAddress = async () => {
             try {
                 setLoading(true);
-                // Fetch the list of addresses to find the one with matching ID
-                const addresses = await api.get(`/kleverapi/addresses`);
 
-                const data = Array.isArray(addresses)
-                    ? addresses.find((a: any) => String(a.id) === String(addressId))
-                    : null;
+                let data = null;
+
+                // Check if this is a sub-account session — address may be in localStorage
+                const isSubAccount = typeof window !== "undefined" && localStorage.getItem("isSubAccount") === "true";
+                if (isSubAccount) {
+                    const storedData = localStorage.getItem("subAccountData");
+                    if (storedData) {
+                        const parsed = JSON.parse(storedData);
+                        const subCustomer = parsed.customer || parsed;
+                        const subAddresses = subCustomer.addresses || [];
+                        data = subAddresses.find((a: any) => String(a.id) === String(addressId));
+                    }
+                }
+
+                // If not found in sub-account data, fetch from parent API
+                if (!data) {
+                    const addresses = await api.get(`/kleverapi/addresses`);
+                    data = Array.isArray(addresses)
+                        ? addresses.find((a: any) => String(a.id) === String(addressId))
+                        : null;
+                }
 
                 if (!data) {
                     throw new Error("Address not found");

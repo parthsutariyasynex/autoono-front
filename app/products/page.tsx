@@ -9,6 +9,8 @@ import ProductEnquiryModal from "../components/ProductEnquiryModal";
 import { checkAuth } from "./api";
 import { useCart } from "@/modules/cart/hooks/useCart";
 import SidebarFilter from "../components/SidebarFilter";
+import HorizontalFilter from "../components/HorizontalFilter";
+import Drawer from "../components/Drawer";
 import { api } from "@/lib/api/api-client";
 import { formatPrice } from "@/utils/helpers";
 import { toast } from "react-hot-toast";
@@ -31,6 +33,7 @@ export default function ProductsPage() {
   const [sortBy, setSortBy] = useState<string>("none");
   const [selectedFilters, setSelectedFilters] = useState<Record<string, string[]>>({});
   const [selectedFilterLabels, setSelectedFilterLabels] = useState<Record<string, { value: string; label: string }[]>>({});
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
   // Image Modal State
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
@@ -49,7 +52,7 @@ export default function ProductsPage() {
   }, []);
 
   const toggleFavorite = async (product: any) => {
-    const { product_id: productId, sku } = product;
+    const { product_id: productId } = product;
     const stored = localStorage.getItem("favourites");
     const favIds: number[] = stored ? JSON.parse(stored) : [];
 
@@ -71,7 +74,7 @@ export default function ProductsPage() {
       }
     }
 
-    router.push("/my-account/favourite-products");
+    router.push("/favorites");
   };
 
   const [debouncedFilters, setDebouncedFilters] = useState(selectedFilters);
@@ -210,8 +213,6 @@ export default function ProductsPage() {
       result = result.filter(p => favIds.includes(p.product_id));
     }
 
-    // Requirement: If "Promotions and Offers" filter is active, only show products with offers
-    // We check for filter keys that likely correspond to Promotions/Offers
     const hasOfferFilter = Object.keys(selectedFilters).some(key =>
       key.toLowerCase().includes('offer') || key.toLowerCase().includes('promotion') || key.toLowerCase().includes('pormotion')
     );
@@ -232,30 +233,42 @@ export default function ProductsPage() {
 
   if (!isMounted) return null;
 
+  const handleHorizontalSearch = (width: string, height: string, rim: string) => {
+    const newFilters = { ...selectedFilters };
+    if (width) newFilters["width"] = [width]; else delete newFilters["width"];
+    if (height) newFilters["height"] = [height]; else delete newFilters["height"];
+    if (rim) newFilters["rim"] = [rim]; else delete newFilters["rim"];
+
+    setSelectedFilters(newFilters);
+    setCurrentPage(1);
+  };
+
   return (
-    <div className="h-screen flex flex-col bg-gray-50 overflow-hidden font-sans">
-      <div className="flex-shrink-0">
+    <div className="min-h-screen flex flex-col bg-gray-50 font-sans">
+      <div className="flex-shrink-0 sticky top-0 z-[50]">
         <Navbar />
       </div>
 
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex flex-1">
         <SidebarFilter
           onFilterChange={handleFilterChange}
           selectedFilters={selectedFilters}
+          isCollapsed={isSidebarCollapsed}
+          setIsCollapsed={setIsSidebarCollapsed}
         />
 
-        <div className="flex-1 flex flex-col p-4 md:p-6 overflow-hidden">
+        <div className="flex-1 flex flex-col p-4 md:p-6 pb-28">
           <div className="bg-white rounded-2xl shadow-sm border border-gray-200 flex flex-col h-full overflow-hidden">
 
             {/* Header Controls */}
             <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center gap-4 flex-shrink-0">
               <div className="flex items-center gap-4">
                 <button
-                  onClick={() => router.push("/my-account/favourite-products")}
+                  onClick={() => router.push("/favorites")}
                   className="text-xl font-black text-gray-900 uppercase tracking-tighter flex items-center gap-2 hover:opacity-80 transition-all"
                 >
                   <Star className="w-6 h-6 text-yellow-500 fill-yellow-500" />
-                  Favourite products
+                  Favorite products
                 </button>
                 {Object.keys(selectedFilters).length > 0 && (
                   <button onClick={clearAllFilters} className="text-[10px] font-black text-red-500 hover:text-red-700 uppercase flex items-center gap-1.5 bg-red-50 px-2.5 py-1 rounded-full transition-colors">
@@ -476,10 +489,31 @@ export default function ProductsPage() {
             )}
           </div>
         </div>
+
+        {/* STICKY BOTTOM SIZE SEARCH BAR - ENHANCED WITH LOGO */}
+        <div className={`fixed bottom-0 left-0 right-0 z-[40] transition-all bg-white border-t-[4px] border-[#f5a623] shadow-[0_-10px_30px_rgba(0,0,0,0.12)] py-1.5`}>
+          <div className={`transition-all duration-300 ${isSidebarCollapsed ? "pl-[50px]" : "pl-[300px]"}`}>
+            {/* Search Content */}
+            <div className="flex-1">
+              <HorizontalFilter
+                onSearch={handleHorizontalSearch}
+                initialValues={{
+                  width: debouncedFilters["width"]?.[0] || "",
+                  height: debouncedFilters["height"]?.[0] || "",
+                  rim: debouncedFilters["rim"]?.[0] || ""
+                }}
+              />
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Modals */}
-      <ProductDialog product={selectedProduct} onClose={() => setSelectedProduct(null)} />
+      <ProductDialog
+        product={selectedProduct}
+        isOpen={!!selectedProduct}
+        onClose={() => setSelectedProduct(null)}
+      />
       <ProductEnquiryModal
         isOpen={isInquiryModalOpen}
         productSku={inquiryProduct?.sku || ""}
@@ -491,48 +525,39 @@ export default function ProductsPage() {
         }}
       />
 
-      {isImageModalOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4 animate-in fade-in duration-300" onClick={() => setIsImageModalOpen(false)}>
-          <div className="relative max-w-2xl w-full bg-white rounded-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300 ease-out" onClick={e => e.stopPropagation()}>
-            {/* Header */}
-            <div className="bg-[#f4b400] px-6 py-4 flex items-center justify-between border-b border-yellow-500/20">
-              <h3 className="text-[11px] font-black text-black uppercase tracking-[0.2em] flex items-center gap-2">
-                <span className="w-1.5 h-1.5 bg-black rounded-full"></span>
-                Product Preview
-              </h3>
-              <button
-                className="w-8 h-8 bg-white/20 hover:bg-white/40 text-black rounded-lg flex items-center justify-center transition-all"
-                onClick={() => setIsImageModalOpen(false)}
-              >
-                <X size={18} strokeWidth={3} />
-              </button>
-            </div>
+      <Drawer isOpen={isImageModalOpen} onClose={() => setIsImageModalOpen(false)}>
+        <div className="flex flex-col h-full bg-white">
+          {/* Header */}
+          <div className="bg-[#f4b400] px-8 py-6 flex items-center justify-center relative border-b border-yellow-500/20 flex-shrink-0">
+            <h3 className="text-[12px] font-black text-black uppercase tracking-[0.2em] flex items-center gap-2">
+              <span className="w-2 h-2 bg-black rounded-full"></span>
+              Product Preview
+            </h3>
+          </div>
 
-            {/* Image Container */}
-            <div className="p-8 bg-white flex items-center justify-center min-h-[400px]">
-              <img
-                src={selectedImage}
-                alt="Product Preview"
-                className="max-w-full max-h-[70vh] object-contain rounded-lg shadow-sm"
-              />
-            </div>
+          {/* Image Container */}
+          <div className="p-8 bg-white flex items-center justify-center flex-1 overflow-auto">
+            <img
+              src={selectedImage}
+              alt="Product Preview"
+              className="max-w-full max-h-full object-contain rounded-xl shadow-lg border border-gray-100"
+            />
+          </div>
 
-            {/* Footer Tip */}
-            <div className="px-6 py-3 bg-gray-50 border-t border-gray-100 flex justify-center">
-              <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">Click outside or press X to close</p>
-            </div>
+          {/* Footer Tip */}
+          <div className="px-8 py-6 bg-gray-50 border-t border-gray-100 flex flex-col items-center gap-4">
+            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest italic text-center">Swipe or Scroll to explore image</p>
+            <button
+              onClick={() => setIsImageModalOpen(false)}
+              className="w-full py-4 bg-black text-white font-black uppercase tracking-widest rounded shadow-lg hover:bg-gray-800 transition-all text-xs"
+            >
+              Close Preview
+            </button>
           </div>
         </div>
-      )}
+      </Drawer>
 
-      <style jsx>{`
-        .custom-scrollbar::-webkit-scrollbar { width: 4px; height: 4px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #E5E7EB; border-radius: 20px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #D1D5DB; }
-        .scale-in { animation: scaleIn 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
-        @keyframes scaleIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-      `}</style>
+
     </div>
   );
 }

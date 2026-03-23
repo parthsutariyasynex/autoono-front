@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
+import { usePathname } from "next/navigation";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "@/store/store";
 import { useState, useRef, useEffect } from "react";
@@ -23,6 +24,7 @@ import { fetchCustomerInfo } from "@/store/actions/customerActions";
 
 export default function Navbar() {
   const { data: session, status } = useSession();
+  const pathname = usePathname();
   const isAuthenticated = status === "authenticated";
   const { cart, refetchCart } = useCart();
 
@@ -42,6 +44,8 @@ export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
+  const [subAccountName, setSubAccountName] = useState<string | null>(null);
+  const [isSubAccount, setIsSubAccount] = useState(false);
   const { unreadCount, fetchNotifications: pullNotifications } = useNotifications();
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -51,6 +55,16 @@ export default function Navbar() {
     localStorage.removeItem('token');
     await signOut({ callbackUrl: "/login" });
   };
+
+  // Check for persistent subaccount name
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const storedName = localStorage.getItem("subAccountName");
+      const subFlag = localStorage.getItem("isSubAccount") === "true";
+      setSubAccountName(storedName);
+      setIsSubAccount(subFlag);
+    }
+  }, [pathname]);
 
   // Fetch Notifications and Customer Info
   useEffect(() => {
@@ -114,31 +128,39 @@ export default function Navbar() {
           </div>
 
           {/* 2. Top-right Welcome Badge & Icons */}
-          <div className="flex flex-col items-end">
+          <div className="flex flex-col items-end gap-2">
             {isAuthenticated && !isLoadingName && (
-              <div className="bg-[#f5b21a] text-black text-[11px] font-bold px-3 py-1 mb-1 rounded-sm shadow-sm">
-                Welcome: {displayUser}
+              <div className="flex items-center bg-white border border-gray-100 rounded-full pl-1 pr-5 py-1 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.1)] md:flex hidden hover:shadow-md transition-all duration-300 group cursor-default">
+                <div className="w-8 h-8 bg-[#f5b21a] rounded-full flex items-center justify-center text-black mr-3 shadow-inner group-hover:scale-110 transition-transform">
+                  <UserCircle size={20} strokeWidth={2.5} />
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-[9px] text-gray-400 font-bold uppercase tracking-widest leading-none">Welcome Back</span>
+                  <span className="text-[13px] text-black font-black uppercase tracking-tighter leading-tight mt-0.5">
+                    {isSubAccount && subAccountName ? subAccountName : displayUser}
+                  </span>
+                </div>
               </div>
             )}
 
-            <div className="flex items-center gap-6">
+            <div className="flex items-center gap-8 pr-2 pt-1">
               {/* Notification Bell */}
               <div
                 className="relative cursor-pointer hover:opacity-80 transition-opacity"
                 onClick={() => setIsNotificationOpen(true)}
               >
                 <div className="text-black">
-                  <Bell size={26} fill="black" strokeWidth={1} />
+                  <Bell size={26} fill="black" stroke="black" strokeWidth={1} />
                 </div>
                 {unreadCount > 0 && (
-                  <span className="absolute -top-1.5 -right-1.5 bg-[#f5af02] text-black text-[10px] font-black w-[18px] h-[18px] flex items-center justify-center rounded-full border border-white">
+                  <span className="absolute -top-1.5 -right-2.5 bg-[#f5af02] text-black text-[11px] font-black w-5 h-5 flex items-center justify-center rounded-full border-2 border-white shadow-sm">
                     {unreadCount}
                   </span>
                 )}
               </div>
 
               {/* Language (Arabic) placeholder as styled text */}
-              <span className="text-black text-[14px] font-bold cursor-pointer hover:text-yellow-600 transition-colors">
+              <span className="text-black text-[18px] font-black cursor-pointer hover:text-yellow-600 transition-colors uppercase tracking-tight">
                 Arabic
               </span>
 
@@ -149,7 +171,7 @@ export default function Navbar() {
                   className="text-black transition-colors cursor-pointer flex items-center"
                   aria-label="User Profile"
                 >
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                  <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                     <path d="M12 12C14.21 12 16 10.21 16 8C16 5.79 14.21 4 12 4C9.79 4 8 5.79 8 8C8 10.21 9.79 12 12 12ZM12 14C9.33 14 4 15.33 4 18V20H20V18C20 15.33 14.67 14 12 14Z" />
                   </svg>
                 </button>
@@ -164,6 +186,24 @@ export default function Navbar() {
                       My Account
                     </Link>
 
+                    {isSubAccount && (
+                      <Link
+                        href="/my-account"
+                        className="block px-5 py-3 text-[14px] font-bold text-red-600 hover:bg-red-50 transition-colors border-t border-gray-100"
+                        onClick={() => {
+                          setIsProfileOpen(false);
+                          if (typeof window !== "undefined") {
+                            localStorage.removeItem("subAccountName");
+                            localStorage.removeItem("isSubAccount");
+                          }
+                          setSubAccountName(null);
+                          setIsSubAccount(false);
+                        }}
+                      >
+                        Back to Main Account
+                      </Link>
+                    )}
+
                     <button
                       onClick={handleLogout}
                       className="w-full text-left px-5 py-3 text-[14px] font-bold text-gray-800 hover:bg-gray-50 transition-colors cursor-pointer border-t border-gray-100"
@@ -177,12 +217,12 @@ export default function Navbar() {
               {/* Cart Icon */}
               <button
                 onClick={() => setIsCartOpen(true)}
-                className="relative text-black transition-colors cursor-pointer"
+                className="relative text-black hover:opacity-80 transition-opacity cursor-pointer"
                 aria-label="Shopping Cart"
               >
-                <ShoppingCart size={24} strokeWidth={1.5} />
+                <ShoppingCart size={28} strokeWidth={1.5} />
                 {cartCount > 0 && (
-                  <span className="absolute -top-2.5 -right-2.5 bg-[#f5af02] text-black text-[10px] font-black w-5 h-5 flex items-center justify-center rounded-full border border-white">
+                  <span className="absolute -top-2.5 -right-3 bg-[#f5af02] text-black text-[11px] font-black w-5 h-5 flex items-center justify-center rounded-full border-2 border-white shadow-sm">
                     {cartCount}
                   </span>
                 )}
@@ -203,22 +243,34 @@ export default function Navbar() {
         <div className="max-w-7xl mx-auto w-full px-6 flex items-center justify-center">
 
           {/* Desktop Menu */}
-          <div className="hidden md:flex items-center gap-12 text-[17px] text-black font-semibold uppercase tracking-wider">
+          <div className="hidden md:flex items-center h-full text-[15px] lg:text-[17px] text-black font-semibold uppercase tracking-wider">
             <Link
               href="/products"
-              className="h-full flex items-center px-6 hover:bg-black hover:text-white transition-all duration-200 cursor-pointer"
+              className="h-full flex items-center px-6 lg:px-8 hover:bg-black hover:text-white transition-all duration-200 cursor-pointer"
             >
               All Tyres
             </Link>
             <Link
               href="/about"
-              className="h-full flex items-center px-6 hover:bg-black hover:text-white transition-all duration-200 cursor-pointer"
+              className="h-full flex items-center px-6 lg:px-8 hover:bg-black hover:text-white transition-all duration-200 cursor-pointer"
             >
               About Us
             </Link>
             <Link
+              href="/locations"
+              className="h-full flex items-center px-6 lg:px-8 hover:bg-black hover:text-white transition-all duration-200 cursor-pointer"
+            >
+              Branch Locations
+            </Link>
+            <Link
+              href="/guides"
+              className="h-full flex items-center px-6 lg:px-8 hover:bg-black hover:text-white transition-all duration-200 cursor-pointer"
+            >
+              User Guides
+            </Link>
+            <Link
               href="/catalogue"
-              className="h-full flex items-center px-6 hover:bg-black hover:text-white transition-all duration-200 cursor-pointer"
+              className="h-full flex items-center px-6 lg:px-8 hover:bg-black hover:text-white transition-all duration-200 cursor-pointer"
             >
               Product Catalogue
             </Link>

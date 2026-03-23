@@ -1,10 +1,10 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { X } from "lucide-react";
 import { formatPrice } from "@/utils/helpers";
 import { toast } from "react-hot-toast";
 import { getSession } from "next-auth/react";
+import Drawer from "./Drawer";
 
 interface ProductEnquiryModalProps {
     productSku: string;
@@ -45,20 +45,13 @@ export default function ProductEnquiryModal({
         return { brand, size, pattern, year };
     }, [productName]);
 
-    if (!isOpen) return null;
-
-
-
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        // Validations
         if (parseInt(formData.quantity) <= 0) {
             toast.error("Quantity must be greater than 0");
             return;
         }
-
-
 
         setIsSubmitting(true);
 
@@ -105,112 +98,110 @@ export default function ProductEnquiryModal({
     };
 
     return (
-        <div
-            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4 animate-in fade-in duration-200"
-            onClick={onClose}
-        >
-            <div
-                className="bg-white rounded-lg shadow-2xl w-full max-w-xl overflow-hidden animate-in zoom-in-95 duration-300 flex flex-col max-h-[90vh]"
-                onClick={(e) => e.stopPropagation()}
-            >
+        <Drawer isOpen={isOpen} onClose={onClose}>
+            <div className="flex flex-col h-full bg-white font-sans">
                 {/* HEADER */}
-                <div className="bg-[#FFB82B] py-3.5 flex items-center justify-center relative flex-shrink-0">
+                <div className="bg-[#FFB82B] py-6 flex items-center justify-center relative flex-shrink-0">
                     <h2 className="text-[18px] font-bold text-black uppercase tracking-tight">Product Enquiry</h2>
-                    <button
-                        onClick={onClose}
-                        className="absolute right-4 w-8 h-8 flex items-center justify-center rounded-full bg-white text-black hover:bg-gray-100 transition-colors shadow-sm"
-                    >
-                        <X size={20} strokeWidth={3} />
-                    </button>
                 </div>
 
-                <form onSubmit={handleSubmit} className="p-8 space-y-5 font-sans overflow-y-auto">
+                <form onSubmit={handleSubmit} className="p-8 space-y-6 overflow-y-auto flex-1 pb-10">
                     {/* Product Name (Read only) */}
-                    <div className="space-y-1">
-                        <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Product Name</label>
-                        <div className="text-[16px] text-black font-semibold leading-snug bg-gray-50 p-3 rounded-md border border-gray-100">
+                    <div className="space-y-2">
+                        <label className="text-xs font-bold text-gray-500 uppercase tracking-wider ml-0.5">Product Name</label>
+                        <div className="text-[15px] text-black font-semibold leading-snug bg-gray-50 p-4 rounded-lg border border-gray-100">
                             {productName}
                         </div>
                     </div>
 
-                    {/* Derived Details Display (Optional but nice for UX) */}
-                    <div className="grid grid-cols-2 gap-4 bg-gray-50 p-4 rounded-md border border-gray-100">
-                        <div>
-                            <span className="text-[11px] text-gray-500 block uppercase font-bold">Brand</span>
-                            <span className="text-[14px] font-medium text-black">{productDetails.brand}</span>
+                    {/* Derived Details Display */}
+                    <div className="grid grid-cols-2 gap-4 bg-gray-50 p-5 rounded-lg border border-gray-100">
+                        <div className="space-y-0.5">
+                            <span className="text-[10px] text-gray-400 block uppercase font-black tracking-widest">Brand</span>
+                            <span className="text-[14px] font-bold text-gray-800">{productDetails.brand}</span>
                         </div>
-                        <div>
-                            <span className="text-[11px] text-gray-500 block uppercase font-bold">Size</span>
-                            <span className="text-[14px] font-medium text-black">{productDetails.size}</span>
+                        <div className="space-y-0.5">
+                            <span className="text-[10px] text-gray-400 block uppercase font-black tracking-widest">Size</span>
+                            <span className="text-[14px] font-bold text-gray-800">{productDetails.size}</span>
                         </div>
-                        <div>
-                            <span className="text-[11px] text-gray-500 block uppercase font-bold">Pattern</span>
-                            <span className="text-[14px] font-medium text-black">{productDetails.pattern}</span>
+                        <div className="space-y-0.5">
+                            <span className="text-[10px] text-gray-400 block uppercase font-black tracking-widest">Pattern</span>
+                            <span className="text-[14px] font-bold text-gray-800">{productDetails.pattern}</span>
                         </div>
-                        <div>
-                            <span className="text-[11px] text-gray-500 block uppercase font-bold">Year</span>
-                            <span className="text-[14px] font-medium text-black">{productDetails.year}</span>
+                        <div className="space-y-0.5">
+                            <span className="text-[10px] text-gray-400 block uppercase font-black tracking-widest">Year</span>
+                            <span className="text-[14px] font-bold text-gray-800">{productDetails.year}</span>
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-1 gap-5">
+                    <div className="space-y-6">
                         {/* Quantity */}
-                        <div className="space-y-1">
-                            <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Quantity</label>
+                        <div className="space-y-2">
+                            <label className="text-xs font-bold text-gray-700 uppercase tracking-widest ml-0.5">Order Quantity</label>
                             <input
                                 required
                                 type="number"
                                 min="1"
-                                className="w-full px-3 py-2.5 bg-white border border-gray-300 rounded-md outline-none focus:ring-2 focus:ring-[#FFB82B] transition-all text-base"
+                                className="w-full px-4 py-3.5 bg-white border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-[#FFB82B] transition-all text-base font-medium shadow-sm"
                                 value={formData.quantity}
                                 onChange={(e) => setFormData({ ...formData, quantity: e.target.value })}
                             />
                         </div>
-                    </div>
 
-                    {/* Comment */}
-                    <div className="space-y-1">
-                        <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Comment (Optional)</label>
-                        <textarea
-                            rows={3}
-                            placeholder="Add your message here..."
-                            className="w-full px-3 py-2.5 bg-white border border-gray-300 rounded-md outline-none focus:ring-2 focus:ring-[#FFB82B] transition-all text-base resize-none"
-                            value={formData.comment}
-                            onChange={(e) => setFormData({ ...formData, comment: e.target.value })}
-                        />
-                    </div>
-
-                    {/* Checkbox */}
-                    <div className="py-2">
-                        <label className="flex items-center gap-3 cursor-pointer group select-none">
-                            <input
-                                type="checkbox"
-                                className="h-5 w-5 cursor-pointer accent-[#FFB82B] rounded border-gray-300"
-                                checked={formData.notifyStock}
-                                onChange={(e) => setFormData({ ...formData, notifyStock: e.target.checked })}
+                        {/* Comment */}
+                        <div className="space-y-2">
+                            <label className="text-xs font-bold text-gray-700 uppercase tracking-widest ml-0.5">Notes / Comments</label>
+                            <textarea
+                                rows={4}
+                                placeholder="Any special requests or questions?"
+                                className="w-full px-4 py-3.5 bg-white border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-[#FFB82B] transition-all text-base resize-none shadow-sm"
+                                value={formData.comment}
+                                onChange={(e) => setFormData({ ...formData, comment: e.target.value })}
                             />
-                            <span className="text-[15px] font-medium text-gray-700">
-                                Notify me when this product is back in stock
-                            </span>
-                        </label>
+                        </div>
+
+                        {/* Checkbox */}
+                        <div className="py-2">
+                            <label className="flex items-center gap-4 cursor-pointer group select-none">
+                                <div className="relative flex items-center">
+                                    <input
+                                        type="checkbox"
+                                        className="h-6 w-6 cursor-pointer accent-[#FFB82B] rounded-md border-gray-300 transition-all"
+                                        checked={formData.notifyStock}
+                                        onChange={(e) => setFormData({ ...formData, notifyStock: e.target.checked })}
+                                    />
+                                </div>
+                                <span className="text-[15px] font-bold text-gray-700 group-hover:text-black transition-colors">
+                                    Notify me when this product is back in stock
+                                </span>
+                            </label>
+                        </div>
                     </div>
 
                     {/* SUBMIT BUTTON */}
-                    <div className="pt-2 flex justify-center">
+                    <div className="pt-6">
                         <button
                             type="submit"
                             disabled={isSubmitting}
-                            className="w-full md:w-auto px-16 py-3.5 bg-[#FFB82B] hover:bg-[#EAA71D] text-black font-black rounded-md transition-all text-sm uppercase tracking-widest shadow-md disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center min-w-[200px]"
+                            className="w-full py-4.5 px-10 bg-[#FFB82B] hover:bg-[#EAA71D] text-black font-black rounded-lg transition-all text-sm uppercase tracking-widest shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center min-h-[56px]"
                         >
                             {isSubmitting ? (
-                                <div className="w-5 h-5 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
+                                <div className="w-6 h-6 border-3 border-black border-t-transparent rounded-full animate-spin"></div>
                             ) : (
-                                "SUBMIT INQUIRY"
+                                "SUBMIT ENQUIRY"
                             )}
                         </button>
                     </div>
+
+                    <button
+                        type="button"
+                        onClick={onClose}
+                        className="w-full py-4 text-center text-xs font-black text-gray-400 hover:text-gray-900 uppercase tracking-widest transition-colors mt-2"
+                    >
+                        Close Panel
+                    </button>
                 </form>
             </div>
-        </div>
+        </Drawer>
     );
 }

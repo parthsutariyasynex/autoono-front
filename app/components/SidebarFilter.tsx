@@ -18,15 +18,24 @@ export interface FilterGroupData {
 export default function SidebarFilter({
     categoryId = "5",
     selectedFilters = {},
-    onFilterChange
+    onFilterChange,
+    isCollapsed: externalIsCollapsed,
+    setIsCollapsed: setExternalIsCollapsed
 }: {
     categoryId?: string;
     selectedFilters?: Record<string, string[]>;
     onFilterChange?: (filters: Record<string, string[]>, filterLabels: Record<string, { value: string; label: string }[]>) => void;
+    isCollapsed?: boolean;
+    setIsCollapsed?: (collapsed: boolean) => void;
 }) {
     const [filterGroups, setFilterGroups] = useState<FilterGroupData[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
+
+    // INTERNAL sync if props not provided (fallback)
+    const [internalIsCollapsed, setInternalIsCollapsed] = useState(false);
+    const isCollapsed = externalIsCollapsed !== undefined ? externalIsCollapsed : internalIsCollapsed;
+    const setIsCollapsed = setExternalIsCollapsed !== undefined ? setExternalIsCollapsed : setInternalIsCollapsed;
 
     const filtersRef = useRef(selectedFilters);
     filtersRef.current = selectedFilters;
@@ -167,7 +176,6 @@ export default function SidebarFilter({
         onFilterChange?.({}, {});
     };
 
-    const [isCollapsed, setIsCollapsed] = useState(false);
 
     return (
         <aside className={`${isCollapsed ? "w-[50px]" : "w-[300px]"} flex-shrink-0 bg-white border-r border-gray-200 h-[calc(100vh-64px)] overflow-hidden flex flex-col sticky top-16 z-20 transition-all duration-300 ease-in-out`}>
@@ -249,12 +257,7 @@ export default function SidebarFilter({
                 </>
             )}
 
-            <style jsx>{`
-                .custom-scrollbar::-webkit-scrollbar { width: 4px; }
-                .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-                .custom-scrollbar::-webkit-scrollbar-thumb { background: #e5e7eb; border-radius: 4px; }
-                .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #d1d5db; }
-            `}</style>
+
         </aside>
     );
 }

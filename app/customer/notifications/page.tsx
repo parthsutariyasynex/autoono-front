@@ -241,16 +241,6 @@ export default function NotificationsPage() {
                 </div>
             </div>
 
-            <style jsx>{`
-                @import url('https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700;900&display=swap');
-                
-                table { border-spacing: 0; }
-                tr:last-child td { border-bottom: 0; }
-                
-                aside nav {
-                    min-height: 400px;
-                }
-            `}</style>
         </div>
     );
 }

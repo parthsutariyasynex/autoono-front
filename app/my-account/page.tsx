@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useRouter, usePathname } from "next/navigation";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState, AppDispatch } from "@/store/store";
 import { fetchCustomerInfo } from "@/store/actions/customerActions";
@@ -31,10 +31,26 @@ type Address = {
 
 export default function MyAccountPage() {
     const router = useRouter();
+    const pathname = usePathname();
     const dispatch = useDispatch<AppDispatch>();
     const { data: session, status } = useSession();
     const { data: customer, loading } = useSelector((state: RootState) => state.customer);
     const token = useSelector((state: RootState) => state.auth.token);
+
+    const [isSubAccountSession, setIsSubAccountSession] = useState(false);
+
+    useEffect(() => {
+        if (typeof window !== "undefined") {
+            const isSub = localStorage.getItem("isSubAccount") === "true";
+            setIsSubAccountSession(isSub);
+
+            // Redirect sub-account users to their dedicated page
+            if (isSub) {
+                router.replace("/subaccount/my-account");
+                return;
+            }
+        }
+    }, [pathname, router]);
 
     useEffect(() => {
         if (status === "unauthenticated") {
@@ -114,6 +130,14 @@ export default function MyAccountPage() {
 
                 {/* Right Content */}
                 <main className="flex-1 p-8 bg-white max-w-[1200px]">
+
+                    {/* Sub-account Identity Banner */}
+                    {isSubAccountSession && (
+                        <div className="bg-[#e7f6e7] border-l-4 border-[#2d8a2d] text-[#1b5e20] p-4 mb-8 flex items-center gap-3 animate-in fade-in slide-in-from-top duration-500 shadow-sm" role="alert">
+                            <span className="text-[#2d8a2d] font-bold text-lg">✔</span>
+                            <p className="text-[14px] font-medium tracking-tight">You are logged as subaccount now.</p>
+                        </div>
+                    )}
 
                     <h1 className="text-2xl font-bold text-black mb-6 uppercase tracking-wide">
                         MY ACCOUNT
@@ -273,9 +297,7 @@ export default function MyAccountPage() {
                 </main>
             </div>
 
-            <style jsx>{`
-                @import url('https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;700;900&display=swap');
-            `}</style>
+
         </div>
     );
 }

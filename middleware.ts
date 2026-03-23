@@ -14,7 +14,7 @@ export async function middleware(request: NextRequest) {
   }
 
   // Protect private routes
-  const protectedRoutes = ["/products", "/customer", "/my-account", "/catalogue"];
+  const protectedRoutes = ["/products", "/customer", "/my-account", "/catalogue", "/subaccount"];
   const isProtected = protectedRoutes.some((route) => pathname.startsWith(route));
 
   if (isProtected) {

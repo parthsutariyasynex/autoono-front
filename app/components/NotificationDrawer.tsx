@@ -153,21 +153,7 @@ export default function NotificationDrawer({ isOpen, onClose }: NotificationDraw
                 </div>
             </div>
 
-            <style jsx>{`
-                .custom-scrollbar::-webkit-scrollbar {
-                    width: 5px;
-                }
-                .custom-scrollbar::-webkit-scrollbar-track {
-                    background: transparent;
-                }
-                .custom-scrollbar::-webkit-scrollbar-thumb {
-                    background: #eee;
-                    border-radius: 10px;
-                }
-                .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-                    background: #ddd;
-                }
-            `}</style>
+
         </div>
     );
 }

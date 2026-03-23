@@ -13,49 +13,52 @@ body {
   font-family: 'Open Sans', Arial, Helvetica, sans-serif;
 }
 
-.rubik-sans {
-  font-family: 'Rubik', sans-serif;
-}
+@layer utilities {
+  .rubik-sans {
+    font-family: 'Rubik', sans-serif;
+  }
 
-.tracking-premium {
-  letter-spacing: 0.6px;
-}
+  .tracking-premium {
+    letter-spacing: 0.6px;
+  }
 
-/* Custom Scrollbars */
-.card-scrollbar::-webkit-scrollbar {
-  width: 10px;
-}
+  /* Custom Scrollbars */
+  .card-scrollbar::-webkit-scrollbar {
+    width: 10px;
+  }
 
-.card-scrollbar::-webkit-scrollbar-track {
-  background: #f1f1f1;
-  border-radius: 10px;
-}
+  .card-scrollbar::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+  }
 
-.card-scrollbar::-webkit-scrollbar-thumb {
-  background: #888;
-  border-radius: 10px;
-  border: 2px solid #f1f1f1;
-}
+  .card-scrollbar::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 10px;
+    border: 2px solid #f1f1f1;
+  }
 
-.card-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: #555;
-}
+  .card-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #555;
+  }
 
-.custom-scrollbar::-webkit-scrollbar {
-  width: 4px;
-}
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+  }
 
-.custom-scrollbar::-webkit-scrollbar-track {
-  background: transparent;
-}
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
 
-.custom-scrollbar::-webkit-scrollbar-thumb {
-  background: #E5E7EB;
-  border-radius: 10px;
-}
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #E5E7EB;
+    border-radius: 20px;
+  }
 
-.custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: #D1D5DB;
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #D1D5DB;
+  }
 }
 
 /* --- Retro DatePicker (Grid Style) --- */
