@@ -90,8 +90,6 @@ export default function ProductsPage() {
 
   /* ── Load Products ── */
   useEffect(() => {
-    if (!checkAuth(router)) return;
-
     const abortController = new AbortController();
 
     const loadProducts = async () => {
@@ -99,9 +97,29 @@ export default function ProductsPage() {
         setLoading(true);
         setError("");
 
-        const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+        // Get token from localStorage OR from session
+        let token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+
+        // If no localStorage token, try fetching from NextAuth session
+        if (!token) {
+          try {
+            const sessionRes = await fetch("/api/auth/session");
+            const sessionData = await sessionRes.json();
+            if (sessionData?.accessToken) {
+              token = sessionData.accessToken;
+              localStorage.setItem("token", token as string);
+            }
+          } catch {}
+        }
+
+        // If still no token, redirect to login
+        if (!token) {
+          router.replace("/login");
+          return;
+        }
+
         const headers: HeadersInit = { "Content-Type": "application/json" };
-        if (token) headers["Authorization"] = `Bearer ${token}`;
+        headers["Authorization"] = `Bearer ${token}`;
 
         const params = new URLSearchParams();
         params.append("categoryId", "5");
