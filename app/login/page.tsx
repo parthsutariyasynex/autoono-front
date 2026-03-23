@@ -4,7 +4,7 @@ import "intl-tel-input/build/css/intlTelInput.css";
 import { useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { signIn, useSession } from "next-auth/react";
+import { signIn, useSession, getSession } from "next-auth/react";
 import toast from "react-hot-toast";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { sendOtp } from "@/store/actions/authActions";
@@ -103,6 +103,11 @@ export default function LoginPage() {
         });
 
         if (res?.ok) {
+          // Store token in localStorage for API calls
+          const session: any = await getSession();
+          if (session?.accessToken) {
+            localStorage.setItem("token", session.accessToken);
+          }
           toast.success("Login Successful");
           router.replace("/products");
         } else {
@@ -124,6 +129,11 @@ export default function LoginPage() {
         });
 
         if (res?.ok) {
+          // Store token in localStorage for API calls
+          const session: any = await getSession();
+          if (session?.accessToken) {
+            localStorage.setItem("token", session.accessToken);
+          }
           toast.success("Login Successful");
           router.replace("/products");
         } else {
