@@ -7,7 +7,7 @@ export function Header() {
         <div className="flex-1 flex justify-start">
           <div className="h-10 flex items-center">
             <img
-              src="/images/btire-logo.png"
+              src="/logo/btire-logo-horizontal.svg"
               alt="BTire"
               className="h-10 w-auto object-contain"
             />
@@ -17,7 +17,7 @@ export function Header() {
         <div className="flex-1 flex justify-center">
           <div className="h-12 flex items-center">
             <img
-              src="/images/bridgestone-altalayi.png"
+              src="/logo/atcl-bridgestone-logo-v1.jpg"
               alt="Bridgestone Altalayi"
               className="h-12 w-auto object-contain"
             />

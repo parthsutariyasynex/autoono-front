@@ -13,8 +13,6 @@ export async function GET(request: Request) {
 
         const magentoUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/subaccounts`;
 
-        console.log(`[API ROUTE] Fetching Sub Accounts from: ${magentoUrl}`);
-
         const response = await fetch(magentoUrl, {
             method: 'GET',
             headers: {
@@ -28,14 +26,12 @@ export async function GET(request: Request) {
         const data = await response.json();
 
         if (!response.ok) {
-            console.error(`[API ROUTE ERROR] Magento returned ${response.status}:`, data);
             return NextResponse.json(data, { status: response.status });
         }
 
         return NextResponse.json(data, { status: 200 });
 
     } catch (error: any) {
-        console.error('[API ROUTE ERROR] Sub Accounts GET Catch:', error);
         return NextResponse.json(
             { message: error.message || 'Server-side error fetching sub accounts.' },
             { status: 500 }

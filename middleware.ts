@@ -1,49 +1,69 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getToken } from "next-auth/jwt";
 
+// Routes that DON'T need authentication
+const PUBLIC_ROUTES = ["/login", "/register", "/forgot-password"];
+
+// Static assets and API routes to skip entirely
+const SKIP_PATHS = ["/api", "/_next", "/favicon.ico", "/logo", "/images"];
+
 export async function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl;
+    const { pathname } = request.nextUrl;
 
-  // Keep <img src="/images/..."> stable while serving the real files you already have.
-  if (pathname === "/images/btire-logo.png") {
-    return NextResponse.rewrite(new URL("/logo/btire-logo-horizontal.svg", request.url));
-  }
-
-  if (pathname === "/images/bridgestone-altalayi.png") {
-    return NextResponse.rewrite(new URL("/logo/atcl-bridgestone-logo-v1.jpg", request.url));
-  }
-
-  // Protect private routes
-  const protectedRoutes = ["/products", "/customer", "/my-account", "/catalogue", "/subaccount"];
-  const isProtected = protectedRoutes.some((route) => pathname.startsWith(route));
-
-  if (isProtected) {
-    const token = await getToken({
-      req: request,
-      secret: process.env.NEXTAUTH_SECRET || "yoursecret",
-    });
-
-    if (!token) {
-      const loginUrl = new URL("/login", request.url);
-      return NextResponse.redirect(loginUrl);
+    // --- Skip static assets and API routes ---
+    if (SKIP_PATHS.some((path) => pathname.startsWith(path))) {
+        return NextResponse.next();
     }
-  }
 
-  return NextResponse.next();
+    // --- Allow public routes ---
+    if (PUBLIC_ROUTES.some((route) => pathname.startsWith(route))) {
+        return NextResponse.next();
+    }
+
+    // --- Check authentication for ALL other routes ---
+
+    // Method 1: Check NextAuth JWT cookie
+    let isAuthenticated = false;
+    try {
+        const token = await getToken({
+            req: request,
+            secret: process.env.NEXTAUTH_SECRET,
+        });
+        if (token?.accessToken) {
+            isAuthenticated = true;
+        }
+    } catch { }
+
+    // Method 2: Check custom auth-token cookie (set during login)
+    if (!isAuthenticated) {
+        const authCookie = request.cookies.get("auth-token");
+        if (authCookie?.value && authCookie.value !== "null" && authCookie.value !== "undefined") {
+            isAuthenticated = true;
+        }
+    }
+
+    // Not authenticated → redirect to login
+    if (!isAuthenticated) {
+        const loginUrl = new URL("/login", request.url);
+        // Save the original URL so we can redirect back after login
+        loginUrl.searchParams.set("callbackUrl", pathname);
+        return NextResponse.redirect(loginUrl);
+    }
+
+    return NextResponse.next();
 }
 
 export const config = {
-  matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - api (API routes)
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * - login (login page)
-     * - logo (logo directory)
-     */
-    "/((?!api|_next/static|_next/image|favicon.ico|login|logo).*)",
-  ],
+    matcher: [
+        /*
+         * Match all routes except:
+         * - api (API routes)
+         * - _next/static (static files)
+         * - _next/image (image optimization)
+         * - favicon.ico
+         * - logo directory
+         * - images directory
+         */
+        "/((?!api|_next/static|_next/image|favicon.ico|logo|images).*)",
+    ],
 };
-

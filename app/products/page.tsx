@@ -33,6 +33,7 @@ export default function ProductsPage() {
   const [sortBy, setSortBy] = useState<string>("none");
   const [selectedFilters, setSelectedFilters] = useState<Record<string, string[]>>({});
   const [selectedFilterLabels, setSelectedFilterLabels] = useState<Record<string, { value: string; label: string }[]>>({});
+  const [apiFilters, setApiFilters] = useState<any[] | null>(null);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
   // Image Modal State
@@ -109,7 +110,7 @@ export default function ProductsPage() {
               token = sessionData.accessToken;
               localStorage.setItem("token", token as string);
             }
-          } catch {}
+          } catch { }
         }
 
         // If still no token, redirect to login
@@ -151,6 +152,7 @@ export default function ProductsPage() {
         if (abortController.signal.aborted) return;
         setProducts(productArray);
         setTotalCount(total);
+        if (data.filters) setApiFilters(data.filters);
       } catch (err: unknown) {
         if (err instanceof Error && err.name === "AbortError") return;
         setError("Unable to load products. Please try again.");
@@ -231,14 +233,13 @@ export default function ProductsPage() {
       result = result.filter(p => favIds.includes(p.product_id));
     }
 
-    const hasOfferFilter = Object.keys(selectedFilters).some(key =>
-      key.toLowerCase().includes('offer') || key.toLowerCase().includes('promotion') || key.toLowerCase().includes('pormotion')
-    );
-
-    if (hasOfferFilter) {
-      result = result.filter(p => p.offer && p.offer !== "");
+    // Client-side filtering for "offers" group (backend doesn't support this code natively)
+    const selectedOffers = selectedFilters["offers"];
+    if (selectedOffers && selectedOffers.length > 0) {
+      result = result.filter(p => p?.offer && selectedOffers.some((o: string) => o === p.offer));
     }
 
+    // Sorting only — other filtering is handled by the API
     if (sortBy === "price-asc") return result.sort((a, b) => (a.final_price ?? 0) - (b.final_price ?? 0));
     if (sortBy === "price-desc") return result.sort((a, b) => (b.final_price ?? 0) - (a.final_price ?? 0));
     return result;
@@ -273,6 +274,7 @@ export default function ProductsPage() {
           selectedFilters={selectedFilters}
           isCollapsed={isSidebarCollapsed}
           setIsCollapsed={setIsSidebarCollapsed}
+          initialFilters={apiFilters}
         />
 
         <div className="flex-1 flex flex-col p-4 md:p-6 pb-28">
@@ -347,7 +349,7 @@ export default function ProductsPage() {
                     </tr>
                   ) : (
                     sortedProducts.map((product, index) => {
-                      const brandName = product?.name ? product.name.split(' ')[0] : "N/A";
+                      const brandName = product?.brand || (product?.name ? product.name.split(' ')[0] : "N/A");
                       const isOutOfStock = product.stock_status === "Not Available" || Number(product?.stock_qty ?? 0) <= 0;
 
                       return (

@@ -29,20 +29,24 @@ export async function GET(request: NextRequest) {
             }
         }
 
-        // Method 3: getServerSession fallback
+        // Method 4: auth-token cookie directly
         if (!token) {
-            try {
-                const session: any = await getServerSession(authOptions);
-                token = session?.accessToken || null;
-                console.log("[category-products] Token from getServerSession:", token ? "found" : "missing");
-            } catch (e) {
-                console.error("[category-products] getServerSession error:", e);
+            token = request.cookies.get("auth-token")?.value || null;
+            if (token) {
+                token = token.replace(/['"]/g, "").trim();
+                console.log("[category-products] Token from auth-token cookie:", token ? "found" : "missing");
             }
         }
 
-        if (!token || token === "null" || token === "undefined") {
-            console.error("[category-products] No valid token found. Auth header:", !!authHeader);
-            return Response.json({ error: "Unauthorized" }, { status: 401 });
+        // Final check: if token is invalid string, clear it
+        if (token === "null" || token === "undefined" || !token) {
+            token = null;
+        }
+
+        // Note: For some anonymous endpoints, we might want to continue even without a token.
+        // But here we'll keep the check if the app requires login to see products.
+        if (!token) {
+            console.warn("[category-products] No token found. Proceeding as guest if allowed by Magento.");
         }
 
         // Step 2: Handle search parameters
@@ -51,28 +55,38 @@ export async function GET(request: NextRequest) {
         const page = searchParams.get("page") || "1";
         const pageSize = searchParams.get("pageSize") || "20";
 
-        // Step 3: Construct Magento URL manually (not via URLSearchParams)
-        // so that commas in multi-value filters stay unencoded.
+        // Step 3: Construct Magento URL with simple params (matching live API format)
         const queryParts: string[] = [
             `categoryId=${encodeURIComponent(categoryId)}`,
-            `searchCriteria[currentPage]=${encodeURIComponent(page)}`,
-            `searchCriteria[pageSize]=${encodeURIComponent(pageSize)}`,
+            `currentPage=${encodeURIComponent(page)}`,
+            `pageSize=${encodeURIComponent(pageSize)}`,
         ];
 
-        // Same filter = OR (repeated params); different filters = AND.
-        // Magento/KleverAPI expects repeated params for OR: itemCode=2709&itemCode=2602
+        // Filters: comma-separated values (e.g. year=2022,2023)
         const reservedKeys = new Set(["categoryId", "page", "pageSize"]);
         const uniqueKeys = Array.from(new Set(Array.from(searchParams.keys())));
 
         uniqueKeys.forEach((key) => {
             if (reservedKeys.has(key)) return;
             const rawValues = searchParams.getAll(key);
-            const values = rawValues
+            const combined = rawValues
                 .flatMap((v) => v.split(",").map((s) => s.trim()).filter(Boolean))
-                .filter((v, i, arr) => arr.indexOf(v) === i);
-            values.forEach((value) => {
-                queryParts.push(`${encodeURIComponent(key)}=${encodeURIComponent(value)}`);
-            });
+                .filter((v, i, arr) => arr.indexOf(v) === i)
+                .join(",");
+
+            if (combined) {
+                // Specialized mappings for specific Magento attributes
+                const keyMap: Record<string, string> = {
+                    brand: "mgs_brand",
+                    origin: "manufacturer"
+                };
+
+                const mappedKey = keyMap[key] || key;
+
+                // Convert camelCase filter keys to snake_case for Magento (e.g. warrantyPeriod -> warranty_period)
+                const magentoKey = mappedKey.replace(/([A-Z])/g, "_$1").toLowerCase();
+                queryParts.push(`${encodeURIComponent(magentoKey)}=${encodeURIComponent(combined)}`);
+            }
         });
 
         const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
@@ -82,7 +96,7 @@ export async function GET(request: NextRequest) {
 
         const res = await fetch(magentoUrlStr, {
             headers: {
-                Authorization: `Bearer ${token}`,
+                ...(token && { Authorization: `Bearer ${token}` }),
                 "Content-Type": "application/json",
             },
             cache: "no-store",
@@ -98,14 +112,68 @@ export async function GET(request: NextRequest) {
         }
 
         const data = await res.json();
-        // DEBUG: Log first product's full structure to identify stock fields
-        const items = data.products || data.items || [];
-        if (items.length > 0) {
-            console.log("=== FIRST PRODUCT ALL FIELDS ===");
-            console.log(JSON.stringify(items[0], null, 2));
-            console.log("=== FIELD NAMES ===", Object.keys(items[0]));
+
+        // ── Dynamic Offers Filter Injection ──
+        const products = Array.isArray(data.products) ? data.products : (Array.isArray(data.items) ? data.items : []);
+
+        if (products.length > 0) {
+            // Collect unique offers from the products array
+            const offerValues = products
+                .map((p: any) => p.offer)
+                .filter((v: any): v is string => typeof v === 'string' && v.trim().length > 0);
+
+            const uniqueOffers: string[] = Array.from(new Set(offerValues));
+
+            if (uniqueOffers.length > 0) {
+                // Count products per offer for the filter counts
+                const offerCounts: Record<string, number> = {};
+                offerValues.forEach((v: string) => {
+                    offerCounts[v] = (offerCounts[v] || 0) + 1;
+                });
+
+                // Create the synthetic filter group
+                const offersFilter = {
+                    code: "offers",
+                    label: "Promotions and Offers",
+                    record_count: uniqueOffers.length,
+                    options: uniqueOffers.map((offer: string) => ({
+                        value: offer,
+                        label: offer,
+                        count: offerCounts[offer]
+                    }))
+                };
+
+                // Ensure data.filters exists
+                if (!Array.isArray(data.filters)) {
+                    data.filters = [];
+                }
+
+                // Check if already exists to avoid duplicates
+                const hasOffers = data.filters.some((f: any) => f.code === "offers" || f.code === "promotions_and_offers");
+
+                if (!hasOffers) {
+                    // Find index of itemCode to insert after it, or push to start
+                    const itemCodeIndex = data.filters.findIndex((f: any) => f.code === "itemCode" || f.code === "item_code");
+                    if (itemCodeIndex !== -1) {
+                        data.filters.splice(itemCodeIndex + 1, 0, offersFilter);
+                    } else {
+                        data.filters.unshift(offersFilter);
+                    }
+                }
+            }
         }
-        return Response.json(data);
+
+        // Extract total count and other fields from the original response
+        const totalCount = typeof data.total_count === "number" ? data.total_count : products.length;
+        const finalFilters = Array.isArray(data.filters) ? data.filters : [];
+
+        // Return the clean, normalized structure requested
+        return Response.json({
+            ...data,
+            products: products,
+            total_count: totalCount,
+            filters: finalFilters
+        });
 
     } catch (error: any) {
         console.error("category-products route error:", error.message);

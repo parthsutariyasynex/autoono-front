@@ -20,17 +20,58 @@ export default function SidebarFilter({
     selectedFilters = {},
     onFilterChange,
     isCollapsed: externalIsCollapsed,
-    setIsCollapsed: setExternalIsCollapsed
+    setIsCollapsed: setExternalIsCollapsed,
+    initialFilters = null
 }: {
     categoryId?: string;
     selectedFilters?: Record<string, string[]>;
     onFilterChange?: (filters: Record<string, string[]>, filterLabels: Record<string, { value: string; label: string }[]>) => void;
     isCollapsed?: boolean;
     setIsCollapsed?: (collapsed: boolean) => void;
+    initialFilters?: any[] | null;
 }) {
     const [filterGroups, setFilterGroups] = useState<FilterGroupData[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
+
+    // Sync filters if they come from parent (e.g. ProductsPage API response)
+    useEffect(() => {
+        if (initialFilters && Array.isArray(initialFilters)) {
+            const mappedFilters: FilterGroupData[] = initialFilters.map((g: any) => ({
+                code: g.code || g.attribute_code || "",
+                label: g.label || g.name || "",
+                options: (g.options || []).map((o: any) => ({
+                    value: String(o.value ?? ""),
+                    label: String(o.label ?? o.value ?? ""),
+                    count: Number(o.count ?? 0),
+                })),
+            }));
+
+            // Deduplicate by label (case-insensitive)
+            const uniqueFilters: FilterGroupData[] = [];
+            const labelToIndexMapping = new Map<string, number>();
+
+            mappedFilters.forEach(g => {
+                const label = (g.label || "").toLowerCase().trim();
+                if (!label) return;
+
+                if (labelToIndexMapping.has(label)) {
+                    const existingIdx = labelToIndexMapping.get(label)!;
+                    const existingGroup = uniqueFilters[existingIdx];
+
+                    // Preference rule: prioritize 'manufacturer' over 'origin' for Magento
+                    if (g.code === "manufacturer" && existingGroup.code === "origin") {
+                        uniqueFilters[existingIdx] = g;
+                    }
+                } else {
+                    labelToIndexMapping.set(label, uniqueFilters.length);
+                    uniqueFilters.push(g);
+                }
+            });
+
+            setFilterGroups(uniqueFilters);
+        }
+    }, [initialFilters]);
 
     // INTERNAL sync if props not provided (fallback)
     const [internalIsCollapsed, setInternalIsCollapsed] = useState(false);
@@ -56,7 +97,7 @@ export default function SidebarFilter({
 
                 const res = await fetch(`/api/filters?categoryId=${categoryId}`, {
                     headers,
-                    cache: 'no-store'
+                    cache: 'no-store',
                 });
 
                 if (!res.ok) {
@@ -65,8 +106,52 @@ export default function SidebarFilter({
                 }
 
                 const data = await res.json();
-                const fetchedFilters = data.filters || [];
-                setFilterGroups(fetchedFilters);
+                // Handle all possible API response formats
+                const rawFilters = Array.isArray(data)
+                    ? data
+                    : (data.filters || data.data || data.items || []);
+
+                // Normalize: API may return attribute_code instead of code
+                const fetchedFilters: FilterGroupData[] = rawFilters.map((g: any) => ({
+                    code: g.code || g.attribute_code || "",
+                    label: g.label || g.name || "",
+                    options: (g.options || []).map((o: any) => ({
+                        value: String(o.value ?? ""),
+                        label: String(o.label ?? o.value ?? ""),
+                        count: Number(o.count ?? 0),
+                    })),
+                }));
+
+                // Deduplicate by label (case-insensitive) - fix for duplicate "Origin"
+                const uniqueFetchedFilters: FilterGroupData[] = [];
+                const labelToIndexMapping = new Map<string, number>();
+
+                fetchedFilters.forEach(g => {
+                    const label = (g.label || "").toLowerCase().trim();
+                    if (!label) return;
+
+                    if (labelToIndexMapping.has(label)) {
+                        const existingIdx = labelToIndexMapping.get(label)!;
+                        const existingGroup = uniqueFetchedFilters[existingIdx];
+
+                        // Preference rule: if new group is 'manufacturer' but existing is 'origin'
+                        // Magento often uses 'manufacturer' for actual Origin/Country filtering.
+                        if (g.code === "manufacturer" && existingGroup.code === "origin") {
+                            uniqueFetchedFilters[existingIdx] = g;
+                        }
+                        // Otherwise keep the first one found
+                    } else {
+                        labelToIndexMapping.set(label, uniqueFetchedFilters.length);
+                        uniqueFetchedFilters.push(g);
+                    }
+                });
+
+                // DEBUG: Log final unique filter group labels
+                console.log("[SidebarFilter] Unique filter groups:",
+                    uniqueFetchedFilters.map((g) => ({ code: g.code, label: g.label }))
+                );
+
+                setFilterGroups(uniqueFetchedFilters);
 
                 if (fetchedFilters.length > 0) {
                     const initialExpanded: Record<string, boolean> = {};
@@ -125,34 +210,56 @@ export default function SidebarFilter({
         onFilterChange?.(nextState, nextLabels);
     }, [onFilterChange, filterGroups]);
 
-    const REDUCED_GROUPS = [
-        "Item Code",
-        "Promotions and Offers",
-        "Year",
-        "Origin",
-        "Types"
-    ];
-
     const isAnyFilterSelected = Object.keys(selectedFilters).length > 0;
+
+    // Match live site: when a filter is selected, show relevant groups
+    // Actual API codes are camelCase: itemCode, brand, productGroup, tyreSize, pattern,
+    // warrantyPeriod, year, origin, types, oemMarking, newArrivals, offers
+    const RELEVANT_CODES = new Set([
+        // camelCase (from Magento API)
+        "itemCode", "itemcode", "item_code",
+        "offers", "promotions_and_offers", "promotions", "pormotion_and_offers",
+        "year",
+        "origin",
+        "manufacturer",
+        "types",
+        "brand",
+        "productGroup", "product_group",
+        "tyreSize", "tyre_size",
+        "pattern",
+        "warrantyPeriod", "warranty_period",
+        "oemMarking", "oem_marking",
+        "newArrivals", "new_arrivals",
+    ]);
+    const RELEVANT_LABELS = [
+        "item code",
+        "promotions and offers", "promotion", "offer", "pormotion",
+        "year",
+        "origin",
+        "types",
+        "brand",
+        "product group",
+        "tyre size",
+        "pattern",
+        "warranty",
+        "oem",
+        "new arrivals",
+    ];
 
     const visibleFilterGroups = !isAnyFilterSelected
         ? filterGroups
         : filterGroups.filter(g => {
-            const label = g.label.toLowerCase();
-            return REDUCED_GROUPS.some(rg => {
-                const target = rg.toLowerCase();
-                // 1. Direct match (case insensitive)
-                if (label === target) return true;
-                // 2. Special handling for "Promotions and Offers" - matching variations
-                if (target === "promotions and offers") {
-                    return label.includes("promotion") || label.includes("offer") || label.includes("pormotion");
-                }
-                // 3. Special handling for "Item Code" - matching common SKU/Code labels
-                if (target === "item code") {
-                    return label.includes("item code") || label.includes("item_code") || label === "sku";
-                }
-                return false;
-            });
+            const label = (g.label || "").toLowerCase().trim();
+            const code = (g.code || "").toLowerCase().trim();
+
+            // Always show groups that have active selections
+            if (selectedFilters[g.code]?.length > 0) return true;
+
+            // Match by exact code (case-sensitive check first, then lowercase)
+            if (RELEVANT_CODES.has(g.code) || RELEVANT_CODES.has(code)) return true;
+
+            // Match by label (includes for partial matches)
+            return RELEVANT_LABELS.some(rg => label === rg || label.includes(rg));
         });
 
     // Flatten selected filters for chips
@@ -327,7 +434,9 @@ function FilterGroup({
                     )}
 
                     <div className="overflow-y-auto max-h-[300px] custom-scrollbar pr-2 flex flex-col gap-2.5">
-                        {filteredOptions.length > 0 ? (
+                        {(group.options?.length ?? 0) === 0 ? (
+                            <div className="text-[11px] text-gray-400 italic py-2 text-center">No options available</div>
+                        ) : filteredOptions.length > 0 ? (
                             filteredOptions.map((option) => {
                                 const isChecked = selectedValues.includes(option.value);
 
@@ -353,7 +462,7 @@ function FilterGroup({
                                             </span>
                                         </div>
                                         <span className="text-[10px] font-bold text-gray-400 bg-gray-50 px-1.5 py-0.5 rounded border border-gray-100 group-hover/label:bg-gray-100 transition-colors">
-                                            {option.count}
+                                            {option.count ?? 0}
                                         </span>
                                     </label>
                                 );
