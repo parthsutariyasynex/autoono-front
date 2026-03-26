@@ -4,6 +4,8 @@ import React, { useState } from "react";
 import { X, Minus, Plus } from "lucide-react";
 import Link from "next/link";
 import { CartItem as CartItemType } from "@/modules/cart/hooks/useCart";
+import Price from "@/app/components/Price";
+
 
 interface CartItemProps {
     item: CartItemType;
@@ -76,9 +78,10 @@ const CartItem: React.FC<CartItemProps> = ({ item, currencyCode, onUpdateQty, on
                 {/* Price Column */}
                 <div className="w-full md:w-1/6 text-center md:ml-4">
                     <span className="text-xs text-gray-400 font-bold uppercase md:hidden mr-2">Price:</span>
-                    <span className="text-[15px] font-black text-gray-900 tracking-tight">
-                        ﷼ {item.price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    <span className="text-[15px] font-black text-gray-900 tracking-tight price currency-riyal">
+                        <Price amount={item.price} />
                     </span>
+
                 </div>
 
                 {/* Qty Column */}
@@ -112,9 +115,10 @@ const CartItem: React.FC<CartItemProps> = ({ item, currencyCode, onUpdateQty, on
                 {/* Total Column */}
                 <div className="w-full md:w-1/6 text-center md:-mr-4">
                     <span className="text-xs text-gray-400 font-bold uppercase md:hidden mr-2">Total:</span>
-                    <span className="text-[16px] font-black text-black tracking-tight">
-                        ﷼ {item.row_total.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    <span className="text-[16px] font-black text-black tracking-tight price currency-riyal">
+                        <Price amount={item.row_total} />
                     </span>
+
                 </div>
             </div>
         </div>

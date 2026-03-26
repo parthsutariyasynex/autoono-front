@@ -5,6 +5,8 @@ import { formatPrice } from "@/utils/helpers";
 import { toast } from "react-hot-toast";
 import { getSession } from "next-auth/react";
 import Drawer from "./Drawer";
+import Price from "./Price";
+
 
 interface ProductEnquiryModalProps {
     productSku: string;
@@ -106,38 +108,29 @@ export default function ProductEnquiryModal({
                 </div>
 
                 <form onSubmit={handleSubmit} className="p-8 space-y-6 overflow-y-auto flex-1 pb-10">
-                    {/* Product Name (Read only) */}
-                    <div className="space-y-2">
-                        <label className="text-xs font-bold text-gray-500 uppercase tracking-wider ml-0.5">Product Name</label>
-                        <div className="text-[15px] text-black font-semibold leading-snug bg-gray-50 p-4 rounded-lg border border-gray-100">
-                            {productName}
+                    {/* Product Info Section (Matches provided Image Layout) */}
+                    <div className="px-1 space-y-5">
+                        <div className="space-y-1">
+                            <h3 className="text-[16px] font-bold text-black leading-none">Name</h3>
+                            <p className="text-[15px] text-black leading-snug truncate-none">
+                                {productName}
+                            </p>
                         </div>
-                    </div>
 
-                    {/* Derived Details Display */}
-                    <div className="grid grid-cols-2 gap-4 bg-gray-50 p-5 rounded-lg border border-gray-100">
-                        <div className="space-y-0.5">
-                            <span className="text-[10px] text-gray-400 block uppercase font-black tracking-widest">Brand</span>
-                            <span className="text-[14px] font-bold text-gray-800">{productDetails.brand}</span>
-                        </div>
-                        <div className="space-y-0.5">
-                            <span className="text-[10px] text-gray-400 block uppercase font-black tracking-widest">Size</span>
-                            <span className="text-[14px] font-bold text-gray-800">{productDetails.size}</span>
-                        </div>
-                        <div className="space-y-0.5">
-                            <span className="text-[10px] text-gray-400 block uppercase font-black tracking-widest">Pattern</span>
-                            <span className="text-[14px] font-bold text-gray-800">{productDetails.pattern}</span>
-                        </div>
-                        <div className="space-y-0.5">
-                            <span className="text-[10px] text-gray-400 block uppercase font-black tracking-widest">Year</span>
-                            <span className="text-[14px] font-bold text-gray-800">{productDetails.year}</span>
+                        <div className="space-y-1">
+                            <h3 className="text-[16px] font-bold text-black leading-none">Price</h3>
+                            <div className="text-[18px] text-black price currency-riyal">
+
+                                <Price amount={productPrice} />
+
+                            </div>
                         </div>
                     </div>
 
                     <div className="space-y-6">
                         {/* Quantity */}
                         <div className="space-y-2">
-                            <label className="text-xs font-bold text-gray-700 uppercase tracking-widest ml-0.5">Order Quantity</label>
+                            <label className="text-[16px] font-bold text-black leading-none ml-0.5">Order Quantity</label>
                             <input
                                 required
                                 type="number"
@@ -150,7 +143,7 @@ export default function ProductEnquiryModal({
 
                         {/* Comment */}
                         <div className="space-y-2">
-                            <label className="text-xs font-bold text-gray-700 uppercase tracking-widest ml-0.5">Notes / Comments</label>
+                            <label className="text-[16px] font-bold text-black leading-none ml-0.5">Notes / Comments</label>
                             <textarea
                                 rows={4}
                                 placeholder="Any special requests or questions?"
@@ -183,7 +176,7 @@ export default function ProductEnquiryModal({
                         <button
                             type="submit"
                             disabled={isSubmitting}
-                            className="w-full py-4.5 px-10 bg-[#FFB82B] hover:bg-[#EAA71D] text-black font-black rounded-lg transition-all text-sm uppercase tracking-widest shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center min-h-[56px]"
+                            className="w-full py-4.5 px-10 bg-[#FFB82B] hover:bg-[#EAA71D] text-black font-black rounded-lg transition-all text-sm uppercase tracking-widest shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center min-h-[56px] cursor-pointer"
                         >
                             {isSubmitting ? (
                                 <div className="w-6 h-6 border-3 border-black border-t-transparent rounded-full animate-spin"></div>
@@ -193,13 +186,13 @@ export default function ProductEnquiryModal({
                         </button>
                     </div>
 
-                    <button
+                    {/* <button
                         type="button"
                         onClick={onClose}
-                        className="w-full py-4 text-center text-xs font-black text-gray-400 hover:text-gray-900 uppercase tracking-widest transition-colors mt-2"
+                        className="w-full py-4 text-center text-xs font-black text-gray-400 hover:text-gray-900 uppercase tracking-widest transition-colors mt-2 cursor-pointer"
                     >
                         Close Panel
-                    </button>
+                    </button> */}
                 </form>
             </div>
         </Drawer>

@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
+import Price from "../../components/Price";
+
 
 interface Product {
   product_id: number;
@@ -80,7 +82,8 @@ export default function CategoryProductsPage() {
               <h3 className="font-semibold text-lg">{product.name}</h3>
               <p className="text-sm text-gray-500">{product.tyre_size}</p>
               <p className="text-sm text-gray-500">{product.origin} — {product.year}</p>
-              <p className="font-bold text-xl mt-2">₹{product.final_price}</p>
+              <p className="font-bold text-xl mt-2 price currency-riyal"><Price amount={product.final_price} /></p>
+
               <p className={`text-sm mt-1 ${product.is_in_stock ? "text-green-600" : "text-red-500"}`}>
                 {product.is_in_stock ? `In Stock (${product.stock_qty})` : "Out of Stock"}
               </p>

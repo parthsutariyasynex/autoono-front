@@ -4,6 +4,9 @@ import { X, Trash2, Minus, Plus } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useCart } from "@/modules/cart/hooks/useCart";
 import Link from "next/link";
+import { formatPrice } from "@/utils/helpers";
+import Price from "./Price";
+
 
 interface CartDrawerProps {
     isOpen: boolean;
@@ -67,8 +70,10 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                         </div>
                         <div className="text-right">
                             <p className="text-xs text-gray-500 font-semibold uppercase tracking-wider">Subtotal</p>
-                            <p className="text-[17px] font-black text-[#003d7e]">
-                                ﷼ {cart?.subtotal?.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || "0.00"}
+                            <p className="text-[17px] font-black text-[#003d7e] price currency-riyal">
+
+                                <Price amount={cart?.subtotal || 0} />
+
                             </p>
                         </div>
                     </div>
@@ -111,8 +116,10 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                                             <h3 className="text-sm font-bold text-gray-900 leading-tight line-clamp-2">
                                                 {item.name}
                                             </h3>
-                                            <p className="text-[15px] font-black text-[#003d7e] mt-1">
-                                                ﷼ {item.price.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                                            <p className="text-[15px] font-black text-[#003d7e] mt-1 price currency-riyal">
+
+                                                <Price amount={item.price} />
+
                                             </p>
                                         </div>
 

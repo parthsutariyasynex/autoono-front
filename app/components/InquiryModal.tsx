@@ -5,6 +5,8 @@ import { Send } from "lucide-react";
 import { formatPrice } from "@/utils/helpers";
 import { toast } from "react-hot-toast";
 import Drawer from "./Drawer";
+import Price from "./Price";
+
 
 interface InquiryModalProps {
     product: any;
@@ -73,8 +75,9 @@ export default function InquiryModal({ product, isOpen, onClose }: InquiryModalP
                                         <p className="text-xs font-bold text-gray-700">{product.pattern || "N/A"}</p>
                                     </div>
                                     <div className="space-y-0.5">
-                                        <p className="text-[10px] text-gray-400 uppercase font-black tracking-widest">Price</p>
-                                        <p className="text-sm font-black text-yellow-600">{formatPrice(product.final_price || product.price)}</p>
+                                        <p className="text-sm font-black text-yellow-600 price currency-riyal"><Price amount={product.final_price || product.price} /></p>
+
+
                                     </div>
                                 </div>
                             </div>

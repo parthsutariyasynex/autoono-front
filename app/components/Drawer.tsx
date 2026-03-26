@@ -20,12 +20,28 @@ export default function Drawer({ isOpen, onClose, children, title }: DrawerProps
     useEffect(() => {
         if (isOpen) {
             setIsRendered(true);
+
+            // 🛑 Prevent Background Scroll + Layout Shift
+            const scrollBarWidth = window.innerWidth - document.documentElement.clientWidth;
             document.body.style.overflow = "hidden";
+            if (scrollBarWidth > 0) {
+                document.body.style.paddingRight = `${scrollBarWidth}px`;
+            }
         } else {
-            const timer = setTimeout(() => setIsRendered(false), 300);
-            document.body.style.overflow = "auto";
+            const timer = setTimeout(() => {
+                setIsRendered(false);
+                // 🟢 Restore Scroll when animation finishes
+                document.body.style.overflow = "";
+                document.body.style.paddingRight = "";
+            }, 300);
             return () => clearTimeout(timer);
         }
+
+        // Cleanup on unmount
+        return () => {
+            document.body.style.overflow = "";
+            document.body.style.paddingRight = "";
+        };
     }, [isOpen]);
 
     useEffect(() => {
@@ -35,7 +51,7 @@ export default function Drawer({ isOpen, onClose, children, title }: DrawerProps
         window.addEventListener("keydown", handleEsc);
         return () => {
             window.removeEventListener("keydown", handleEsc);
-            document.body.style.overflow = "auto";
+            document.body.style.overflow = "";
         };
     }, [onClose]);
 

@@ -207,3 +207,20 @@ body {
 .pickup-datepicker .react-datepicker-popper {
   z-index: 110 !important;
 }
+
+@font-face {
+  font-family: 'saudi-riyal';
+  src: url('/fonts/saudi-riyal 1.woff2') format('woff2'),
+    url('/fonts/saudi-riyal 1.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+.currency-riyal {
+  font-family: 'saudi-riyal' !important;
+  font-weight: normal;
+  font-style: normal;
+  position: relative;
+  top: 1px;
+}

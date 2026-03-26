@@ -1,0 +1,78 @@
+"use client";
+
+import { useEffect } from "react";
+
+/**
+ * React implementation of the global currency symbol replacement script.
+ * Replaces text placeholders (SAR, SR, \u0631.\u0633) with the custom 
+ * Saudi Riyal font icon (Unicode E900).
+ */
+export default function PriceIconObserver() {
+    useEffect(() => {
+        // Character mapped to the Riyal icon in the custom font
+        const riyalIcon = "\uE900";
+        // Classes targeted by the user script
+        const targetSelectors = [
+            '.price',
+            '.proprice',
+            '.offer-price',
+            '.single-tyre-price',
+            '.cart-price',
+            // Generic targeting for SAR text in any element if necessary
+            // Note: Too broad targeting can be slow, but let's stick to standard selectors
+        ];
+
+        function replaceSARWithIcon() {
+            targetSelectors.forEach(selector => {
+                document.querySelectorAll(selector).forEach(el => {
+                    // Skip if we already injected the icon span to avoid recursive loops
+                    if (el.querySelector('.currency-riyal')) return;
+
+                    const originalHTML = el.innerHTML;
+                    let newHTML = originalHTML;
+
+                    // Support multiple patterns (English and Arabic)
+                    const patterns = [
+                        { regex: /SAR/g, replacement: `<span class="currency-riyal">${riyalIcon}</span>` },
+                        { regex: /SR/g, replacement: `<span class="currency-riyal">${riyalIcon}</span>` },
+                        { regex: /\u200F?\u0631\.\u0633\.?\u200F?/g, replacement: `<span class="currency-riyal">${riyalIcon}</span>` }
+                    ];
+
+                    let changed = false;
+                    patterns.forEach(({ regex, replacement }) => {
+                        if (regex.test(newHTML)) {
+                            newHTML = newHTML.replace(regex, replacement);
+                            changed = true;
+                        }
+                    });
+
+                    if (changed) {
+                        el.innerHTML = newHTML;
+                    }
+                });
+            });
+        }
+
+        // MutationObserver ensures this works even on AJAX-loaded content
+        const observer = new MutationObserver((mutations) => {
+            let shouldRun = false;
+            for (const mutation of mutations) {
+                if (mutation.addedNodes.length > 0) {
+                    shouldRun = true;
+                    break;
+                }
+            }
+            if (shouldRun) replaceSARWithIcon();
+        });
+
+        observer.observe(document.body, { childList: true, subtree: true });
+
+        // Initial run
+        replaceSARWithIcon();
+
+        return () => observer.disconnect();
+    }, []);
+
+    // This component renders nothing, it just runs the background effect
+    return null;
+}

@@ -134,7 +134,7 @@ const MultiLocationDeliveryPage: React.FC = () => {
     if (!cart?.items || cart.items.length === 0) {
         return (
             <div className="bg-white min-h-screen font-sans">
-                
+
                 <div className="max-w-[1440px] mx-auto py-24 px-4 flex flex-col items-center text-center">
                     <h1 className="text-[28px] font-black text-black uppercase mb-12 tracking-wide">
                         SHOPPING CART
@@ -171,7 +171,7 @@ const MultiLocationDeliveryPage: React.FC = () => {
 
     return (
         <div className="bg-white min-h-screen font-sans pb-32">
-            
+
 
             <div className="max-w-[1440px] mx-auto py-12 px-4 sm:px-6 lg:px-10">
                 {/* Heading Block */}

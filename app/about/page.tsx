@@ -5,7 +5,7 @@ import React from "react";
 export default function AboutPage() {
     return (
         <div className="min-h-screen bg-white">
-            
+
 
             {/* Banner Section */}
             <div className="w-full h-[300px] md:h-[400px] lg:h-[500px]">

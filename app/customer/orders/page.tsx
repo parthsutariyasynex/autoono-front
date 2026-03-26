@@ -7,6 +7,7 @@ import OrdersTable, { Order } from "./components/OrdersTable";
 import Pagination from "./components/Pagination";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+// formatPrice removed — OrdersTable uses <Price> component directly
 
 /**
  * Maps any Magento order item to our Order interface.
@@ -39,9 +40,8 @@ function mapOrderItem(item: any): Order {
         }
     }
 
-    // Grand Total → "﷼ 5,836.25" matching live site (symbol before amount)
-    const amount = parseFloat(item.grand_total || item.total || 0);
-    const grandTotal = `\u0631.\u0633 ${amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}`;
+    // Pass raw amount — OrdersTable renders it via <Price> component with dirham font
+    const grandTotal = String(parseFloat(item.grand_total || item.total || 0));
 
     // Ordered By → show name if available, empty string if not (not "-")
     const orderedBy = item.ordered_by
@@ -172,7 +172,7 @@ export default function MyOrdersPage() {
 
     return (
         <div className="min-h-screen bg-white font-['Rubik'] pb-20">
-            
+
 
             <div className="max-w-[1440px] mx-auto px-6 py-10 mt-20">
                 <div className="flex flex-col md:flex-row gap-10 items-start">

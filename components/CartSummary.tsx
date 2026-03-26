@@ -2,6 +2,8 @@
 
 import React from "react";
 import { useRouter } from "next/navigation";
+import Price from "@/app/components/Price";
+
 
 interface CartSummaryProps {
     subtotal: number;
@@ -26,23 +28,26 @@ const CartSummary: React.FC<CartSummaryProps> = ({ subtotal, taxAmount, taxLabel
                 <div className="p-6 space-y-4">
                     <div className="flex justify-between items-center">
                         <span className="text-black font-black text-[14px] uppercase tracking-tight">Item(s) Total:</span>
-                        <span className="font-bold text-gray-800 text-[15px]">
-                            ﷼ {subtotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        <span className="font-bold text-gray-800 text-[15px] price currency-riyal">
+                            <Price amount={subtotal} />
                         </span>
+
                     </div>
                     <div className="flex justify-between items-center">
                         <span className="text-black font-black text-[14px] uppercase tracking-tight">
                             VAT (15%):
                         </span>
-                        <span className="font-bold text-gray-800 text-[15px]">
-                            ﷼ {taxAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        <span className="font-bold text-gray-800 text-[15px] price currency-riyal">
+                            <Price amount={taxAmount} />
                         </span>
+
                     </div>
                     <div className="flex justify-between items-center pt-2">
                         <span className="text-black font-black text-[16px]">Grand Total</span>
-                        <span className="font-black text-black text-[18px]">
-                            ﷼ {grandTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        <span className="font-black text-black text-[18px] price currency-riyal">
+                            <Price amount={grandTotal} />
                         </span>
+
                     </div>
                 </div>
             </div>

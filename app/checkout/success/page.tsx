@@ -67,7 +67,7 @@ const CheckoutSuccessPage = () => {
 
     return (
         <div className="bg-white min-h-screen font-sans flex flex-col">
-            
+
 
             <main className="flex-grow flex flex-col items-center justify-center px-4 py-20 text-center">
                 <div className="max-w-2xl mx-auto space-y-6">

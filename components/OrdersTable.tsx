@@ -53,9 +53,10 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders, onViewOrder, onReorde
                                 <td className="px-4 py-3 border-r border-gray-200 text-gray-500 whitespace-nowrap text-center">
                                     {order.date}
                                 </td>
-                                <td className="px-4 py-3 border-r border-gray-200 text-gray-800 whitespace-nowrap text-right">
+                                <td className="px-4 py-3 border-r border-gray-200 text-gray-800 whitespace-nowrap text-right price currency-riyal">
                                     {order.grandTotal}
                                 </td>
+
                                 <td className="px-4 py-3 border-r border-gray-200 text-gray-500 text-center">
                                     {order.orderedBy}
                                 </td>

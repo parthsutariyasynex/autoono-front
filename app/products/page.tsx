@@ -10,8 +10,11 @@ import { useCart } from "@/modules/cart/hooks/useCart";
 import SidebarFilter from "../components/SidebarFilter";
 import HorizontalFilter from "../components/HorizontalFilter";
 import Drawer from "../components/Drawer";
+import Modal from "../components/Modal";
 import { api } from "@/lib/api/api-client";
 import { formatPrice, redirectToLogin, formatMagentoQueryParams, parseMagentoQueryParams } from "@/utils/helpers";
+import Price from "../components/Price";
+
 import { toast } from "react-hot-toast";
 
 const PAGE_SIZE = 20;
@@ -40,6 +43,7 @@ export default function ProductsPage() {
   const [selectedImage, setSelectedImage] = useState("");
   const [isInquiryModalOpen, setIsInquiryModalOpen] = useState(false);
   const [inquiryProduct, setInquiryProduct] = useState<any | null>(null);
+  const [previewProduct, setPreviewProduct] = useState<any | null>(null);
 
   const [isMounted, setIsMounted] = useState(false);
   const [isFavorite, setIsFavorite] = useState(false);
@@ -120,22 +124,9 @@ export default function ProductsPage() {
         setLoading(true);
         setError("");
 
-        // Get token from localStorage OR from session
-        let token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+        // Get token from localStorage (set by ProtectedLayout on auth)
+        const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
 
-        // If no localStorage token, try fetching from NextAuth session
-        if (!token) {
-          try {
-            const sessionRes = await fetch("/api/auth/session");
-            const sessionData = await sessionRes.json();
-            if (sessionData?.accessToken) {
-              token = sessionData.accessToken;
-              localStorage.setItem("token", token as string);
-            }
-          } catch { }
-        }
-
-        // If still no token, redirect to login
         if (!token) {
           redirectToLogin(router);
           return;
@@ -298,7 +289,8 @@ export default function ProductsPage() {
   }, [products, sortBy, isFavorite, favIds, selectedFilters]);
 
   const showActionColumn = useMemo(() => products.some(p => p.is_action === "Yes"), [products]);
-  const totalColumns = 10 + (showActionColumn ? 1 : 0);
+  // Always use 11 columns to keep header/shimmer width constant and avoid horizontal shifts
+  const totalColumns = 11;
 
   // Use filtered count when tyre size search is active
   const hasSizeFilter = selectedFilters["width"] || selectedFilters["height"] || selectedFilters["rim"];
@@ -336,9 +328,9 @@ export default function ProductsPage() {
               <div className="flex items-center gap-4">
                 <button
                   onClick={() => router.push("/favorites")}
-                  className="text-xl font-black text-gray-900 uppercase tracking-tighter flex items-center gap-2 hover:opacity-80 transition-all"
+                  className="bg-gray-50 px-4 py-2 rounded-xl border border-gray-200 text-xs font-medium text-gray-800 outline-none cursor-pointer focus:ring-2 focus:ring-yellow-400 focus:bg-white transition-all flex items-center gap-2 shadow-sm"
                 >
-                  <Star className="w-6 h-6 text-yellow-500 fill-yellow-500" />
+                  <Star className="w-5 h-5 text-yellow-500 fill-yellow-500" />
                   Favorite products
                 </button>
                 {Object.keys(selectedFilters).length > 0 && (
@@ -349,13 +341,12 @@ export default function ProductsPage() {
               </div>
 
               <div className="flex items-center gap-3">
-                <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Sort By</span>
                 <select
-                  className="bg-gray-50 px-4 py-2 rounded-xl border border-gray-200 text-xs font-black text-gray-800 outline-none cursor-pointer focus:ring-2 focus:ring-yellow-400 focus:bg-white transition-all shadow-sm"
+                  className="bg-gray-50 px-4 py-2 rounded-xl border border-gray-200 text-xs font-medium text-gray-800 outline-none cursor-pointer focus:ring-2 focus:ring-yellow-400 focus:bg-white transition-all shadow-sm"
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value)}
                 >
-                  <option value="none">Default</option>
+                  <option value="none">Sort By</option>
                   <option value="price-asc">Price: Low-High</option>
                   <option value="price-desc">Price: High-Low</option>
                 </select>
@@ -367,19 +358,16 @@ export default function ProductsPage() {
               <table className="w-full border-separate border-spacing-0">
                 <thead className="sticky top-0 z-20 bg-white/95 backdrop-blur-sm border-b border-gray-100">
                   <tr>
-                    <th className="px-5 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center border-b border-gray-100">Brand</th>
-                    <th className="px-5 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center border-b border-gray-100">Size</th>
-                    <th className="px-5 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center border-b border-gray-100">Item Code</th>
-                    <th className="px-5 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center border-b border-gray-100">Pattern</th>
-                    <th className="px-5 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center border-b border-gray-100">Year</th>
-                    <th className="px-5 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center border-b border-gray-100">Origin</th>
-                    <th className="px-5 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center border-b border-gray-100">Image</th>
-                    <th className="px-5 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center border-b border-gray-100">Offer</th>
-                    <th className="px-5 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center border-b border-gray-100">Stock</th>
-                    <th className="px-5 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center border-b border-gray-100">Price</th>
-                    {showActionColumn && (
-                      <th className="px-5 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center border-b border-gray-100">Action</th>
-                    )}
+                    <th className="px-5 py-3 text-[11px] font-bold text-black uppercase tracking-wider text-center border-b border-gray-100">Brand</th>
+                    <th className="px-5 py-3 text-[11px] font-bold text-black uppercase tracking-wider text-center border-b border-gray-100">Size</th>
+                    <th className="px-5 py-3 text-[11px] font-bold text-black uppercase tracking-wider text-center border-b border-gray-100">Pattern</th>
+                    <th className="px-5 py-3 text-[11px] font-bold text-black uppercase tracking-wider text-center border-b border-gray-100">Year</th>
+                    <th className="px-5 py-3 text-[11px] font-bold text-black uppercase tracking-wider text-center border-b border-gray-100">Origin</th>
+                    <th className="px-5 py-3 text-[11px] font-bold text-black uppercase tracking-wider text-center border-b border-gray-100">Image</th>
+                    <th className="px-5 py-3 text-[11px] font-bold text-black uppercase tracking-wider text-center border-b border-gray-100">Offer</th>
+                    <th className="px-5 py-3 text-[11px] font-bold text-black uppercase tracking-wider text-center border-b border-gray-100">Stock</th>
+                    <th className="px-5 py-3 text-[11px] font-bold text-black uppercase tracking-wider text-center border-b border-gray-100">Price</th>
+                    <th className="px-5 py-3 text-[11px] font-bold text-black uppercase tracking-wider text-center border-b border-gray-100 min-w-[120px]">Action</th>
                   </tr>
                 </thead>
 
@@ -388,7 +376,9 @@ export default function ProductsPage() {
                     Array.from({ length: 10 }).map((_, i) => (
                       <tr key={`shimmer-${i}`} className="animate-pulse">
                         {Array.from({ length: totalColumns }).map((_, j) => (
-                          <td key={`cell-${j}`} className="px-5 py-6"><div className="h-3 bg-gray-100 rounded w-full"></div></td>
+                          <td key={`cell-${j}`} className="px-5 py-6">
+                            <div className="h-3 bg-gray-100 rounded w-full"></div>
+                          </td>
                         ))}
                       </tr>
                     ))
@@ -405,39 +395,39 @@ export default function ProductsPage() {
 
                       return (
                         <tr key={index} className="hover:bg-gray-50/50 transition-colors group">
-                          <td className="px-5 py-5 text-sm font-black text-gray-900 text-center">{brandName}</td>
-                          <td className="px-5 py-5 text-center">
-                            <div className="flex items-center justify-end gap-1.5">
-                              <span className="text-sm font-black text-gray-800 tracking-tight">{product?.tyre_size}</span>
+                          <td className="px-5 py-3 text-[13px] font-normal text-gray-700 text-center">{brandName}</td>
+                          <td className="px-5 py-3 text-center">
+                            <div className="flex items-center justify-center gap-2">
+                              <span className="text-[13px] font-medium text-gray-900 tracking-tight">{product?.tyre_size}</span>
                               <div
                                 onClick={() => setSelectedProduct(product)}
-                                className="w-4 h-4 bg-gray-900 rounded-full flex items-center justify-center text-[9px] font-black text-white cursor-pointer hover:bg-yellow-400 hover:text-black transition-all shadow-sm"
+                                className="w-4 h-4 bg-gray-900 rounded-full flex items-center justify-center text-[9px] font-bold text-white cursor-pointer hover:bg-yellow-400 hover:text-black transition-all shadow-sm"
                               >
                                 i
                               </div>
                             </div>
                           </td>
-                          <td className="px-5 py-5 text-center">
-                            <div className="flex items-center justify-end gap-1.5 translate-x-3">
-                              <span className="text-sm font-black text-gray-800 tracking-tight">{product?.item_code || "—"}</span>
-                            </div>
-                          </td>
-                          <td className="px-5 py-5 text-sm font-bold text-gray-600 text-center">{product?.pattern || "—"}</td>
-                          <td className="px-5 py-5 text-sm font-black text-gray-500 text-center font-mono">{product?.year || "—"}</td>
-                          <td className="px-5 py-5 text-sm font-bold text-gray-600 text-center">{product?.origin || "—"}</td>
-                          <td className="px-5 py-5 text-center">
+
+                          <td className="px-5 py-3 text-[13px] font-normal text-gray-600 text-center">{product?.pattern || "—"}</td>
+                          <td className="px-5 py-3 text-[13px] font-normal text-gray-500 text-center font-mono">{product?.year || "—"}</td>
+                          <td className="px-5 py-3 text-[13px] font-normal text-gray-600 text-center">{product?.origin || "—"}</td>
+                          <td className="px-5 py-3 text-center">
                             {product?.image_url ? (
                               <div
                                 className="relative inline-block group/img cursor-pointer"
-                                onClick={() => { setSelectedImage(product.image_url); setIsImageModalOpen(true); }}
+                                onClick={() => {
+                                  setSelectedImage(product.image_url);
+                                  setPreviewProduct(product);
+                                  setIsImageModalOpen(true);
+                                }}
                               >
                                 <img
                                   src={product.image_url}
                                   alt={product.name}
-                                  className="w-12 h-12 object-contain mx-auto rounded-lg border border-gray-100 shadow-sm transition-all duration-300"
+                                  className="w-10 h-10 object-contain mx-auto rounded border border-gray-100 shadow-sm transition-all duration-300"
                                 />
-                                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover/img:opacity-100 transition-all duration-300 flex items-center justify-center rounded-lg">
-                                  <div className="w-6 h-6 bg-yellow-400 rounded-full flex items-center justify-center text-black font-black text-sm shadow-lg transform scale-50 group-hover/img:scale-100 transition-transform duration-300">+</div>
+                                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover/img:opacity-100 transition-all duration-300 flex items-center justify-center rounded">
+                                  <div className="w-5 h-5 bg-yellow-400 rounded-full flex items-center justify-center text-black font-bold text-[10px] shadow-lg transform scale-50 group-hover/img:scale-100 transition-transform duration-300">+</div>
                                 </div>
                               </div>
                             ) : (
@@ -456,66 +446,62 @@ export default function ProductsPage() {
                           <td className="px-5 py-5 text-center">
                             {getStockBadge(product)}
                           </td>
-                          <td className="px-5 py-5 text-center whitespace-nowrap">
+                          <td className="px-5 py-3 text-center whitespace-nowrap">
                             <div className="flex flex-col items-center">
-                              <span className="text-[10px] font-black text-gray-400 uppercase leading-none mb-1">Price</span>
-                              <div className="flex items-baseline gap-1">
-                                <span className="text-sm font-black text-gray-400">﷼</span>
-                                <span className="text-base font-black text-gray-900 tracking-tighter">
-                                  {formatPrice(product?.final_price || 0).replace(/[^\d.,]/g, '')}
-                                </span>
+                              <span className="text-sm font-bold text-gray-900 tracking-tight price currency-riyal">
+
+                                <Price amount={product?.final_price || 0} />
+
+                              </span>
+                            </div>
+                          </td>
+                          <td className="px-5 py-5 text-center min-w-[120px]">
+                            <div className="flex flex-col items-center gap-2">
+                              {/* Action Row: [Qty/Spacer] [Add to Cart/Inquiry] [Favourite] */}
+                              <div className="grid grid-cols-3 gap-1.5">
+                                {!isOutOfStock ? (
+                                  <div className="w-9 h-9 border-2 border-gray-100 rounded-lg flex items-center justify-center text-xs font-black text-gray-900 bg-white shadow-sm">
+                                    1
+                                  </div>
+                                ) : (
+                                  <div className="w-9 h-9" />
+                                )}
+
+                                {!isOutOfStock ? (
+                                  <button
+                                    onClick={() => handleAddToCart(product.sku)}
+                                    disabled={addingToCart === product.sku}
+                                    className={`w-9 h-9 rounded-lg flex items-center justify-center shadow-md hover:-translate-y-0.5 transition-all ${justAdded === product.sku ? "bg-green-500 text-white" : "bg-yellow-400 text-black hover:bg-yellow-500"}`}
+                                    title={justAdded === product.sku ? "Added!" : "Add to Cart"}
+                                  >
+                                    {addingToCart === product.sku ? (
+                                      <div className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
+                                    ) : justAdded === product.sku ? (
+                                      <Check size={16} strokeWidth={3} />
+                                    ) : (
+                                      <ShoppingCart size={16} strokeWidth={2.5} />
+                                    )}
+                                  </button>
+                                ) : (
+                                  <button
+                                    onClick={() => { setInquiryProduct(product); setIsInquiryModalOpen(true); }}
+                                    className="w-9 h-9 bg-yellow-400 text-black rounded-lg flex items-center justify-center shadow-md hover:bg-yellow-500 hover:-translate-y-0.5 transition-all"
+                                    title="Make Inquiry"
+                                  >
+                                    <Info size={16} strokeWidth={2.5} />
+                                  </button>
+                                )}
+
+                                <button
+                                  onClick={() => toggleFavorite(product)}
+                                  className="w-9 h-9 rounded-lg flex items-center justify-center shadow-md hover:-translate-y-0.5 transition-all bg-yellow-400 text-black hover:bg-yellow-500"
+                                  title={favIds.includes(product.product_id) ? "Remove from Favourites" : "Add to Favourites"}
+                                >
+                                  <Star size={16} strokeWidth={2.5} fill={favIds.includes(product.product_id) ? "currentColor" : "none"} />
+                                </button>
                               </div>
                             </div>
                           </td>
-                          {showActionColumn && (
-                            <td className="px-5 py-5 text-center">
-                              <div className="flex flex-col items-center gap-2">
-                                {/* Action Row: [Qty/Spacer] [Add to Cart/Inquiry] [Favourite] */}
-                                <div className="grid grid-cols-3 gap-1.5">
-                                  {!isOutOfStock ? (
-                                    <div className="w-9 h-9 border-2 border-gray-100 rounded-lg flex items-center justify-center text-xs font-black text-gray-900 bg-white shadow-sm">
-                                      1
-                                    </div>
-                                  ) : (
-                                    <div className="w-9 h-9" />
-                                  )}
-
-                                  {!isOutOfStock ? (
-                                    <button
-                                      onClick={() => handleAddToCart(product.sku)}
-                                      disabled={addingToCart === product.sku}
-                                      className={`w-9 h-9 rounded-lg flex items-center justify-center shadow-md hover:-translate-y-0.5 transition-all ${justAdded === product.sku ? "bg-green-500 text-white" : "bg-yellow-400 text-black hover:bg-yellow-500"}`}
-                                      title={justAdded === product.sku ? "Added!" : "Add to Cart"}
-                                    >
-                                      {addingToCart === product.sku ? (
-                                        <div className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
-                                      ) : justAdded === product.sku ? (
-                                        <Check size={16} strokeWidth={3} />
-                                      ) : (
-                                        <ShoppingCart size={16} strokeWidth={2.5} />
-                                      )}
-                                    </button>
-                                  ) : (
-                                    <button
-                                      onClick={() => { setInquiryProduct(product); setIsInquiryModalOpen(true); }}
-                                      className="w-9 h-9 bg-yellow-400 text-black rounded-lg flex items-center justify-center shadow-md hover:bg-yellow-500 hover:-translate-y-0.5 transition-all"
-                                      title="Make Inquiry"
-                                    >
-                                      <Info size={16} strokeWidth={2.5} />
-                                    </button>
-                                  )}
-
-                                  <button
-                                    onClick={() => toggleFavorite(product)}
-                                    className="w-9 h-9 rounded-lg flex items-center justify-center shadow-md hover:-translate-y-0.5 transition-all bg-yellow-400 text-black hover:bg-yellow-500"
-                                    title={favIds.includes(product.product_id) ? "Remove from Favourites" : "Add to Favourites"}
-                                  >
-                                    <Star size={16} strokeWidth={2.5} fill={favIds.includes(product.product_id) ? "currentColor" : "none"} />
-                                  </button>
-                                </div>
-                              </div>
-                            </td>
-                          )}
                         </tr>
                       );
                     })
@@ -596,34 +582,38 @@ export default function ProductsPage() {
         }}
       />
 
-      <Drawer isOpen={isImageModalOpen} onClose={() => setIsImageModalOpen(false)}>
+      {/* Product Image Preview - Side Drawer */}
+      <Drawer
+        isOpen={isImageModalOpen && !!selectedImage}
+        onClose={() => setIsImageModalOpen(false)}
+      >
         <div className="flex flex-col h-full bg-white">
           {/* Header */}
-          <div className="bg-[#f4b400] px-8 py-6 flex items-center justify-center relative border-b border-yellow-500/20 flex-shrink-0">
-            <h3 className="text-[12px] font-black text-black uppercase tracking-[0.2em] flex items-center gap-2">
-              <span className="w-2 h-2 bg-black rounded-full"></span>
-              Product Preview
-            </h3>
+          <div className="bg-[#FFB82B] px-8 py-6 flex items-center justify-center relative flex-shrink-0">
+            <h2 className="text-[17px] font-black text-black text-center uppercase tracking-tight">
+              {previewProduct ? `${previewProduct?.pattern || '-'} - ${previewProduct?.tyre_size || '-'}` : "Product Preview"}
+            </h2>
           </div>
 
-          {/* Image Container */}
-          <div className="p-8 bg-white flex items-center justify-center flex-1 overflow-auto">
-            <img
-              src={selectedImage}
-              alt="Product Preview"
-              className="max-w-full max-h-full object-contain rounded-xl shadow-lg border border-gray-100"
-            />
-          </div>
+          <div className="flex-1 overflow-y-auto p-8 flex flex-col items-center justify-center">
+            {/* Image Container */}
+            <div className="p-4 bg-white flex items-center justify-center min-h-[400px] w-full">
+              <img
+                src={selectedImage}
+                alt={previewProduct ? `${previewProduct?.pattern} - ${previewProduct?.tyre_size}` : "Product Preview"}
+                className="max-w-full max-h-[75vh] object-contain rounded-lg transition-transform duration-500 hover:scale-[1.02]"
+              />
+            </div>
 
-          {/* Footer Tip */}
-          <div className="px-8 py-6 bg-gray-50 border-t border-gray-100 flex flex-col items-center gap-4">
-            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest italic text-center">Swipe or Scroll to explore image</p>
-            <button
-              onClick={() => setIsImageModalOpen(false)}
-              className="w-full py-4 bg-black text-white font-black uppercase tracking-widest rounded shadow-lg hover:bg-gray-800 transition-all text-xs"
-            >
-              Close Preview
-            </button>
+            {/* Footer Section */}
+            <div className="mt-10 w-full flex flex-col items-center gap-4">
+              <button
+                onClick={() => setIsImageModalOpen(false)}
+                className="w-full py-4.5 bg-black text-white font-black uppercase tracking-widest rounded shadow-xl hover:bg-gray-800 transition-all text-sm cursor-pointer active:scale-95"
+              >
+                Close Preview
+              </button>
+            </div>
           </div>
         </div>
       </Drawer>

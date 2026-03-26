@@ -142,9 +142,9 @@ export default function MyStatementPage() {
 
     return (
         <div className="min-h-screen bg-white">
-            
 
-            <div className="flex max-w-[1440px] mx-auto mt-[100px]">
+
+            <div className="flex max-w-[1440px] mx-auto mt-4 md:mt-8">
                 {/* Left Sidebar */}
                 <Sidebar />
 

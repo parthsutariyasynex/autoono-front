@@ -2,12 +2,15 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { ShoppingCart, X, Info, Star } from "lucide-react";
+import { ShoppingCart, X, Info, Star, Trash2 } from "lucide-react";
 import { formatPrice, redirectToLogin } from "@/utils/helpers";
 import { toast } from "react-hot-toast";
 import ProductEnquiryModal from "./ProductEnquiryModal";
 import ProductDialog from "./ProductDialog";
 import Drawer from "./Drawer";
+import Modal from "./Modal";
+import Price from "./Price";
+
 import { api } from "@/lib/api/api-client";
 import Pagination from "@/components/Pagination";
 import { useCart } from "@/modules/cart/context/CartContext";
@@ -51,6 +54,7 @@ export default function FavouriteProducts() {
     const [selectedProduct, setSelectedProduct] = useState<any | null>(null);
     const [selectedImage, setSelectedImage] = useState<string | null>(null);
     const [isImageModalOpen, setIsImageModalOpen] = useState(false);
+    const [previewProduct, setPreviewProduct] = useState<Product | null>(null);
 
     const loadFavourites = useCallback(async () => {
         setLoading(true);
@@ -64,10 +68,13 @@ export default function FavouriteProducts() {
             // Map items with all fields needed for ProductDialog popup
             const items = rawItems.map((p: any) => {
                 const finalPrice = Number(p.final_price || p.special_price || p.price || 0);
-                // Use original_price/regular_price/old_price if available, otherwise no old price
-                const originalPrice = Number(p.original_price || p.regular_price || p.old_price || 0);
-                const hasDiscount = p.show_old_price === true && originalPrice > finalPrice;
-                const offPerc = hasDiscount ? Math.round(((originalPrice - finalPrice) / originalPrice) * 100) : 0;
+                // In Magento, 'price' is often the original/old price if 'final_price' is different
+                const potentialOldPrice = Number(p.price || p.regular_price || p.original_price || p.old_price || 0);
+
+                // Only show as old price if it's strictly greater than the final price
+                const originalPrice = potentialOldPrice > finalPrice ? potentialOldPrice : 0;
+                const hasDiscount = originalPrice > finalPrice;
+                const offerLabel = p.offer || p.discount_label || "";
 
                 return {
                     ...p,
@@ -75,8 +82,8 @@ export default function FavouriteProducts() {
                     name: p.name || p.sku || "N/A",
                     image_url: p.image_url || p.image || "/placeholder-tyre.png",
                     final_price: finalPrice,
-                    original_price: hasDiscount ? originalPrice : 0,
-                    offer: offPerc > 0 ? `${offPerc}% OFF` : (p.offer || p.discount_label || ""),
+                    original_price: originalPrice,
+                    offer: offerLabel,
                     stock_qty: Number(p.stock_qty || 0),
                     brand: p.brand || (p.name ? p.name.split(' ')[0] : "—"),
                     tyre_size: p.tyre_size || "—",
@@ -114,18 +121,7 @@ export default function FavouriteProducts() {
         loadFavourites();
     }, [loadFavourites]);
 
-    // Scroll Lock when any modal is open
-    useEffect(() => {
-        const anyModalOpen = isInquiryModalOpen || selectedProduct || isImageModalOpen;
-        if (anyModalOpen) {
-            document.body.style.overflow = "hidden";
-        } else {
-            document.body.style.overflow = "auto";
-        }
-        return () => {
-            document.body.style.overflow = "auto";
-        };
-    }, [isInquiryModalOpen, selectedProduct, isImageModalOpen]);
+    // Scroll and Layout shift is now managed internally by the Modal/Drawer component
 
     const handleQtyChange = (productId: number, val: string) => {
         const num = parseInt(val) || 1;
@@ -238,7 +234,7 @@ export default function FavouriteProducts() {
                         <button
                             key={p}
                             onClick={() => setCurrentPage(p)}
-                            className={`w-9 h-9 flex items-center justify-center text-[13px] rounded-full border transition-all duration-200 ${currentPage === p
+                            className={`w-9 h-9 flex items-center justify-center text-[13px] rounded-full border transition-all duration-200 cursor-pointer ${currentPage === p
                                 ? "bg-[#f5a623] border-[#f5a623] text-black font-bold shadow-md"
                                 : "bg-white border-gray-200 text-gray-600 hover:bg-gray-50 hover:border-[#f5a623] hover:text-[#f5a623]"
                                 }`}
@@ -250,7 +246,7 @@ export default function FavouriteProducts() {
                     {currentPage < totalPages && (
                         <button
                             onClick={() => setCurrentPage(currentPage + 1)}
-                            className="h-9 px-4 flex items-center justify-center text-[12px] bg-white border border-gray-200 text-black font-bold rounded-full hover:bg-gray-50 hover:border-[#f5a623] hover:text-[#f5a623] transition-all duration-200 uppercase"
+                            className="h-9 px-4 flex items-center justify-center text-[12px] bg-white border border-gray-200 text-black font-bold rounded-full hover:bg-gray-50 hover:border-[#f5a623] hover:text-[#f5a623] transition-all duration-200 uppercase cursor-pointer shadow-sm active:scale-95"
                         >
                             Next
                         </button>
@@ -281,17 +277,17 @@ export default function FavouriteProducts() {
                 <table className="w-full text-left border-collapse bg-[#f2f2f2]">
                     <thead>
                         <tr className="bg-white border-b border-gray-200 text-[12px] uppercase font-bold text-gray-800">
-                            <th className="px-5 py-5 border-r border-gray-200">Brand</th>
-                            <th className="px-5 py-5 border-r border-gray-200 whitespace-nowrap">
+                            <th className="px-5 py-5 border-r border-gray-200 text-center">Brand</th>
+                            <th className="px-5 py-5 border-r border-gray-200 whitespace-nowrap text-center">
                                 Size <Info className="inline-block w-4 h-4 text-gray-400 ml-1 cursor-pointer" />
                             </th>
-                            <th className="px-5 py-5 border-r border-gray-200">Pattern</th>
-                            <th className="px-5 py-5 border-r border-gray-200">Year</th>
-                            <th className="px-5 py-5 border-r border-gray-200">Origin</th>
-                            <th className="px-5 py-5 border-r border-gray-200">Image</th>
-                            <th className="px-5 py-5 border-r border-gray-200">Offer</th>
-                            <th className="px-5 py-5 border-r border-gray-200">Stock</th>
-                            <th className="px-5 py-5 border-r border-gray-200 text-center">Price</th>
+                            <th className="px-5 py-5 border-r border-gray-200 text-center">Pattern</th>
+                            <th className="px-5 py-5 border-r border-gray-200 text-center">Year</th>
+                            <th className="px-5 py-5 border-r border-gray-200 text-center">Origin</th>
+                            <th className="px-5 py-5 border-r border-gray-200 text-center">Image</th>
+                            <th className="px-5 py-5 border-r border-gray-200 text-center">Offer</th>
+                            <th className="px-5 py-5 border-r border-gray-200 text-center">Stock</th>
+                            <th className="px-5 py-5 border-r border-gray-200 text-center text-center">Price</th>
                             <th className="px-5 py-5 text-center">Action</th>
                         </tr>
                     </thead>
@@ -312,9 +308,9 @@ export default function FavouriteProducts() {
 
                                 return (
                                     <tr key={product.product_id} className="hover:bg-gray-50/50 transition-colors bg-white">
-                                        <td className="px-5 py-5 text-[14px] font-bold text-black border-r border-gray-100">{brandName}</td>
-                                        <td className="px-5 py-5 text-[14px] text-gray-600 border-r border-gray-100">
-                                            <div className="flex items-center gap-1.5 whitespace-nowrap">
+                                        <td className="px-5 py-5 text-[14px] font-bold text-black border-r border-gray-100 text-center">{brandName}</td>
+                                        <td className="px-5 py-5 text-[14px] text-gray-600 border-r border-gray-100 text-center">
+                                            <div className="flex items-center justify-center gap-1.5 whitespace-nowrap">
                                                 <span>{product.tyre_size}</span>
                                                 <div
                                                     onClick={() => handleShowProductDetail(product)}
@@ -324,14 +320,15 @@ export default function FavouriteProducts() {
                                                 </div>
                                             </div>
                                         </td>
-                                        <td className="px-5 py-5 text-[14px] text-gray-600 border-r border-gray-100">{product.pattern || "—"}</td>
-                                        <td className="px-5 py-5 text-[14px] text-gray-600 border-r border-gray-100">{product.year || "—"}</td>
-                                        <td className="px-5 py-5 text-[14px] text-gray-600 border-r border-gray-100">{product.origin || "—"}</td>
+                                        <td className="px-5 py-5 text-[14px] text-gray-600 border-r border-gray-100 text-center">{product.pattern || "—"}</td>
+                                        <td className="px-5 py-5 text-[14px] text-gray-600 border-r border-gray-100 text-center">{product.year || "—"}</td>
+                                        <td className="px-5 py-5 text-[14px] text-gray-600 border-r border-gray-100 text-center">{product.origin || "—"}</td>
                                         <td className="px-5 py-5 border-r border-gray-100">
                                             <div
                                                 className="w-16 h-16 bg-white rounded border border-gray-100 p-1 mx-auto flex items-center justify-center relative group/img cursor-pointer transition-all duration-300 hover:shadow-md"
                                                 onClick={() => {
                                                     setSelectedImage(product.image_url);
+                                                    setPreviewProduct(product);
                                                     setIsImageModalOpen(true);
                                                 }}
                                             >
@@ -345,16 +342,16 @@ export default function FavouriteProducts() {
                                                 </div>
                                             </div>
                                         </td>
-                                        <td className="px-5 py-5 border-r border-gray-100">
+                                        <td className="px-5 py-5 border-r border-gray-100 text-center">
                                             {product.offer ? (
-                                                <span className="text-[11px] font-bold text-red-600 bg-red-50 px-2 py-0.5 rounded whitespace-nowrap">
+                                                <span className="text-red-600 font-bold text-[10px] leading-tight uppercase tracking-tight block max-w-[120px] mx-auto">
                                                     {product.offer}
                                                 </span>
                                             ) : (
                                                 <span className="text-gray-300">—</span>
                                             )}
                                         </td>
-                                        <td className="px-5 py-5 border-r border-gray-100">
+                                        <td className="px-5 py-5 border-r border-gray-100 text-center">
                                             <div className="flex flex-col items-center gap-1.5 min-w-[70px]">
                                                 <span className={`w-3 h-3 rounded-full ${stockColor} border border-white shadow-sm`}></span>
                                                 <span className="text-[10px] font-bold text-gray-500 uppercase tracking-tight">{stockLabel}</span>
@@ -365,29 +362,33 @@ export default function FavouriteProducts() {
                                                 {(product as any).original_price > 0 && (product as any).original_price > product.final_price ? (
                                                     <>
                                                         <span className="text-[13px] font-bold text-gray-400 line-through mb-0.5">
-                                                            {formatPrice((product as any).original_price)}
+                                                            <Price amount={(product as any).original_price} />
                                                         </span>
-                                                        <span className="text-[18px] font-black text-black tracking-tight leading-none">
-                                                            {formatPrice(product.final_price)}
+                                                        <span className="text-[18px] font-black text-black tracking-tight leading-none price currency-riyal">
+
+                                                            <Price amount={product.final_price} />
                                                         </span>
+
                                                     </>
                                                 ) : (
-                                                    <span className="text-[18px] font-black text-black tracking-tight leading-none">
-                                                        {formatPrice(product.final_price)}
+                                                    <span className="text-[18px] font-black text-black tracking-tight leading-none price currency-riyal">
+
+                                                        <Price amount={product.final_price} />
                                                     </span>
+
                                                 )}
                                             </div>
                                         </td>
                                         <td className="px-5 py-5">
                                             <div className="flex items-center justify-center gap-2">
                                                 {!isOutOfStock ? (
-                                                    <div className="w-10 h-10 bg-white rounded-lg border border-gray-200 flex items-center justify-center shadow-sm">
+                                                    <div className="w-10 h-10 bg-white rounded-lg border border-gray-200 flex items-center justify-center shadow-sm cursor-text focus-within:border-[#f5a623] transition-all overflow-hidden">
                                                         <input
                                                             type="number"
                                                             min="1"
                                                             value={quantities[product.product_id] || 1}
                                                             onChange={(e) => handleQtyChange(product.product_id, e.target.value)}
-                                                            className="w-full bg-transparent text-center text-[14px] font-bold text-black outline-none"
+                                                            className="w-full h-full bg-transparent text-center text-[14px] font-bold text-black outline-none cursor-text [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                                         />
                                                     </div>
                                                 ) : (
@@ -398,7 +399,7 @@ export default function FavouriteProducts() {
                                                     <button
                                                         onClick={() => onAddToCart(product)}
                                                         disabled={addingToCart === product.sku}
-                                                        className="w-10 h-10 bg-[#f5a623] text-black rounded-lg flex items-center justify-center transition-all disabled:opacity-50 shadow-sm"
+                                                        className="w-10 h-10 bg-[#f5a623] hover:bg-[#e0981d] text-black rounded-lg flex items-center justify-center transition-all duration-200 disabled:opacity-50 shadow-sm cursor-pointer active:scale-95"
                                                         title="Add to Cart"
                                                     >
                                                         <ShoppingCart size={18} strokeWidth={2.5} />
@@ -409,7 +410,7 @@ export default function FavouriteProducts() {
                                                             setInquiryProduct(product);
                                                             setIsInquiryModalOpen(true);
                                                         }}
-                                                        className="w-10 h-10 bg-[#f5a623] text-black rounded-lg flex items-center justify-center transition-all shadow-sm hover:opacity-80"
+                                                        className="w-10 h-10 bg-[#f5a623] hover:bg-[#e0981d] text-black rounded-lg flex items-center justify-center transition-all duration-200 shadow-sm cursor-pointer active:scale-95"
                                                         title="Make Inquiry"
                                                     >
                                                         <Info size={18} strokeWidth={2.5} />
@@ -418,10 +419,18 @@ export default function FavouriteProducts() {
 
                                                 <button
                                                     onClick={() => handleRemove(product)}
-                                                    className="w-10 h-10 bg-[#f5a623] text-black rounded-lg flex items-center justify-center transition-all shadow-sm"
+                                                    disabled={removing === product.product_id}
+                                                    className={`w-10 h-10 rounded-lg flex items-center justify-center transition-all duration-200 shadow-sm border cursor-pointer ${removing === product.product_id
+                                                        ? "bg-gray-100 text-gray-400 border-gray-100 cursor-not-allowed"
+                                                        : "bg-white text-gray-400 border-gray-200 hover:bg-red-50 hover:text-red-500 hover:border-red-200 active:scale-95"
+                                                        }`}
                                                     title="Remove from Favourites"
                                                 >
-                                                    <Star size={18} strokeWidth={2.5} />
+                                                    {removing === product.product_id ? (
+                                                        <div className="w-4 h-4 border-2 border-gray-300 border-t-red-500 rounded-full animate-spin"></div>
+                                                    ) : (
+                                                        <Trash2 size={18} strokeWidth={2.5} />
+                                                    )}
                                                 </button>
                                             </div>
                                         </td>
@@ -467,35 +476,38 @@ export default function FavouriteProducts() {
                 onClose={() => setSelectedProduct(null)}
             />
 
-            {/* Image Preview Modal */}
-            <Drawer isOpen={isImageModalOpen && !!selectedImage} onClose={() => setIsImageModalOpen(false)}>
+            {/* Image Preview - Side Drawer */}
+            <Drawer
+                isOpen={isImageModalOpen && !!selectedImage}
+                onClose={() => setIsImageModalOpen(false)}
+            >
                 <div className="flex flex-col h-full bg-white">
                     {/* Header */}
-                    <div className="bg-[#f5a623] px-8 py-6 flex items-center justify-center relative border-b border-[#f5a623]/20 flex-shrink-0">
-                        <h3 className="text-[14px] font-black text-black uppercase tracking-[0.1em] flex items-center gap-2">
-                            <span className="w-2 h-2 bg-black rounded-full"></span>
-                            Product Image Preview
-                        </h3>
+                    <div className="bg-[#FFB82B] px-8 py-6 flex items-center justify-center relative flex-shrink-0">
+                        <h2 className="text-[17px] font-black text-black text-center uppercase tracking-tight">
+                            {previewProduct ? `${previewProduct.pattern || '-'} - ${previewProduct.tyre_size || '-'}` : "Product Preview"}
+                        </h2>
                     </div>
 
-                    {/* Image Container */}
-                    <div className="flex-1 p-8 bg-white flex items-center justify-center overflow-auto">
-                        <img
-                            src={selectedImage || ''}
-                            alt="Product Preview"
-                            className="max-w-full max-h-full object-contain rounded-xl shadow-lg border border-gray-100"
-                        />
-                    </div>
+                    <div className="flex-1 overflow-y-auto p-8 flex flex-col items-center justify-center">
+                        {/* Image Container */}
+                        <div className="p-4 bg-white flex items-center justify-center min-h-[400px] w-full">
+                            <img
+                                src={selectedImage || ''}
+                                alt={previewProduct ? `${previewProduct.pattern} - ${previewProduct.tyre_size}` : "Product Preview"}
+                                className="max-w-full max-h-[75vh] object-contain rounded-lg transition-transform duration-500 hover:scale-[1.02]"
+                            />
+                        </div>
 
-                    {/* Footer Tip */}
-                    <div className="px-8 py-6 bg-gray-50 border-t border-gray-100 flex flex-col items-center gap-4">
-                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest italic text-center">Swipe or scroll to explore image</p>
-                        <button
-                            onClick={() => setIsImageModalOpen(false)}
-                            className="w-full py-4 bg-black text-white font-black uppercase tracking-widest rounded shadow-lg hover:bg-gray-800 transition-all text-xs"
-                        >
-                            Close Preview
-                        </button>
+                        {/* Footer Section */}
+                        <div className="mt-10 w-full flex flex-col items-center gap-4">
+                            <button
+                                onClick={() => setIsImageModalOpen(false)}
+                                className="w-full py-4.5 bg-black text-white font-black uppercase tracking-widest rounded shadow-xl hover:bg-gray-800 transition-all text-sm cursor-pointer active:scale-95"
+                            >
+                                Close Preview
+                            </button>
+                        </div>
                     </div>
                 </div>
             </Drawer>

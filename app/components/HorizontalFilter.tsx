@@ -282,7 +282,7 @@ const HorizontalFilter: React.FC<HorizontalFilterProps> = ({ onSearch, initialVa
 
 
     return (
-        <div className="w-full bg-white py-4 px-6 border-b border-gray-100 flex flex-wrap items-center justify-center gap-4">
+        <div className="w-full bg-white h-[80px] px-6 border-b border-gray-100 flex items-center justify-center gap-4 flex-nowrap overflow-visible relative z-30">
             {/* Label */}
             <div className="bg-[#f5a623] px-6 py-2.5 rounded shadow-sm">
                 <span className="text-black font-[900] italic uppercase text-[15px] tracking-tight whitespace-nowrap">

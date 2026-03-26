@@ -31,10 +31,10 @@ export default function FavoritesPage() {
 
     return (
         <div className="min-h-screen bg-white font-rubik scroll-smooth text-black">
-            
+
 
             {/* Main Content Area - Optimized Full Width */}
-            <div className="w-full mx-auto mt-[100px] px-4 md:px-10 pb-20 min-h-screen bg-white">
+            <div className="w-full mx-auto mt-4 md:mt-8 px-4 md:px-10 pb-20 min-h-screen bg-white">
                 <h1 className="text-[26px] font-black text-black mb-8 uppercase tracking-wide px-2">
                     Favorite Products
                 </h1>

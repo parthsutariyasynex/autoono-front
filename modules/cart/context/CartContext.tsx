@@ -85,7 +85,6 @@ export function CartProvider({ children }: { children: ReactNode }) {
       });
 
       const data = await res.json();
-      console.log("Cart API response:", data);
 
       if (!res.ok) {
         if (isAuthError(res.status)) {

@@ -6,6 +6,7 @@ import { useCheckout, Address } from "@/modules/checkout/hooks/useCheckout";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import toast from "react-hot-toast";
+import Price from "@/app/components/Price";
 
 type Assignments = Record<number, Record<string, number>>;
 
@@ -160,7 +161,7 @@ const MultiShippingShippingPage: React.FC = () => {
 
     return (
         <div className="bg-white min-h-screen font-sans pb-20">
-            
+
 
             <div className="max-w-[1200px] mx-auto pt-10 px-4">
                 <h1 className="text-[24px] font-[900] text-black text-center uppercase mb-3 tracking-tighter">
@@ -251,7 +252,7 @@ const MultiShippingShippingPage: React.FC = () => {
                                                 />
                                                 <span className="text-[13px] font-black text-black uppercase mb-1">{method.title}</span>
                                                 <span className="text-[12px] font-bold text-[#f5b21a]">
-                                                    ﷼ {method.price?.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                                                    <Price amount={method.price} />
                                                 </span>
                                             </label>
                                         ))}

@@ -83,7 +83,7 @@ export default function SubAccountMyAccountPage() {
     if (parentLoading) {
         return (
             <div className="min-h-screen bg-white">
-                
+
                 <div className="flex items-center justify-center h-[60vh]">
                     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#F5B21B]"></div>
                 </div>
@@ -141,7 +141,7 @@ export default function SubAccountMyAccountPage() {
 
     return (
         <>
-            
+
 
             <div className="flex flex-col md:flex-row min-h-[calc(100vh-80px)]">
                 <Sidebar />

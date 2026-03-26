@@ -48,7 +48,7 @@ export default function AddressBookPage() {
         <>
 
 
-            <div className="flex max-w-[1440px] mx-auto mt-[100px]">
+            <div className="flex max-w-[1440px] mx-auto mt-4 md:mt-8">
                 {/* Left Sidebar */}
                 <Sidebar />
 

@@ -9,7 +9,7 @@ import styles from "./locations.module.css";
 export default function BranchLocationsPage() {
     return (
         <div className="min-h-screen bg-white font-sans text-black overflow-x-hidden">
-            
+
 
             {/* Google Map Section */}
             <MapSection />

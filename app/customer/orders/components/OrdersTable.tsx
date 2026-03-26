@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import Price from "@/app/components/Price";
 
 export interface Order {
     id: string;
@@ -47,7 +48,7 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders }) => {
                                     {order.date}
                                 </td>
                                 <td className="px-4 py-3 border-r border-gray-200 text-gray-800 whitespace-nowrap text-right">
-                                    {order.grandTotal}
+                                    <Price amount={order.grandTotal} />
                                 </td>
                                 <td className="px-4 py-3 border-r border-gray-200 text-gray-500 text-center">
                                     {order.orderedBy}

@@ -31,6 +31,8 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import Price from "@/app/components/Price";
+
 
 // --- Sub-components ---
 
@@ -1188,9 +1190,10 @@ const CheckoutPageUI: React.FC = () => {
                                                             className="w-12 h-8 border border-gray-300 text-center text-[13px] font-bold focus:outline-none focus:border-black ml-1"
                                                         />
                                                     </div>
-                                                    <div className="text-[15px] font-black text-black">
-                                                        ﷼ {item.row_total.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                                                    <div className="text-[15px] font-black text-black price currency-riyal">
+                                                        <Price amount={item.row_total} />
                                                     </div>
+
                                                 </div>
                                             </div>
                                         ))}
@@ -1201,24 +1204,27 @@ const CheckoutPageUI: React.FC = () => {
                                 <div className="p-6 space-y-4">
                                     <div className="flex justify-between items-center text-[15px]">
                                         <span className="text-black font-medium">Subtotal</span>
-                                        <span className="font-black text-black">
-                                            ﷼ {displayTotals.subtotal.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                                        <span className="font-black text-black price currency-riyal">
+                                            <Price amount={displayTotals.subtotal} />
                                         </span>
+
                                     </div>
 
                                     <div className="flex justify-between items-center text-[15px]">
                                         <span className="text-black font-medium">VAT (15%)</span>
-                                        <span className="font-black text-black">
-                                            ﷼ {displayTotals.tax_amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                                        <span className="font-black text-black price currency-riyal">
+                                            <Price amount={displayTotals.tax_amount} />
                                         </span>
+
                                     </div>
 
                                     <div className="pt-4 border-t border-gray-200">
                                         <div className="flex justify-between items-center">
                                             <span className="text-[18px] font-black text-black">Grand Total</span>
-                                            <span className="text-[20px] font-black text-black">
-                                                ﷼ {displayTotals.grand_total.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                                            <span className="text-[20px] font-black text-black price currency-riyal">
+                                                <Price amount={displayTotals.grand_total} />
                                             </span>
+
                                         </div>
                                     </div>
                                 </div>

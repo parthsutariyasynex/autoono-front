@@ -28,7 +28,14 @@ function getResponse(response: any) {
 }
 
 export function getToken() {
-    return store.getState().auth.token;
+    // Try Redux first, then fallback to localStorage
+    const reduxToken = store.getState().auth.token;
+    if (reduxToken) return reduxToken;
+
+    if (typeof window !== "undefined") {
+        return localStorage.getItem("token");
+    }
+    return null;
 }
 
 export const axiosPost = (config: any, callback: (res: any) => void, progressCallback?: (progress: number) => void) => {

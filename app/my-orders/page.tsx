@@ -2,7 +2,8 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { useSession } from "next-auth/react";
-import { formatPrice, redirectToLogin } from "@/utils/helpers";
+import { redirectToLogin } from "@/utils/helpers";
+import Price from "@/app/components/Price";
 import { useRouter, useSearchParams } from "next/navigation";
 import Sidebar from "@/components/Sidebar";
 import Filters from "@/components/Filters";
@@ -21,7 +22,7 @@ function mapOrder(item: any): Order {
         date = `${d.getMonth() + 1}/${d.getDate()}/${d.getFullYear().toString().slice(-2)}`;
     }
 
-    const grandTotal = formatPrice(item.grand_total);
+    const grandTotal = item.grand_total;
 
     let orderedBy = item.ordered_by || "";
     if (!orderedBy && item.billing_address) {
@@ -315,7 +316,7 @@ export default function MyOrdersPage() {
 
     return (
         <>
-<div className="flex max-w-[1440px] mx-auto mt-[80px]">
+            <div className="flex max-w-[1440px] mx-auto mt-[80px]">
                 <Sidebar />
 
                 <main className="flex-1 p-8 min-h-screen">

@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
-import { formatPrice, redirectToLogin } from "@/utils/helpers";
+import { redirectToLogin } from "@/utils/helpers";
+import Price from "@/app/components/Price";
 import { useSession } from "next-auth/react";
 import { useRouter, useParams } from "next/navigation";
 import Sidebar from "@/components/Sidebar";
@@ -267,13 +268,13 @@ export default function OrderDetailsPage() {
     };
 
     const formatCurrency = (amount: number | string | undefined | null) => {
-        return formatPrice(amount);
+        return <Price amount={amount} />;
     };
 
     if (authStatus === "loading" || (isLoading && !order)) {
         return (
             <div className="min-h-screen bg-white">
-                
+
                 <div className="flex max-w-[1440px] mx-auto mt-[100px]">
                     <Sidebar />
                     <main className="flex-1 p-8 bg-[#fcfcfc] flex items-center justify-center">
@@ -287,7 +288,7 @@ export default function OrderDetailsPage() {
     if (error) {
         return (
             <div className="min-h-screen bg-white">
-                
+
                 <div className="flex max-w-[1440px] mx-auto mt-[100px]">
                     <Sidebar />
                     <main className="flex-1 p-8 bg-[#fcfcfc]">
@@ -315,7 +316,7 @@ export default function OrderDetailsPage() {
 
     return (
         <div className="min-h-screen bg-white">
-            
+
 
             <div className="flex max-w-[1440px] mx-auto mt-[100px]">
                 {/* Left Sidebar */}
@@ -394,13 +395,15 @@ export default function OrderDetailsPage() {
                                             <td className="px-6 py-5 text-gray-600">
                                                 {item.sku}
                                             </td>
-                                            <td className="px-6 py-5 text-right text-gray-900 font-medium">
+                                            <td className=" currency-riyal">
+
                                                 {formatCurrency(item.price)}
                                             </td>
                                             <td className="px-6 py-5 text-center text-gray-700">
                                                 Ordered: {Math.round(item.qty_ordered)}
                                             </td>
-                                            <td className="px-6 py-5 text-right font-black text-black">
+                                            <td className="px-6 py-5 text-right font-black text-black price currency-riyal">
+
                                                 {formatCurrency(item.row_total)}
                                             </td>
                                         </tr>
@@ -414,21 +417,24 @@ export default function OrderDetailsPage() {
                             <div className="w-full max-w-[340px] space-y-4">
                                 <div className="flex justify-between items-center text-[14px]">
                                     <span className="text-gray-900 font-bold uppercase text-right flex-1 mr-10">Items Total</span>
-                                    <span className="font-bold text-gray-900 w-[110px] text-right">
+                                    <span className="font-bold text-gray-900 w-[110px] text-right price currency-riyal">
+
                                         {formatCurrency(order.subtotal)}
                                     </span>
                                 </div>
 
                                 <div className="flex justify-between items-center text-[14px]">
                                     <span className="text-gray-900 font-bold uppercase text-right flex-1 mr-10">VAT (15%)</span>
-                                    <span className="font-bold text-gray-900 w-[110px] text-right">
+                                    <span className="font-bold text-gray-900 w-[110px] text-right price currency-riyal">
+
                                         {formatCurrency(order.tax_amount)}
                                     </span>
                                 </div>
 
                                 <div className="flex justify-between items-center text-black pt-2">
                                     <span className="font-black uppercase text-right flex-1 mr-10 text-[18px]">Grand Total</span>
-                                    <span className="font-black w-[110px] text-right text-[18px]">
+                                    <span className="font-black w-[110px] text-right text-[18px] price currency-riyal">
+
                                         {formatCurrency(order.grand_total)}
                                     </span>
                                 </div>

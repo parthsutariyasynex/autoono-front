@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import toast from "react-hot-toast";
-import Navbar from "../components/Navbar";
+
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { forgotPassword } from "@/store/actions/authActions";
 import { RootState } from "@/store/store";
@@ -228,7 +228,7 @@ export default function ForgotPasswordPage() {
 
   return (
     <div className="min-h-screen bg-[#f4f4f4] flex flex-col font-['Rubik']">
-      <Navbar />
+
 
       <div className="flex-1 flex items-center justify-center p-4 md:p-10">
         <div className="w-full max-w-[450px] bg-white rounded-[3px] shadow-lg border border-gray-100 flex flex-col overflow-hidden">
