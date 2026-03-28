@@ -143,11 +143,11 @@ export default function SubAccountMyAccountPage() {
         <>
 
 
-            <div className="flex flex-col md:flex-row min-h-[calc(100vh-80px)]">
+            <div className="flex flex-1 min-h-0 w-full">
                 <Sidebar />
 
                 {/* Right Content */}
-                <main className="flex-1 p-8 bg-white max-w-[1200px]">
+                <main className="flex-1 p-8 bg-white min-h-0">
 
                     {/* Green Alert Banner */}
                     {isSubAccountSession && (

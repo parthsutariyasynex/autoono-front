@@ -174,8 +174,8 @@ export default function MyOrdersPage() {
         <div className="min-h-screen bg-white font-['Rubik'] pb-20">
 
 
-            <div className="max-w-[1440px] mx-auto px-6 py-10 mt-20">
-                <div className="flex flex-col md:flex-row gap-10 items-start">
+            <div className="flex flex-1 min-h-0 w-full px-8 py-10">
+                <div className="flex flex-1 flex-col md:flex-row gap-10 items-start w-full">
                     <Sidebar />
 
                     <main className="flex-1 w-full min-w-0">

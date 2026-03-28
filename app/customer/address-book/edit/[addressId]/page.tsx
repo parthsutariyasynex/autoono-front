@@ -158,13 +158,11 @@ function EditAddressPageContent() {
         <div className="min-h-screen bg-white font-['Rubik'] text-[#333]">
 
 
-            <div className="flex max-w-[1440px] mx-auto mt-4 md:mt-8">
-                {/* Left Sidebar */}
-                <Sidebar />
+            <div className="flex flex-1 min-h-0 w-full px-8 py-10">
+                <div className="flex flex-1 flex-col md:flex-row gap-10 items-start w-full">
+                    <Sidebar />
 
-                {/* Right Content */}
-                <main className="flex-1 p-8 bg-white min-h-screen">
-                    <div className="max-w-[760px]">
+                    <main className="flex-1 w-full min-w-0">
                         <h1 className="text-[28px] font-bold text-black uppercase tracking-tight mb-6">
                             EDIT ADDRESS
                         </h1>
@@ -250,8 +248,8 @@ function EditAddressPageContent() {
                                 </form>
                             </div>
                         </div>
-                    </div>
-                </main>
+                    </main>
+                </div>
             </div>
         </div>
     );

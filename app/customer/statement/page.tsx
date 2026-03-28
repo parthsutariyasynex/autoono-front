@@ -144,12 +144,12 @@ export default function MyStatementPage() {
         <div className="min-h-screen bg-white">
 
 
-            <div className="flex max-w-[1440px] mx-auto mt-4 md:mt-8">
+            <div className="flex flex-1 min-h-0 w-full">
                 {/* Left Sidebar */}
                 <Sidebar />
 
                 {/* Right Content */}
-                <main className="flex-1 p-8 bg-[#fcfcfc] min-h-screen">
+                <main className="flex-1 p-8 bg-[#fcfcfc] min-h-0">
                     <h1 className="text-[24px] font-black text-black tracking-tight uppercase mb-8">
                         MY STATEMENT
                     </h1>
