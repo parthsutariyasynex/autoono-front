@@ -151,15 +151,6 @@ const MultiShippingBillingPage: React.FC = () => {
                                     <p>Saudi Arabia</p>
                                     <p className="mt-4">T: {currentAddress.telephone}</p>
 
-                                    {/* Link to change address if multiple exist */}
-                                    {addresses.length > 1 && (
-                                        <button
-                                            className="mt-6 text-[11px] font-black uppercase text-[#f5b21a] hover:text-black transition-colors underline-offset-4 underline"
-                                            onClick={() => {/* Implement address selection modal if needed */ }}
-                                        >
-                                            Change Billing Address
-                                        </button>
-                                    )}
                                 </div>
                             ) : (
                                 <p className="text-gray-400 italic">No address selected.</p>

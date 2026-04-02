@@ -149,7 +149,7 @@ export default function MyAccountPage() {
                                             Company Information
                                         </div>
                                         <div className="p-4 md:p-6 text-[13px] text-gray-700 space-y-2.5 font-medium leading-relaxed">
-                                            {/* <p>Company Name: {getAttr("company_name") || addresses?.[0]?.company || "N/A"}</p> */}
+                                            <p>Company Name: {getAttr("company_name") || addresses?.[0]?.company || "N/A"}</p>
                                             <p>Company Contact: {getAttr("company_contact_name")}</p>
                                             <p>Company Email: {getAttr("company_email")}</p>
                                             <p>Customer Code: {getAttr("customer_code")}</p>

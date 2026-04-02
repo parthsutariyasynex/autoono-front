@@ -65,11 +65,28 @@ export async function GET(request: NextRequest) {
 
         // Normalize response: always return { filters: [...] }
         // Magento may return array directly, or wrapped in filters/data/items
-        const filters = Array.isArray(data)
+        let filters = Array.isArray(data)
             ? data
             : (data.filters || data.data || data.items || []);
 
-        console.log(`[filters/route] Loaded ${Array.isArray(filters) ? filters.length : 0} filter groups for category ${categoryId}`);
+        // ── Normalize Filter Keys ──
+        if (Array.isArray(filters)) {
+            filters = filters.map((f: any) => {
+                let code = f.code || f.attribute_code;
+                
+                // Map backend keys to what the frontend expects
+                if (code === "color") code = "tyre_size";
+                if (code === "manufacturer") code = "origin";
+                if (code === "mgs_brand") code = "brand";
+                if (code === "productGroup") code = "product_group";
+                if (code === "warrantyPeriod") code = "warranty_period";
+                if (code === "newArrivals") code = "new_arrivals";
+
+                return { ...f, code };
+            });
+        }
+
+        console.log(`[filters/route] Loaded ${filters.length} normalized filter groups for category ${categoryId}`);
 
         return NextResponse.json({ filters });
 

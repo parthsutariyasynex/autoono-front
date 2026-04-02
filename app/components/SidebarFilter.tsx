@@ -243,7 +243,7 @@ function SidebarFilter({
 
     // Matches logic we had before for relevant codes
     const RELEVANT_CODES = useMemo(() => new Set([
-        "brand", "tyre_size", "pattern", "year", "origin", "manufacturer", "manufacturer_label", "offers", "new_arrivals"
+        "brand", "tyre_size", "pattern", "year", "origin", "manufacturer", "manufacturer_label", "offers", "new_arrivals", "product_group", "itemcode", "types", "oemmarking", "warranty_period"
     ]), []);
 
     const visibleFilterGroups = useMemo(() => {

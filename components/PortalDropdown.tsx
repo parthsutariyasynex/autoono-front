@@ -31,6 +31,15 @@ export default function PortalDropdown({
 
     useEffect(() => { setMounted(true); }, []);
 
+    // Auto-close on scroll to prevent "floating" dropdowns
+    useEffect(() => {
+        if (isOpen) {
+            const handleScroll = () => setIsOpen(false);
+            window.addEventListener('scroll', handleScroll, { passive: true });
+            return () => window.removeEventListener('scroll', handleScroll);
+        }
+    }, [isOpen]);
+
     const updatePos = useCallback(() => {
         if (!triggerRef.current) return;
         const rect = triggerRef.current.getBoundingClientRect();

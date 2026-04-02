@@ -86,14 +86,19 @@ export async function GET(request: NextRequest) {
             if (combined) {
                 // Specialized mappings for specific Magento attributes
                 const keyMap: Record<string, string> = {
-                    brand: "mgs_brand",
-                    origin: "manufacturer"
+                    brand: "brand", // Fixed from "mgs_brand"
+                    origin: "manufacturer",
+                    tyre_size: "color",
+                    product_group: "productGroup",
+                    warranty_period: "warrantyPeriod",
+                    new_arrivals: "newArrivals",
+                    item_code: "itemCode",
+                    oem_marking: "oemMarking"
                 };
 
-                const mappedKey = keyMap[key] || key;
+                const magentoKey = keyMap[key] || key;
 
-                // Convert camelCase filter keys to snake_case for Magento (e.g. warrantyPeriod -> warranty_period)
-                const magentoKey = mappedKey.replace(/([A-Z])/g, "_$1").toLowerCase();
+                // Append to query parts without incorrect snake_case conversion
                 queryParts.push(`${encodeURIComponent(magentoKey)}=${encodeURIComponent(combined)}`);
             }
         });
@@ -108,7 +113,7 @@ export async function GET(request: NextRequest) {
                 ...(token && { Authorization: `Bearer ${token}` }),
                 "Content-Type": "application/json",
             },
-            cache: "no-store",
+            next: { revalidate: 300 } // Cache for 5 minutes (removes no-store)
         });
 
         if (!res.ok) {
@@ -121,6 +126,23 @@ export async function GET(request: NextRequest) {
         }
 
         const data = await res.json();
+
+        // ── Normalize Filter Keys ──
+        if (Array.isArray(data.filters)) {
+            data.filters = data.filters.map((f: any) => {
+                let code = f.code || f.attribute_code;
+
+                // Map backend keys to what the frontend expects
+                if (code === "color") code = "tyre_size";
+                if (code === "manufacturer") code = "origin";
+                if (code === "mgs_brand") code = "brand";
+                if (code === "productGroup") code = "product_group";
+                if (code === "warrantyPeriod") code = "warranty_period";
+                if (code === "newArrivals") code = "new_arrivals";
+
+                return { ...f, code };
+            });
+        }
 
         // ── Dynamic Offers Filter Injection ──
         const products = Array.isArray(data.products) ? data.products : (Array.isArray(data.items) ? data.items : []);

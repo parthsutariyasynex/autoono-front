@@ -169,17 +169,18 @@ const MultiShippingShippingPage: React.FC = () => {
                 <h1 className="text-[18px] sm:text-[20px] md:text-[24px] font-[900] text-black text-center uppercase mb-2 md:mb-3 tracking-tighter">
                     SELECT SHIPPING METHOD
                 </h1>
-                <p className="text-[12px] sm:text-[13px] md:text-[15px] font-bold text-black text-center mb-6 md:mb-12">
-                    Address 1 <span className="text-gray-300 font-medium">of {groups.length}</span>
-                </p>
+
 
                 <div className="space-y-4 md:space-y-6">
-                    {groups.map((group) => {
+                    {groups.map((group, index) => {
                         const methods = shippingMethods[group.address.id] || [];
                         const selected = selectedMethods[group.address.id];
 
                         return (
                             <div key={group.address.id} className="space-y-4">
+                                <p className="text-[12px] sm:text-[13px] md:text-[14px] font-[900] text-black text-center tracking-tight">
+                                    Address {index + 1} <span className="text-[#cccccc] font-medium">of {groups.length}</span>
+                                </p>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
                                     {/* Shipping To Section */}
                                     <div className="bg-[#f2f2f2] min-h-[200px] md:min-h-[250px] flex flex-col">
