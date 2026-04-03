@@ -1,93 +1,142 @@
-# altalayi-front
+# Altalayi - B2B Tyre E-Commerce Platform
 
+A full-featured B2B tyre trading platform built with Next.js 15 and integrated with a Magento backend. The platform supports product browsing, advanced tyre filtering, multi-location delivery, customer dashboards, and sub-account management.
 
+## Tech Stack
 
-## Getting started
+| Layer              | Technology                                    |
+| ------------------ | --------------------------------------------- |
+| Framework          | Next.js 15 (App Router)                       |
+| Language           | TypeScript 5                                  |
+| UI                 | React 19, Tailwind CSS 4                      |
+| Authentication     | NextAuth (JWT + Magento Credentials Provider) |
+| State Management   | Redux Toolkit, React Context, Zustand         |
+| HTTP Client        | Axios, SWR                                    |
+| Charts             | Recharts                                      |
+| PDF/Excel Export   | jsPDF, html2canvas, ExcelJS                   |
+| Icons              | Lucide React                                  |
+| Notifications      | React Hot Toast                               |
+| Backend            | Magento REST API (via KleverAPI proxy)        |
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+## Features
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+### Product Management
+- Browse tyres with advanced filtering (brand, size, pattern, year, origin)
+- Tyre size search (width, height, rim)
+- Product detail pages with stock info
+- Wishlist / favorites
 
-## Add your files
+### Shopping Cart & Checkout
+- Persistent cart with real-time totals (subtotal, tax, grand total)
+- Multi-step checkout: address -> shipping -> payment -> review
+- Pickup time slot selection
+- PO number & file upload support
 
-* [Create](https://docs.gitlab.com/user/project/repository/web_editor/#create-a-file) or [upload](https://docs.gitlab.com/user/project/repository/web_editor/#upload-a-file) files
-* [Add files using the command line](https://docs.gitlab.com/topics/git/add_files/#add-files-to-a-git-repository) or push an existing Git repository with the following command:
+### Multi-Location Delivery
+- Ship products to multiple addresses in a single order
+- Assign items to different delivery locations
+- Separate billing/shipping per location
+
+### Order Management
+- Order history with filters
+- Order status tracking & detail views
+- PDF & Excel export
+- Reorder functionality
+- Order attachments / documents
+
+### Customer Dashboard
+- Business overview with analytics
+- Quarterly/monthly sales comparisons
+- Product group performance charts
+
+### Account & Auth
+- Email/password and OTP-based login (SMS/email)
+- Password recovery/reset
+- Address book management
+- Sub-account management (create/manage sub-users)
+- Notification center
+
+## Project Structure
 
 ```
-cd existing_repo
-git remote add origin https://gitlab.com/altalayi/altalayi-front.git
-git branch -M main
-git push -uf origin main
+altalayi-front/
+├── app/
+│   ├── api/                  # API routes (auth, kleverapi proxy, filters, etc.)
+│   ├── products/             # Product catalog & detail pages
+│   ├── cart/                 # Shopping cart
+│   ├── checkout/             # Multi-step checkout + success page
+│   ├── multi-location-delivery/  # Bulk shipping flow
+│   ├── customer/             # Dashboard, orders, addresses, notifications
+│   ├── my-orders/            # Order history & details
+│   ├── favorites/            # Wishlist
+│   ├── login/                # Login (OTP & password modes)
+│   ├── forgot-password/      # Password recovery
+│   ├── catalogue/            # Product catalog download
+│   ├── locations/            # Store/location finder
+│   └── layout.tsx            # Root layout with providers
+├── components/               # Shared UI components
+├── modules/                  # Feature modules (cart, checkout, notifications, multishipping)
+├── store/                    # Redux store, actions, reducers
+├── lib/                      # API client & auth config
+├── utils/                    # Helper utilities
+├── context/                  # React Context providers
+├── public/                   # Static assets (images, logos)
+└── middleware.ts             # Route protection & auth redirects
 ```
 
-## Integrate with your tools
+## Getting Started
 
-* [Set up project integrations](https://gitlab.com/altalayi/altalayi-front/-/settings/integrations)
+### Prerequisites
 
-## Collaborate with your team
+- Node.js 18+
+- npm or yarn
 
-* [Invite team members and collaborators](https://docs.gitlab.com/user/project/members/)
-* [Create a new merge request](https://docs.gitlab.com/user/project/merge_requests/creating_merge_requests/)
-* [Automatically close issues from merge requests](https://docs.gitlab.com/user/project/issues/managing_issues/#closing-issues-automatically)
-* [Enable merge request approvals](https://docs.gitlab.com/user/project/merge_requests/approvals/)
-* [Set auto-merge](https://docs.gitlab.com/user/project/merge_requests/auto_merge/)
+### Installation
 
-## Test and Deploy
+```bash
+npm install
+```
 
-Use the built-in continuous integration in GitLab.
+### Environment Variables
 
-* [Get started with GitLab CI/CD](https://docs.gitlab.com/ci/quick_start/)
-* [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/user/application_security/sast/)
-* [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/topics/autodevops/requirements/)
-* [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/user/clusters/agent/)
-* [Set up protected environments](https://docs.gitlab.com/ci/environments/protected_environments/)
+Create a `.env` file in the root directory:
 
-***
+```env
+NEXT_PUBLIC_BASE_URL=<kleverapi-base-url>
+NEXTAUTH_SECRET=<your-secret>
+MAGENTO_AUTH_TOKEN_URL=<magento-token-endpoint>
+NEXTAUTH_URL=http://localhost:3000   # Required in production
+```
 
-# Editing this README
+### Development
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
+```bash
+npm run dev
+```
 
-## Suggestions for a good README
+The app starts at [http://localhost:3000](http://localhost:3000).
 
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
+### Production
 
-## Name
-Choose a self-explaining name for your project.
+```bash
+npm run build
+npm start
+```
 
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
+### Scripts
 
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
+| Script                 | Description             |
+| ---------------------- | ----------------------- |
+| `npm run dev`          | Start dev server        |
+| `npm run build`        | Production build        |
+| `npm start`            | Start production server |
+| `npm run lint`         | Run ESLint              |
+| `npm run seed:products`| Seed product data       |
 
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+## Architecture Notes
 
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
-
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
-
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
-
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
-
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
-
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
-
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
-
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
-
-## License
-For open source projects, say how it is licensed.
-
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+- **API Proxy**: Next.js `/api/kleverapi/*` routes proxy requests to the Magento backend, keeping credentials server-side.
+- **Auth Flow**: Login credentials are sent to NextAuth -> Magento token exchange -> JWT stored in session & localStorage -> passed as `Authorization: Bearer` header on API calls.
+- **Route Protection**: `middleware.ts` checks for NextAuth JWT or a custom `auth-token` cookie, redirecting unauthenticated users to `/login`.
+- **State Split**: Redux handles auth, customer, and address state. React Context manages cart state. Both are initialized at the root layout.
+- **Styling**: Tailwind CSS with a custom brand color (`#F5B21B`) and a custom Saudi Riyal (SAR) currency font.

@@ -86,7 +86,7 @@ export async function GET(request: NextRequest) {
             if (combined) {
                 // Specialized mappings for specific Magento attributes
                 const keyMap: Record<string, string> = {
-                    brand: "brand", // Fixed from "mgs_brand"
+                    brand: "mgs_brand",
                     origin: "manufacturer",
                     tyre_size: "color",
                     product_group: "productGroup",

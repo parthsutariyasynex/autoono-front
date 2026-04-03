@@ -703,7 +703,6 @@ export function useCheckout(options: UseCheckoutOptions = {}) {
     // ─── Start Multi-Shipping ───
     const startMultiShipping = useCallback(async () => {
         try {
-            setIsLoading(true);
             const token = await getAuthToken();
             if (!token) throw new Error("Not authenticated");
 
@@ -722,10 +721,7 @@ export function useCheckout(options: UseCheckoutOptions = {}) {
             return data;
         } catch (err) {
             const msg = err instanceof Error ? err.message : "Failed to start multi-shipping";
-            setError(msg);
             throw new Error(msg);
-        } finally {
-            setIsLoading(false);
         }
     }, []);
 
@@ -932,12 +928,13 @@ export function useCheckout(options: UseCheckoutOptions = {}) {
         addAddress,
         placeOrder,
         placeMultiShippingOrder: async (orderData: any) => {
+            // NOTE: Do NOT set global isLoading here — it triggers the review page's
+            // loadReviewData effect which clears localStorage and causes a redirect loop
             try {
-                setIsLoading(true);
                 const token = await getAuthToken();
                 if (!token) throw new Error("Not authenticated");
 
-                const res = await fetch("/api/kleverapi/checkout/place-order", {
+                const res = await fetch("/api/kleverapi/multishipping/place-order", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
@@ -954,8 +951,25 @@ export function useCheckout(options: UseCheckoutOptions = {}) {
             } catch (err) {
                 setError(err instanceof Error ? err.message : "Failed to place multi-shipping order");
                 throw err;
-            } finally {
-                setIsLoading(false);
+            }
+        },
+        fetchMultiShippingSuccess: async (orderId: string) => {
+            try {
+                const token = await getAuthToken();
+                if (!token) throw new Error("Not authenticated");
+
+                const res = await fetch(`/api/kleverapi/multishipping/success/${orderId}`, {
+                    method: "GET",
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.message || "Failed to get order success data");
+                return data;
+            } catch (err) {
+                setError(err instanceof Error ? err.message : "Failed to get multi-shipping order success data");
+                throw err;
             }
         },
         savePoNumber,

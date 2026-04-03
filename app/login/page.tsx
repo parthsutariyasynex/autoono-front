@@ -536,9 +536,8 @@ function LoginPageContent() {
   };
 
   return (
-    <div className="flex-1 bg-[#f4f4f4] flex flex-col font-['Rubik']">
+    <div className="min-h-[calc(100vh-108px)] bg-[#f4f4f4] flex flex-col font-['Rubik']">
 
-      {/* ── CHANGE: pt-24→pt-16, added pb-12 for bottom breathing room ── */}
       <main className="flex-1 flex justify-center items-start pt-8 md:pt-16 pb-12 px-4 md:px-0">
 
         {/* ── CHANGE: max-w-[400px]→max-w-[440px] for slightly more room ── */}

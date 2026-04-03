@@ -20,8 +20,15 @@ import { useCart } from "@/modules/cart/hooks/useCart";
 import { useNotifications } from "@/modules/notifications/hooks/useNotifications";
 import { fetchCustomerInfo } from "@/store/actions/customerActions";
 
-const NAV_LINKS = [
+interface NavLink {
+  label: string;
+  href: string;
+  code?: string;
+}
+
+const FALLBACK_NAV_LINKS: NavLink[] = [
   { label: "All Tyres", href: "/products" },
+  { label: "Quick Order", href: "/quick-order" },
   { label: "About Us", href: "/about" },
   { label: "Branch Locations", href: "/locations" },
   { label: "User Guides", href: "/guides" },
@@ -33,6 +40,8 @@ export default function Navbar() {
   const pathname = usePathname();
   const isAuthenticated = status === "authenticated";
   const { cart, refetchCart } = useCart();
+  const [navLinks, setNavLinks] = useState<NavLink[]>(FALLBACK_NAV_LINKS);
+  const [navLoading, setNavLoading] = useState(true);
 
   const { data: customerData } = useSelector((state: RootState) => state.customer);
   const dispatch = useDispatch();
@@ -93,6 +102,48 @@ export default function Navbar() {
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  // Fetch dynamic menu from API
+  useEffect(() => {
+    const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+
+    // No token (login page) — use fallback links immediately, no API call
+    if (!token) {
+      setNavLoading(false);
+      return;
+    }
+
+    let cancelled = false;
+    const fetchMenu = async () => {
+      try {
+        const res = await fetch("/api/kleverapi/menu", {
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`,
+          },
+        });
+        if (cancelled) return;
+        if (!res.ok) throw new Error("Menu fetch failed");
+        const data = await res.json();
+        if (cancelled) return;
+
+        if (Array.isArray(data) && data.length > 0) {
+          setNavLinks(data.map((item: any) => ({
+            label: item.label,
+            href: item.href,
+            code: item.code,
+          })));
+        }
+      } catch {
+        // Fallback to static links (already set as default)
+      } finally {
+        if (!cancelled) setNavLoading(false);
+      }
+    };
+
+    fetchMenu();
+    return () => { cancelled = true; };
   }, []);
 
   return (
@@ -230,15 +281,27 @@ export default function Navbar() {
       {/* ── YELLOW NAV BAR — desktop only ── */}
       <nav className="bg-[#f5b21a] border-b border-yellow-600/10 w-full hidden lg:block">
         <div className="flex items-center justify-center h-9 max-w-[1280px] mx-auto px-2 lg:px-4">
-          {NAV_LINKS.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="flex items-center h-full px-2.5 lg:px-7 text-[11px] lg:text-[12px] font-semibold uppercase tracking-wide lg:tracking-wider text-black hover:bg-black hover:text-white transition-all duration-200 whitespace-nowrap"
-            >
-              {item.label}
-            </Link>
-          ))}
+          {navLoading ? (
+            <div className="flex items-center gap-6">
+              {[1, 2, 3, 4, 5].map(i => (
+                <div key={i} className="h-3 w-20 bg-yellow-500/40 rounded animate-pulse" />
+              ))}
+            </div>
+          ) : (
+            navLinks.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`flex items-center h-full px-2.5 lg:px-7 text-[11px] lg:text-[12px] font-semibold uppercase tracking-wide lg:tracking-wider transition-all duration-200 whitespace-nowrap ${
+                  pathname === item.href || pathname?.startsWith(item.href + "/")
+                    ? "bg-black text-white"
+                    : "text-black hover:bg-black hover:text-white"
+                }`}
+              >
+                {item.label}
+              </Link>
+            ))
+          )}
         </div>
       </nav>
 
@@ -264,11 +327,13 @@ export default function Navbar() {
             {/* Nav links */}
             <div className="px-4 py-2">
               <span className="text-[9px] font-bold text-gray-400 uppercase tracking-[0.2em] block mb-2">Navigation</span>
-              {NAV_LINKS.map((item) => (
+              {navLinks.map((item) => (
                 <Link
                   key={item.href}
                   href={item.href}
-                  className="py-2.5 text-[12px] font-bold uppercase tracking-wide text-black hover:text-[#f5b21a] flex items-center justify-between group"
+                  className={`py-2.5 text-[12px] font-bold uppercase tracking-wide flex items-center justify-between group ${
+                    pathname === item.href ? "text-[#f5b21a]" : "text-black hover:text-[#f5b21a]"
+                  }`}
                   onClick={() => setIsMenuOpen(false)}
                 >
                   {item.label}

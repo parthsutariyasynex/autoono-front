@@ -43,15 +43,15 @@ const MultiShippingReviewPage: React.FC = () => {
     const [groups, setGroups] = useState<AddressGroup[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [isPlacingOrder, setIsPlacingOrder] = useState(false);
+    const [orderPlaced, setOrderPlaced] = useState(false);
 
     // Billing info from localStorage or selections
     const [billingAddress, setBillingAddress] = useState<Address | null>(null);
     const [paymentMethod, setPaymentMethod] = useState<{ code: string, title: string } | null>(null);
 
-    // Remove hasFetched ref to allow re-runs when data arrives
-
     useEffect(() => {
         const loadReviewData = async () => {
+            if (orderPlaced || isPlacingOrder) return;
             if (isCartLoading || isCheckoutLoading) return;
             if (!cart?.items || addresses.length === 0) return;
 
@@ -122,7 +122,7 @@ const MultiShippingReviewPage: React.FC = () => {
         };
 
         loadReviewData();
-    }, [cart, addresses, paymentMethods, isCartLoading, isCheckoutLoading, refetchTotals, router]);
+    }, [cart, addresses, paymentMethods, isCartLoading, isCheckoutLoading, refetchTotals, router, isPlacingOrder, orderPlaced]);
 
     // Set payment method once paymentMethods loads (may arrive after initial effect)
     useEffect(() => {
@@ -159,73 +159,6 @@ const MultiShippingReviewPage: React.FC = () => {
         try {
             setIsPlacingOrder(true);
 
-            // Re-initialize session, re-assign items, and set billing (session may have expired)
-            await startMultiShipping();
-            const savedAssignments = localStorage.getItem('multi_shipping_assignments');
-            if (savedAssignments) {
-                const assignments = JSON.parse(savedAssignments);
-                const apiAssignments: Array<{ quote_item_id: number; customer_address_id: string; qty: number }> = [];
-                Object.entries(assignments).forEach(([itemId, addrMap]: [string, any]) => {
-                    Object.entries(addrMap).forEach(([addrId, qty]: [string, any]) => {
-                        if (qty > 0) apiAssignments.push({ quote_item_id: Number(itemId), customer_address_id: addrId, qty });
-                    });
-                });
-                if (apiAssignments.length > 0) await assignMultiShipping(apiAssignments);
-            }
-
-            // Fetch shipping methods to get quote_address_ids
-            try {
-                const methodsData = await fetchMultiShippingMethods();
-                console.log(">>> fetchMultiShippingMethods RAW:", JSON.stringify(methodsData));
-
-                // Deep-search for quote_address_id values in any response format
-                const methodsToSet: Record<string, string> = {};
-                const findAndSet = (obj: any) => {
-                    if (!obj) return;
-                    if (Array.isArray(obj)) {
-                        obj.forEach(item => findAndSet(item));
-                        return;
-                    }
-                    if (typeof obj === 'object') {
-                        // Check if this object itself has a quote address id
-                        const qid = obj.quote_address_id ?? obj.quoteAddressId ?? obj.address_id ?? obj.id;
-                        if (qid && typeof qid === 'number') {
-                            // Find a shipping method in this object
-                            const methods = obj.methods || obj.available_shipping_methods || obj.shipping_methods || obj.rates || [];
-                            if (Array.isArray(methods) && methods.length > 0) {
-                                const m = methods[0];
-                                methodsToSet[String(qid)] = m.code || `${m.carrier_code || m.carrierCode || "flatrate"}_${m.method_code || m.methodCode || "flatrate"}`;
-                            }
-                        }
-                        // Also check if keys are numeric (direct map format)
-                        Object.entries(obj).forEach(([key, val]) => {
-                            if (!isNaN(Number(key)) && Number(key) > 0 && Array.isArray(val) && (val as any[]).length > 0) {
-                                const m = (val as any[])[0];
-                                methodsToSet[key] = m.code || `${m.carrier_code || m.carrierCode || "flatrate"}_${m.method_code || m.methodCode || "flatrate"}`;
-                            } else if (typeof val === 'object') {
-                                findAndSet(val);
-                            }
-                        });
-                    }
-                };
-                findAndSet(methodsData);
-
-                console.log(">>> Extracted methodsToSet:", JSON.stringify(methodsToSet));
-
-                if (Object.keys(methodsToSet).length > 0) {
-                    await setMultiShippingMethods(methodsToSet);
-                } else {
-                    console.warn("Could not extract quote_address_ids from response — proceeding without setting shipping methods");
-                }
-            } catch (shippingErr) {
-                console.warn("Setting shipping methods failed, proceeding anyway:", shippingErr);
-            }
-
-            // Re-set billing address and payment method
-            if (billingAddress && paymentMethod) {
-                await setMultiShippingBillingAddress(billingAddress.id, paymentMethod.code || "checkmo");
-            }
-
             const savedMethodsForPayload: Record<string, string> = JSON.parse(localStorage.getItem('multi_shipping_methods') || '{}');
             const shippingInformation = groups.map(group => ({
                 address_id: String(group.address.id),
@@ -244,17 +177,30 @@ const MultiShippingReviewPage: React.FC = () => {
             console.log(">>> Multi-Shipping Place Order Payload:", JSON.stringify(payload, null, 2));
 
             const result = await placeMultiShippingOrder(payload);
+            console.log(">>> Multi-Shipping Place Order RESULT:", JSON.stringify(result, null, 2));
 
+            // Mark order as placed BEFORE clearing localStorage to prevent effect re-triggering
+            setOrderPlaced(true);
             toast.success("Order placed successfully!");
 
-            // Technical details for success page (if shared)
-            const orderSummary = {
-                order_id: result.order_id,
-                order_increment_id: result.order_increment_id || result.increment_id,
-                grand_total: result.grand_total,
-                currency_code: result.currency_code || "SAR"
-            };
-            localStorage.setItem('last_order_summary', JSON.stringify(orderSummary));
+            // Extract ALL entity_ids (numeric) from the place-order result
+            // Magento success API needs comma-separated entity_ids like: /success/28675,28676,28677
+            let entityIds: string[] = [];
+            if (result) {
+                if (Array.isArray(result.order_ids)) {
+                    entityIds = result.order_ids.map((id: any) => String(id));
+                } else if (Array.isArray(result.orders)) {
+                    entityIds = result.orders.map((o: any) => String(o.order_id || o.entity_id || o.id));
+                } else if (Array.isArray(result)) {
+                    entityIds = result.map((o: any) => typeof o === 'object' ? String(o.order_id || o.entity_id || o.id) : String(o));
+                } else if (result.order_id || result.entity_id || result.id) {
+                    entityIds = [String(result.order_id || result.entity_id || result.id)];
+                } else if (typeof result === "number" || typeof result === "string") {
+                    entityIds = [String(result)];
+                }
+            }
+
+            console.log(">>> Extracted entity IDs for success page:", entityIds);
 
             // Clean up localStorage for this flow
             localStorage.removeItem('multi_shipping_assignments');
@@ -262,10 +208,12 @@ const MultiShippingReviewPage: React.FC = () => {
             localStorage.removeItem('multi_shipping_billing_address_id');
             localStorage.removeItem('multi_shipping_payment_method');
 
-            router.push(`/checkout/success?order_id=${result.order_id}`);
+            // Redirect with comma-separated entity_ids — success page will call the API
+            const redirectId = entityIds.length > 0 ? entityIds.join(",") : "placed";
+            router.push(`/multi-location-delivery/success?order_id=${redirectId}`);
         } catch (err: any) {
             console.error("Multi-Shipping Place Order Error:", err);
-            toast.error(err.message || "Failed to place multi-shipping order");
+            toast.error(err.message || "Failed to place multi-shipping order. Please try again.");
         } finally {
             setIsPlacingOrder(false);
         }

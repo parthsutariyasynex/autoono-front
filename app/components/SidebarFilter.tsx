@@ -172,6 +172,7 @@ function SidebarFilter({
     useEffect(() => {
         if (initialFilters) return;
 
+        let cancelled = false;
         const fetchFilters = async () => {
             try {
                 setLoading(true);
@@ -180,8 +181,15 @@ function SidebarFilter({
                 if (token) headers['Authorization'] = `Bearer ${token}`;
 
                 const res = await fetch(`/api/filters?categoryId=${categoryId}`, { headers });
+                if (cancelled) return;
+                if (res.status === 401) {
+                    localStorage.removeItem("token");
+                    window.location.href = "/login";
+                    return;
+                }
                 if (!res.ok) throw new Error("Failed to load filters");
                 const data = await res.json();
+                if (cancelled) return;
 
                 const raw = Array.isArray(data) ? data : (data.filters || data.items || []);
                 const mapped: FilterGroupData[] = raw.map((g: any) => ({
@@ -201,13 +209,14 @@ function SidebarFilter({
                 mapped.slice(0, 3).forEach(g => initialExpanded[g.code] = true);
                 setExpandedGroups(initialExpanded);
             } catch (err: any) {
-                setError(err.message);
+                if (!cancelled) setError(err.message);
             } finally {
-                setLoading(false);
+                if (!cancelled) setLoading(false);
             }
         };
 
         fetchFilters();
+        return () => { cancelled = true; };
     }, [categoryId, initialFilters]);
 
     const handleCheckboxChange = useCallback((code: string, value: string, checked: boolean) => {

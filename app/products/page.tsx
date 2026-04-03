@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useEffect, useState, useMemo, useCallback } from "react";
+import { Suspense, useEffect, useState, useMemo, useCallback, useRef } from "react";
 import { ShoppingCart, X, Star, ChevronLeft, ChevronRight, ChevronDown, AlertTriangle, Info, Check, Filter, Search } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import ProductDialog from "../components/ProductDialog";
@@ -113,6 +113,7 @@ export default function ProductsPage() {
   const [previewProduct, setPreviewProduct] = useState<any | null>(null);
 
   const [isMounted, setIsMounted] = useState(false);
+  const [isInitialized, setIsInitialized] = useState(false);
   const [isFavorite, setIsFavorite] = useState(false);
   const [favIds, setFavIds] = useState<number[]>([]);
 
@@ -126,6 +127,7 @@ export default function ProductsPage() {
       setCurrentPage(page);
       setSortBy(sortBy);
     }
+    setIsInitialized(true);
   }, [searchParams]);
 
   useEffect(() => {
@@ -162,12 +164,20 @@ export default function ProductsPage() {
   };
 
   const [debouncedFilters, setDebouncedFilters] = useState(selectedFilters);
+  const isFirstRender = useRef(true);
   useEffect(() => {
+    // On first render after init, apply filters immediately (no debounce)
+    if (isFirstRender.current && isInitialized) {
+      isFirstRender.current = false;
+      setDebouncedFilters(selectedFilters);
+      return;
+    }
     const handler = setTimeout(() => setDebouncedFilters(selectedFilters), 500);
     return () => clearTimeout(handler);
-  }, [selectedFilters]);
+  }, [selectedFilters, isInitialized]);
 
   useEffect(() => {
+    if (!isInitialized) return; // Don't fetch until URL params are parsed
     const abortController = new AbortController();
     const loadProducts = async () => {
       try {
@@ -200,7 +210,7 @@ export default function ProductsPage() {
     };
     loadProducts();
     return () => abortController.abort();
-  }, [router, currentPage, debouncedFilters, sortBy]);
+  }, [router, currentPage, debouncedFilters, sortBy, isInitialized]);
 
   const handleFilterChange = useCallback(
     (filters: Record<string, string[]>, labels: Record<string, { value: string; label: string }[]>) => {

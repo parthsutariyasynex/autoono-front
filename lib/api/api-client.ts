@@ -20,21 +20,23 @@ async function apiClient(
         token = localStorage.getItem("token");
     }
 
-    const config = {
+    const isFormData = body instanceof FormData;
+
+    const config: any = {
         method,
         ...customConfig,
         headers: {
-            "Content-Type": "application/json",
+            ...(!isFormData && { "Content-Type": "application/json" }),
             ...headers,
         },
     };
 
     if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
+        config.headers.Authorization = `Bearer ${token.replace(/['"]/g, "").trim()}`;
     }
 
     if (body) {
-        config.body = JSON.stringify(body);
+        config.body = isFormData ? body : JSON.stringify(body);
     }
 
     try {
@@ -43,6 +45,15 @@ async function apiClient(
 
         if (response.ok) {
             return data;
+        }
+
+        // Handle expired/invalid token — redirect to login
+        if (response.status === 401) {
+            if (typeof window !== "undefined") {
+                localStorage.removeItem("token");
+                window.location.href = "/login";
+            }
+            throw new Error("Session expired. Please login again.");
         }
 
         throw new Error(data.message || "Something went wrong");

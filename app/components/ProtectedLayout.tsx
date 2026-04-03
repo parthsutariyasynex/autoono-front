@@ -51,8 +51,8 @@ export default function ProtectedLayout({ children }: ProtectedLayoutProps) {
       <div className="h-[56px] sm:h-[64px] lg:h-[108px] flex-shrink-0" aria-hidden="true" />
 
       {/* 🚀 Main Content Wrapper */}
-      <main className="flex-1 flex flex-col min-h-0 w-full relative">
-        <div className="flex-1 flex flex-col w-full">
+      <main className="flex-1 flex flex-col w-full relative">
+        <div className="flex-1 flex flex-col w-full min-h-0">
           {children}
         </div>
 

@@ -32,17 +32,15 @@ const MultiLocationDeliveryPage: React.FC = () => {
     const [isInitialized, setIsInitialized] = useState(false);
 
     useEffect(() => {
-        // Initialize backend multishipping session — must be called ONLY here (step 1)
-        startMultiShipping().catch(err => {
-            console.error("Failed to start multishipping session:", err);
-            const msg = err?.message || "";
-            if (msg.includes("invalid")) {
-                toast.error("Cart must have at least 2 items or qty > 1 for multi-shipping.");
-            } else {
-                toast.error("Checkout initialization failed. Please reload.");
-            }
-        });
-    }, [startMultiShipping]);
+        // Initialize backend multishipping session only if cart has items
+        if (!isCartLoading && cart?.items && cart.items.length > 0) {
+            startMultiShipping().catch(err => {
+                // Magento may reject with "at least two units" for single-item carts
+                // This is not critical — the assign step will still work
+                console.warn("Multi-shipping start warning (non-blocking):", err.message);
+            });
+        }
+    }, [startMultiShipping, cart, isCartLoading]);
 
     useEffect(() => {
         refetchCart();
