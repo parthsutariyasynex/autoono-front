@@ -292,11 +292,10 @@ export default function Navbar() {
               <Link
                 key={item.href}
                 href={item.href}
-                className={`flex items-center h-full px-2.5 lg:px-7 text-[11px] lg:text-[12px] font-semibold uppercase tracking-wide lg:tracking-wider transition-all duration-200 whitespace-nowrap ${
-                  pathname === item.href || pathname?.startsWith(item.href + "/")
+                className={`flex items-center h-full px-2.5 lg:px-7 text-[11px] lg:text-[12px] font-semibold uppercase tracking-wide lg:tracking-wider transition-all duration-200 whitespace-nowrap ${pathname === item.href || pathname?.startsWith(item.href + "/")
                     ? "bg-black text-white"
                     : "text-black hover:bg-black hover:text-white"
-                }`}
+                  }`}
               >
                 {item.label}
               </Link>
@@ -331,9 +330,8 @@ export default function Navbar() {
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`py-2.5 text-[12px] font-bold uppercase tracking-wide flex items-center justify-between group ${
-                    pathname === item.href ? "text-[#f5b21a]" : "text-black hover:text-[#f5b21a]"
-                  }`}
+                  className={`py-2.5 text-[12px] font-bold uppercase tracking-wide flex items-center justify-between group ${pathname === item.href ? "text-[#f5b21a]" : "text-black hover:text-[#f5b21a]"
+                    }`}
                   onClick={() => setIsMenuOpen(false)}
                 >
                   {item.label}

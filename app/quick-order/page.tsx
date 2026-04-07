@@ -156,8 +156,9 @@ export default function QuickOrderPage() {
                 image: product.image_url
             }]);
         }
-        setSearchTerm("");
-        setSearchResults([]);
+        // Don't clear search to allow multiple selections
+        // setSearchTerm("");
+        // setSearchResults([]);
         toast.success(`${sku} added to list`);
     };
 
@@ -594,7 +595,7 @@ export default function QuickOrderPage() {
                                             <td className="px-4 lg:px-6 py-4 text-center">
                                                 <button
                                                     onClick={() => removeOrderItem(item.sku)}
-                                                    className="w-8 h-8 rounded-full flex items-center justify-center text-gray-300 hover:text-red-500 hover:bg-red-50 transition-all active:scale-90"
+                                                    className="w-10 h-10 mx-auto rounded-full flex items-center justify-center text-gray-400 hover:text-red-500 hover:bg-white hover:shadow-md hover:-translate-y-1 transition-all duration-300 active:scale-95 focus:outline-none focus:ring-2 focus:ring-red-100"
                                                     title="Remove Item"
                                                 >
                                                     <Trash2 size={18} />
@@ -648,10 +649,10 @@ export default function QuickOrderPage() {
                                         </div>
                                         <button
                                             onClick={() => removeOrderItem(item.sku)}
-                                            className="w-8 h-8 rounded-full flex items-center justify-center text-gray-300 hover:text-red-500 hover:bg-red-50 transition-all flex-shrink-0"
+                                            className="w-10 h-10 rounded-full flex items-center justify-center text-gray-400 hover:text-red-500 hover:bg-white hover:shadow-md hover:-translate-y-1 transition-all duration-300 active:scale-95 focus:outline-none focus:ring-2 focus:ring-red-100"
                                             title="Remove Item"
                                         >
-                                            <Trash2 size={16} />
+                                            <Trash2 size={18} />
                                         </button>
                                     </div>
                                 </div>
@@ -774,10 +775,10 @@ export default function QuickOrderPage() {
                     <button
                         onClick={handleClearAll}
                         disabled={loading}
-                        className="flex items-center gap-3 text-[11px] font-black text-black uppercase tracking-[0.15em] hover:text-red-600 transition-all active:scale-95 disabled:opacity-50 group"
+                        className="flex items-center gap-4 text-[11px] font-black text-black uppercase tracking-[0.2em] hover:text-red-600 transition-all hover:-translate-y-1 active:scale-95 disabled:opacity-50 group"
                     >
-                        <div className="w-10 h-10 border border-black rounded-full flex items-center justify-center group-hover:border-red-600 transition-colors">
-                            {loading ? <Loader2 size={18} className="animate-spin text-gray-300" /> : <X size={18} />}
+                        <div className="w-12 h-12 border-2 border-black rounded-full flex items-center justify-center group-hover:border-red-600 group-hover:shadow-lg transition-all duration-300">
+                            {loading ? <Loader2 size={20} className="animate-spin text-gray-300" /> : <X size={20} />}
                         </div>
                         {loading ? "Clearing..." : "Clear All List"}
                     </button>

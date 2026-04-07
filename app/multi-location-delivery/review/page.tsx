@@ -24,7 +24,7 @@ interface AddressGroup {
 
 const MultiShippingReviewPage: React.FC = () => {
     const router = useRouter();
-    const { cart, isLoading: isCartLoading } = useCart();
+    const { cart, isLoading: isCartLoading, clearCart } = useCart();
     const {
         addresses,
         paymentMethods,
@@ -201,6 +201,9 @@ const MultiShippingReviewPage: React.FC = () => {
             }
 
             console.log(">>> Extracted entity IDs for success page:", entityIds);
+
+            // Clear cart after successful order
+            try { await clearCart(); } catch { /* cart will refresh on next visit */ }
 
             // Clean up localStorage for this flow
             localStorage.removeItem('multi_shipping_assignments');

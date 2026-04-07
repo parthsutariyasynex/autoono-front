@@ -55,7 +55,7 @@ const CheckoutPageUI: React.FC = () => {
     const router = useRouter();
 
     // Hooks
-    const { cart, isLoading: isCartLoading, updateCartItem } = useCart();
+    const { cart, isLoading: isCartLoading, updateCartItem, clearCart } = useCart();
     const {
         addresses,
         shippingMethods,
@@ -471,6 +471,9 @@ const CheckoutPageUI: React.FC = () => {
             };
 
             localStorage.setItem('last_order_summary', JSON.stringify(orderSummary));
+
+            // Clear cart after successful order
+            try { await clearCart(); } catch { /* cart will refresh on next visit */ }
 
             router.push(`/checkout/success?order_id=${result.order_id}`);
         } catch (error: any) {

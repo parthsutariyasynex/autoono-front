@@ -410,8 +410,8 @@ export default function ProductsPage() {
     <>
       <Suspense fallback={null}><SearchParamsReader onParams={handleParams} /></Suspense>
       <div className="flex">
-        {/* Desktop Sidebar */}
-        <div className="hidden xl:flex flex-col flex-shrink-0 self-stretch min-h-full">
+        {/* Desktop Sidebar Track */}
+        <div className="hidden xl:flex flex-col flex-shrink-0 self-stretch bg-white border-r border-gray-200">
           <SidebarFilter
             onFilterChange={handleFilterChange}
             selectedFilters={selectedFilters}

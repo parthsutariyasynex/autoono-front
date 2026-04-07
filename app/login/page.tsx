@@ -359,7 +359,7 @@ import "intl-tel-input/build/css/intlTelInput.css";
 import { Suspense, useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { signIn, useSession, getSession } from "next-auth/react";
+import { signIn, signOut, useSession, getSession } from "next-auth/react";
 import toast from "react-hot-toast";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { sendOtp } from "@/store/actions/authActions";
@@ -394,14 +394,20 @@ function LoginPageContent() {
   const { loading: reduxLoading } = useAppSelector((state: RootState) => state.auth);
   const [loading, setLoading] = useState(false);
 
-  // Auto-redirect if already logged in
+  // Auto-redirect if already logged in (with a valid Magento token)
   useEffect(() => {
     if (status === "authenticated") {
+      const sess = session as any;
+      // If Magento token expired, don't redirect — force re-login
+      if (sess?.error === "MagentoTokenExpired" || !sess?.accessToken) {
+        signOut({ redirect: false }); // Clear stale NextAuth session silently
+        return;
+      }
       const callbackUrl = searchParams.get("callbackUrl") || "/products";
       router.replace(callbackUrl);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [status]);
+  }, [status, session]);
 
   // Form State
   const [email, setEmail] = useState("");

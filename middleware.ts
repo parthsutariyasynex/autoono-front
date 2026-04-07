@@ -29,7 +29,8 @@ export async function middleware(request: NextRequest) {
             req: request,
             secret: process.env.NEXTAUTH_SECRET,
         });
-        if (token?.accessToken) {
+        // Must have a valid accessToken AND no expiry error
+        if (token?.accessToken && token?.error !== "MagentoTokenExpired") {
             isAuthenticated = true;
         }
     } catch { }
