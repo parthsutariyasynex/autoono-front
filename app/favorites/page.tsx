@@ -1,4 +1,5 @@
 "use client";
+import { useTranslation } from "@/hooks/useTranslation";
 
 import React, { useEffect } from "react";
 import { useSession } from "next-auth/react";
@@ -14,6 +15,7 @@ import { redirectToLogin } from "@/utils/helpers";
 export default function FavoritesPage() {
     const { data: session, status: authStatus } = useSession();
     const router = useRouter();
+    const { t } = useTranslation();
 
     useEffect(() => {
         if (authStatus === "unauthenticated") {
@@ -36,7 +38,7 @@ export default function FavoritesPage() {
             {/* Main Content Area - Optimized Full Width */}
             <div className="w-full mx-auto mt-4 md:mt-8 px-0 md:px-10 pb-20 min-h-screen bg-white">
                 <h1 className="text-[20px] md:text-[26px] font-black text-black mb-6 md:mb-8 uppercase tracking-wide px-4 md:px-0">
-                    Favorite Products
+                    {t("sidebar.favoriteProducts")}
                 </h1>
                 <FavouriteProducts />
             </div>

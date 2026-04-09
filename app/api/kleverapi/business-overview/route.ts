@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getBaseUrl } from "@/lib/api/magento-url";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth/auth-options";
 
@@ -28,12 +29,13 @@ async function getAuthToken(request: NextRequest): Promise<string | null> {
 // GET — Fetch business overview
 export async function GET(request: NextRequest) {
     try {
+        const baseUrl = getBaseUrl(request);
         const token = await getAuthToken(request);
         if (!token) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/business-overview`, {
+        const res = await fetch(`${baseUrl}/business-overview`, {
             headers: {
                 Authorization: `Bearer ${token}`,
                 "Content-Type": "application/json",
@@ -58,6 +60,7 @@ export async function GET(request: NextRequest) {
 // PUT — Update business overview
 export async function PUT(request: NextRequest) {
     try {
+        const baseUrl = getBaseUrl(request);
         const token = await getAuthToken(request);
         if (!token) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -67,7 +70,7 @@ export async function PUT(request: NextRequest) {
 
         console.log("[business-overview PUT] Payload:", JSON.stringify(body).substring(0, 500));
 
-        const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/business-overview`, {
+        const res = await fetch(`${baseUrl}/business-overview`, {
             method: "PUT",
             headers: {
                 Authorization: `Bearer ${token}`,

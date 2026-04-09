@@ -1,12 +1,13 @@
 'use client';
 
-import React, { ReactNode, useEffect } from 'react';
+import React, { ReactNode, useEffect, useState } from 'react';
 import { useSession, signOut } from 'next-auth/react';
 import { usePathname } from 'next/navigation';
 import { useDispatch } from 'react-redux';
 import Navbar from './Navbar';
 import Footer from './Footer';
 import ScrollToTop from './ScrollToTop';
+import { stripLocaleFromPath, useLocale } from '@/lib/i18n/client';
 
 interface ProtectedLayoutProps {
   children: ReactNode;
@@ -15,22 +16,31 @@ interface ProtectedLayoutProps {
 export default function ProtectedLayout({ children }: ProtectedLayoutProps) {
   const { data: session, status } = useSession();
   const pathname = usePathname();
+  const locale = useLocale();
   const dispatch = useDispatch();
 
   const isAuthenticated = status === 'authenticated';
 
+  // Track if user was ever authenticated in this session.
+  // Prevents clearing localStorage during the initial "loading" → "unauthenticated" flash
+  // that happens before NextAuth reads the JWT cookie.
+  const [wasAuthenticated, setWasAuthenticated] = useState(false);
+
+  // Strip locale prefix for route matching
+  const pathnameWithoutLocale = stripLocaleFromPath(pathname);
   const publicPages = ['/login', '/register', '/forgot-password', '/about', '/catalogue', '/locations', '/guides'];
-  const isPublicPage = publicPages.includes(pathname);
+  const isPublicPage = publicPages.some(p => pathnameWithoutLocale.startsWith(p));
 
   // Sync NextAuth session with Redux & LocalStorage
   useEffect(() => {
     if (status === 'authenticated') {
+      setWasAuthenticated(true);
+
       // Check if Magento token has expired (set by auth-options.ts JWT callback)
       if ((session as any)?.error === 'MagentoTokenExpired') {
-        // Magento token expired — force re-login
         localStorage.removeItem('token');
         dispatch({ type: 'LOGOUT' });
-        signOut({ callbackUrl: '/login' });
+        signOut({ callbackUrl: `/${locale}/login` });
         return;
       }
 
@@ -41,8 +51,9 @@ export default function ProtectedLayout({ children }: ProtectedLayoutProps) {
           localStorage.setItem('token', token);
         }
       }
-    } else if (status === 'unauthenticated') {
-      // Only clear if not on a public page (prevents race condition after login)
+    } else if (status === 'unauthenticated' && wasAuthenticated) {
+      // Only clear token if user WAS logged in before (actual logout).
+      // Skip if this is the initial load flash (loading → unauthenticated → authenticated).
       if (!isPublicPage) {
         dispatch({ type: 'LOGOUT' });
         if (typeof window !== 'undefined') {
@@ -50,9 +61,9 @@ export default function ProtectedLayout({ children }: ProtectedLayoutProps) {
         }
       }
     }
-  }, [session, status, dispatch, isPublicPage]);
+  }, [session, status, dispatch, isPublicPage, wasAuthenticated]);
 
-  const hideFooter = ['/login', '/register', '/forgot-password'].includes(pathname);
+  const hideFooter = ['/login', '/register', '/forgot-password'].some(p => pathnameWithoutLocale.startsWith(p));
   const showContent = isPublicPage || isAuthenticated;
 
   // Always render children in the DOM to preserve layout dimensions.

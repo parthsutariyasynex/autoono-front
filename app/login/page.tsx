@@ -209,14 +209,14 @@
 //               <button
 //                 type="button"
 //                 className={`flex-1 py-3 text-[12px] font-bold uppercase tracking-wider transition-all cursor-pointer rounded-[4px] ${mode === 'otp' ? 'bg-black text-white shadow-md' : 'text-gray-500 hover:text-black hover:bg-gray-200/50'}`}
-//                 onClick={() => { setMode("otp"); setOtpSent(false); setErrors({}); router.push("/login?mode=otp", { scroll: false }); }}
+//                 onClick={() => { setMode("otp"); setOtpSent(false); setErrors({}); router.push(lp("/login?mode=otp"), { scroll: false }); }}
 //               >
 //                 Login With OTP
 //               </button>
 //               <button
 //                 type="button"
 //                 className={`flex-1 py-3 text-[12px] font-bold uppercase tracking-wider transition-all cursor-pointer rounded-[4px] ${mode === 'password' ? 'bg-black text-white shadow-md' : 'text-gray-500 hover:text-black hover:bg-gray-200/50'}`}
-//                 onClick={() => { setMode("password"); setOtpSent(false); setErrors({}); router.push("/login?mode=password", { scroll: false }); }}
+//                 onClick={() => { setMode("password"); setOtpSent(false); setErrors({}); router.push(lp("/login?mode=password"), { scroll: false }); }}
 //               >
 //                 Login With Password
 //               </button>
@@ -335,13 +335,13 @@
 //                   onClick={mode === 'otp' && !otpSent ? handleSendOtp : undefined}
 //                   className="w-full h-[55px] bg-[#f5b21a] hover:bg-[#e0a218] text-black font-black uppercase transition-all rounded-[3px] shadow-lg shadow-yellow-500/10 disabled:opacity-50 cursor-pointer active:scale-[0.98] tracking-widest text-[13px]"
 //                 >
-//                   {mode === 'otp' && !otpSent ? 'Send OTP' : (loading || reduxLoading ? 'Please Wait...' : 'Sign In')}
+//                   {mode === 'otp' && !otpSent ? t("forgotPassword.sendOtp") : (loading || reduxLoading ? t("login.pleaseWait") : t("login.signIn"))}
 //                 </button>
 
 //                 <div className="text-center pt-2">
-//                   <Link href="/forgot-password">
+//                   <Link href={lp("/forgot-password")}>
 //                     <span className="text-xs font-bold text-[#003d7e] hover:text-[#002a56] cursor-pointer hover:underline underline-offset-4 uppercase tracking-tighter">
-//                       Forgot Your Password?
+//                       {t("login.forgotPassword")}
 //                     </span>
 //                   </Link>
 //                 </div>
@@ -364,6 +364,9 @@ import toast from "react-hot-toast";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { sendOtp } from "@/store/actions/authActions";
 import { RootState } from "@/store/store";
+import { useLocale } from "@/lib/i18n/client";
+import { useTranslation } from "@/hooks/useTranslation";
+import { useLocalePath } from "@/hooks/useLocalePath";
 
 
 const COUNTRY_CODES = [
@@ -387,6 +390,8 @@ export default function LoginPage() {
 function LoginPageContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const { t } = useTranslation();
+  const lp = useLocalePath();
   const [mode, setMode] = useState<"password" | "otp">("password");
 
   const { data: session, status } = useSession();
@@ -394,17 +399,19 @@ function LoginPageContent() {
   const { loading: reduxLoading } = useAppSelector((state: RootState) => state.auth);
   const [loading, setLoading] = useState(false);
 
-  // Auto-redirect if already logged in (with a valid Magento token)
+  // If user lands on /login but is already authenticated (e.g. back button),
+  // redirect them away. Uses window.location.href (full reload) to ensure
+  // cookies are properly read by middleware — never use router.replace here
+  // as it causes a race condition with handleSubmit's own redirect.
   useEffect(() => {
     if (status === "authenticated") {
       const sess = session as any;
-      // If Magento token expired, don't redirect — force re-login
       if (sess?.error === "MagentoTokenExpired" || !sess?.accessToken) {
-        signOut({ redirect: false }); // Clear stale NextAuth session silently
+        signOut({ redirect: false });
         return;
       }
-      const callbackUrl = searchParams.get("callbackUrl") || "/products";
-      router.replace(callbackUrl);
+      const callbackUrl = searchParams.get("callbackUrl") || lp("/products");
+      window.location.href = callbackUrl;
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [status, session]);
@@ -488,6 +495,7 @@ function LoginPageContent() {
         const res = await signIn("credentials", {
           email,
           password,
+          locale: window.location.pathname.startsWith('/ar') ? 'ar' : 'en',
           redirect: false,
         });
 
@@ -499,15 +507,16 @@ function LoginPageContent() {
             if (session?.accessToken) break;
             await new Promise(r => setTimeout(r, 200));
           }
-          toast.success("Login Successful");
-          const callbackUrl = searchParams.get("callbackUrl") || "/products";
+          toast.success(t("login.loginSuccess"));
+          const locale = window.location.pathname.startsWith('/ar') ? 'ar' : 'en';
+          const callbackUrl = searchParams.get("callbackUrl") || `/${locale}/products`;
           window.location.href = callbackUrl;
         } else {
           localStorage.removeItem("token");
-          toast.error("Login failed. Please check your credentials.");
+          toast.error(t("login.loginFailed"));
         }
       } catch {
-        toast.error("Login failed. Please try again.");
+        toast.error(t("login.loginFailed"));
       } finally {
         setLoading(false);
       }
@@ -529,6 +538,7 @@ function LoginPageContent() {
           mobile: mobileNumber,
           otp: otp,
           countryCode: countryCode,
+          locale: window.location.pathname.startsWith('/ar') ? 'ar' : 'en',
           redirect: false,
         });
 
@@ -538,15 +548,16 @@ function LoginPageContent() {
             if (session?.accessToken) break;
             await new Promise(r => setTimeout(r, 200));
           }
-          toast.success("Login Successful");
-          const callbackUrl = searchParams.get("callbackUrl") || "/products";
+          toast.success(t("login.loginSuccess"));
+          const locale = window.location.pathname.startsWith('/ar') ? 'ar' : 'en';
+          const callbackUrl = searchParams.get("callbackUrl") || `/${locale}/products`;
           window.location.href = callbackUrl;
         } else {
           localStorage.removeItem("token");
-          toast.error(res?.error || "Login Failed. Invalid OTP.");
+          toast.error(res?.error || t("login.loginFailed"));
         }
       } catch (err) {
-        toast.error("Login failed. Please try again.");
+        toast.error(t("login.loginFailed"));
       } finally {
         setLoading(false);
       }
@@ -568,7 +579,7 @@ function LoginPageContent() {
             <div className="text-left">
               {/* ── CHANGE: text-[20px] → text-[15px], tracking-tight → tracking-widest ── */}
               <h1 className="text-[15px] font-black tracking-widest uppercase text-gray-900">
-                Registered Customers
+                {t("login.title")}
               </h1>
             </div>
           </div>
@@ -585,9 +596,9 @@ function LoginPageContent() {
                   ? 'bg-black text-white'
                   : 'bg-white text-gray-500 hover:text-black hover:bg-gray-50'
                   }`}
-                onClick={() => { setMode("otp"); setOtpSent(false); setErrors({}); window.history.replaceState(null, "", "/login?mode=otp"); }}
+                onClick={() => { setMode("otp"); setOtpSent(false); setErrors({}); window.history.replaceState(null, "", lp("/login?mode=otp")); }}
               >
-                Login With OTP
+                {t("login.modeOtp")}
               </button>
               <button
                 type="button"
@@ -595,9 +606,9 @@ function LoginPageContent() {
                   ? 'bg-black text-white'
                   : 'bg-white text-gray-500 hover:text-black hover:bg-gray-50'
                   }`}
-                onClick={() => { setMode("password"); setOtpSent(false); setErrors({}); window.history.replaceState(null, "", "/login?mode=password"); }}
+                onClick={() => { setMode("password"); setOtpSent(false); setErrors({}); window.history.replaceState(null, "", lp("/login?mode=password")); }}
               >
-                Login With Password
+                {t("login.modePassword")}
               </button>
             </div>
           </div>
@@ -727,14 +738,14 @@ function LoginPageContent() {
                   onClick={mode === 'otp' && !otpSent ? handleSendOtp : undefined}
                   className="w-full h-10 sm:h-[46px] bg-[#f5b21a] hover:bg-[#e0a218] text-black font-black uppercase transition-all disabled:opacity-50 cursor-pointer active:scale-[0.98] tracking-widest text-[11px] sm:text-[12px]"
                 >
-                  {mode === 'otp' && !otpSent ? 'Send OTP' : (loading || reduxLoading ? 'Please Wait...' : 'Sign In')}
+                  {mode === 'otp' && !otpSent ? t("forgotPassword.sendOtp") : (loading || reduxLoading ? t("login.pleaseWait") : t("login.signIn"))}
                 </button>
 
                 {/* ── CHANGE: text-center → text-right, removed pt-2, adjusted color ── */}
                 <div className="text-right">
-                  <Link href="/forgot-password">
+                  <Link href={lp("/forgot-password")}>
                     <span className="text-[12px] font-medium text-gray-700 hover:text-black cursor-pointer hover:underline underline-offset-2 py-2 inline-block">
-                      Forgot Your Password?
+                      {t("login.forgotPassword")}
                     </span>
                   </Link>
                 </div>

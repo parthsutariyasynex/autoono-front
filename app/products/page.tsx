@@ -17,6 +17,9 @@ import Price from "../components/Price";
 import PortalDropdown from "@/components/PortalDropdown";
 
 import { toast } from "react-hot-toast";
+import { useTranslation } from "@/hooks/useTranslation";
+import { useLocalePath } from "@/hooks/useLocalePath";
+import { useLocale } from "@/lib/i18n/client";
 
 const PAGE_SIZE = 20;
 
@@ -85,6 +88,9 @@ function MobileCardShimmer() {
 
 export default function ProductsPage() {
   const router = useRouter();
+  const { t } = useTranslation();
+    const lp = useLocalePath();
+  const locale = useLocale();
   const [searchParams, setSearchParamsState] = useState<URLSearchParams | null>(null);
   const handleParams = useCallback((sp: URLSearchParams) => setSearchParamsState(sp), []);
   const { cart, addToCart } = useCart();
@@ -160,7 +166,7 @@ export default function ProductsPage() {
         }
       }
     }
-    router.push("/favorites");
+    router.push(lp("/favorites"));
   };
 
   const [debouncedFilters, setDebouncedFilters] = useState(selectedFilters);
@@ -183,9 +189,14 @@ export default function ProductsPage() {
       try {
         setLoading(true);
         setError("");
+        // Token comes from localStorage (set by ProtectedLayout after session sync).
+        // If token is missing, just skip the fetch silently (ProtectedLayout will set it).
         const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
-        if (!token) { redirectToLogin(router); return; }
-        const headers: HeadersInit = { "Content-Type": "application/json", "Authorization": `Bearer ${token}` };
+        if (!token) return;
+        // Read locale from browser URL directly (not from useLocale which may be "en" during SSR/hydration)
+        const fetchLocale = window.location.pathname.startsWith("/ar") ? "ar" : "en";
+        console.log("[Products] fetch locale:", fetchLocale, "| URL:", window.location.pathname);
+        const headers: HeadersInit = { "Content-Type": "application/json", "Authorization": `Bearer ${token}`, "x-locale": fetchLocale };
         const queryString = formatMagentoQueryParams(debouncedFilters, currentPage, sortBy);
         const url = `/api/category-products?${queryString}&categoryId=5&pageSize=${PAGE_SIZE}`;
         const res = await fetch(url, { headers, signal: abortController.signal });
@@ -210,7 +221,7 @@ export default function ProductsPage() {
     };
     loadProducts();
     return () => abortController.abort();
-  }, [router, currentPage, debouncedFilters, sortBy, isInitialized]);
+  }, [router, currentPage, debouncedFilters, sortBy, isInitialized, locale]);
 
   const handleFilterChange = useCallback(
     (filters: Record<string, string[]>, labels: Record<string, { value: string; label: string }[]>) => {
@@ -243,7 +254,7 @@ export default function ProductsPage() {
     } catch (err: unknown) {
       if (err instanceof Error && err.message === "401") {
         localStorage.removeItem("token");
-        router.replace("/login");
+        router.replace(lp("/login"));
       }
       else toast.error("Failed to add to cart");
     } finally {
@@ -462,7 +473,7 @@ export default function ProductsPage() {
           <div className="xl:hidden flex flex-col gap-2 mb-3">
             {/* Controls: 2 cols on mobile, 4 cols on tablet */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-              <button onClick={() => router.push("/favorites")} className="h-[44px] bg-white border border-gray-200 rounded-xl flex items-center justify-center gap-2 text-[11px] font-bold uppercase tracking-wider shadow-sm active:scale-95 cursor-pointer">
+              <button onClick={() => router.push(lp("/favorites"))} className="h-[44px] bg-white border border-gray-200 rounded-xl flex items-center justify-center gap-2 text-[11px] font-bold uppercase tracking-wider shadow-sm active:scale-95 cursor-pointer">
                 <Star className="w-4 h-4 fill-black text-black" /> Favourites
               </button>
               <button onClick={() => setIsMobileSearchOpen(true)} className="h-[44px] bg-[#f5b21a] rounded-xl flex items-center justify-center gap-2 text-[11px] font-bold uppercase tracking-wider shadow-sm active:scale-95 cursor-pointer">
@@ -533,7 +544,7 @@ export default function ProductsPage() {
             {/* Desktop header */}
             <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center gap-4 min-h-[60px]">
               <div className="flex items-center gap-4">
-                <button onClick={() => router.push("/favorites")} className="bg-gray-50 border border-gray-200 text-black px-4 py-2 rounded-xl flex items-center gap-2 shadow-sm text-xs font-bold active:scale-95 cursor-pointer uppercase tracking-wider">
+                <button onClick={() => router.push(lp("/favorites"))} className="bg-gray-50 border border-gray-200 text-black px-4 py-2 rounded-xl flex items-center gap-2 shadow-sm text-xs font-bold active:scale-95 cursor-pointer uppercase tracking-wider">
                   <Star className="w-5 h-5 fill-black text-black" /> Favorite products
                 </button>
                 <div className="flex flex-1 items-center gap-2 overflow-x-auto custom-scrollbar-hide max-w-[800px]">

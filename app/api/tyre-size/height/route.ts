@@ -1,6 +1,7 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth/auth-options";
 import { NextRequest, NextResponse } from "next/server";
+import { getBaseUrl } from "@/lib/api/magento-url";
 
 export async function GET(request: NextRequest) {
     let token: string | null = null;
@@ -9,22 +10,13 @@ export async function GET(request: NextRequest) {
     if (authHeader && authHeader.startsWith("Bearer ")) {
         token = authHeader.substring(7).replace(/['"]/g, "").trim();
     }
-    if (!token || token === "null") {
-        const cookie = request.cookies.get("auth-token")?.value;
-        if (cookie) token = cookie.replace(/['"]/g, "").trim();
-    }
-    if (!token || token === "null") {
-        const session: any = await getServerSession(authOptions);
-        token = session?.accessToken;
-    }
-    // Proceeding without strict token check at proxy level to allow Magento to decide (guest vs customer)
-    // If token is found, we'll use it.
 
     const { searchParams } = new URL(request.url);
     const width = searchParams.get("width");
 
     try {
-        let url = `${process.env.NEXT_PUBLIC_BASE_URL}/tyre-size/height`;
+        const baseUrl = getBaseUrl(request);
+        let url = `${baseUrl}/tyre-size/height`;
         if (width) {
             url += `?width=${encodeURIComponent(width)}`;
         }
@@ -33,6 +25,7 @@ export async function GET(request: NextRequest) {
                 "Content-Type": "application/json",
                 platform: "web",
                 accept: "application/json",
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
             },
             cache: "no-store",
         };
@@ -53,11 +46,20 @@ export async function GET(request: NextRequest) {
             const data = JSON.parse(responseText);
             return NextResponse.json(data);
         } catch (e) {
-            console.error("[tyre-size/height] JSON Parse Error. Raw:", responseText);
-            return NextResponse.json({ error: "Invalid JSON from Magento", raw: responseText }, { status: 500 });
+            console.error("[tyre-size/height] JSON Parse Error:", e);
+            return NextResponse.json({ error: "Invalid JSON from Magento", raw: responseText.substring(0, 500) }, { status: 500 });
         }
     } catch (err: any) {
-        console.error("[tyre-size/height] Fetch error:", err.message);
-        return NextResponse.json({ error: "Internal Server Error", message: err.message }, { status: 500 });
+        console.error("[tyre-size/height] Fetch error details:", {
+            message: err.message,
+            stack: err.stack,
+            cause: err.cause,
+            code: err.code
+        });
+        return NextResponse.json({
+            error: "Internal Server Error",
+            message: err.message,
+            details: err.cause ? String(err.cause) : undefined
+        }, { status: 500 });
     }
 }

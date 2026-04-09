@@ -1,9 +1,11 @@
 import { NextResponse } from 'next/server';
+import { getBaseUrl } from '@/lib/api/magento-url';
 
 export async function POST(request: Request) {
     try {
+        const baseUrl = getBaseUrl(request);
         const body = await request.json();
-        const magentoUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/auth/send-otp`;
+        const magentoUrl = `${baseUrl}/auth/send-otp`;
 
         console.log(`>>> PROXY HIT: Sending OTP to Magento: ${magentoUrl}`);
 

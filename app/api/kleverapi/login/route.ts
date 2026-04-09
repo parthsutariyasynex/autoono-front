@@ -1,19 +1,16 @@
 import { NextResponse } from "next/server";
+import { getBaseUrl } from "@/lib/api/magento-url";
 
 export async function POST(request: Request) {
     try {
         const body = await request.json();
-        const magentoUrl = process.env.MAGENTO_AUTH_TOKEN_URL || "";
+        const baseUrl = getBaseUrl(request);
 
-        if (!magentoUrl) {
-            return NextResponse.json({ message: "Auth URL not configured" }, { status: 500 });
-        }
-
-        const res = await fetch(magentoUrl, {
+        const res = await fetch(`${baseUrl}/login/email`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-                username: body.username,
+                email: body.username || body.email,
                 password: body.password,
             }),
         });

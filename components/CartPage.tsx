@@ -11,9 +11,13 @@ import { useCart } from "@/modules/cart/hooks/useCart";
 import { useCheckout } from "@/modules/checkout/hooks/useCheckout";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
+import { useTranslation } from "@/hooks/useTranslation";
+import { useLocalePath } from "@/hooks/useLocalePath";
 
 const CartPage: React.FC = () => {
     const router = useRouter();
+    const { t } = useTranslation();
+    const lp = useLocalePath();
     const { cart, isLoading, error, removeFromCart, updateCartItem, clearCart, refetchCart } = useCart();
     const { startMultiShipping } = useCheckout({ skipInitialFetch: true });
     const [isStartingMultiShipping, setIsStartingMultiShipping] = React.useState(false);
@@ -22,16 +26,16 @@ const CartPage: React.FC = () => {
         try {
             await updateCartItem(id, qty);
         } catch (err) {
-            toast.error("Failed to update product quantity");
+            toast.error(t("cart.updateFailed"));
         }
     };
 
     const handleRemove = async (id: number) => {
         try {
             await removeFromCart(id);
-            toast.success("Product removed from cart");
+            toast.success(t("cart.itemRemoved"));
         } catch (err) {
-            toast.error("Failed to remove product from cart");
+            toast.error(t("cart.itemRemovalFailed"));
         }
     };
 
@@ -40,14 +44,14 @@ const CartPage: React.FC = () => {
             await refetchCart();
             toast.success("Cart updated");
         } catch (err) {
-            toast.error("Failed to update cart");
+            toast.error(t("cart.updateFailed"));
         }
     };
 
     const handleClearCart = async () => {
         try {
             await clearCart();
-            toast.success("Cart Items Cleared", {
+            toast.success(t("cart.cartCleared"), {
                 icon: '🗑️',
                 style: {
                     borderRadius: '16px',
@@ -60,7 +64,7 @@ const CartPage: React.FC = () => {
                 },
             });
         } catch (err) {
-            toast.error("Failed to clear cart");
+            toast.error(t("cart.updateFailed"));
         }
     };
 
@@ -76,7 +80,7 @@ const CartPage: React.FC = () => {
             console.warn("Multi-shipping start warning (proceeding):", err.message);
         }
         toast.success("Starting multi-location delivery...");
-        router.push("/multi-location-delivery");
+        router.push(lp("/multi-location-delivery"));
         setIsStartingMultiShipping(false);
     };
 
@@ -91,9 +95,9 @@ const CartPage: React.FC = () => {
     if (error) {
         return (
             <div className="min-h-screen flex flex-col items-center justify-center p-6 text-center">
-                <h2 className="text-xl font-bold text-red-600 mb-2">Error loading cart</h2>
+                <h2 className="text-xl font-bold text-red-600 mb-2">{t("checkout.error")}</h2>
                 <p className="text-gray-500 mb-6">{error}</p>
-                <button onClick={refetchCart} className="bg-black text-white px-6 py-2 rounded font-bold">Try Again</button>
+                <button onClick={refetchCart} className="bg-black text-white px-6 py-2 rounded font-bold">{t("common.tryAgain")}</button>
             </div>
         );
     }
@@ -106,10 +110,10 @@ const CartPage: React.FC = () => {
                 <div className="max-w-7xl mx-auto py-12 md:py-24 px-4 md:px-6 text-center">
                     <ShoppingBag size={64} className="mx-auto text-gray-200 mb-6" />
                     <h1 className="text-xl md:text-2xl font-bold text-gray-900 uppercase tracking-widest mb-4">
-                        No products in cart
+                        {t("cart.noItems")}
                     </h1>
-                    <Link href="/products" className="inline-flex items-center gap-2 text-yellow-600 font-bold hover:underline">
-                        Go to products page
+                    <Link href={lp("/products")} className="inline-flex items-center gap-2 text-yellow-600 font-bold hover:underline">
+                        {t("cart.goToProducts")}
                         <ArrowRight size={16} />
                     </Link>
                 </div>
@@ -125,7 +129,7 @@ const CartPage: React.FC = () => {
                 {/* Breadcrumbs & Title Section */}
                 <div className="mb-10 md:mb-14 text-center">
                     <h1 className="text-xl md:text-2xl font-black text-gray-900 uppercase tracking-tight mb-2">
-                        Shopping Cart
+                        {t("cart.title")}
                     </h1>
                     <div className="h-1 w-12 bg-yellow-400 mx-auto"></div>
                 </div>
@@ -138,10 +142,10 @@ const CartPage: React.FC = () => {
                         <div className="flex flex-col h-full">
                             {/* Table Header (Sticky Top) */}
                             <div className="hidden lg:flex sticky top-0 z-20 bg-white border border-gray-100 rounded-xl items-center py-3.5 px-6 mb-4 shadow-sm">
-                                <div className="w-[45%] text-[9px] font-black text-gray-400 uppercase tracking-widest">Item Description</div>
-                                <div className="w-[15%] text-[9px] font-black text-gray-400 uppercase tracking-widest text-center">Price</div>
-                                <div className="w-[20%] text-[9px] font-black text-gray-400 uppercase tracking-widest text-center">Qty</div>
-                                <div className="w-[20%] text-[9px] font-black text-gray-400 uppercase tracking-widest text-right">Total</div>
+                                <div className="w-[45%] text-[9px] font-black text-gray-400 uppercase tracking-widest">{t("cart.itemDescription")}</div>
+                                <div className="w-[15%] text-[9px] font-black text-gray-400 uppercase tracking-widest text-center">{t("cart.price")}</div>
+                                <div className="w-[20%] text-[9px] font-black text-gray-400 uppercase tracking-widest text-center">{t("cart.qty")}</div>
+                                <div className="w-[20%] text-[9px] font-black text-gray-400 uppercase tracking-widest text-right">{t("cart.total")}</div>
                             </div>
 
                             {/* Scrollable Items Container */}
@@ -169,7 +173,7 @@ const CartPage: React.FC = () => {
                                     {/* Multiple Address Section Bar */}
                                     <div className="border border-[#FFC107] bg-white rounded-xl flex flex-col md:flex-row items-stretch justify-between overflow-hidden shadow-xl shadow-yellow-400/5">
                                         <div className="px-6 py-4 flex items-center bg-gray-50/50 flex-1">
-                                            <h4 className="text-[10px] font-black text-gray-900 uppercase tracking-wider">Do you want to ship the order to Multiple Addresses?</h4>
+                                            <h4 className="text-[10px] font-black text-gray-900 uppercase tracking-wider">{t("cart.multiAddressShipping")}</h4>
                                         </div>
                                         <button
                                             onClick={handleStartMultiShipping}
@@ -179,7 +183,7 @@ const CartPage: React.FC = () => {
                                             {isStartingMultiShipping ? (
                                                 <Loader2 className="animate-spin" size={14} />
                                             ) : (
-                                                "Ship to Multiple Addresses"
+                                                t("cart.shipToMultiple")
                                             )}
                                         </button>
                                     </div>
@@ -205,17 +209,17 @@ const CartPage: React.FC = () => {
             <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 p-5 z-[60] shadow-[0_-20px_40px_rgba(0,0,0,0.08)]">
                 <div className="flex items-center justify-between mb-4 px-2">
                     <div className="flex flex-col">
-                        <span className="text-gray-400 text-[10px] font-black uppercase tracking-widest">Total to Pay</span>
+                        <span className="text-gray-400 text-[10px] font-black uppercase tracking-widest">{t("cart.totalToPay")}</span>
                     </div>
                     <span className="text-2xl font-black text-gray-900 tracking-tighter">
                         {cart.currency_code} {cart.grand_total.toLocaleString()}
                     </span>
                 </div>
                 <button
-                    onClick={() => router.push("/checkout")}
+                    onClick={() => router.push(lp("/checkout"))}
                     className="w-full bg-yellow-400 text-black py-5 rounded-2xl font-black uppercase tracking-[0.2em] text-xs shadow-xl shadow-yellow-400/30 active:scale-95 transition-all"
                 >
-                    Checkout Now
+                    {t("cart.checkoutNow")}
                 </button>
             </div>
 

@@ -1,4 +1,6 @@
 "use client";
+import { useTranslation } from "@/hooks/useTranslation";
+import { useLocalePath } from "@/hooks/useLocalePath";
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Search, ShoppingCart, Trash2, Upload, FileDown, Check, X, Loader2, Plus, ArrowRight } from "lucide-react";
@@ -19,6 +21,8 @@ interface QuickOrderItem {
 
 export default function QuickOrderPage() {
     const router = useRouter();
+    const { t } = useTranslation();
+    const lp = useLocalePath();
     const { addToCart, refetchCart } = useCart();
     const [loading, setLoading] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
@@ -391,14 +395,14 @@ export default function QuickOrderPage() {
             await refetchCart();
             toast.success(data?.message || "Items added to cart successfully!", { id: toastId });
             setItems([]);
-            router.push("/cart");
+            router.push(lp("/cart"));
         } catch (err: any) {
             console.error("Add to cart partial error:", err);
             // Even if there's an error (like one SKU being out of stock), 
             // we refetch to show what WAS added and redirect to cart as requested.
             await refetchCart();
             toast.error(err || "Some items could not be added", { id: toastId });
-            router.push("/cart");
+            router.push(lp("/cart"));
         } finally {
             setLoading(false);
         }
@@ -423,7 +427,7 @@ export default function QuickOrderPage() {
             await refetchCart();
             setItems([]);
             toast.success("Checkout initialized", { id: toastId });
-            router.push("/checkout");
+            router.push(lp("/checkout"));
         } catch (err: any) {
             toast.error(err || "Preparation failed, please try again.", { id: toastId });
         } finally {

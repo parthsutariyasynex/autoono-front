@@ -884,10 +884,12 @@ export function useCheckout(options: UseCheckoutOptions = {}) {
             const token = await getAuthToken();
             if (!token) throw new Error("Not authenticated");
 
+            const pathLocale = typeof window !== "undefined" && window.location.pathname.startsWith("/ar") ? "ar" : "en";
             const res = await fetch(`/api/kleverapi/checkout/success/${orderId}`, {
                 method: "GET",
                 headers: {
                     Authorization: `Bearer ${token}`,
+                    "x-locale": pathLocale,
                 },
             });
             const data = await res.json();

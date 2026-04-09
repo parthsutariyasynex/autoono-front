@@ -1,4 +1,5 @@
 "use client";
+import { useTranslation } from "@/hooks/useTranslation";
 
 import React, { useState, useEffect } from "react";
 import useSWR from "swr";
@@ -43,6 +44,7 @@ const fetcher = async (url: string, token: string | null) => {
 export default function OrderAttachmentsPage() {
     const { data: session, status: authStatus } = useSession();
     const router = useRouter();
+    const { t } = useTranslation();
 
     // Filters state
     const [searchText, setSearchText] = useState("");
@@ -117,7 +119,7 @@ export default function OrderAttachmentsPage() {
 
     const handleViewOrder = (orderId: string) => {
         if (!orderId) return;
-        router.push(`/my-orders/${orderId}`);
+        router.push(lp(`/my-orders/${orderId}`));
     };
 
     const handleViewFile = async (attachment: any) => {

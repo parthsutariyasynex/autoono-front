@@ -4,6 +4,11 @@ import store from "./store";
 // Next.js API Proxy base URL (includes kleverapi prefix for consistency)
 export const baseUrl = "/api/kleverapi";
 
+function getLocale(): string {
+    if (typeof window === "undefined") return "en";
+    return window.location.pathname.startsWith("/ar") ? "ar" : "en";
+}
+
 function getResponse(response: any) {
     if (response && response.data) {
         // Don't immediately redirect on 401 — let the caller handle retry
@@ -39,7 +44,8 @@ export const axiosPost = (config: any, callback: (res: any) => void, progressCal
             headers: {
                 ...header,
                 Authorization: token ? `Bearer ${token}` : "",
-                platform: "web"
+                platform: "web",
+                "x-locale": getLocale()
             },
             onUploadProgress: (progressEvent) => {
                 if (progressEvent.total) {
@@ -68,7 +74,8 @@ export const axiosPut = (config: any, callback: (res: any) => void) => {
             headers: {
                 ...header,
                 Authorization: token ? `Bearer ${token}` : "",
-                platform: "web"
+                platform: "web",
+                "x-locale": getLocale()
             },
             baseURL: baseUrl,
         })
@@ -90,7 +97,8 @@ export const axiosDelete = (config: any, callback: (res: any) => void) => {
             headers: {
                 ...header,
                 Authorization: token ? `Bearer ${token}` : "",
-                platform: "web"
+                platform: "web",
+                "x-locale": getLocale()
             },
             baseURL: baseUrl,
         })
@@ -111,7 +119,8 @@ export const axiosGet = (config: any, callback: (res: any) => void) => {
             headers: {
                 ...header,
                 Authorization: token ? `Bearer ${token}` : "",
-                platform: "web"
+                platform: "web",
+                "x-locale": getLocale()
             },
             baseURL: baseUrl,
         })

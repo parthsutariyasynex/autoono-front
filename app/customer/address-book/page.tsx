@@ -1,4 +1,5 @@
 "use client";
+import { useTranslation } from "@/hooks/useTranslation";
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
@@ -13,6 +14,7 @@ import { redirectToLogin } from "@/utils/helpers";
 
 export default function AddressBookPage() {
     const router = useRouter();
+    const { t } = useTranslation();
     const dispatch = useDispatch();
     const { data: session, status } = useSession();
     const { data: customer, loading } = useSelector((state: RootState) => state.customer);

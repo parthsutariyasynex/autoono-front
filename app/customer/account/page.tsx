@@ -1,4 +1,6 @@
 "use client";
+import { useTranslation } from "@/hooks/useTranslation";
+import { useLocalePath } from "@/hooks/useLocalePath";
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -29,6 +31,8 @@ type Address = {
 
 export default function MyAccountPage() {
     const router = useRouter();
+    const { t } = useTranslation();
+    const lp = useLocalePath();
     const dispatch = useDispatch<AppDispatch>();
     const { data: session, status } = useSession();
     const { data: customer, loading } = useSelector((state: RootState) => state.customer);
@@ -133,10 +137,10 @@ export default function MyAccountPage() {
                                             <p>Mobile: {getAttr("mobile") !== "N/A" ? getAttr("mobile") : getAttr("mobile_number")}</p>
 
                                             <div className="flex flex-col sm:flex-row gap-3 pt-4 md:pt-6">
-                                                <Link href="/customer/account/edit" className="bg-[#F5B21B] hover:bg-black hover:text-white text-black text-[11px] md:text-[12px] font-bold px-6 md:px-8 py-2 md:py-2.5 uppercase transition-all rounded-sm shadow-sm tracking-wider text-center">
+                                                <Link href={lp("/customer/account/edit")} className="bg-[#F5B21B] hover:bg-black hover:text-white text-black text-[11px] md:text-[12px] font-bold px-6 md:px-8 py-2 md:py-2.5 uppercase transition-all rounded-sm shadow-sm tracking-wider text-center">
                                                     Edit
                                                 </Link>
-                                                <Link href="/customer/account/edit?change=password" className="bg-[#F5B21B] hover:bg-black hover:text-white text-black text-[11px] md:text-[12px] font-bold px-6 md:px-8 py-2 md:py-2.5 uppercase transition-all rounded-sm shadow-sm tracking-wider whitespace-nowrap text-center">
+                                                <Link href={lp("/customer/account/edit?change=password")} className="bg-[#F5B21B] hover:bg-black hover:text-white text-black text-[11px] md:text-[12px] font-bold px-6 md:px-8 py-2 md:py-2.5 uppercase transition-all rounded-sm shadow-sm tracking-wider whitespace-nowrap text-center">
                                                     Change Password
                                                 </Link>
                                             </div>
@@ -233,7 +237,7 @@ export default function MyAccountPage() {
                                 <div className={cardBase}>
                                     <div className={sectionHeader + " flex justify-between items-center"}>
                                         <span>Address Book</span>
-                                        <Link href="/customer/address-book" className="text-[11px] font-bold text-[#F5B21B] hover:text-black transition-colors uppercase tracking-widest">
+                                        <Link href={lp("/customer/address-book")} className="text-[11px] font-bold text-[#F5B21B] hover:text-black transition-colors uppercase tracking-widest">
                                             Manage Addresses
                                         </Link>
                                     </div>

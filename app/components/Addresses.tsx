@@ -1,4 +1,5 @@
 "use client";
+import { useLocalePath } from "@/hooks/useLocalePath";
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -77,6 +78,7 @@ function AddressCard({ title, address, onEdit, buttonLabel }: AddressCardProps) 
 
 export default function Addresses() {
   const router = useRouter();
+    const lp = useLocalePath();
   const dispatch = useDispatch();
   const { addresses, loading, error } = useSelector((state: RootState) => state.address);
   const [actionLoading, setActionLoading] = useState(false);
@@ -91,7 +93,7 @@ export default function Addresses() {
 
   const handleAddressAction = async (action: string, addressId: number | string) => {
     if (action === "edit") {
-      router.push(`/customer/address-book/edit/${addressId}`);
+      router.push(lp(`/customer/address-book/edit/${addressId}`));
       return;
     }
 

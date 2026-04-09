@@ -9,9 +9,14 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { accountSidebarMenu } from "@/components/account-sidebar-menu";
 import { redirectToLogin } from "@/utils/helpers";
 import PortalDropdown from "@/components/PortalDropdown";
+import { useTranslation } from "@/hooks/useTranslation";
+import { useLocalePath } from "@/hooks/useLocalePath";
+import Sidebar from "@/components/Sidebar";
 
 export default function NotificationsPage() {
     const router = useRouter();
+    const { t } = useTranslation();
+    const lp = useLocalePath();
     const { status } = useSession();
     const {
         notifications,
@@ -46,7 +51,7 @@ export default function NotificationsPage() {
     };
 
     const handleLogout = async () => {
-        await signOut({ callbackUrl: "/login" });
+        await signOut({ callbackUrl: lp("/login") });
     };
 
     const totalPages = Math.ceil(totalCount / pageSize) || 1;
@@ -59,38 +64,12 @@ export default function NotificationsPage() {
             <div className="w-full px-3 md:px-8 lg:px-12 py-4 md:py-10">
                 <div className="flex flex-col lg:flex-row gap-4 md:gap-6 lg:gap-10">
                     {/* SIDEBAR */}
-                    <aside className="w-full lg:w-[280px] flex-shrink-0">
-                        <nav className="bg-[#f0f0f0] border border-[#dddddd] rounded-sm">
-                            <ul className="flex flex-row lg:flex-col text-[13px] lg:text-[14px] text-[#333333] overflow-x-auto lg:overflow-x-visible">
-                                {accountSidebarMenu.map((item, idx) => (
-                                    <li key={idx} className="flex-shrink-0">
-                                        <Link
-                                            href={item.href}
-                                            className={`block px-4 lg:px-6 py-3 lg:py-4 transition-colors whitespace-nowrap ${item.href === "/customer/notifications"
-                                                ? "bg-white font-bold border-b-3 lg:border-b-0 lg:border-l-4 border-[#f5af02]"
-                                                : "hover:bg-[#e8e8e8] border-b-3 lg:border-b-0 lg:border-l-4 border-transparent"
-                                                }`}
-                                        >
-                                            {item.name}
-                                        </Link>
-                                    </li>
-                                ))}
-                                <li className="flex-shrink-0">
-                                    <button
-                                        onClick={handleLogout}
-                                        className="w-full text-left px-4 lg:px-6 py-3 lg:py-4 text-[#333333] hover:bg-[#e8e8e8] transition-colors font-medium border-b-3 lg:border-b-0 lg:border-l-4 border-transparent whitespace-nowrap"
-                                    >
-                                        Sign Out
-                                    </button>
-                                </li>
-                            </ul>
-                        </nav>
-                    </aside>
+                    <Sidebar />
 
                     {/* MAIN CONTENT */}
                     <main className="flex-1 min-w-0">
                         <h1 className="text-[20px] md:text-[26px] font-black text-black mb-6 md:mb-10 uppercase tracking-wide">
-                            NOTIFICATIONS
+                            {t('notifications.title')}
                         </h1>
 
                         <div className="border border-[#ebebeb] rounded-sm overflow-hidden shadow-sm">
@@ -99,10 +78,10 @@ export default function NotificationsPage() {
                                 <table className="w-full text-left border-collapse table-fixed min-w-[600px]">
                                     <thead>
                                         <tr className="border-b border-[#ebebeb]">
-                                            <th className="px-6 py-4 text-[13px] font-black text-black uppercase text-center w-[15%] border-r border-[#ebebeb]">Date</th>
-                                            <th className="px-6 py-4 text-[13px] font-black text-black uppercase text-center w-[20%] border-r border-[#ebebeb]">Title</th>
-                                            <th className="px-6 py-4 text-[13px] font-black text-black uppercase text-center w-[45%] border-r border-[#ebebeb]">Message</th>
-                                            <th className="px-6 py-4 text-[13px] font-black text-black uppercase text-center w-[20%]">Action</th>
+                                            <th className="px-6 py-4 text-[13px] font-black text-black uppercase text-center w-[15%] border-r border-[#ebebeb]">{t('common.date')}</th>
+                                            <th className="px-6 py-4 text-[13px] font-black text-black uppercase text-center w-[20%] border-r border-[#ebebeb]">{t('m.title')}</th>
+                                            <th className="px-6 py-4 text-[13px] font-black text-black uppercase text-center w-[45%] border-r border-[#ebebeb]">{t('m.message')}</th>
+                                            <th className="px-6 py-4 text-[13px] font-black text-black uppercase text-center w-[20%]">{t('common.action')}</th>
                                         </tr>
                                     </thead>
                                     <tbody className="bg-white">
@@ -135,12 +114,12 @@ export default function NotificationsPage() {
                                                         <div className="flex items-center justify-center gap-2 whitespace-nowrap text-[#333333]">
                                                             {!item.is_read && (
                                                                 <>
-                                                                    <button onClick={(e) => { e.stopPropagation(); markAsRead(item.notification_id); }} className="hover:text-[#f5af02] cursor-pointer transition-colors font-bold">Mark as Read</button>
+                                                                    <button onClick={(e) => { e.stopPropagation(); markAsRead(item.notification_id); }} className="hover:text-[#f5af02] cursor-pointer transition-colors font-bold">{t('m.mark-as-read')}</button>
                                                                     <span className="text-[#cccccc]">|</span>
                                                                 </>
                                                             )}
                                                             <button onClick={(e) => { e.stopPropagation(); removeNotification(item.notification_id, item.is_read); }} disabled={deletingIds.includes(item.notification_id)} className="hover:text-[#f5af02] cursor-pointer transition-colors font-bold disabled:opacity-50 disabled:cursor-not-allowed">
-                                                                {deletingIds.includes(item.notification_id) ? "Deleting..." : "Remove"}
+                                                                {deletingIds.includes(item.notification_id) ? t('common.loading') : t('m.remove')}
                                                             </button>
                                                         </div>
                                                     </td>
@@ -148,7 +127,7 @@ export default function NotificationsPage() {
                                             ))
                                         ) : (
                                             <tr>
-                                                <td colSpan={4} className="py-24 text-center text-gray-500 text-[14px]">You have no notifications.</td>
+                                                <td colSpan={4} className="py-24 text-center text-gray-500 text-[14px]">{t('notifications.empty')}</td>
                                             </tr>
                                         )}
                                     </tbody>
@@ -181,25 +160,25 @@ export default function NotificationsPage() {
                                             <div className="flex items-center gap-3 text-[11px] font-bold text-[#333333]">
                                                 {!item.is_read && (
                                                     <>
-                                                        <button onClick={(e) => { e.stopPropagation(); markAsRead(item.notification_id); }} className="hover:text-[#f5af02] transition-colors">Mark as Read</button>
+                                                        <button onClick={(e) => { e.stopPropagation(); markAsRead(item.notification_id); }} className="hover:text-[#f5af02] transition-colors">{t('m.mark-as-read')}</button>
                                                         <span className="text-[#cccccc]">|</span>
                                                     </>
                                                 )}
                                                 <button onClick={(e) => { e.stopPropagation(); removeNotification(item.notification_id, item.is_read); }} disabled={deletingIds.includes(item.notification_id)} className="hover:text-[#f5af02] transition-colors disabled:opacity-50">
-                                                    {deletingIds.includes(item.notification_id) ? "Deleting..." : "Remove"}
+                                                    {deletingIds.includes(item.notification_id) ? t('common.loading') : t('m.remove')}
                                                 </button>
                                             </div>
                                         </div>
                                     ))
                                 ) : (
-                                    <div className="py-16 text-center text-gray-500 text-[13px]">You have no notifications.</div>
+                                    <div className="py-16 text-center text-gray-500 text-[13px]">{t('notifications.empty')}</div>
                                 )}
                             </div>
 
                             {/* PAGINATION PANEL */}
                             <div className="bg-[#e8e8e8] px-4 md:px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-4 md:gap-6 border-t border-[#dddddd]">
                                 <div className="text-[13px] text-[#333333] font-medium order-2 lg:order-1">
-                                    Items {((currentPage - 1) * pageSize) + 1} to {Math.min(currentPage * pageSize, totalCount)} of {totalCount} total
+                                    {t('favorites.items')} {((currentPage - 1) * pageSize) + 1} {t('m.to')} {Math.min(currentPage * pageSize, totalCount)} {t('favorites.of')} {totalCount} {t('favorites.total')}
                                 </div>
 
                                 <div className="flex items-center gap-3 order-1 lg:order-2">
@@ -236,13 +215,13 @@ export default function NotificationsPage() {
                                 </div>
 
                                 <div className="flex items-center gap-3 text-[13px] text-[#333333] font-medium order-3">
-                                    <span>Show</span>
+                                    <span>{t('favorites.show')}</span>
                                     <PortalDropdown
                                         value={String(pageSize)}
                                         onChange={(val) => { setPageSize(Number(val)); setCurrentPage(1); }}
                                         options={[{ label: "15", value: "15" }, { label: "30", value: "30" }, { label: "50", value: "50" }]}
                                     />
-                                    <span>per page</span>
+                                    <span>{t('common.perPage')}</span>
                                 </div>
                             </div>
                         </div>

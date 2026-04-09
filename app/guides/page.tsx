@@ -1,8 +1,10 @@
 "use client";
+import { useTranslation } from "@/hooks/useTranslation";
 
 import React from "react";
 
 export default function UserGuidesPage() {
+    const { t } = useTranslation();
     return (
         <div className="min-h-screen bg-white">
 
@@ -19,7 +21,7 @@ export default function UserGuidesPage() {
             {/* Content Section */}
             <div className="max-w-[1200px] mx-auto px-6 mt-16 md:mt-20 pb-10 sm:pb-16 md:pb-20">
                 <h1 className="text-[22px] sm:text-[26px] md:text-[32px] font-black text-center mb-16 tracking-wide text-black uppercase">
-                    User Guides
+                    {t("guides.title")}
                 </h1>
 
                 {/* Guides Grid */}

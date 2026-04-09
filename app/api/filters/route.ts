@@ -1,9 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getBaseUrl } from "@/lib/api/magento-url";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth/auth-options";
 
 export async function GET(request: NextRequest) {
     try {
+        const baseUrl = getBaseUrl(request);
         // Step 1: Try to get token from the Authorization header sent by the browser
         let token: string | null = null;
 
@@ -41,7 +43,7 @@ export async function GET(request: NextRequest) {
         const categoryId = searchParams.get("categoryId") || "5";
 
         // Step 5: Fetch filter options from Magento
-        const magentoUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/category-filter-options/${categoryId}`;
+        const magentoUrl = `${baseUrl}/category-filter-options/${categoryId}`;
 
         const res = await fetch(magentoUrl, {
             method: "GET",

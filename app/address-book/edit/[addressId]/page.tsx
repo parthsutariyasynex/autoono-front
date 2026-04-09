@@ -1,4 +1,6 @@
 "use client";
+import { useTranslation } from "@/hooks/useTranslation";
+import { useLocalePath } from "@/hooks/useLocalePath";
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
@@ -9,6 +11,8 @@ import { api } from "@/lib/api/api-client";
 export default function EditAddressPage() {
     const { addressId } = useParams();
     const router = useRouter();
+    const { t } = useTranslation();
+    const lp = useLocalePath();
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [addressData, setAddressData] = useState<any>(null);
@@ -106,7 +110,7 @@ export default function EditAddressPage() {
 
             await api.put(`/kleverapi/addresses/${addressId}`, updatePayload);
             toast.success("Address updated successfully!");
-            router.push("/customer/address-book");
+            router.push(lp("/customer/address-book"));
         } catch (err: any) {
             toast.error(err || "Failed to update address");
             console.error(err);

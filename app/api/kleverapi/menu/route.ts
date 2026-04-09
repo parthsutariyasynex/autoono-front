@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getBaseUrl } from "@/lib/api/magento-url";
 
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
+// BASE_URL is now obtained per-request via getBaseUrl(request)
 
 // Map Magento absolute URLs to local Next.js routes
 const URL_MAP: Record<string, string> = {
@@ -14,6 +15,7 @@ const URL_MAP: Record<string, string> = {
 
 export async function GET(request: NextRequest) {
     try {
+        const BASE_URL = getBaseUrl(request);
         let token: string | null = null;
 
         const authHeader = request.headers.get("authorization");
@@ -34,7 +36,7 @@ export async function GET(request: NextRequest) {
                 "Content-Type": "application/json",
                 ...(token && { Authorization: `Bearer ${token}` }),
             },
-            next: { revalidate: 600 }, // Cache for 10 minutes
+            cache: "no-store", // No cache — response varies by locale
         });
 
         if (!res.ok) {
@@ -56,7 +58,12 @@ export async function GET(request: NextRequest) {
                 sort_order: item.sort_order,
             }));
 
-        return NextResponse.json(items);
+        return new Response(JSON.stringify(items), {
+            headers: {
+                "Content-Type": "application/json",
+                "Cache-Control": "no-store, no-cache, must-revalidate",
+            },
+        });
     } catch (error: any) {
         console.error("[menu] Route error:", error.message);
         return NextResponse.json({ error: "Failed to fetch menu" }, { status: 500 });

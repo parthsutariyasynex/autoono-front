@@ -1,9 +1,11 @@
 import { NextResponse } from "next/server";
+import { getBaseUrl } from "@/lib/api/magento-url";
 
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
+// BASE_URL is now obtained per-request via getBaseUrl(request)
 
 export async function GET(req: Request) {
     try {
+        const BASE_URL = getBaseUrl(req);
         const authHeader = req.headers.get("authorization");
         if (!authHeader || !authHeader.startsWith("Bearer ") || authHeader.includes("null") || authHeader.includes("undefined")) {
             console.error("Shipping Methods Proxy: Invalid token:", authHeader);
@@ -51,6 +53,7 @@ export async function GET(req: Request) {
 
 export async function POST(req: Request) {
     try {
+        const BASE_URL = getBaseUrl(req);
         const authHeader = req.headers.get("authorization");
         if (!authHeader || !authHeader.startsWith("Bearer ") || authHeader.includes("null") || authHeader.includes("undefined")) {
             console.error("Shipping Methods Proxy: Invalid token:", authHeader);

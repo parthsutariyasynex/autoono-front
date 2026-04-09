@@ -1,9 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getBaseUrl } from '@/lib/api/magento-url';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth/auth-options';
 
 export async function GET(request: NextRequest) {
     try {
+        const baseUrl = getBaseUrl(request);
         // Step 1: Get token
         let token: string | null = null;
 
@@ -31,7 +33,7 @@ export async function GET(request: NextRequest) {
         const pageSize = searchParams.get('pageSize') || '10';
         const currentPage = searchParams.get('currentPage') || '1';
 
-        const magentoUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/forecast?pageSize=${pageSize}&currentPage=${currentPage}`;
+        const magentoUrl = `${baseUrl}/forecast?pageSize=${pageSize}&currentPage=${currentPage}`;
 
         console.log('[forecast] Fetching:', magentoUrl);
 
@@ -69,6 +71,7 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
     try {
+        const baseUrl = getBaseUrl(request);
         // Step 1: Get token
         let token: string | null = null;
         const authHeader = request.headers.get('Authorization');
@@ -86,7 +89,7 @@ export async function POST(request: NextRequest) {
         }
 
         // Step 2: Build Magento Upload URL
-        const magentoUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/forecast/upload`;
+        const magentoUrl = `${baseUrl}/forecast/upload`;
 
         console.log('[forecast-upload] Proxying to:', magentoUrl);
 

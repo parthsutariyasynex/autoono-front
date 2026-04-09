@@ -1,4 +1,6 @@
 "use client";
+import { useTranslation } from "@/hooks/useTranslation";
+import { useLocalePath } from "@/hooks/useLocalePath";
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -17,6 +19,8 @@ const COUNTRY_CODES = [
 
 export default function ForgotPasswordPage() {
   const router = useRouter();
+    const { t } = useTranslation();
+    const lp = useLocalePath();
   const dispatch = useAppDispatch();
   const { loading: reduxLoading } = useAppSelector((state: RootState) => state.auth);
 
@@ -84,7 +88,7 @@ export default function ForgotPasswordPage() {
 
       if (res.ok) {
         toast.success("Reset link sent successfully to your email");
-        router.push("/login");
+        router.push(lp("/login"));
       } else {
         toast.error(data.message || "Failed to send reset link");
       }
@@ -195,7 +199,7 @@ export default function ForgotPasswordPage() {
 
         // Brief delay before redirecting to login
         setTimeout(() => {
-          router.push("/login");
+          router.push(lp("/login"));
         }, 1500);
       } else {
         // 4. API Error handling
@@ -417,7 +421,7 @@ export default function ForgotPasswordPage() {
                 </button>
 
                 <div className="flex justify-between items-center">
-                  <Link href="/login">
+                  <Link href={lp("/login")}>
                     <div className="text-black text-sm font-normal cursor-pointer hover:underline hover:text-amber-600 transition-colors">
                       Back to Login
                     </div>

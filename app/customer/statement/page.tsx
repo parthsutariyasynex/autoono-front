@@ -7,10 +7,12 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
 import { redirectToLogin } from "@/utils/helpers";
+import { useTranslation } from "@/hooks/useTranslation";
 
 export default function MyStatementPage() {
     const { data: session, status: authStatus } = useSession();
     const router = useRouter();
+    const { t } = useTranslation();
 
     const today = new Date().toISOString().split('T')[0];
     const currentYear = new Date().getFullYear();

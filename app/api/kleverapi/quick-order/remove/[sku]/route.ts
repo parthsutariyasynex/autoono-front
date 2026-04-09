@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getBaseUrl } from "@/lib/api/magento-url";
 
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
+// BASE_URL is now obtained per-request via getBaseUrl(request)
 
 export async function DELETE(
     request: NextRequest,
@@ -8,6 +9,7 @@ export async function DELETE(
 ) {
     const { sku } = await params;
     try {
+        const BASE_URL = getBaseUrl(request);
         let token: string | null = null;
 
         const authHeader = request.headers.get("authorization");

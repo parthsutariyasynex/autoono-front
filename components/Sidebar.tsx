@@ -7,9 +7,13 @@ import { useSelector } from "react-redux";
 import { RootState } from "@/store/store";
 import { accountSidebarMenu } from "./account-sidebar-menu";
 import { useState, useEffect } from "react";
+import { useTranslation } from "@/hooks/useTranslation";
+import { useLocalePath } from "@/hooks/useLocalePath";
 
 const Sidebar = () => {
     const pathname = usePathname();
+    const { t } = useTranslation();
+    const lp = useLocalePath();
     const { data: session } = useSession();
     const { data: customerData } = useSelector((state: RootState) => state.customer);
     const [isSubAccountLocal, setIsSubAccountLocal] = useState(false);
@@ -39,10 +43,10 @@ const Sidebar = () => {
                         })
                         .map((item, idx) => {
                             // Redirect "My Account" to sub-account page when logged in as sub-account
-                            const href = (item.name === "My Account" && isSubAccount)
+                            const href = lp((item.name === "My Account" && isSubAccount)
                                 ? "/subaccount/my-account"
-                                : item.href;
-                            const isActive = href === "/" ? pathname === "/" : pathname.startsWith(href);
+                                : item.href);
+                            const isActive = pathname === href || (href !== lp("/") && pathname.startsWith(href));
                             return (
                                 <li key={idx} className="flex-shrink-0">
                                     <Link
@@ -52,17 +56,17 @@ const Sidebar = () => {
                                             : "text-gray-600 hover:text-black hover:bg-gray-100 border-b-[3px] lg:border-b-0 lg:border-l-4 border-transparent"
                                             }`}
                                     >
-                                        {item.name}
+                                        {t(item.nameKey)}
                                     </Link>
                                 </li>
                             );
                         })}
                     <li className="flex-shrink-0">
                         <button
-                            onClick={() => signOut({ callbackUrl: "/login" })}
+                            onClick={() => signOut({ callbackUrl: lp("/login") })}
                             className="block w-full text-left py-3 px-6 lg:px-4 text-gray-600 hover:text-black hover:bg-gray-100 transition-all duration-200 border-b-[3px] lg:border-b-0 lg:border-l-4 border-transparent whitespace-nowrap"
                         >
-                            Sign Out
+                            {t("nav.signOut")}
                         </button>
                     </li>
                 </ul>

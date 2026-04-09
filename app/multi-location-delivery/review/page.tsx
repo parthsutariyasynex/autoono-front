@@ -1,4 +1,5 @@
 "use client";
+import { useTranslation } from "@/hooks/useTranslation";
 
 import React, { useEffect, useState, useMemo, useRef } from "react";
 import { useCart } from "@/modules/cart/hooks/useCart";
@@ -24,6 +25,7 @@ interface AddressGroup {
 
 const MultiShippingReviewPage: React.FC = () => {
     const router = useRouter();
+    const { t } = useTranslation();
     const { cart, isLoading: isCartLoading, clearCart } = useCart();
     const {
         addresses,
@@ -213,7 +215,7 @@ const MultiShippingReviewPage: React.FC = () => {
 
             // Redirect with comma-separated entity_ids — success page will call the API
             const redirectId = entityIds.length > 0 ? entityIds.join(",") : "placed";
-            router.push(`/multi-location-delivery/success?order_id=${redirectId}`);
+            router.push(lp(`/multi-location-delivery/success?order_id=${redirectId}`));
         } catch (err: any) {
             console.error("Multi-Shipping Place Order Error:", err);
             toast.error(err.message || "Failed to place multi-shipping order. Please try again.");

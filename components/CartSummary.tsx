@@ -1,4 +1,5 @@
 "use client";
+import { useLocalePath } from "@/hooks/useLocalePath";
 
 import React from "react";
 import { useRouter } from "next/navigation";
@@ -14,6 +15,7 @@ interface CartSummaryProps {
 
 const CartSummary: React.FC<CartSummaryProps> = ({ subtotal, taxAmount, taxLabel, grandTotal, currencyCode }) => {
     const router = useRouter();
+    const lp = useLocalePath();
 
     return (
         <div className="bg-white border border-gray-200 rounded-2xl shadow-xl shadow-gray-200/50 overflow-hidden">
@@ -70,7 +72,7 @@ const CartSummary: React.FC<CartSummaryProps> = ({ subtotal, taxAmount, taxLabel
 
                     {/* Checkout Button */}
                     <button
-                        onClick={() => router.push("/checkout")}
+                        onClick={() => router.push(lp("/checkout"))}
                         className="w-full py-4.5 bg-[#FFC107] text-black text-[11px] font-black uppercase tracking-[0.2em] hover:bg-black hover:text-white active:scale-95 transition-all duration-300 shadow-xl shadow-yellow-400/20 rounded-2xl flex items-center justify-center gap-2"
                     >
                         Checkout »

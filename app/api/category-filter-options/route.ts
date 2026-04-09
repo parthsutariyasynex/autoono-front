@@ -1,9 +1,11 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth/auth-options";
 import { NextRequest } from "next/server";
+import { getBaseUrl } from "@/lib/api/magento-url";
 
 export async function GET(req: NextRequest) {
     try {
+        const baseUrl = getBaseUrl(req);
         const session: any = await getServerSession(authOptions);
         const token = session?.accessToken;
 
@@ -15,7 +17,7 @@ export async function GET(req: NextRequest) {
         const categoryId = searchParams.get("categoryId") || "5"; // Adjust if categoryId isn't needed
 
         const res = await fetch(
-            `${process.env.NEXT_PUBLIC_BASE_URL}/category-filter-options?categoryId=${categoryId}`,
+            `${baseUrl}/category-filter-options?categoryId=${categoryId}`,
             {
                 headers: {
                     Authorization: `Bearer ${token}`,

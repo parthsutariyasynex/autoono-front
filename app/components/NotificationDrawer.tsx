@@ -5,6 +5,8 @@ import { useEffect, useState } from "react";
 import { useNotifications } from "@/modules/notifications/hooks/useNotifications";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useTranslation } from "@/hooks/useTranslation";
+import { useLocalePath } from "@/hooks/useLocalePath";
 
 interface NotificationDrawerProps {
     isOpen: boolean;
@@ -24,6 +26,8 @@ export default function NotificationDrawer({ isOpen, onClose }: NotificationDraw
 
     const [isAnimating, setIsAnimating] = useState(false);
     const router = useRouter();
+    const { t } = useTranslation();
+    const lp = useLocalePath();
 
     useEffect(() => {
         if (isOpen) {
@@ -71,7 +75,7 @@ export default function NotificationDrawer({ isOpen, onClose }: NotificationDraw
                         </div>
                     ) : notifications.length === 0 ? (
                         <div className="text-center py-12 px-6">
-                            <p className="text-gray-500 font-bold text-sm">No new notifications</p>
+                            <p className="text-gray-500 font-bold text-sm">{t("notifications.empty")}</p>
                             <p className="text-[11px] text-gray-400 mt-1 uppercase font-bold tracking-widest">Everything is up to date</p>
                         </div>
                     ) : (
@@ -126,7 +130,7 @@ export default function NotificationDrawer({ isOpen, onClose }: NotificationDraw
                                                 }}
                                                 className="text-[11px] text-gray-400 hover:text-[#f5b21a] font-bold py-1 px-2 -mr-2 bg-transparent cursor-pointer transition-all"
                                             >
-                                                Mark as Read
+                                                {t("notifications.markRead")}
                                             </button>
                                         )}
                                     </div>
@@ -144,11 +148,11 @@ export default function NotificationDrawer({ isOpen, onClose }: NotificationDraw
                 {/* Footer Section */}
                 <div className="bg-white border-t border-gray-100 sticky bottom-0">
                     <Link
-                        href="/customer/notifications"
+                        href={lp("/customer/notifications")}
                         onClick={onClose}
                         className="w-full h-[60px] flex items-center justify-center text-[17px] font-black text-black hover:bg-gray-50 transition-colors tracking-tight"
                     >
-                        See All ({unreadCount} unread)
+                        {t("common.view")} ({unreadCount} {t("notifications.unread")})
                     </Link>
                 </div>
             </div>

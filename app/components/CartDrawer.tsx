@@ -6,6 +6,8 @@ import { useCart } from "@/modules/cart/hooks/useCart";
 import Link from "next/link";
 import { formatPrice } from "@/utils/helpers";
 import Price from "./Price";
+import { useTranslation } from "@/hooks/useTranslation";
+import { useLocalePath } from "@/hooks/useLocalePath";
 
 
 interface CartDrawerProps {
@@ -15,6 +17,8 @@ interface CartDrawerProps {
 
 export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
     const { cart, isLoading, updateCartItem, removeFromCart, refetchCart } = useCart();
+    const { t } = useTranslation();
+    const lp = useLocalePath();
     const [isAnimating, setIsAnimating] = useState(false);
 
     // Sync with cart-updated events
@@ -56,7 +60,7 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                 <div className="p-4 border-b border-gray-100">
                     <div className="flex justify-between items-center">
                         <h2 className="text-[15px] sm:text-[17px] font-bold text-gray-900">
-                            {cart?.items_count || 0} Items in Cart
+                            {cart?.items_count || 0} {t("cart.itemsInCart")}
                         </h2>
                         <button
                             onClick={onClose}
@@ -68,7 +72,7 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                     </div>
                     <div className="flex justify-between items-end mt-2">
                         <div className="text-right ml-auto">
-                            <p className="text-xs text-gray-500 font-semibold uppercase tracking-wider">Subtotal</p>
+                            <p className="text-xs text-gray-500 font-semibold uppercase tracking-wider">{t("cart.subtotal")}</p>
                             <p className="text-[15px] sm:text-[17px] font-black text-[#003d7e] price currency-riyal">
 
                                 <Price amount={cart?.subtotal || 0} />
@@ -83,15 +87,15 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                     {isLoading ? (
                         <div className="flex flex-col items-center justify-center py-12 space-y-3">
                             <div className="w-8 h-8 border-3 border-[#f5b21a] border-t-transparent rounded-full animate-spin"></div>
-                            <p className="text-xs text-gray-400 font-medium">Updating cart...</p>
+                            <p className="text-xs text-gray-400 font-medium">{t("cart.updatingCart")}</p>
                         </div>
                     ) : (cart?.items?.length || 0) === 0 ? (
                         <div className="text-center py-12 px-6">
                             <div className="bg-gray-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
                                 <ShoppingCartIcon />
                             </div>
-                            <p className="text-gray-500 font-bold">Your cart is empty</p>
-                            <p className="text-xs text-gray-400 mt-1">Add items to see them here.</p>
+                            <p className="text-gray-500 font-bold">{t("cart.yourCartIsEmpty")}</p>
+                            <p className="text-xs text-gray-400 mt-1">{t("cart.addItems")}</p>
                         </div>
                     ) : (
                         <div className="divide-y divide-gray-100">
@@ -124,7 +128,7 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
 
                                         {/* Quantity Selector */}
                                         <div className="flex items-center gap-2 mt-2">
-                                            <span className="text-[11px] font-bold text-gray-400 uppercase">Qty:</span>
+                                            <span className="text-[11px] font-bold text-gray-400 uppercase">{t("cart.qty")}:</span>
                                             <div className="flex items-center bg-gray-100 rounded-md p-0.5 border border-gray-200">
                                                 <button
                                                     onClick={() => updateCartItem(item.item_id, item.qty - 1)}
@@ -166,11 +170,11 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                 {/* Bottom Section */}
                 <div className="p-4 bg-white border-t border-gray-100 sticky bottom-0">
                     <Link
-                        href="/cart"
+                        href={lp("/cart")}
                         onClick={onClose}
                         className="w-full h-[48px] sm:h-[55px] bg-[#f5b21a] hover:bg-[#e0a218] text-black font-black rounded-lg transition-all duration-300 flex items-center justify-center shadow-lg hover:shadow-xl uppercase tracking-widest text-[12px] sm:text-sm"
                     >
-                        VIEW AND EDIT CART
+                        {t("cart.viewAndEditCart")}
                     </Link>
                 </div>
             </div>

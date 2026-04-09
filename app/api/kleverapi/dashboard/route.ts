@@ -1,9 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getBaseUrl } from '@/lib/api/magento-url';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth/auth-options';
 
 export async function GET(request: NextRequest) {
     try {
+        const baseUrl = getBaseUrl(request);
         // Step 1: Get token
         let token: string | null = null;
 
@@ -37,7 +39,7 @@ export async function GET(request: NextRequest) {
         if (compareYear) queryParts.push(`compareYear=${encodeURIComponent(compareYear)}`);
 
         const queryString = queryParts.length > 0 ? `?${queryParts.join('&')}` : '';
-        const magentoUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/customer-target/dashboard${queryString}`;
+        const magentoUrl = `${baseUrl}/customer-target/dashboard${queryString}`;
 
         console.log('[dashboard] Fetching:', magentoUrl);
 

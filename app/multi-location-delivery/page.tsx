@@ -1,4 +1,6 @@
 "use client";
+import { useTranslation } from "@/hooks/useTranslation";
+import { useLocalePath } from "@/hooks/useLocalePath";
 
 import React, { useEffect, useState, useMemo } from "react";
 import { useCart } from "@/modules/cart/hooks/useCart";
@@ -16,6 +18,8 @@ type Assignments = Record<number, Record<string, number>>;
 
 const MultiLocationDeliveryPage: React.FC = () => {
     const router = useRouter();
+    const { t } = useTranslation();
+    const lp = useLocalePath();
     const { cart, isLoading: isCartLoading, refetchCart } = useCart();
     const {
         addresses,
@@ -170,7 +174,7 @@ const MultiLocationDeliveryPage: React.FC = () => {
                     </h2>
 
                     <Link
-                        href="/"
+                        href={lp("/")}
                         className="bg-[#f5b21a] text-black px-8 sm:px-10 md:px-12 py-3.5 md:py-4 text-[11px] sm:text-[12px] md:text-[13px] font-black uppercase tracking-[0.1em] hover:bg-black hover:text-white transition-all shadow-md"
                     >
                         CONTINUE SHOPPING
@@ -302,7 +306,7 @@ const MultiLocationDeliveryPage: React.FC = () => {
                 {/* Footer Section */}
                 <div className="mt-6 md:mt-8 bg-[#f2f2f2] p-4 sm:p-6 flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-6 border border-gray-100">
                     <Link
-                        href="/cart"
+                        href={lp("/cart")}
                         className="w-full sm:w-auto text-center bg-black text-white px-6 md:px-10 py-3.5 md:py-4 text-[11px] font-black uppercase tracking-[0.1em] hover:bg-zinc-900 transition-colors"
                     >
                         BACK TO SHOPPING CART

@@ -1,4 +1,6 @@
 "use client";
+import { useTranslation } from "@/hooks/useTranslation";
+import { useLocalePath } from "@/hooks/useLocalePath";
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -19,6 +21,8 @@ type SubAccount = {
 
 export default function ManageSubAccountsPage() {
     const router = useRouter();
+    const { t } = useTranslation();
+    const lp = useLocalePath();
     const { data: session, status } = useSession();
     const token = useSelector((state: RootState) => state.auth.token);
 
@@ -118,7 +122,7 @@ export default function ManageSubAccountsPage() {
             }
 
             // Redirect to sub-account my-account page
-            router.push("/subaccount/my-account");
+            router.push(lp("/subaccount/my-account"));
         } catch (err: any) {
             alert(err.message || "Failed to login as sub-account");
             setLoggingInId(null);

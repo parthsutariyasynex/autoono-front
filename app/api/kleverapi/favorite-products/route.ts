@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
-
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
+import { getBaseUrl } from '@/lib/api/magento-url';
 
 export async function GET(request: Request) {
     try {
@@ -13,6 +12,7 @@ export async function GET(request: Request) {
         const page = searchParams.get('currentPage') || '1';
         const pageSize = searchParams.get('pageSize') || '10';
 
+        const BASE_URL = getBaseUrl(request);
         const magentoUrl = `${BASE_URL}/favorite-products?pageSize=${pageSize}&currentPage=${page}`;
         console.log(`[API ROUTE] Fetching Favorite Products from: ${magentoUrl}`);
 
@@ -46,6 +46,7 @@ export async function POST(request: Request) {
         }
 
         const body = await request.json();
+        const BASE_URL = getBaseUrl(request);
         const magentoUrl = `${BASE_URL}/favorite-products`;
         console.log(`[API ROUTE] Adding Favorite Product to: ${magentoUrl}`, body);
 

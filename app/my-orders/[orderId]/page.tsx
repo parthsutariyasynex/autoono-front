@@ -1,4 +1,6 @@
 "use client";
+import { useTranslation } from "@/hooks/useTranslation";
+import { useLocalePath } from "@/hooks/useLocalePath";
 
 import React, { useState, useEffect, useCallback } from "react";
 import { redirectToLogin } from "@/utils/helpers";
@@ -12,6 +14,8 @@ import { useCart } from "@/modules/cart/context/CartContext";
 export default function OrderDetailsPage() {
     const { data: session, status: authStatus } = useSession();
     const router = useRouter();
+    const { t } = useTranslation();
+    const lp = useLocalePath();
     const { orderId } = useParams();
     const { refetchCart } = useCart();
 
@@ -194,7 +198,7 @@ export default function OrderDetailsPage() {
 
             await refetchCart();
             toast.success("Items added to cart", { id: toastId });
-            router.push("/cart");
+            router.push(lp("/cart"));
         } catch (err: any) {
             toast.error(err.message || "Something went wrong", { id: toastId });
         }

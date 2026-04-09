@@ -1,4 +1,5 @@
 "use client";
+import { useTranslation } from "@/hooks/useTranslation";
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -39,6 +40,7 @@ interface ForecastResponse {
 
 export default function MyForecastPage() {
     const router = useRouter();
+    const { t } = useTranslation();
     const dispatch = useDispatch<AppDispatch>();
     const { data: session, status } = useSession();
     const { data: customer, loading } = useSelector((state: RootState) => state.customer);

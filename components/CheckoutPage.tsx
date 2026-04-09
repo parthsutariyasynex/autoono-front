@@ -1,4 +1,6 @@
 "use client";
+import { useTranslation } from "@/hooks/useTranslation";
+import { useLocalePath } from "@/hooks/useLocalePath";
 
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { createPortal } from "react-dom";
@@ -53,6 +55,8 @@ const SectionHeader = ({ title, step }: { title: string; step?: number }) => (
 const CheckoutPageUI: React.FC = () => {
     const { data: session, status } = useSession();
     const router = useRouter();
+    const { t } = useTranslation();
+    const lp = useLocalePath();
 
     // Hooks
     const { cart, isLoading: isCartLoading, updateCartItem, clearCart } = useCart();
@@ -213,7 +217,7 @@ const CheckoutPageUI: React.FC = () => {
     // Auth Guard
     useEffect(() => {
         if (status === "unauthenticated") {
-            router.push("/login?callback=/checkout");
+            router.push(lp("/login?callback=/checkout"));
         }
     }, [status, router]);
 
@@ -221,7 +225,7 @@ const CheckoutPageUI: React.FC = () => {
     useEffect(() => {
         if (!isCartLoading && cart && cart.items.length === 0) {
             toast.error("Your cart is empty. Please add items before checking out.");
-            router.push("/cart");
+            router.push(lp("/cart"));
         }
     }, [cart, isCartLoading, router]);
 
@@ -369,7 +373,7 @@ const CheckoutPageUI: React.FC = () => {
         // 0. Cart Validation
         if (!cart || cart.items.length === 0) {
             toast.error("Your cart is empty. Please add items before placing an order.");
-            router.push("/cart");
+            router.push(lp("/cart"));
             return;
         }
 
@@ -475,7 +479,7 @@ const CheckoutPageUI: React.FC = () => {
             // Clear cart after successful order
             try { await clearCart(); } catch { /* cart will refresh on next visit */ }
 
-            router.push(`/checkout/success?order_id=${result.order_id}`);
+            router.push(lp(`/checkout/success?order_id=${result.order_id}`));
         } catch (error: any) {
             console.error("Place Order Error:", error);
             toast.error(error.message || "Failed to place order. Please try again.");
@@ -633,7 +637,7 @@ const CheckoutPageUI: React.FC = () => {
                     <ShoppingBag size={64} className="mx-auto text-gray-200 mb-6" />
                     <h1 className="text-2xl font-black text-black uppercase tracking-widest mb-4">Your cart is empty</h1>
                     <p className="text-gray-500 mb-8 max-w-md mx-auto">Redirecting you to products...</p>
-                    <Link href="/products" className="inline-flex items-center gap-2 bg-[#F5B21B] text-black font-black px-8 py-4 text-[12px] uppercase tracking-widest hover:bg-black hover:text-white transition-all">
+                    <Link href={lp("/products")} className="inline-flex items-center gap-2 bg-[#F5B21B] text-black font-black px-8 py-4 text-[12px] uppercase tracking-widest hover:bg-black hover:text-white transition-all">
                         Browse Products
                     </Link>
                 </div>
@@ -653,7 +657,7 @@ const CheckoutPageUI: React.FC = () => {
             <main className="flex-1 w-full px-4 md:px-6 lg:px-8 py-4 md:py-6 lg:py-10 pt-2 md:pt-4">
                 {/* Header Section */}
                 <div className="flex flex-col items-center justify-center text-center gap-4 mb-12 relative">
-                    <Link href="/cart" className="absolute left-0 top-1/2 -translate-y-1/2 flex items-center gap-2 text-gray-400 hover:text-black transition-colors text-[10px] font-black uppercase tracking-widest">
+                    <Link href={lp("/cart")} className="absolute left-0 top-1/2 -translate-y-1/2 flex items-center gap-2 text-gray-400 hover:text-black transition-colors text-[10px] font-black uppercase tracking-widest">
                         <ArrowLeft size={14} strokeWidth={3} /> Back to Cart
                     </Link>
 
@@ -691,7 +695,7 @@ const CheckoutPageUI: React.FC = () => {
                                                 key={addr.id}
                                                 address={addr}
                                                 onEdit={() => {
-                                                    router.push(`/customer/address-book/edit/${addr.id}?redirect=/checkout`);
+                                                    router.push(lp(`/customer/address-book/edit/${addr.id}?redirect=/checkout`));
                                                 }}
                                             />
                                         ) : (
@@ -735,7 +739,7 @@ const CheckoutPageUI: React.FC = () => {
                                                             className="text-[10px] font-black uppercase tracking-[0.2em] px-5 py-2.5 bg-white text-gray-400 border border-gray-100 hover:bg-gray-50 hover:text-black hover:border-gray-300 transition-all duration-300"
                                                             onClick={(e) => {
                                                                 e.stopPropagation();
-                                                                router.push(`/customer/address-book/edit/${addr.id}?redirect=/checkout`);
+                                                                router.push(lp(`/customer/address-book/edit/${addr.id}?redirect=/checkout`));
                                                             }}
                                                         >
                                                             Edit Address

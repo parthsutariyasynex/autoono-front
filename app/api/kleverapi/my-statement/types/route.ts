@@ -1,9 +1,11 @@
 import { NextResponse } from 'next/server';
+import { getBaseUrl } from '@/lib/api/magento-url';
 
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
+// BASE_URL is now obtained per-request via getBaseUrl(request)
 
 export async function GET(request: Request) {
     try {
+        const BASE_URL = getBaseUrl(request);
         const authHeader = request.headers.get('Authorization');
         if (!authHeader || !authHeader.startsWith('Bearer ') || authHeader.includes("null") || authHeader.includes("undefined")) {
             console.error("[my-statement-types] Invalid token:", authHeader);

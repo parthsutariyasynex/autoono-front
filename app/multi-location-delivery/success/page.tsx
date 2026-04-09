@@ -1,4 +1,6 @@
 "use client";
+import { useTranslation } from "@/hooks/useTranslation";
+import { useLocalePath } from "@/hooks/useLocalePath";
 
 import React, { Suspense, useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
@@ -26,6 +28,8 @@ const MultiShippingSuccessPage = () => {
 const MultiShippingSuccessContent = () => {
     const searchParams = useSearchParams();
     const router = useRouter();
+    const { t } = useTranslation();
+    const lp = useLocalePath();
     const orderId = searchParams.get("order_id"); // comma-separated entity_ids like "28675,28676,28677"
     const { fetchMultiShippingSuccess } = useCheckout({ skipInitialFetch: true });
     const [orders, setOrders] = useState<OrderRow[]>([]);
@@ -35,7 +39,7 @@ const MultiShippingSuccessContent = () => {
     useEffect(() => {
         if (hasFetched) return;
         if (!orderId || orderId === "placed") {
-            if (!orderId) router.push("/");
+            if (!orderId) router.push(lp("/"));
             setIsLoading(false);
             return;
         }
@@ -152,7 +156,7 @@ const MultiShippingSuccessContent = () => {
                     {/* Footer */}
                     <div className="bg-[#f2f2f2] p-4 flex justify-end">
                         <Link
-                            href="/products"
+                            href={lp("/products")}
                             className="bg-[#f5b21a] text-black px-8 md:px-12 py-3 text-[11px] font-black uppercase tracking-[0.1em] hover:bg-black hover:text-white transition-all shadow-sm"
                         >
                             CONTINUE SHOPPING

@@ -1,4 +1,6 @@
 "use client";
+import { useTranslation } from "@/hooks/useTranslation";
+import { useLocalePath } from "@/hooks/useLocalePath";
 
 import React, { Suspense, useState, useEffect, useCallback, useMemo } from "react";
 import { useSession } from "next-auth/react";
@@ -62,6 +64,8 @@ export default function MyOrdersPage() {
 function MyOrdersPageContent() {
     const { data: session, status: authStatus } = useSession();
     const router = useRouter();
+    const { t } = useTranslation();
+    const lp = useLocalePath();
     const searchParams = useSearchParams();
     const { refetchCart } = useCart();
 
@@ -117,7 +121,7 @@ function MyOrdersPageContent() {
         try {
             // Fetch a large enough page size to get all orders for counts
             const res = await fetch(`/api/kleverapi/my-orders?pageSize=1000&currentPage=1`, {
-                headers: { Authorization: `Bearer ${token}` },
+                headers: { Authorization: `Bearer ${token}`, "x-locale": window.location.pathname.startsWith("/ar") ? "ar" : "en" },
             });
             const data = await res.json();
             if (res.ok) {
@@ -148,7 +152,7 @@ function MyOrdersPageContent() {
             if (company && company !== "All") params.append("companyCode", company);
 
             const res = await fetch(`/api/kleverapi/my-orders?${params.toString()}`, {
-                headers: { Authorization: `Bearer ${token}` },
+                headers: { Authorization: `Bearer ${token}`, "x-locale": window.location.pathname.startsWith("/ar") ? "ar" : "en" },
                 cache: "no-store",
             });
 
@@ -198,7 +202,7 @@ function MyOrdersPageContent() {
         if (newSize !== 10) params.set("pageSize", newSize.toString());
         else params.delete("pageSize");
 
-        router.push(`/my-orders?${params.toString()}`);
+        router.push(lp(`/my-orders?${params.toString()}`));
     }, [router, searchParams, statusCounts, pageSize, companyInput]);
 
     // Auto search with debounce
@@ -220,7 +224,7 @@ function MyOrdersPageContent() {
         toast.dismiss();
         setLocalSearch("All");
         setLocalStatus("All");
-        router.push("/my-orders");
+        router.push(lp("/my-orders"));
     };
 
     const handlePageChange = (page: number) => {
@@ -232,7 +236,7 @@ function MyOrdersPageContent() {
     };
 
     const handleViewOrder = (entityId: string) => {
-        router.push(`/my-orders/${entityId}`);
+        router.push(lp(`/my-orders/${entityId}`));
     };
 
     const handleReorder = async (order: Order) => {
@@ -254,7 +258,7 @@ function MyOrdersPageContent() {
 
             await refetchCart();
             toast.success("Items added to cart", { id: toastId });
-            router.push("/cart");
+            router.push(lp("/cart"));
         } catch (err: any) {
             toast.error(err.message || "Something went wrong", { id: toastId });
         }
@@ -330,7 +334,7 @@ function MyOrdersPageContent() {
                 <main className="flex-1 w-full px-4 md:px-6 lg:px-8 py-4 md:py-8 lg:py-10">
                     <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-6 md:mb-10">
                         <h1 className="text-[20px] sm:text-[22px] md:text-[26px] font-black text-black uppercase tracking-wide">
-                            MY ORDERS
+                            {t("orders.title")}
                         </h1>
                         <button
                             onClick={handleExportOrders}
@@ -340,14 +344,14 @@ function MyOrdersPageContent() {
                             {isExporting ? (
                                 <>
                                     <div className="animate-spin h-3.5 w-3.5 border-2 border-black border-t-transparent rounded-full"></div>
-                                    Exporting...
+                                    {t("orders.exporting")}
                                 </>
                             ) : (
                                 <>
                                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                                     </svg>
-                                    Export Orders
+                                    {t("orders.exportOrders")}
                                 </>
                             )}
                         </button>
@@ -387,7 +391,7 @@ function MyOrdersPageContent() {
                                 <svg className="w-5 h-5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                                     <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                                 </svg>
-                                <span className="text-[14px] font-medium">You have placed no orders.</span>
+                                <span className="text-[14px] font-medium">{t("orders.noOrders")}</span>
                             </div>
                         </div>
                     ) : (

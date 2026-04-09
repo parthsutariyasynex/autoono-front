@@ -1,16 +1,13 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth/auth-options";
 import { NextRequest, NextResponse } from "next/server";
+import { getBaseUrl } from "@/lib/api/magento-url";
 
 export async function GET(request: NextRequest) {
     let token: string | null = null;
     const authHeader = request.headers.get("authorization");
     if (authHeader && authHeader.startsWith("Bearer ")) {
         token = authHeader.substring(7).replace(/['"]/g, "").trim();
-    }
-    if (!token || token === "null") {
-        const session: any = await getServerSession(authOptions);
-        token = session?.accessToken;
     }
 
     // Proceeding without strict token check at proxy level to allow Magento to decide (guest vs customer)
@@ -29,20 +26,22 @@ export async function GET(request: NextRequest) {
         );
     }
 
-    const encodedWidth = width ? encodeURIComponent(width) : "any";
-    const encodedHeight = height ? encodeURIComponent(height) : "any";
-    const encodedRim = rim ? encodeURIComponent(rim) : "any";
-
-    // Use the tyre-size search endpoint on the Magento backend
-    const url = `${process.env.NEXT_PUBLIC_BASE_URL}/tyre-size/search/${encodedWidth}/${encodedHeight}/${encodedRim}?currentPage=${encodeURIComponent(page)}&pageSize=${encodeURIComponent(pageSize)}`;
-
-    console.log("[tyre-size/search] Fetching:", url);
-
     try {
+        const baseUrl = getBaseUrl(request);
+        const encodedWidth = width ? encodeURIComponent(width) : "any";
+        const encodedHeight = height ? encodeURIComponent(height) : "any";
+        const encodedRim = rim ? encodeURIComponent(rim) : "any";
+
+        // Use the tyre-size search endpoint on the Magento backend
+        const url = `${baseUrl}/tyre-size/search/${encodedWidth}/${encodedHeight}/${encodedRim}?currentPage=${encodeURIComponent(page)}&pageSize=${encodeURIComponent(pageSize)}`;
+
+        console.log("[tyre-size/search] Fetching:", url);
+
         const fetchOptions: any = {
             headers: {
                 "Content-Type": "application/json",
                 platform: "web",
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
             },
             cache: "no-store",
         };

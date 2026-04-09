@@ -1,4 +1,6 @@
 "use client";
+import { useTranslation } from "@/hooks/useTranslation";
+import { useLocalePath } from "@/hooks/useLocalePath";
 
 import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
@@ -33,6 +35,8 @@ type Address = {
 
 export default function MyAccountPage() {
     const router = useRouter();
+    const { t } = useTranslation();
+    const lp = useLocalePath();
     const pathname = usePathname();
     const dispatch = useDispatch<AppDispatch>();
     const { data: session, status } = useSession();
@@ -48,7 +52,7 @@ export default function MyAccountPage() {
 
             // Redirect sub-account users to their dedicated page
             if (isSub) {
-                router.replace("/subaccount/my-account");
+                router.replace(lp("/subaccount/my-account"));
                 return;
             }
         }
@@ -181,20 +185,20 @@ export default function MyAccountPage() {
                         )}
 
                         <h1 className="text-[20px] sm:text-[22px] md:text-[26px] font-black text-black mb-6 md:mb-10 uppercase tracking-wide">
-                            MY ACCOUNT
+                            {t("account.title")}
                         </h1>
 
                         <div className="space-y-8">
                             {/* ACCOUNT INFORMATION */}
                             <div>
-                                <h2 className="text-[14px] md:text-[16px] font-bold text-black uppercase mb-3">ACCOUNT INFORMATION</h2>
+                                <h2 className="text-[14px] md:text-[16px] font-bold text-black uppercase mb-3">{t("account.accountInformation")}</h2>
                                 <hr className="border-gray-200 mb-6" />
 
                                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
                                     {/* Contact Information */}
                                     <div className={cardBase}>
                                         <div className={sectionHeader}>
-                                            CONTACT INFORMATION
+                                            {t("account.contactInformation")}
                                         </div>
                                         <div className="p-3 md:p-5 text-[13px] text-gray-700 space-y-2.5 font-medium leading-relaxed">
                                             <p>Contact Name: {(customer as any).firstname} {(customer as any).lastname}</p>
@@ -207,10 +211,10 @@ export default function MyAccountPage() {
                                             <p>Contact Information: {(customer as any).email} ,{customerMobile}</p>
 
                                             <div className="flex flex-col md:flex-row gap-3 pt-4 md:pt-6">
-                                                <Link href="/customer/account/edit" className="w-full md:w-auto text-center bg-[#F5B21B] hover:bg-[#e0a116] text-black text-[12px] font-bold px-6 py-2 uppercase transition-all rounded-sm">
+                                                <Link href={lp("/customer/account/edit")} className="w-full md:w-auto text-center bg-[#F5B21B] hover:bg-[#e0a116] text-black text-[12px] font-bold px-6 py-2 uppercase transition-all rounded-sm">
                                                     EDIT
                                                 </Link>
-                                                <Link href="/customer/account/edit?change=password" className="w-full md:w-auto text-center bg-[#F5B21B] hover:bg-[#e0a116] text-black text-[12px] font-bold px-6 py-2 uppercase transition-all rounded-sm whitespace-nowrap">
+                                                <Link href={lp("/customer/account/edit?change=password")} className="w-full md:w-auto text-center bg-[#F5B21B] hover:bg-[#e0a116] text-black text-[12px] font-bold px-6 py-2 uppercase transition-all rounded-sm whitespace-nowrap">
                                                     CHANGE PASSWORD
                                                 </Link>
                                             </div>
@@ -339,11 +343,11 @@ export default function MyAccountPage() {
 
                                             <div className="pt-4 md:pt-8">
                                                 {defaultShipping?.id ? (
-                                                    <Link href={`/customer/address-book/edit/${defaultShipping.id}`} className="w-full md:w-auto text-center bg-[#F5B21B] hover:bg-[#e0a116] text-black text-[13px] font-bold px-4 md:px-8 py-2.5 uppercase transition-all rounded-none inline-block">
+                                                    <Link href={lp(`/customer/address-book/edit/${defaultShipping.id}`)} className="w-full md:w-auto text-center bg-[#F5B21B] hover:bg-[#e0a116] text-black text-[13px] font-bold px-4 md:px-8 py-2.5 uppercase transition-all rounded-none inline-block">
                                                         EDIT ADDRESS
                                                     </Link>
                                                 ) : (
-                                                    <Link href="/customer/address-book" className="w-full md:w-auto text-center bg-[#F5B21B] hover:bg-[#e0a116] text-black text-[13px] font-bold px-4 md:px-8 py-2.5 uppercase transition-all rounded-none inline-block">
+                                                    <Link href={lp("/customer/address-book")} className="w-full md:w-auto text-center bg-[#F5B21B] hover:bg-[#e0a116] text-black text-[13px] font-bold px-4 md:px-8 py-2.5 uppercase transition-all rounded-none inline-block">
                                                         ADD ADDRESS
                                                     </Link>
                                                 )}

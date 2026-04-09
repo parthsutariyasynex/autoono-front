@@ -1,4 +1,5 @@
 "use client";
+import { useTranslation } from "@/hooks/useTranslation";
 
 import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
@@ -18,6 +19,7 @@ type CustomAttribute = {
 
 export default function DashboardPage() {
     const router = useRouter();
+    const { t } = useTranslation();
     const pathname = usePathname();
     const dispatch = useDispatch<AppDispatch>();
     const { data: session, status } = useSession();
@@ -83,7 +85,8 @@ export default function DashboardPage() {
 
             const response = await fetch(`/api/kleverapi/dashboard?${params.toString()}`, {
                 headers: {
-                    'Authorization': `Bearer ${token}`
+                    'Authorization': `Bearer ${token}`,
+                    'x-locale': window.location.pathname.startsWith("/ar") ? "ar" : "en"
                 }
             });
 
@@ -150,7 +153,7 @@ export default function DashboardPage() {
                     )}
 
                     <h1 className="text-[18px] md:text-[22px] font-black text-black mb-8 uppercase tracking-tight">
-                        DASHBOARD
+                        {t("dashboard.title")}
                     </h1>
 
                     {/* COMPARE SECTION - High-Resolution Refinement */}

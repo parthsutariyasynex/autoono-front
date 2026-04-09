@@ -36,7 +36,10 @@ export default function CategoryProductsPage() {
     async function loadProducts() {
       try {
         setLoading(true);
-        const res = await fetch(`/api/category-products?categoryId=${categoryId}`);
+        const fetchLocale = typeof window !== "undefined" && window.location.pathname.startsWith("/ar") ? "ar" : "en";
+        const res = await fetch(`/api/category-products?categoryId=${categoryId}`, {
+          headers: { "x-locale": fetchLocale },
+        });
         const data = await res.json();
 
         if (!res.ok) {

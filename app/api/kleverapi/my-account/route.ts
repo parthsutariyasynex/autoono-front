@@ -1,9 +1,11 @@
 import { NextResponse } from 'next/server';
+import { getBaseUrl } from '@/lib/api/magento-url';
 
 
 
 export async function GET(request: Request) {
     try {
+        const baseUrl = getBaseUrl(request);
         // 1. Get the customer token from the incoming request headers
         const authHeader = request.headers.get('Authorization');
 
@@ -16,8 +18,8 @@ export async function GET(request: Request) {
 
         // Use a more robust normalization to match the expected https://altalayi-demo.btire.com/rest/V1/kleverapi format
         // Removing the localized /en/rest/en/ prefixes
-        const cleanBaseUrl = process.env.NEXT_PUBLIC_BASE_URL?.replace(/https?:\/\/[^\/]+(\/en)?\/rest\/en/, 'https://altalayi-demo.btire.com/rest');
-        const magentoUrl = `${cleanBaseUrl}/my-account`;
+        
+        const magentoUrl = `${baseUrl}/my-account`;
 
         console.log(`[API ROUTE] Fetching Customer Info from: ${magentoUrl}`);
 
@@ -56,6 +58,7 @@ export async function GET(request: Request) {
  */
 export async function POST(request: Request) {
     try {
+        const baseUrl = getBaseUrl(request);
         const authHeader = request.headers.get('Authorization');
         const body = await request.json();
 
@@ -64,8 +67,8 @@ export async function POST(request: Request) {
         }
 
         // Use normalized URL to match standard REST path
-        const cleanBaseUrl = process.env.NEXT_PUBLIC_BASE_URL?.replace(/https?:\/\/[^\/]+(\/en)?\/rest\/en/, 'https://altalayi-demo.btire.com/rest');
-        const magentoUrl = `${cleanBaseUrl}/my-account`;
+        
+        const magentoUrl = `${baseUrl}/my-account`;
         console.log(`[API ROUTE] Updating Customer Info at: ${magentoUrl}`);
 
         const response = await fetch(magentoUrl, {

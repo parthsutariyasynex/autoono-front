@@ -1,4 +1,6 @@
 "use client";
+import { useTranslation } from "@/hooks/useTranslation";
+import { useLocalePath } from "@/hooks/useLocalePath";
 
 import { Suspense, useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
@@ -21,6 +23,8 @@ export default function EditAccountPage() {
 
 function EditAccountPageContent() {
     const router = useRouter();
+    const { t } = useTranslation();
+    const lp = useLocalePath();
     const searchParams = useSearchParams();
     const dispatch = useDispatch<AppDispatch>();
     const { data: session, status } = useSession();
@@ -86,7 +90,7 @@ function EditAccountPageContent() {
 
             toast.success("Account information updated successfully", { id: toastId });
             dispatch(fetchCustomerInfo());
-            router.push("/customer/account");
+            router.push(lp("/customer/account"));
         } catch (error: any) {
             console.error("Save Error:", error);
             toast.error(error.message || "Failed to update account", { id: toastId });

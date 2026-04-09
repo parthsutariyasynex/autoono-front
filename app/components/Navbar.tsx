@@ -19,6 +19,10 @@ import NotificationDrawer from "./NotificationDrawer";
 import { useCart } from "@/modules/cart/hooks/useCart";
 import { useNotifications } from "@/modules/notifications/hooks/useNotifications";
 import { fetchCustomerInfo } from "@/store/actions/customerActions";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
+import { useTranslation } from "@/hooks/useTranslation";
+import { useLocale } from "@/lib/i18n/client";
+import { useLocalePath } from "@/hooks/useLocalePath";
 
 interface NavLink {
   label: string;
@@ -26,21 +30,24 @@ interface NavLink {
   code?: string;
 }
 
-const FALLBACK_NAV_LINKS: NavLink[] = [
-  { label: "All Tyres", href: "/products" },
-  { label: "Quick Order", href: "/quick-order" },
-  { label: "About Us", href: "/about" },
-  { label: "Branch Locations", href: "/locations" },
-  { label: "User Guides", href: "/guides" },
-  { label: "Product Catalogue", href: "/catalogue" },
+const FALLBACK_NAV_KEYS: { key: string; href: string }[] = [
+  { key: "nav.allTyres", href: "/products" },
+  { key: "nav.quickOrder", href: "/quick-order" },
+  { key: "nav.aboutUs", href: "/about" },
+  { key: "nav.branchLocations", href: "/locations" },
+  { key: "nav.userGuides", href: "/guides" },
+  { key: "nav.productCatalogue", href: "/catalogue" },
 ];
 
 export default function Navbar() {
   const { data: session, status } = useSession();
   const pathname = usePathname();
+  const { t } = useTranslation();
+  const locale = useLocale();
+  const lp = useLocalePath();
   const isAuthenticated = status === "authenticated";
   const { cart, refetchCart } = useCart();
-  const [navLinks, setNavLinks] = useState<NavLink[]>(FALLBACK_NAV_LINKS);
+  const [navLinks, setNavLinks] = useState<NavLink[]>(FALLBACK_NAV_KEYS.map(n => ({ label: t(n.key), href: n.href })));
   const [navLoading, setNavLoading] = useState(true);
 
   const { data: customerData } = useSelector((state: RootState) => state.customer);
@@ -66,7 +73,7 @@ export default function Navbar() {
 
   const handleLogout = async () => {
     localStorage.removeItem("token");
-    await signOut({ callbackUrl: "/login" });
+    await signOut({ callbackUrl: lp("/login") });
   };
 
   useEffect(() => {
@@ -104,12 +111,13 @@ export default function Navbar() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Fetch dynamic menu from API
+  // Fetch dynamic menu from API (re-fetches when locale changes)
   useEffect(() => {
     const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
 
     // No token (login page) — use fallback links immediately, no API call
     if (!token) {
+      setNavLinks(FALLBACK_NAV_KEYS.map(n => ({ label: t(n.key), href: n.href })));
       setNavLoading(false);
       return;
     }
@@ -117,10 +125,13 @@ export default function Navbar() {
     let cancelled = false;
     const fetchMenu = async () => {
       try {
+        setNavLoading(true);
+        const fetchLocale = window.location.pathname.startsWith("/ar") ? "ar" : "en";
         const res = await fetch("/api/kleverapi/menu", {
           headers: {
             "Content-Type": "application/json",
             "Authorization": `Bearer ${token}`,
+            "x-locale": fetchLocale,
           },
         });
         if (cancelled) return;
@@ -134,9 +145,11 @@ export default function Navbar() {
             href: item.href,
             code: item.code,
           })));
+        } else {
+          setNavLinks(FALLBACK_NAV_KEYS.map(n => ({ label: t(n.key), href: n.href })));
         }
       } catch {
-        // Fallback to static links (already set as default)
+        setNavLinks(FALLBACK_NAV_KEYS.map(n => ({ label: t(n.key), href: n.href })));
       } finally {
         if (!cancelled) setNavLoading(false);
       }
@@ -144,7 +157,7 @@ export default function Navbar() {
 
     fetchMenu();
     return () => { cancelled = true; };
-  }, []);
+  }, [locale]);
 
   return (
     <div className="w-full fixed top-0 left-0 right-0 z-[60] flex flex-col" style={{ paddingRight: "var(--scrollbar-width)" }}>
@@ -154,7 +167,7 @@ export default function Navbar() {
         <div className="relative flex items-center justify-between h-[56px] sm:h-[64px] lg:h-[72px] px-3 sm:px-5 lg:px-8 xl:px-14">
 
           {/* LEFT: BTIRE logo */}
-          <Link href="/" className="flex items-center flex-shrink-0 z-10">
+          <Link href={lp("/")} className="flex items-center flex-shrink-0 z-10">
             <img
               src="/logo/btire-logo-horizontal.svg"
               alt="BTIRE Logo"
@@ -164,7 +177,7 @@ export default function Navbar() {
 
           {/* CENTER: Bridgestone logo — flex center on mobile, absolute center on md+ */}
           <div className="flex-1 flex items-center justify-center min-w-0 px-2 lg:px-0 lg:absolute lg:inset-0 lg:pointer-events-none">
-            <Link href="/" className="flex-shrink-0 lg:pointer-events-auto">
+            <Link href={lp("/")} className="flex-shrink-0 lg:pointer-events-auto">
               <img
                 src="/logo/atcl-bridgestone-logo-v1.jpg"
                 alt="AL TALAYI KSA"
@@ -176,10 +189,10 @@ export default function Navbar() {
           {/* RIGHT: Actions */}
           <div className="flex items-center gap-2 sm:gap-3 md:gap-5 flex-shrink-0 z-10">
 
-            {/* Language */}
-            <span className="hidden sm:inline text-black text-[12px] font-medium cursor-pointer hover:opacity-70 transition-opacity tracking-tight">
-              Arabic
-            </span>
+            {/* Language Switcher */}
+            <div className="hidden sm:block">
+              <LanguageSwitcher />
+            </div>
 
             {/* Welcome badge & Account Dropdown — md+ */}
             {isAuthenticated && !isLoadingName && pathname !== "/login" && (
@@ -192,7 +205,7 @@ export default function Navbar() {
                     <UserCircle size={16} strokeWidth={2.5} />
                   </div>
                   <div className="flex flex-col min-w-0">
-                    <span className="hidden lg:block text-[8px] text-gray-400 font-bold uppercase tracking-widest leading-none">Welcome Back</span>
+                    <span className="hidden lg:block text-[8px] text-gray-400 font-bold uppercase tracking-widest leading-none">{t("nav.welcomeBack")}</span>
                     <span className="text-[11px] lg:text-[12px] text-black font-black uppercase tracking-tighter leading-snug mt-0.5 truncate max-w-[80px] lg:max-w-[140px]">
                       {isSubAccount && subAccountName ? subAccountName : displayUser}
                     </span>
@@ -202,15 +215,15 @@ export default function Navbar() {
                 {isProfileOpen && (
                   <div className="absolute right-0 mt-2 w-48 bg-white rounded-sm shadow-2xl border border-gray-200 py-1 z-[100]">
                     <Link
-                      href="/my-account"
+                      href={lp("/my-account")}
                       className="block px-4 py-2.5 text-[12px] font-bold text-gray-800 hover:bg-gray-50 transition-colors"
                       onClick={() => setIsProfileOpen(false)}
                     >
-                      My Account
+                      {t("nav.myAccount")}
                     </Link>
                     {isSubAccount && (
                       <Link
-                        href="/my-account"
+                        href={lp("/my-account")}
                         className="block px-4 py-2.5 text-[12px] font-bold text-red-600 hover:bg-red-50 transition-colors border-t border-gray-100"
                         onClick={() => {
                           setIsProfileOpen(false);
@@ -220,14 +233,14 @@ export default function Navbar() {
                           setIsSubAccount(false);
                         }}
                       >
-                        Back to Main Account
+                        {t("nav.backToMainAccount")}
                       </Link>
                     )}
                     <button
                       onClick={handleLogout}
                       className="w-full text-left px-4 py-2.5 text-[12px] font-bold text-gray-800 hover:bg-gray-50 transition-colors cursor-pointer border-t border-gray-100"
                     >
-                      Sign Out
+                      {t("nav.signOut")}
                     </button>
                   </div>
                 )}
@@ -291,10 +304,10 @@ export default function Navbar() {
             navLinks.map((item) => (
               <Link
                 key={item.href}
-                href={item.href}
+                href={lp(item.href)}
                 className={`flex items-center h-full px-2.5 lg:px-7 text-[11px] lg:text-[12px] font-semibold uppercase tracking-wide lg:tracking-wider transition-all duration-200 whitespace-nowrap ${pathname === item.href || pathname?.startsWith(item.href + "/")
-                    ? "bg-black text-white"
-                    : "text-black hover:bg-black hover:text-white"
+                  ? "bg-black text-white"
+                  : "text-black hover:bg-black hover:text-white"
                   }`}
               >
                 {item.label}
@@ -314,7 +327,7 @@ export default function Navbar() {
               <div className="px-4 py-3 bg-gray-50 border-b border-gray-100 mb-1">
                 <div className="flex items-center gap-3">
                   <div className="flex flex-col overflow-hidden">
-                    <span className="text-[9px] text-gray-400 font-bold uppercase tracking-widest leading-none">Logged in as</span>
+                    <span className="text-[9px] text-gray-400 font-bold uppercase tracking-widest leading-none">{t("nav.loggedInAs")}</span>
                     <span className="text-[12px] text-black font-black uppercase truncate tracking-tight">
                       {isSubAccount && subAccountName ? subAccountName : displayUser}
                     </span>
@@ -325,11 +338,11 @@ export default function Navbar() {
 
             {/* Nav links */}
             <div className="px-4 py-2">
-              <span className="text-[9px] font-bold text-gray-400 uppercase tracking-[0.2em] block mb-2">Navigation</span>
+              <span className="text-[9px] font-bold text-gray-400 uppercase tracking-[0.2em] block mb-2">{t("nav.navigation")}</span>
               {navLinks.map((item) => (
                 <Link
                   key={item.href}
-                  href={item.href}
+                  href={lp(item.href)}
                   className={`py-2.5 text-[12px] font-bold uppercase tracking-wide flex items-center justify-between group ${pathname === item.href ? "text-[#f5b21a]" : "text-black hover:text-[#f5b21a]"
                     }`}
                   onClick={() => setIsMenuOpen(false)}
@@ -342,7 +355,7 @@ export default function Navbar() {
 
             {/* Quick actions */}
             <div className="px-4 py-3 mt-1 border-t border-gray-100">
-              <span className="text-[9px] font-bold text-gray-400 uppercase tracking-[0.2em] block mb-2">Quick Actions</span>
+              <span className="text-[9px] font-bold text-gray-400 uppercase tracking-[0.2em] block mb-2">{t("nav.quickActions")}</span>
 
               {isAuthenticated && pathname !== "/login" && (
                 <>
@@ -350,24 +363,24 @@ export default function Navbar() {
                     onClick={() => { setIsNotificationOpen(true); setIsMenuOpen(false); }}
                     className="py-2.5 text-[12px] font-bold text-gray-700 flex items-center gap-3 w-full"
                   >
-                    <Bell size={16} /> Notifications ({unreadCount})
+                    <Bell size={16} /> {t("nav.notifications")} ({unreadCount})
                   </button>
-                  <Link href="/my-account" className="py-2.5 text-[12px] font-bold text-gray-700 flex items-center gap-3" onClick={() => setIsMenuOpen(false)}>
-                    <UserCircle size={16} /> My Account
+                  <Link href={lp("/my-account")} className="py-2.5 text-[12px] font-bold text-gray-700 flex items-center gap-3" onClick={() => setIsMenuOpen(false)}>
+                    <UserCircle size={16} /> {t("nav.myAccount")}
                   </Link>
                 </>
               )}
 
-              <button className="py-2.5 text-[12px] font-bold text-gray-700 flex items-center gap-3 w-full">
-                <span className="w-4 text-center font-black text-[10px]">AR</span> Arabic
-              </button>
+              <div className="py-2.5">
+                <LanguageSwitcher />
+              </div>
 
               {isAuthenticated && pathname !== "/login" && (
                 <button
                   onClick={handleLogout}
                   className="py-2.5 mt-2 text-[12px] font-bold text-red-600 flex items-center gap-3 border-t border-gray-100 w-full pt-3"
                 >
-                  <LogOut size={16} /> Sign Out
+                  <LogOut size={16} /> {t("nav.signOut")}
                 </button>
               )}
             </div>

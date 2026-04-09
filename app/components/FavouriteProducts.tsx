@@ -187,7 +187,8 @@ export default function FavouriteProducts() {
     const handleShowProductDetail = async (product: Product) => {
         try {
             const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
-            const headers: HeadersInit = { "Content-Type": "application/json" };
+            const fetchLocale = window.location.pathname.startsWith("/ar") ? "ar" : "en";
+            const headers: HeadersInit = { "Content-Type": "application/json", "x-locale": fetchLocale };
             if (token) headers["Authorization"] = `Bearer ${token}`;
 
             // Extract item code from SKU (remove year suffix e.g. "PSR02347-2025" → "PSR02347")

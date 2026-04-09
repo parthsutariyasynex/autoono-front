@@ -1,8 +1,10 @@
 "use client";
+import { useTranslation } from "@/hooks/useTranslation";
 
 import React from "react";
 
 export default function CataloguePage() {
+    const { t } = useTranslation();
     return (
         <div className="min-h-screen bg-white">
 

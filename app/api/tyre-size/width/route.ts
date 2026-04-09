@@ -1,28 +1,14 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth/auth-options";
 import { NextRequest, NextResponse } from "next/server";
+import { getBaseUrl } from "@/lib/api/magento-url";
 
 export async function GET(request: NextRequest) {
     let token: string | null = null;
 
-    // 1. Try Header
     const authHeader = request.headers.get("authorization");
     if (authHeader && authHeader.startsWith("Bearer ")) {
         token = authHeader.substring(7).replace(/['"]/g, "").trim();
-    }
-
-    // 2. Try auth-token cookie
-    if (!token || token === "null") {
-        const cookie = request.cookies.get("auth-token")?.value;
-        if (cookie) {
-            token = cookie.replace(/['"]/g, "").trim();
-        }
-    }
-
-    // 3. Try Session
-    if (!token || token === "null") {
-        const session: any = await getServerSession(authOptions);
-        token = session?.accessToken;
     }
 
     // Proceed without token if missing, allowing guest access if Magento supports it
@@ -33,12 +19,13 @@ export async function GET(request: NextRequest) {
     // const { searchParams } = new URL(request.url);
     // const category = searchParams.get("category");
     // const encodedCategory = category ? encodeURIComponent(category) : '';
-    // const url = `${process.env.NEXT_PUBLIC_BASE_URL}/tyre-size/width${encodedCategory ? `?category=${encodedCategory}` : ''}`;
+    // const url = `${baseUrl}/tyre-size/width${encodedCategory ? `?category=${encodedCategory}` : ''}`;
 
     const fetchOptions: any = {
         headers: {
             'Content-Type': 'application/json',
-            'platform': 'web'
+            'platform': 'web',
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
         },
         cache: 'no-store',
     };
@@ -48,8 +35,9 @@ export async function GET(request: NextRequest) {
     }
 
     try {
+        const baseUrl = getBaseUrl(request);
         const res = await fetch(
-            `${process.env.NEXT_PUBLIC_BASE_URL}/tyre-size/width`,
+            `${baseUrl}/tyre-size/width`,
             fetchOptions
         );
 
@@ -62,14 +50,22 @@ export async function GET(request: NextRequest) {
 
         try {
             const data = JSON.parse(responseText);
-            console.log("[tyre-size/width] Success:", responseText.substring(0, 100));
             return NextResponse.json(data);
         } catch (e) {
-            console.error("[tyre-size/width] JSON Parse Error. Raw:", responseText);
-            return NextResponse.json({ error: "Invalid JSON from Magento", raw: responseText }, { status: 500 });
+            console.error("[tyre-size/width] JSON Parse Error:", e);
+            return NextResponse.json({ error: "Invalid JSON from Magento", raw: responseText.substring(0, 500) }, { status: 500 });
         }
     } catch (err: any) {
-        console.error("[tyre-size/width] Fetch error:", err.message);
-        return NextResponse.json({ error: "Internal Server Error", message: err.message }, { status: 500 });
+        console.error("[tyre-size/width] Fetch error details:", {
+            message: err.message,
+            stack: err.stack,
+            cause: err.cause,
+            code: err.code
+        });
+        return NextResponse.json({
+            error: "Internal Server Error",
+            message: err.message,
+            details: err.cause ? String(err.cause) : undefined
+        }, { status: 500 });
     }
 }

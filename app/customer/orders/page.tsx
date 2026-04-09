@@ -1,4 +1,6 @@
 "use client";
+import { useLocalePath } from "@/hooks/useLocalePath";
+import { useTranslation } from "@/hooks/useTranslation";
 
 import React, { useState, useEffect, useCallback } from "react";
 import Sidebar from "./components/Sidebar";
@@ -66,6 +68,8 @@ function mapOrderItem(item: any): Order {
 export default function MyOrdersPage() {
     const { data: session, status: authStatus } = useSession();
     const router = useRouter();
+    const lp = useLocalePath();
+    const { t } = useTranslation();
 
     const [orders, setOrders] = useState<Order[]>([]);
     const [totalItems, setTotalItems] = useState(0);
@@ -83,7 +87,7 @@ export default function MyOrdersPage() {
     // Auth guard
     useEffect(() => {
         if (authStatus === "unauthenticated") {
-            router.replace("/login?callback=/customer/orders");
+            router.replace(lp("/login?callback=/customer/orders"));
         }
     }, [authStatus, router]);
 

@@ -1,13 +1,15 @@
 import { NextResponse } from "next/server";
+import { getBaseUrl } from "@/lib/api/magento-url";
 
 export async function POST(req: Request) {
     try {
+        const baseUrl = getBaseUrl(req);
 
         const body = await req.json();
         console.log(">>> RESET PASSWORD PROXY BODY:", body);
 
         const response = await fetch(
-            `${process.env.NEXT_PUBLIC_BASE_URL}/forget-password-mobile/reset`,
+            `${baseUrl}/forget-password-mobile/reset`,
             {
                 method: "POST",
                 headers: {

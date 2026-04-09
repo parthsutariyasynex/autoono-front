@@ -1,6 +1,7 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth/auth-options";
 import { NextRequest, NextResponse } from "next/server";
+import { getBaseUrl } from "@/lib/api/magento-url";
 
 export async function GET(req: NextRequest) {
     const session: any = await getServerSession(authOptions);
@@ -11,9 +12,8 @@ export async function GET(req: NextRequest) {
     }
 
     const { searchParams } = new URL(req.url);
-
+    const baseUrl = getBaseUrl(req);
     // Base Magento Products API
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "";
     const magentoUrl = new URL(baseUrl.split("/kleverapi")[0] + "/products");
 
     let filterGroupIndex = 0;
@@ -87,6 +87,8 @@ export async function GET(req: NextRequest) {
             headers: {
                 Authorization: `Bearer ${token}`,
                 "Content-Type": "application/json",
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+                "platform": "web",
             },
         });
 

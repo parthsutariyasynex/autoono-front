@@ -1,11 +1,13 @@
 import { NextResponse } from 'next/server';
+import { getBaseUrl } from '@/lib/api/magento-url';
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth/auth-options";
 
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
+// BASE_URL is now obtained per-request via getBaseUrl(request)
 
 export async function GET(request: Request) {
     try {
+        const BASE_URL = getBaseUrl(request);
         const session: any = await getServerSession(authOptions);
         const token = session?.accessToken;
 

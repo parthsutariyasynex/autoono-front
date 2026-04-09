@@ -1,11 +1,13 @@
 import { NextResponse } from 'next/server';
+import { getBaseUrl } from '@/lib/api/magento-url';
 
 export async function POST(request: Request) {
     try {
+        const baseUrl = getBaseUrl(request);
         const body = await request.json();
 
         // The Magento endpoint is 'forget-password' not 'forgot-password'
-        const magentoUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/forget-password`;
+        const magentoUrl = `${baseUrl}/forget-password`;
 
         console.log(`>>> PROXY ATTEMPT: ${magentoUrl}`);
 

@@ -1,8 +1,24 @@
 import { getSession } from "next-auth/react";
+import { LOCALE_COOKIE } from "@/lib/i18n/config";
 
 const BASE_URL = "/api";
 const MAX_AUTH_RETRIES = 3;
 const AUTH_RETRY_DELAY = 800;
+
+/**
+ * Read the current locale — checks URL first (most up-to-date during switch),
+ * then falls back to cookie.
+ */
+function getClientLocale(): string {
+    if (typeof window === "undefined") return "en";
+    // URL is the source of truth (cookie may lag behind during language switch)
+    const pathSegments = window.location.pathname.split("/").filter(Boolean);
+    if (pathSegments[0] === "ar") return "ar";
+    if (pathSegments[0] === "en") return "en";
+    // Fallback to cookie
+    const match = document.cookie.match(new RegExp(`${LOCALE_COOKIE}=([^;]+)`));
+    return match?.[1] || "en";
+}
 
 /**
  * Get auth token — tries NextAuth session first, falls back to localStorage.
@@ -47,6 +63,8 @@ async function apiClient(
         ...customConfig,
         headers: {
             ...(!isFormData && { "Content-Type": "application/json" }),
+            // Pass the current locale to API routes via a custom header
+            "x-locale": getClientLocale(),
             ...headers,
         },
     };
@@ -83,7 +101,8 @@ async function apiClient(
         if (response.status === 401) {
             if (typeof window !== "undefined") {
                 localStorage.removeItem("token");
-                window.location.href = "/login";
+                const locale = window.location.pathname.startsWith("/ar") ? "ar" : "en";
+                window.location.href = `/${locale}/login`;
             }
             throw new Error("Session expired. Please login again.");
         }

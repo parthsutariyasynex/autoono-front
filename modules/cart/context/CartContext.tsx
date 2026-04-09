@@ -50,9 +50,13 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 async function getAuthToken(): Promise<string | null> {
   // Try NextAuth session first
   const session: any = await getSession();
+
+  // If session is definitively null, user is logged out — don't use localStorage
+  if (session === null) return null;
+
   if (session?.accessToken) return session.accessToken;
 
-  // Fallback: localStorage (may be set before session syncs)
+  // Fallback: localStorage (may be set before NextAuth session syncs on first load)
   if (typeof window !== "undefined") {
     const localToken = localStorage.getItem("token");
     if (localToken) return localToken;
@@ -86,9 +90,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
         return;
       }
 
+      // Read locale from URL (most up-to-date during language switch)
+      const pathLocale = window.location.pathname.startsWith("/ar") ? "ar" : "en";
       const res = await fetch("/api/kleverapi/cart", {
         headers: {
           Authorization: `Bearer ${token}`,
+          "x-locale": pathLocale,
         },
         cache: "no-store",
       });
@@ -98,7 +105,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       if (!res.ok) {
         if (isAuthError(res.status)) {
           // Retry once after delay (handles post-login race condition)
-          if (_retry < 2) {
+          if (_retry < 1) {
             await new Promise(r => setTimeout(r, 1000));
             return fetchCart(showLoader, _retry + 1);
           }
@@ -152,6 +159,13 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     fetchCart();
+  }, [fetchCart]);
+
+  // Re-fetch cart when locale changes (cart labels come from Magento in locale)
+  useEffect(() => {
+    const onLocaleChanged = () => fetchCart();
+    window.addEventListener("locale-changed", onLocaleChanged);
+    return () => window.removeEventListener("locale-changed", onLocaleChanged);
   }, [fetchCart]);
 
   const addToCart = async (sku: string, qty: number) => {

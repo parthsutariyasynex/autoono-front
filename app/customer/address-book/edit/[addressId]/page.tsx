@@ -1,4 +1,5 @@
 "use client";
+import { useTranslation } from "@/hooks/useTranslation";
 
 import { Suspense, useEffect, useState } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
@@ -17,6 +18,7 @@ export default function EditAddressPage() {
 function EditAddressPageContent() {
     const { addressId } = useParams();
     const router = useRouter();
+    const { t } = useTranslation();
     const searchParams = useSearchParams();
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);

@@ -2,6 +2,7 @@ import { getServerSession } from "next-auth";
 import { getToken } from "next-auth/jwt";
 import { authOptions } from "@/lib/auth/auth-options";
 import { NextRequest } from "next/server";
+import { getBaseUrl, getLocaleFromRequest } from "@/lib/api/magento-url";
 
 export async function GET(request: NextRequest) {
     try {
@@ -103,17 +104,23 @@ export async function GET(request: NextRequest) {
             }
         });
 
-        const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+        // Debug: log what locale the API route receives
+        const xLocaleHeader = request.headers.get("x-locale");
+        const localeCookie = request.cookies.get("NEXT_LOCALE")?.value;
+        console.log("[category-products] x-locale header:", xLocaleHeader, "| cookie:", localeCookie);
+
+        const baseUrl = getBaseUrl(request);
         const magentoUrlStr = `${baseUrl}/category-products?${queryParts.join("&")}`;
         console.log("[category-products] Magento URL:", magentoUrlStr);
-        console.log("[category-products] Base URL env:", baseUrl ? "set" : "MISSING!");
 
         const res = await fetch(magentoUrlStr, {
             headers: {
                 ...(token && { Authorization: `Bearer ${token}` }),
                 "Content-Type": "application/json",
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+                "platform": "web",
             },
-            next: { revalidate: 300 } // Cache for 5 minutes (removes no-store)
+            cache: "no-store",
         });
 
         if (!res.ok) {
@@ -162,10 +169,11 @@ export async function GET(request: NextRequest) {
                     offerCounts[v] = (offerCounts[v] || 0) + 1;
                 });
 
+                const locale = getLocaleFromRequest(request);
                 // Create the synthetic filter group
                 const offersFilter = {
                     code: "offers",
-                    label: "Promotions and Offers",
+                    label: locale === "ar" ? "العروض والترقيات" : "Promotions and Offers",
                     record_count: uniqueOffers.length,
                     options: uniqueOffers.map((offer: string) => ({
                         value: offer,
@@ -199,11 +207,17 @@ export async function GET(request: NextRequest) {
         const finalFilters = Array.isArray(data.filters) ? data.filters : [];
 
         // Return the clean, normalized structure requested
-        return Response.json({
+        // Set no-cache headers to prevent stale locale data
+        return new Response(JSON.stringify({
             ...data,
             products: products,
             total_count: totalCount,
             filters: finalFilters
+        }), {
+            headers: {
+                "Content-Type": "application/json",
+                "Cache-Control": "no-store, no-cache, must-revalidate",
+            },
         });
 
     } catch (error: any) {

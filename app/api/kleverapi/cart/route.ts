@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
-
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
+import { getBaseUrl } from "@/lib/api/magento-url";
 
 /* =========================
    GET CART (KleverAPI)
@@ -15,6 +14,7 @@ export async function GET(req: Request) {
             return NextResponse.json({ message: "Unauthorized: Missing customer token" }, { status: 401 });
         }
 
+        const BASE_URL = getBaseUrl(req);
         const response = await fetch(`${BASE_URL}/cart`, {
             method: "GET",
             headers: {
@@ -38,4 +38,3 @@ export async function GET(req: Request) {
         return NextResponse.json({ message: "Internal server error" }, { status: 500 });
     }
 }
-

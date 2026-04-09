@@ -1,4 +1,5 @@
 "use client";
+import { useLocalePath } from "@/hooks/useLocalePath";
 
 import React from "react";
 import Link from "next/link";
@@ -10,11 +11,12 @@ interface CartActionsProps {
 }
 
 const CartActions: React.FC<CartActionsProps> = ({ itemsCount, onClearCart, onUpdateCart }) => {
+    const lp = useLocalePath();
     return (
         <div className="flex flex-col md:flex-row justify-between items-center bg-gray-50/50 border border-gray-100 px-5 py-5 rounded-2xl gap-5">
             <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
                 <Link
-                    href="/products"
+                    href={lp("/products")}
                     className="flex-1 md:flex-none px-4 py-2 bg-black text-white text-[9px] font-black uppercase tracking-[0.2em] hover:bg-gray-800 transition-all cursor-pointer rounded-lg text-center active:scale-95 shadow-sm"
                 >
                     Continue Shopping

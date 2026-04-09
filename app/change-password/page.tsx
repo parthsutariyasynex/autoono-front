@@ -1,4 +1,6 @@
 "use client";
+import { useTranslation } from "@/hooks/useTranslation";
+import { useLocalePath } from "@/hooks/useLocalePath";
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -9,6 +11,8 @@ import toast from "react-hot-toast";
 
 export default function ChangePasswordPage() {
   const router = useRouter();
+    const { t } = useTranslation();
+    const lp = useLocalePath();
   const dispatch = useDispatch();
   const { data: session, status } = useSession();
   const [currentPassword, setCurrentPassword] = useState("");
@@ -19,7 +23,7 @@ export default function ChangePasswordPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (newPassword !== confirmPassword) {
-      toast.error("Passwords do not match");
+      toast.error(t("changePassword.mismatch"));
       return;
     }
 
@@ -27,10 +31,10 @@ export default function ChangePasswordPage() {
     // @ts-ignore
     dispatch(changePassword({ currentPassword, newPassword }, (err: any) => {
       if (!err) {
-        toast.success("Password changed successfully");
-        router.push("/customer/account");
+        toast.success(t("changePassword.success"));
+        router.push(lp("/customer/account"));
       } else {
-        toast.error(err || "Failed to change password");
+        toast.error(err || t("changePassword.failed"));
       }
       setLoading(false);
     }));
@@ -41,10 +45,10 @@ export default function ChangePasswordPage() {
       
       <div className="max-w-md mx-auto p-4 sm:p-6 mt-6 sm:mt-10">
         <div className="bg-white p-4 sm:p-6 md:p-8 rounded shadow-sm border border-gray-200">
-          <h1 className="text-base sm:text-lg md:text-xl font-bold mb-4 sm:mb-6 uppercase tracking-wider text-black">Change Password</h1>
+          <h1 className="text-base sm:text-lg md:text-xl font-bold mb-4 sm:mb-6 uppercase tracking-wider text-black">{t("changePassword.title")}</h1>
           <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-5">
             <div>
-              <label className="block text-[11px] font-bold uppercase text-gray-700 tracking-tight mb-1">Current Password *</label>
+              <label className="block text-[11px] font-bold uppercase text-gray-700 tracking-tight mb-1">{t("changePassword.currentPassword")} *</label>
               <input
                 type="password"
                 required
@@ -54,7 +58,7 @@ export default function ChangePasswordPage() {
               />
             </div>
             <div>
-              <label className="block text-[11px] font-bold uppercase text-gray-700 tracking-tight mb-1">New Password *</label>
+              <label className="block text-[11px] font-bold uppercase text-gray-700 tracking-tight mb-1">{t("changePassword.newPassword")} *</label>
               <input
                 type="password"
                 required
@@ -64,7 +68,7 @@ export default function ChangePasswordPage() {
               />
             </div>
             <div>
-              <label className="block text-[11px] font-bold uppercase text-gray-700 tracking-tight mb-1">Confirm New Password *</label>
+              <label className="block text-[11px] font-bold uppercase text-gray-700 tracking-tight mb-1">{t("changePassword.confirmNewPassword")} *</label>
               <input
                 type="password"
                 required
@@ -78,7 +82,7 @@ export default function ChangePasswordPage() {
               disabled={loading}
               className="w-full bg-amber-400 text-black font-bold py-3 rounded-[3px] shadow-sm hover:bg-amber-500 transition-all uppercase text-xs tracking-wider cursor-pointer active:scale-95 disabled:opacity-50"
             >
-              {loading ? "Changing..." : "Save Password"}
+              {loading ? t("changePassword.saving") : t("changePassword.save")}
             </button>
           </form>
         </div>

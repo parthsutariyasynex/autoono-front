@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback, useRef, memo, useMemo } from "react";
 import Link from "next/link";
 import { ChevronDown, ChevronLeft, Filter, X, FileText } from "lucide-react";
+import { useLocalePath } from "@/hooks/useLocalePath";
 
 export interface FilterOption {
     value: string;
@@ -142,6 +143,7 @@ function SidebarFilter({
     initialFilters?: any[] | null;
 }) {
     const [filterGroups, setFilterGroups] = useState<FilterGroupData[]>([]);
+    const lp = useLocalePath();
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
     const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({});
@@ -165,6 +167,15 @@ function SidebarFilter({
         }));
 
         setFilterGroups(mapped);
+
+        // ✅ Auto-expand first 3 groups to ensure filter content is visible when opened
+        setExpandedGroups(prev => {
+            if (Object.keys(prev).length > 0) return prev;
+            const init: Record<string, boolean> = {};
+            mapped.slice(0, 3).forEach(g => init[g.code] = true);
+            return init;
+        });
+
         setLoading(false);
     }, [initialFilters]);
 
@@ -177,14 +188,15 @@ function SidebarFilter({
             try {
                 setLoading(true);
                 const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
-                const headers: any = { 'Content-Type': 'application/json' };
+                const fetchLocale = window.location.pathname.startsWith("/ar") ? "ar" : "en";
+                const headers: any = { 'Content-Type': 'application/json', 'x-locale': fetchLocale };
                 if (token) headers['Authorization'] = `Bearer ${token}`;
 
                 const res = await fetch(`/api/filters?categoryId=${categoryId}`, { headers });
                 if (cancelled) return;
                 if (res.status === 401) {
                     localStorage.removeItem("token");
-                    window.location.href = "/login";
+                    window.location.href = lp("/login");
                     return;
                 }
                 if (!res.ok) throw new Error("Failed to load filters");
@@ -212,7 +224,7 @@ function SidebarFilter({
                 if (!cancelled) setError(err.message);
             } finally {
                 if (!cancelled) setLoading(false);
-            }
+            }   
         };
 
         fetchFilters();
@@ -266,7 +278,7 @@ function SidebarFilter({
         <aside
             className={`flex-shrink-0 flex flex-col sticky top-[108px] h-fit z-30 transition-all duration-300 ease-in-out border-r border-gray-200 bg-white overflow-hidden ${isCollapsed ? 'w-[50px]' : 'w-[300px]'}`}
         >
-            <div className="flex flex-col w-[300px] h-full">
+            <div className={`flex flex-col w-[300px] h-full transition-transform duration-300 ease-in-out ${isCollapsed ? "-translate-x-[250px]" : "translate-x-0"}`}>
                 {/* Header */}
                 <div className="flex border-b border-gray-200 h-[60px] flex-shrink-0 bg-white shadow-sm shrink-0">
                     <div className={`flex-1 px-6 flex items-center overflow-hidden transition-opacity duration-300 ${isCollapsed ? 'opacity-0' : 'opacity-100'}`}>
@@ -274,9 +286,9 @@ function SidebarFilter({
                     </div>
                     <div
                         onClick={() => setIsCollapsed(!isCollapsed)}
-                        className={`${isCollapsed ? "w-full" : "w-[50px]"} flex items-center justify-center bg-gray-50 border-l border-gray-200 cursor-pointer shrink-0 transition-all duration-300`}
+                        className={`w-[50px] flex items-center justify-center bg-gray-50 border-l border-gray-200 cursor-pointer shrink-0 transition-all duration-300 hover:bg-gray-100`}
                     >
-                        <ChevronLeft className={`w-[18px] h-[18px] transition-transform duration-300 ${isCollapsed ? "rotate-180" : ""}`} />
+                        <ChevronLeft className={`w-[18px] h-[18px] transition-transform duration-300 ${isCollapsed ? "rotate-180" : "rotate-0"}`} />
                     </div>
                 </div>
 
@@ -304,7 +316,7 @@ function SidebarFilter({
                     </div>
 
                     <div className="p-4 border-t border-gray-100 bg-white">
-                        <Link href="/guides">
+                        <Link href={lp("/guides")}>
                             <div className="bg-[#f5a623] rounded-sm p-4 flex items-center gap-4 cursor-pointer hover:bg-black group transition-all">
                                 <FileText size={20} className="text-white group-hover:scale-110 transition-transform" />
                                 <span className="font-black text-black group-hover:text-white text-xs uppercase">USER GUIDES</span>

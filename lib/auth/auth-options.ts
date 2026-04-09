@@ -1,5 +1,6 @@
 import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
+import { getMagentoBaseUrl, isValidLocale, defaultLocale, type Locale } from "@/lib/i18n/config";
 
 /**
  * Decode a Magento JWT token to read its expiry time.
@@ -30,20 +31,24 @@ export const authOptions: NextAuthOptions = {
                 if (!credentials) return null;
 
                 const isOtp = !!(credentials as any).otp;
+                // Read locale from credentials (passed from login form)
+                const credLocale = (credentials as any).locale;
+                const locale: Locale = credLocale && isValidLocale(credLocale) ? credLocale : defaultLocale;
+                const magentoBase = getMagentoBaseUrl(locale);
                 let url = "";
                 let body = {};
 
                 if (isOtp) {
-                    url = `${process.env.NEXT_PUBLIC_BASE_URL}/login/otp`;
+                    url = `${magentoBase}/login/otp`;
                     body = {
                         mobile: (credentials as any).mobile,
                         otp: (credentials as any).otp,
                         countryCode: (credentials as any).countryCode
                     };
                 } else {
-                    url = process.env.MAGENTO_AUTH_TOKEN_URL || "";
+                    url = `${magentoBase}/login/email`;
                     body = {
-                        username: (credentials as any).email,
+                        email: (credentials as any).email,
                         password: (credentials as any).password,
                     };
                 }

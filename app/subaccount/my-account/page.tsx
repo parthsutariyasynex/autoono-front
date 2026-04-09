@@ -1,4 +1,6 @@
 "use client";
+import { useTranslation } from "@/hooks/useTranslation";
+import { useLocalePath } from "@/hooks/useLocalePath";
 
 import React, { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
@@ -33,6 +35,8 @@ type Address = {
 
 export default function SubAccountMyAccountPage() {
     const router = useRouter();
+    const { t } = useTranslation();
+    const lp = useLocalePath();
     const pathname = usePathname();
     const dispatch = useDispatch<AppDispatch>();
     const { status } = useSession();
@@ -51,7 +55,7 @@ export default function SubAccountMyAccountPage() {
             setIsSubAccountSession(isSub);
 
             if (!isSub) {
-                router.replace("/my-account");
+                router.replace(lp("/my-account"));
                 return;
             }
 
@@ -247,14 +251,14 @@ export default function SubAccountMyAccountPage() {
                                         <div className="pt-8">
                                             {defaultShipping?.id ? (
                                                 <Link
-                                                    href={`/customer/address-book/edit/${defaultShipping.id}`}
+                                                    href={lp(`/customer/address-book/edit/${defaultShipping.id}`)}
                                                     className="bg-[#F5B21B] hover:bg-[#e0a116] text-black text-[12px] md:text-[13px] font-bold px-6 md:px-8 py-2 md:py-2.5 uppercase transition-all rounded-none inline-block w-full sm:w-auto text-center"
                                                 >
                                                     EDIT ADDRESS
                                                 </Link>
                                             ) : (
                                                 <Link
-                                                    href="/customer/address-book"
+                                                    href={lp("/customer/address-book")}
                                                     className="bg-[#F5B21B] hover:bg-[#e0a116] text-black text-[12px] md:text-[13px] font-bold px-6 md:px-8 py-2 md:py-2.5 uppercase transition-all rounded-none inline-block w-full sm:w-auto text-center"
                                                 >
                                                     ADD ADDRESS

@@ -1,7 +1,9 @@
 import { NextResponse } from 'next/server';
+import { getBaseUrl } from '@/lib/api/magento-url';
 
 export async function GET(request: Request) {
     try {
+        const baseUrl = getBaseUrl(request);
         const authHeader = request.headers.get('Authorization');
 
         if (!authHeader) {
@@ -11,7 +13,7 @@ export async function GET(request: Request) {
             );
         }
 
-        const magentoUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/subaccounts`;
+        const magentoUrl = `${baseUrl}/subaccounts`;
 
         const response = await fetch(magentoUrl, {
             method: 'GET',

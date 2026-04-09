@@ -1,9 +1,11 @@
 import { NextResponse } from "next/server";
+import { getBaseUrl } from "@/lib/api/magento-url";
 
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
+// BASE_URL is now obtained per-request via getBaseUrl(request)
 
 export async function GET(request: Request) {
     try {
+        const BASE_URL = getBaseUrl(request);
         const { searchParams } = new URL(request.url);
         const order_id = searchParams.get("order_id");
         const document_type = searchParams.get("document_type");

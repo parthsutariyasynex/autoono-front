@@ -1,11 +1,38 @@
 /**
- * Builds a /login URL with callbackUrl preserving current path + query params.
- * Use this for all client-side redirects to login.
+ * Detect the current locale from the browser URL path.
+ */
+export function getCurrentLocale(): string {
+  if (typeof window === "undefined") return "en";
+  return window.location.pathname.startsWith("/ar") ? "ar" : "en";
+}
+
+/**
+ * Build headers for API fetch calls with auth token and locale.
+ * Use this for all raw fetch() calls to ensure locale is always sent.
+ *
+ * Usage:
+ *   const res = await fetch("/api/kleverapi/orders", { headers: apiHeaders() });
+ *   const res = await fetch("/api/kleverapi/cart", { headers: apiHeaders(token) });
+ */
+export function apiHeaders(token?: string | null): Record<string, string> {
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+    "x-locale": getCurrentLocale(),
+  };
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`;
+  }
+  return headers;
+}
+
+/**
+ * Builds a locale-prefixed /login URL with callbackUrl preserving current path + query params.
  */
 export function getLoginUrl(): string {
-  if (typeof window === "undefined") return "/login";
+  if (typeof window === "undefined") return "/en/login";
+  const locale = getCurrentLocale();
   const currentPath = window.location.pathname + window.location.search;
-  return `/login?callbackUrl=${encodeURIComponent(currentPath)}`;
+  return `/${locale}/login?callbackUrl=${encodeURIComponent(currentPath)}`;
 }
 
 /**

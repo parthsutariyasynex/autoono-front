@@ -18,6 +18,24 @@
     --scrollbar-width: 0px;
   }
 
+  /* ─── RTL Support ─────────────────────────────────────────────────── */
+  [dir="rtl"] {
+    text-align: right;
+  }
+
+  [dir="rtl"] input,
+  [dir="rtl"] textarea,
+  [dir="rtl"] select {
+    text-align: right;
+  }
+
+  [dir="rtl"] input[type="email"],
+  [dir="rtl"] input[type="tel"],
+  [dir="rtl"] input[type="number"] {
+    direction: ltr;
+    text-align: right;
+  }
+
   body {
     min-width: 320px;
   }

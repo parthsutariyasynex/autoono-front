@@ -5,9 +5,11 @@ import { useCheckout, Address } from "@/modules/checkout/hooks/useCheckout";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import toast from "react-hot-toast";
+import { useTranslation } from "@/hooks/useTranslation";
 
 const MultiShippingBillingPage: React.FC = () => {
     const router = useRouter();
+    const { t } = useTranslation();
     const {
         addresses,
         paymentMethods,
@@ -106,7 +108,7 @@ const MultiShippingBillingPage: React.FC = () => {
             localStorage.setItem('multi_shipping_billing_address_id', selectedAddressId);
 
             toast.success("Billing information saved!");
-            router.push('/multi-location-delivery/review');
+            // router.push('/multi-location-delivery/review');
         } catch (err: any) {
             console.error("Billing update error:", err);
             toast.error(err.message || "Failed to save billing information.");

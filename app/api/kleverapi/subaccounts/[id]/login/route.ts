@@ -1,10 +1,12 @@
 import { NextResponse } from 'next/server';
+import { getBaseUrl } from '@/lib/api/magento-url';
 
 export async function POST(
     request: Request,
     { params }: { params: { id: string } }
 ) {
     try {
+        const baseUrl = getBaseUrl(request);
         const authHeader = request.headers.get('Authorization');
 
         if (!authHeader) {
@@ -12,7 +14,7 @@ export async function POST(
         }
 
         const { id } = await params;
-        const magentoUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/subaccounts/${id}/login`;
+        const magentoUrl = `${baseUrl}/subaccounts/${id}/login`;
 
         console.log(`[API ROUTE] Sub-Account Login at: ${magentoUrl}`);
 
