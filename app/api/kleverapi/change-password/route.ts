@@ -1,21 +1,17 @@
 import { NextResponse } from "next/server";
 import { getBaseUrl } from "@/lib/api/magento-url";
 
-// BASE_URL is now obtained per-request via getBaseUrl(request)
+// BASE_URL is now obtained per-request via getBaseUrl(req)
 
 export async function POST(req: Request) {
     try {
         const baseUrl = getBaseUrl(req);
-        const BASE_URL = getBaseUrl(req);
         const authHeader = req.headers.get("authorization");
         if (!authHeader || !authHeader.startsWith("Bearer ")) {
             return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
         }
 
         const body = await req.json();
-
-        // Use a more robust normalization to match the expected https://altalayi-demo.btire.com/rest/V1/kleverapi format
-        const baseUrl = (baseUrl || "").replace(/https?:\/\/[^\/]+(\/en)?\/rest\/en/, 'https://altalayi-demo.btire.com/rest');
         const response = await fetch(`${baseUrl}/change-password`, {
             method: "POST",
             headers: {

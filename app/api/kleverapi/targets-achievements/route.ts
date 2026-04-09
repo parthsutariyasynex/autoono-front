@@ -3,7 +3,7 @@ import { getBaseUrl } from "@/lib/api/magento-url";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth/auth-options";
 
-// BASE_URL is now obtained per-request via getBaseUrl(request)
+// BASE_URL is now obtained per-request via getBaseUrl(req)
 
 export async function GET(req: NextRequest) {
     try {

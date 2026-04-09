@@ -187,7 +187,7 @@ export default function FavouriteProducts() {
     const handleShowProductDetail = async (product: Product) => {
         try {
             const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
-            const fetchLocale = window.location.pathname.startsWith("/ar") ? "ar" : "en";
+            const fetchLocale = typeof window !== "undefined" && window.location.pathname.startsWith("/ar") ? "ar" : "en";
             const headers: HeadersInit = { "Content-Type": "application/json", "x-locale": fetchLocale };
             if (token) headers["Authorization"] = `Bearer ${token}`;
 

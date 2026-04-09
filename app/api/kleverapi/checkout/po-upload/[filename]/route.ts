@@ -8,7 +8,7 @@ export async function DELETE(
     { params }: { params: Promise<{ filename: string }> }
 ) {
     try {
-        const BASE_URL = getBaseUrl(request);
+        const BASE_URL = getBaseUrl(req);
         const { filename } = await params;
         const authHeader = req.headers.get("authorization");
         if (!authHeader || !authHeader.startsWith("Bearer ")) {

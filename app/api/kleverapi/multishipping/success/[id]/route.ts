@@ -8,7 +8,7 @@ export async function GET(
     { params }: { params: Promise<{ id: string }> }
 ) {
     try {
-        const BASE_URL = getBaseUrl(request);
+        const BASE_URL = getBaseUrl(req);
         const { id: orderId } = await params;
         const authHeader = req.headers.get("authorization");
 

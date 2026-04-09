@@ -1,5 +1,6 @@
 "use client";
 import { useTranslation } from "@/hooks/useTranslation";
+import { useLocalePath } from "@/hooks/useLocalePath";
 
 import React, { useEffect, useState, useMemo, useRef } from "react";
 import { useCart } from "@/modules/cart/hooks/useCart";
@@ -26,6 +27,7 @@ interface AddressGroup {
 const MultiShippingReviewPage: React.FC = () => {
     const router = useRouter();
     const { t } = useTranslation();
+    const lp = useLocalePath();
     const { cart, isLoading: isCartLoading, clearCart } = useCart();
     const {
         addresses,

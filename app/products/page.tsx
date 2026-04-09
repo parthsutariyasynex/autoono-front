@@ -89,7 +89,7 @@ function MobileCardShimmer() {
 export default function ProductsPage() {
   const router = useRouter();
   const { t } = useTranslation();
-    const lp = useLocalePath();
+  const lp = useLocalePath();
   const locale = useLocale();
   const [searchParams, setSearchParamsState] = useState<URLSearchParams | null>(null);
   const handleParams = useCallback((sp: URLSearchParams) => setSearchParamsState(sp), []);
@@ -194,8 +194,8 @@ export default function ProductsPage() {
         const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
         if (!token) return;
         // Read locale from browser URL directly (not from useLocale which may be "en" during SSR/hydration)
-        const fetchLocale = window.location.pathname.startsWith("/ar") ? "ar" : "en";
-        console.log("[Products] fetch locale:", fetchLocale, "| URL:", window.location.pathname);
+        const fetchLocale = typeof window !== "undefined" && window.location.pathname.startsWith("/ar") ? "ar" : "en";
+        console.log("[Products] fetch locale:", fetchLocale);
         const headers: HeadersInit = { "Content-Type": "application/json", "Authorization": `Bearer ${token}`, "x-locale": fetchLocale };
         const queryString = formatMagentoQueryParams(debouncedFilters, currentPage, sortBy);
         const url = `/api/category-products?${queryString}&categoryId=5&pageSize=${PAGE_SIZE}`;

@@ -1,5 +1,6 @@
 "use client";
 import { useTranslation } from "@/hooks/useTranslation";
+import { useLocalePath } from "@/hooks/useLocalePath";
 
 import React, { useState, useEffect } from "react";
 import useSWR from "swr";
@@ -45,6 +46,7 @@ export default function OrderAttachmentsPage() {
     const { data: session, status: authStatus } = useSession();
     const router = useRouter();
     const { t } = useTranslation();
+    const lp = useLocalePath();
 
     // Filters state
     const [searchText, setSearchText] = useState("");

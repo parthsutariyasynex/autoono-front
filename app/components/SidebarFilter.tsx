@@ -188,7 +188,7 @@ function SidebarFilter({
             try {
                 setLoading(true);
                 const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
-                const fetchLocale = window.location.pathname.startsWith("/ar") ? "ar" : "en";
+                const fetchLocale = typeof window !== 'undefined' && window.location.pathname.startsWith("/ar") ? "ar" : "en";
                 const headers: any = { 'Content-Type': 'application/json', 'x-locale': fetchLocale };
                 if (token) headers['Authorization'] = `Bearer ${token}`;
 
@@ -224,7 +224,7 @@ function SidebarFilter({
                 if (!cancelled) setError(err.message);
             } finally {
                 if (!cancelled) setLoading(false);
-            }   
+            }
         };
 
         fetchFilters();

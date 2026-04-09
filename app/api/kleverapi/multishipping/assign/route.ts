@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { getBaseUrl } from "@/lib/api/magento-url";
 
-// BASE_URL is now obtained per-request via getBaseUrl(request)
+// BASE_URL is now obtained per-request via getBaseUrl(req)
 
 export async function POST(req: Request) {
     try {

@@ -8,7 +8,7 @@ export async function POST(
     { params }: { params: Promise<{ id: string }> }
 ) {
     try {
-        const BASE_URL = getBaseUrl(request);
+        const BASE_URL = getBaseUrl(req);
         const { id } = await params;
         const authHeader = req.headers.get("authorization");
 

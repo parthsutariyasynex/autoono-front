@@ -8,7 +8,7 @@ export async function GET(
     { params }: { params: { storeId: string; date: string } }
 ) {
     try {
-        const BASE_URL = getBaseUrl(request);
+        const BASE_URL = getBaseUrl(req);
         const authHeader = req.headers.get("authorization");
         if (!authHeader || !authHeader.startsWith("Bearer ")) {
             return NextResponse.json({ message: "Unauthorized" }, { status: 401 });

@@ -78,7 +78,7 @@ export function formatMagentoQueryParams(
   page: number = 1,
   sortBy: string = "none"
 ): string {
-  const parts: string[] = ["is_ajax=1"];
+  const parts: string[] = [];
 
   if (page > 1) parts.push(`page=${page}`);
   if (sortBy && sortBy !== "none") parts.push(`sortBy=${encodeURIComponent(sortBy)}`);

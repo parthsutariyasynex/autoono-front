@@ -121,7 +121,7 @@ function MyOrdersPageContent() {
         try {
             // Fetch a large enough page size to get all orders for counts
             const res = await fetch(`/api/kleverapi/my-orders?pageSize=1000&currentPage=1`, {
-                headers: { Authorization: `Bearer ${token}`, "x-locale": window.location.pathname.startsWith("/ar") ? "ar" : "en" },
+                headers: { Authorization: `Bearer ${token}`, "x-locale": typeof window !== "undefined" && window.location.pathname.startsWith("/ar") ? "ar" : "en" },
             });
             const data = await res.json();
             if (res.ok) {
