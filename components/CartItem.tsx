@@ -8,6 +8,7 @@ import Price from "@/app/components/Price";
 
 
 import toast from "react-hot-toast";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface CartItemProps {
     item: CartItemType;
@@ -17,6 +18,7 @@ interface CartItemProps {
 }
 
 const CartItem: React.FC<CartItemProps> = ({ item, currencyCode, onUpdateQty, onRemove }) => {
+    const { t } = useTranslation();
     const [updating, setUpdating] = useState(false);
 
     const handleQtyChange = async (newQty: number) => {
@@ -35,7 +37,7 @@ const CartItem: React.FC<CartItemProps> = ({ item, currencyCode, onUpdateQty, on
             <button
                 onClick={() => {
                     onRemove(item.item_id);
-                    toast.success("Tyre Removed", {
+                    toast.success(t("cart.itemRemoved"), {
                         style: {
                             borderRadius: '12px',
                             background: '#fffafaff',
@@ -47,7 +49,7 @@ const CartItem: React.FC<CartItemProps> = ({ item, currencyCode, onUpdateQty, on
                     });
                 }}
                 className="absolute top-2 right-2 w-6 h-6 flex items-center justify-center bg-gray-50 text-gray-400 rounded-full transition-all z-10 cursor-pointer hover:bg-[#FF4444] hover:text-white hover:scale-110 active:scale-95 opacity-0 group-hover/item:opacity-100 shadow-sm border border-gray-100"
-                title="Remove item"
+                title={t("m.remove-item")}
             >
                 <X size={10} strokeWidth={4} />
             </button>
@@ -59,7 +61,7 @@ const CartItem: React.FC<CartItemProps> = ({ item, currencyCode, onUpdateQty, on
                         <img src={item.image_url || "/images/tyre-sample.png"} alt={item.name} className="max-w-full max-h-full object-contain" />
                     </div>
                     <div className="flex-1 min-w-0 pt-1">
-                        <span className="text-[10px] font-black text-yellow-600 uppercase tracking-widest mb-1 block">Quick Order</span>
+                        <span className="text-[10px] font-black text-yellow-600 uppercase tracking-widest mb-1 block">{t("quickOrder.title")}</span>
                         <h3 className="text-sm font-black text-gray-900 leading-tight uppercase tracking-tight line-clamp-2">{item.name}</h3>
                         <div className="flex flex-wrap gap-2 mt-3">
                             {item.size_display && (
@@ -119,12 +121,12 @@ const CartItem: React.FC<CartItemProps> = ({ item, currencyCode, onUpdateQty, on
                         <div className="flex flex-wrap gap-1.5 single-line-attributes">
                             {item.size_display && (
                                 <span className="text-[9px] font-black text-gray-400 bg-gray-50 border border-gray-100 px-1.5 py-0.5 rounded-md uppercase">
-                                    Size: {item.size_display}
+                                    {t("m.size")}: {item.size_display}
                                 </span>
                             )}
                             {item.pattern_display && (
                                 <span className="text-[9px] font-black text-gray-400 bg-gray-50 border border-gray-100 px-1.5 py-0.5 rounded-md uppercase">
-                                    Pattern: {item.pattern_display}
+                                    {t("m.pattern")}: {item.pattern_display}
                                 </span>
                             )}
                         </div>

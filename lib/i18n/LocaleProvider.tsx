@@ -1,9 +1,19 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useState, useEffect } from "react";
 import { isValidLocale, Locale, defaultLocale } from "./config";
 
 export const LocaleContext = createContext<Locale>(defaultLocale);
+
+/**
+ * Read locale from browser URL (most reliable source on client).
+ */
+function getBrowserLocale(): Locale {
+    if (typeof window === "undefined") return defaultLocale;
+    if (window.location.pathname.startsWith("/ar")) return "ar";
+    if (window.location.pathname.startsWith("/en")) return "en";
+    return defaultLocale;
+}
 
 export function LocaleProvider({
     children,
@@ -14,10 +24,14 @@ export function LocaleProvider({
 }) {
     const [locale, setLocale] = useState<Locale>(initialLocale);
 
-    // Sync state if initialLocale changes (e.g. during navigation)
+    // On mount: read locale from browser URL (fixes SSR mismatch after rewrite)
+    // Root layout doesn't re-render on client navigation, so initialLocale can be stale.
     useEffect(() => {
-        setLocale(initialLocale);
-    }, [initialLocale]);
+        const urlLocale = getBrowserLocale();
+        if (urlLocale !== locale) {
+            setLocale(urlLocale);
+        }
+    }, []);
 
     // Listen for language switch events (from LanguageSwitcher)
     useEffect(() => {

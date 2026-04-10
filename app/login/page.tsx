@@ -80,7 +80,7 @@
 //     // Mobile and country code alag moklva
 //     dispatch(sendOtp(mobileNumber, countryCode, (err, data) => {
 //       if (!err) {
-//         toast.success("OTP Sent");
+//         toast.success(t("login.otpSent"));
 //         setOtpSent(true);
 //       } else {
 //         toast.error(err || "Failed to send OTP");
@@ -283,7 +283,7 @@
 //                       <input
 //                         id="mobile-input"
 //                         type="tel"
-//                         placeholder="Mobile Number"
+//                         placeholder={t("login.mobilePlaceholder")}
 //                         value={mobileNumber}
 //                         onChange={(e) => { setMobileNumber(e.target.value.replace(/\D/g, "")); if (errors.mobile) setErrors({ ...errors, mobile: '' }); }}
 //                         className="flex-1 px-4 text-sm outline-none bg-transparent cursor-text font-medium"
@@ -319,7 +319,7 @@
 //                         value={otp}
 //                         onChange={(e) => { setOtp(e.target.value); if (errors.otp) setErrors({ ...errors, otp: '' }); }}
 //                         className={`w-full h-12 bg-white px-4 text-sm rounded-[1px] outline outline-1 transition-all text-center font-black tracking-[8px] cursor-text placeholder:font-normal placeholder:tracking-normal ${errors.otp ? 'outline-red-500' : 'outline-gray-200 focus:outline-black focus:outline-2 focus:ring-1 focus:ring-black'}`}
-//                         placeholder="ENTER OTP"
+//                         placeholder={t("login.enterOtp")}
 //                       />
 //                       {errors.otp && <span className="text-red-500 text-[11px] font-bold">{errors.otp}</span>}
 //                     </div>
@@ -460,7 +460,7 @@ function LoginPageContent() {
     }
     dispatch(sendOtp(mobileNumber, countryCode, (err, data) => {
       if (!err) {
-        toast.success("OTP Sent");
+        toast.success(t("login.otpSent"));
         setOtpSent(true);
       } else {
         toast.error(err || "Failed to send OTP");
@@ -618,8 +618,8 @@ function LoginPageContent() {
             {/* ── CHANGE: text-[13px] → text-[13px] (same), mb-6 → mb-5 ── */}
             <p className="text-[12px] sm:text-[13px] text-gray-500 font-medium leading-relaxed mb-5">
               {mode === 'password'
-                ? "If you have an account, sign in with your email address."
-                : "If you have an account, sign in with your mobile number."}
+                ? t("login.signInWithEmail")
+                : t("login.signInWithMobile")}
             </p>
 
             {/* ── CHANGE: space-y-5 → flex flex-col gap-[14px] ── */}
@@ -630,13 +630,13 @@ function LoginPageContent() {
                   <div className="flex flex-col gap-[5px]">
                     {/* ── CHANGE: text-[12px] → text-[13px], removed uppercase/tracking ── */}
                     <label className="block text-[13px] font-bold text-gray-900 cursor-pointer">
-                      Email <span className="text-red-600">*</span>
+                      {t("login.emailLabel")} <span className="text-red-600">*</span>
                     </label>
                     {/* ── CHANGE: h-12 → h-10, outline → border, removed rounded-[1px] ── */}
                     <input
                       id="email-input"
                       type="email"
-                      placeholder="Enter your email"
+                      placeholder={t("login.emailPlaceholder")}
                       value={email}
                       onChange={(e) => { setEmail(e.target.value); if (errors.email) setErrors({ ...errors, email: '' }); }}
                       className={`w-full h-10 bg-white px-3 text-sm border transition-all outline-none cursor-text ${errors.email ? 'border-red-500' : 'border-gray-300 focus:border-gray-600'
@@ -647,12 +647,12 @@ function LoginPageContent() {
 
                   <div className="flex flex-col gap-[5px]">
                     <label className="block text-[13px] font-bold text-gray-900 cursor-pointer">
-                      Password <span className="text-red-600">*</span>
+                      {t("login.passwordLabel")} <span className="text-red-600">*</span>
                     </label>
                     <input
                       id="password-input"
                       type="password"
-                      placeholder="Enter your password"
+                      placeholder={t("login.passwordPlaceholder")}
                       value={password}
                       onChange={(e) => { setPassword(e.target.value); if (errors.password) setErrors({ ...errors, password: '' }); }}
                       className={`w-full h-10 bg-white px-3 text-sm border transition-all outline-none cursor-text ${errors.password ? 'border-red-500' : 'border-gray-300 focus:border-gray-600'
@@ -667,7 +667,7 @@ function LoginPageContent() {
                 <>
                   <div className="flex flex-col gap-[5px] relative">
                     <label className="block text-[13px] font-bold text-gray-900">
-                      Mobile Number <span className="text-red-600">*</span>
+                      {t("login.mobileNumberLabel")} <span className="text-red-600">*</span>
                     </label>
                     {/* ── CHANGE: h-12 → h-10, outline → border ── */}
                     <div className={`flex h-10 bg-white border transition-all ${errors.mobile ? 'border-red-500' : 'border-gray-300 focus-within:border-gray-600'
@@ -683,7 +683,7 @@ function LoginPageContent() {
                       <input
                         id="mobile-input"
                         type="tel"
-                        placeholder="Mobile Number"
+                        placeholder={t("login.mobilePlaceholder")}
                         value={mobileNumber}
                         onChange={(e) => { setMobileNumber(e.target.value.replace(/\D/g, "")); if (errors.mobile) setErrors({ ...errors, mobile: '' }); }}
                         className="flex-1 px-3 text-sm outline-none bg-transparent cursor-text font-medium"
@@ -711,7 +711,7 @@ function LoginPageContent() {
                   {otpSent && (
                     <div className="flex flex-col gap-[5px]">
                       <label className="block text-[13px] font-bold text-gray-900">
-                        Verification Code <span className="text-red-600">*</span>
+                        {t("login.verificationCode")} <span className="text-red-600">*</span>
                       </label>
                       <input
                         id="otp-input"
@@ -720,7 +720,7 @@ function LoginPageContent() {
                         onChange={(e) => { setOtp(e.target.value); if (errors.otp) setErrors({ ...errors, otp: '' }); }}
                         className={`w-full h-10 bg-white px-3 text-sm border transition-all outline-none text-center font-black tracking-[8px] cursor-text placeholder:font-normal placeholder:tracking-normal ${errors.otp ? 'border-red-500' : 'border-gray-300 focus:border-gray-600'
                           }`}
-                        placeholder="ENTER OTP"
+                        placeholder={t("login.enterOtp")}
                       />
                       {errors.otp && <span className="text-red-500 text-[11px] font-bold">{errors.otp}</span>}
                     </div>

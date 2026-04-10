@@ -12,6 +12,7 @@ import Modal from "./Modal";
 import Price from "./Price";
 
 import { api } from "@/lib/api/api-client";
+import { useTranslation } from "@/hooks/useTranslation";
 import Pagination from "@/components/Pagination";
 import { useCart } from "@/modules/cart/context/CartContext";
 import { useSession } from "next-auth/react";
@@ -35,7 +36,7 @@ interface Product {
     favorite_id?: number | string;
 }
 
-const TABLE_HEADERS = ['Brand', 'Size', 'Pattern', 'Year', 'Origin', 'Image', 'Offer', 'Stock', 'Price', 'Action'] as const;
+const TABLE_HEADER_KEYS = ['m.brand', 'm.size', 'm.pattern', 'm.year', 'm.origin', 'm.image', 'm.offer', 'm.stock', 'm.price', 'm.action'] as const;
 const COL_WIDTHS = ['8%', '13%', '13%', '6%', '7%', '7%', '9%', '9%', '10%', '115px'] as const;
 const ROW_HEIGHT = 'h-auto md:h-[52px]';
 
@@ -49,6 +50,7 @@ function TableColGroup() {
 
 export default function FavouriteProducts() {
     const router = useRouter();
+    const { t } = useTranslation();
     const { data: session } = useSession();
     const { refetchCart } = useCart();
 
@@ -122,7 +124,7 @@ export default function FavouriteProducts() {
             console.error("Failed to load favourites", err);
             // Don't show toast error if it's just empty or loading
             if (err !== "Unauthorized" && err !== "Something went wrong") {
-                toast.error("Error loading products");
+                toast.error(t("favorites.errorLoading"));
             }
         } finally {
             setLoading(false);
@@ -143,7 +145,7 @@ export default function FavouriteProducts() {
 
     const handleRemove = async (product: Product) => {
         setRemoving(product.product_id);
-        const toastId = toast.loading("Removing product...");
+        const toastId = toast.loading(t("favorites.remove"));
         try {
             // Updating local storage to maintain consistency with other components
             const stored = localStorage.getItem("favourites");
@@ -157,9 +159,9 @@ export default function FavouriteProducts() {
 
             setFavProducts(prev => prev.filter(p => p.product_id !== product.product_id));
             setTotalCount(prev => Math.max(0, prev - 1));
-            toast.success("Product removed", { id: toastId });
+            toast.success(t("favorites.removeSuccess"), { id: toastId });
         } catch (err) {
-            toast.error("Failed to remove", { id: toastId });
+            toast.error(t("favorites.removeFailed"), { id: toastId });
         } finally {
             setRemoving(null);
         }
@@ -168,16 +170,16 @@ export default function FavouriteProducts() {
     const onAddToCart = async (product: Product) => {
         const qty = quantities[product.product_id] || 1;
         setAddingToCart(product.sku);
-        const toastId = toast.loading("Adding to cart...");
+        const toastId = toast.loading(t("m.add-to-cart"));
         try {
             await api.post("/kleverapi/cart/add", { sku: product.sku, qty });
             await refetchCart();
-            toast.success(`${product.name.substring(0, 15)}... added!`, { id: toastId });
+            toast.success(`${product.name.substring(0, 15)}... ${t("favorites.cartAdded")}`, { id: toastId });
         } catch (err) {
             if (err === "Unauthorized") {
                 redirectToLogin(router);
             }
-            toast.error("Failed to add to cart", { id: toastId });
+            toast.error(t("cart.updateFailed"), { id: toastId });
         } finally {
             setAddingToCart(null);
         }
@@ -235,18 +237,18 @@ export default function FavouriteProducts() {
             {/* Top Bar - Styled same as products page header */}
             <div className="px-5 py-4 bg-gray-50 border border-gray-200 rounded-xl mb-6 flex flex-col md:flex-row items-center justify-between gap-4">
                 <div className="text-[10px] font-black text-gray-400 uppercase tracking-widest">
-                    Items <span className="text-gray-900">{startItem} to {endItem}</span> of <span className="text-gray-900">{totalCount}</span> total
+                    {t("favorites.items")} <span className="text-gray-900">{startItem} - {endItem}</span> {t("favorites.of")} <span className="text-gray-900">{totalCount}</span> {t("favorites.total")}
                 </div>
                 <div className="flex items-center gap-1.5 md:gap-2 flex-wrap justify-center">
                     {pages.map((p) => (
                         <button key={p} onClick={() => setCurrentPage(p)} className={`w-8 h-8 md:w-9 md:h-9 flex items-center justify-center text-[11px] font-black rounded-lg border transition-all cursor-pointer ${currentPage === p ? "bg-[#f5a623] border-[#f5a623] text-black shadow-sm" : "bg-white border-gray-200 text-gray-400 hover:border-[#f5a623]"}`}>{p}</button>
                     ))}
                     {currentPage < totalPages && (
-                        <button onClick={() => setCurrentPage(currentPage + 1)} className="h-8 md:h-9 px-3 md:px-4 flex items-center justify-center text-[10px] bg-white border border-gray-200 text-black font-black rounded-lg uppercase cursor-pointer shadow-sm active:scale-95 transition-all">Next</button>
+                        <button onClick={() => setCurrentPage(currentPage + 1)} className="h-8 md:h-9 px-3 md:px-4 flex items-center justify-center text-[10px] bg-white border border-gray-200 text-black font-black rounded-lg uppercase cursor-pointer shadow-sm active:scale-95 transition-all">{t("common.next")}</button>
                     )}
                 </div>
                 <div className="flex items-center gap-3">
-                    <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Show</span>
+                    <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{t("favorites.show")}</span>
                     <PortalDropdown value={String(pageSize)} onChange={(val) => { setPageSize(Number(val)); setCurrentPage(1); }} options={[{ label: "10", value: "10" }, { label: "20", value: "20" }, { label: "50", value: "50" }]} minWidth={70} buttonClassName="h-8 px-2 bg-white border border-gray-200 rounded-lg text-[11px] font-black" />
                 </div>
             </div>
@@ -254,24 +256,24 @@ export default function FavouriteProducts() {
             {/* Mobile/Tablet Card List */}
             <div className="xl:hidden grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
                 {favProducts.length === 0 ? (
-                    <div className="py-16 text-center text-gray-400 italic text-[13px]">Your favorites list is currently empty.</div>
+                    <div className="py-16 text-center text-gray-400 italic text-[13px]">{t("favorites.empty")}</div>
                 ) : favProducts.map((product) => {
                     const brandName = product.brand || product.name.split(' ')[0] || "—";
                     const isOutOfStock = product.stock_status === "Out of Stock" || product.stock_status === "Not Available" || Number(product.stock_qty || 0) <= 0;
                     const isLimited = product.stock_qty > 0 && product.stock_qty <= 10;
                     const dotColor = isOutOfStock ? "bg-red-500" : isLimited ? "bg-yellow-400" : "bg-green-500";
-                    const stockLabel = isOutOfStock ? "Not Available" : isLimited ? "Limited" : "In Stock";
+                    const stockLabel = isOutOfStock ? t("stock.not_available") : isLimited ? t("stock.limited") : t("stock.available");
 
                     return (
                         <div key={product.product_id} className="bg-white rounded-xl border border-gray-200 shadow-sm p-3 flex flex-col gap-2">
                             <div className="flex gap-3">
                                 <div className="flex-1 min-w-0">
-                                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">{brandName}</p>
+                                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">{t(`data.${brandName}`) !== `data.${brandName}` ? t(`data.${brandName}`) : brandName}</p>
                                     <p className="text-[12px] font-black text-gray-900 leading-tight mt-0.5 truncate">{product.pattern || product.name || "—"}</p>
                                     <div className="flex items-center gap-1.5 mt-1">
                                         <span className="text-[12px] font-bold text-black">{product.tyre_size || "—"}</span>
                                         <div onClick={() => handleShowProductDetail(product)} className="w-4 h-4 bg-gray-900 rounded-full flex items-center justify-center text-[9px] font-bold text-white cursor-pointer active:scale-95 flex-shrink-0">i</div>
-                                        {product.origin && <span className="text-[11px] text-gray-400">{product.origin}</span>}
+                                        {product.origin && <span className="text-[11px] text-gray-400">{t(`data.${product.origin}`) !== `data.${product.origin}` ? t(`data.${product.origin}`) : product.origin}</span>}
                                         {product.year && <span className="text-[11px] text-gray-400 font-mono">{product.year}</span>}
                                     </div>
                                     <div className="flex items-center gap-1.5 mt-1.5">
@@ -313,12 +315,12 @@ export default function FavouriteProducts() {
                         <TableColGroup />
                         <thead className="sticky top-0 z-20">
                             <tr className="bg-gray-50 border-b-2 border-gray-200">
-                                {TABLE_HEADERS.map(h => (
-                                    <th key={h} className="px-2 md:px-4 py-2 md:py-3 text-[11px] font-black text-black uppercase tracking-widest text-center">{h === 'Size' ? (
+                                {TABLE_HEADER_KEYS.map(key => (
+                                    <th key={key} className="px-2 md:px-4 py-2 md:py-3 text-[11px] font-black text-black uppercase tracking-widest text-center">{key === 'm.size' ? (
                                         <div className="flex items-center justify-center">
-                                            Size <Info className="w-4 h-4 text-gray-400 ml-1 cursor-pointer" />
+                                            {t(key)} <Info className="w-4 h-4 text-gray-400 ml-1 cursor-pointer" />
                                         </div>
-                                    ) : h}</th>
+                                    ) : t(key)}</th>
                                 ))}
                             </tr>
                         </thead>
@@ -326,7 +328,7 @@ export default function FavouriteProducts() {
                             {favProducts.length === 0 ? (
                                 <tr>
                                     <td colSpan={10} className="px-5 py-24 text-center">
-                                        <p className="text-xs font-black text-gray-400 uppercase tracking-[0.2em]">Your favorites list is currently empty.</p>
+                                        <p className="text-xs font-black text-gray-400 uppercase tracking-[0.2em]">{t("favorites.empty")}</p>
                                     </td>
                                 </tr>
                             ) : (
@@ -335,11 +337,11 @@ export default function FavouriteProducts() {
                                     const isOutOfStock = product.stock_status === "Out of Stock" || product.stock_status === "Not Available" || Number(product.stock_qty || 0) <= 0;
                                     const isLimited = product.stock_qty > 0 && product.stock_qty <= 10;
                                     const stockColor = isOutOfStock ? "bg-red-500" : isLimited ? "bg-yellow-400" : "bg-green-500";
-                                    const stockLabel = isOutOfStock ? "Not Available" : isLimited ? "Limited" : "In Stock";
+                                    const stockLabel = isOutOfStock ? t("stock.not_available") : isLimited ? t("stock.limited") : t("stock.available");
 
                                     return (
                                         <tr key={product.product_id} className={`hover:bg-gray-50/50 transition-colors group ${ROW_HEIGHT}`}>
-                                            <td className="px-2 md:px-4 text-[12px] font-normal text-gray-700 text-center">{brandName}</td>
+                                            <td className="px-2 md:px-4 text-[12px] font-normal text-gray-700 text-center">{t(`data.${brandName}`) !== `data.${brandName}` ? t(`data.${brandName}`) : brandName}</td>
                                             <td className="px-2 md:px-4 text-center whitespace-nowrap">
                                                 <div className="flex items-center justify-center gap-1.5">
                                                     <span className="text-[12px] font-normal text-gray-900 tracking-tight">{product.tyre_size}</span>
@@ -353,7 +355,7 @@ export default function FavouriteProducts() {
                                             </td>
                                             <td className="px-2 md:px-4 text-[12px] font-normal text-gray-600 text-center">{product.pattern || "—"}</td>
                                             <td className="px-2 md:px-4 text-[12px] font-normal text-gray-500 text-center font-mono">{product.year || "—"}</td>
-                                            <td className="px-2 md:px-4 text-[12px] font-normal text-gray-600 text-center">{product.origin || "—"}</td>
+                                            <td className="px-2 md:px-4 text-[12px] font-normal text-gray-600 text-center">{product.origin ? (t(`data.${product.origin}`) !== `data.${product.origin}` ? t(`data.${product.origin}`) : product.origin) : "—"}</td>
                                             <td className="px-2 md:px-4 text-center">
                                                 <div className="w-10 h-10 mx-auto">
                                                     {product.image_url ? (
@@ -375,7 +377,7 @@ export default function FavouriteProducts() {
                                                             </div>
                                                         </div>
                                                     ) : (
-                                                        <span className="text-[10px] text-gray-300 font-black uppercase leading-[40px]">No Image</span>
+                                                        <span className="text-[10px] text-gray-300 font-black uppercase leading-[40px]">{t("m.no-image")}</span>
                                                     )}
                                                 </div>
                                             </td>
@@ -435,7 +437,7 @@ export default function FavouriteProducts() {
                                                             onClick={() => onAddToCart(product)}
                                                             disabled={addingToCart === product.sku}
                                                             className="w-8 h-8 bg-yellow-400 hover:bg-yellow-500 text-black rounded-md flex items-center justify-center shadow-md active:scale-95 transition-all disabled:opacity-50"
-                                                            title="Add to Cart"
+                                                            title={t("m.add-to-cart")}
                                                         >
                                                             {addingToCart === product.sku ? (
                                                                 <div className="w-3.5 h-3.5 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
@@ -450,7 +452,7 @@ export default function FavouriteProducts() {
                                                                 setIsInquiryModalOpen(true);
                                                             }}
                                                             className="w-8 h-8 bg-yellow-400 hover:bg-yellow-500 text-black rounded-md flex items-center justify-center shadow-md active:scale-95"
-                                                            title="Make Inquiry"
+                                                            title={t("m.make-an-inquiry")}
                                                         >
                                                             <Info size={15} strokeWidth={2.5} />
                                                         </button>
@@ -464,7 +466,7 @@ export default function FavouriteProducts() {
                                                             ? "bg-gray-100 text-gray-400 border-gray-100 cursor-not-allowed"
                                                             : "bg-white text-gray-400 border-gray-200 hover:bg-red-50 hover:text-red-500 hover:border-red-200"
                                                             }`}
-                                                        title="Remove from Favourites"
+                                                        title={t("m.remove-from-wishlist")}
                                                     >
                                                         {removing === product.product_id ? (
                                                             <div className="w-3.5 h-3.5 border-2 border-gray-300 border-t-red-500 rounded-full animate-spin"></div>
@@ -525,12 +527,12 @@ export default function FavouriteProducts() {
                 <div className="flex flex-col h-full bg-white">
                     <div className="bg-[#FFB82B] px-4 md:px-8 py-4 md:py-6 flex items-center justify-center relative flex-shrink-0">
                         <h2 className="text-[14px] md:text-[17px] font-black text-black text-center uppercase tracking-tight">
-                            {previewProduct ? `${previewProduct.pattern || '-'} - ${previewProduct.tyre_size || '-'}` : "Product Preview"}
+                            {previewProduct ? `${previewProduct.pattern || '-'} - ${previewProduct.tyre_size || '-'}` : t("m.preview")}
                         </h2>
                     </div>
                     <div className="flex-1 overflow-y-auto p-4 md:p-8 flex flex-col items-center justify-center">
                         <div className="p-2 md:p-4 bg-white flex items-center justify-center min-h-[200px] md:min-h-[400px] w-full">
-                            <img src={selectedImage || ''} alt={previewProduct ? `${previewProduct.pattern} - ${previewProduct.tyre_size}` : "Product Preview"} className="max-w-full max-h-[60vh] md:max-h-[75vh] object-contain rounded-lg" />
+                            <img src={selectedImage || ''} alt={previewProduct ? `${previewProduct.pattern} - ${previewProduct.tyre_size}` : t("m.preview")} className="max-w-full max-h-[60vh] md:max-h-[75vh] object-contain rounded-lg" />
                         </div>
                         <div className="mt-6 md:mt-10 w-full">
                             <button onClick={() => setIsImageModalOpen(false)} className="w-full py-3 md:py-4 bg-black text-white text-[12px] md:text-sm font-black uppercase tracking-widest rounded shadow-xl hover:bg-gray-800 transition-all cursor-pointer active:scale-95">Close Preview</button>

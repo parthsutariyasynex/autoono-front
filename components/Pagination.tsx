@@ -3,6 +3,7 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import { createPortal } from "react-dom";
 import { ChevronDown } from "lucide-react";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface PaginationProps {
     currentPage: number;
@@ -14,6 +15,7 @@ interface PaginationProps {
 }
 
 function PageSizeSelect({ value, onChange }: { value: number; onChange: (v: number) => void }) {
+    const { t } = useTranslation();
     const [isOpen, setIsOpen] = useState(false);
     const [mounted, setMounted] = useState(false);
     const triggerRef = useRef<HTMLButtonElement>(null);
@@ -37,7 +39,7 @@ function PageSizeSelect({ value, onChange }: { value: number; onChange: (v: numb
 
     return (
         <div className="flex items-center gap-2 md:gap-3">
-            <span className="text-[12px] md:text-[14px] text-gray-500 font-medium">Show</span>
+            <span className="text-[12px] md:text-[14px] text-gray-500 font-medium">{t("favorites.show")}</span>
             <button
                 ref={triggerRef}
                 type="button"
@@ -69,7 +71,7 @@ function PageSizeSelect({ value, onChange }: { value: number; onChange: (v: numb
                 </>,
                 document.body
             )}
-            <span className="text-[12px] md:text-[14px] text-gray-500 font-medium whitespace-nowrap">per page</span>
+            <span className="text-[12px] md:text-[14px] text-gray-500 font-medium whitespace-nowrap">{t("common.perPage")}</span>
         </div>
     );
 }
@@ -82,6 +84,7 @@ const Pagination: React.FC<PaginationProps> = ({
     onPageChange,
     onPageSizeChange,
 }) => {
+    const { t } = useTranslation();
     const startItem = (currentPage - 1) * pageSize + 1;
     const endItem = Math.min(currentPage * pageSize, totalItems);
 
@@ -91,7 +94,7 @@ const Pagination: React.FC<PaginationProps> = ({
         <div className="flex flex-col md:flex-row items-center justify-between py-4 md:py-6 px-1 gap-4 md:gap-6 mt-4">
             {/* Item count */}
             <div className="text-[12px] md:text-[14px] text-gray-500 font-medium">
-                Showing <span className="text-black font-bold">Items {startItem} to {endItem}</span> of <span className="text-black font-bold">{totalItems}</span> total
+                {t("favorites.show")} <span className="text-black font-bold">{t("favorites.items")} {startItem} - {endItem}</span> {t("favorites.of")} <span className="text-black font-bold">{totalItems}</span> {t("favorites.total")}
             </div>
 
             {/* Pagination Controls */}
@@ -114,7 +117,7 @@ const Pagination: React.FC<PaginationProps> = ({
                         onClick={() => onPageChange(currentPage + 1)}
                         className="h-8 md:h-10 px-3 md:px-5 flex items-center justify-center text-[11px] md:text-[13px] bg-white border border-gray-200 text-black font-bold rounded-full hover:bg-gray-50 hover:border-[#f5a623] hover:text-[#f5a623] transition-all duration-200 uppercase cursor-pointer"
                     >
-                        Next
+                        {t("common.next")}
                     </button>
                 )}
             </div>

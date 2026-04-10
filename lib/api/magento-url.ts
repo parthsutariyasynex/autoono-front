@@ -35,20 +35,33 @@ export function getBaseUrl(request: Request): string {
  * Extract locale from a Request object.
  */
 export function getLocaleFromRequest(request: Request): string {
-    // 1. Check custom x-locale header (sent by api-client.ts)
+    // 1. Check ?lang= query parameter (most reliable — can't be stripped)
+    try {
+        const url = new URL(request.url);
+        const langParam = url.searchParams.get("lang");
+        if (langParam && VALID_LOCALES.includes(langParam)) {
+            return langParam;
+        }
+    } catch {}
+
+    // 2. Check custom x-locale header (sent by frontend fetch)
     const headerLocale = request.headers.get("x-locale");
     if (headerLocale && VALID_LOCALES.includes(headerLocale)) {
         return headerLocale;
     }
 
-    // 2. Check cookie
+    // 3. Check Referer URL (browser sends this automatically)
+    const referer = request.headers.get("referer") || "";
+    if (referer.includes("/ar/")) return "ar";
+
+    // 4. Check cookie
     const cookieHeader = request.headers.get("cookie") || "";
     const match = cookieHeader.match(new RegExp(`${LOCALE_COOKIE}=([^;]+)`));
     if (match && VALID_LOCALES.includes(match[1])) {
         return match[1];
     }
 
-    // 3. Default
+    // 5. Default
     return DEFAULT_LOCALE;
 }
 

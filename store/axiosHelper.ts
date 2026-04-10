@@ -6,7 +6,10 @@ export const baseUrl = "/api/kleverapi";
 
 function getLocale(): string {
     if (typeof window === "undefined") return "en";
-    return window.location.pathname.startsWith("/ar") ? "ar" : "en";
+    if (window.location.pathname.startsWith("/ar")) return "ar";
+    // Fallback to cookie
+    const match = document.cookie.match(/NEXT_LOCALE=([^;]+)/);
+    return match?.[1] || "en";
 }
 
 function getResponse(response: any) {

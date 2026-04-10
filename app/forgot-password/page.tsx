@@ -50,19 +50,19 @@ export default function ForgotPasswordPage() {
 
     if (step === "input") {
       if (resetMode === "email") {
-        if (!email) newErrors.email = "Email is required";
-        else if (!/\S+@\S+\.\S+/.test(email)) newErrors.email = "Invalid email format";
+        if (!email) newErrors.email = t("forgotPassword.emailRequired");
+        else if (!/\S+@\S+\.\S+/.test(email)) newErrors.email = t("forgotPassword.emailInvalid");
       } else {
-        if (!mobileNumber) newErrors.mobile = "Mobile number is required";
+        if (!mobileNumber) newErrors.mobile = t("forgotPassword.mobileRequired");
         // else if (mobileNumber.length !== 10) newErrors.mobile = "Mobile number must be 10 digits";
       }
     } else if (step === "otp") {
-      if (!otp) newErrors.otp = "OTP is required";
-      else if (otp.length < 4) newErrors.otp = "Invalid OTP format";
+      if (!otp) newErrors.otp = t("forgotPassword.otpRequired");
+      else if (otp.length < 4) newErrors.otp = t("forgotPassword.otpInvalid");
     } else if (step === "reset") {
-      if (!newPassword) newErrors.password = "New password is required";
-      else if (newPassword.length < 6) newErrors.password = "Password must be at least 6 characters";
-      if (newPassword !== confirmPassword) newErrors.confirmPassword = "Passwords do not match";
+      if (!newPassword) newErrors.password = t("forgotPassword.passwordRequired");
+      else if (newPassword.length < 6) newErrors.password = t("forgotPassword.passwordMinLength");
+      if (newPassword !== confirmPassword) newErrors.confirmPassword = t("forgotPassword.passwordMismatch");
     }
 
     setErrors(newErrors);
@@ -87,14 +87,14 @@ export default function ForgotPasswordPage() {
       const data = await res.json();
 
       if (res.ok) {
-        toast.success("Reset link sent successfully to your email");
+        toast.success(t("forgotPassword.resetLinkSent"));
         router.push(lp("/login"));
       } else {
-        toast.error(data.message || "Failed to send reset link");
+        toast.error(data.message || t("forgotPassword.resetLinkFailed"));
       }
 
     } catch (error) {
-      toast.error("Something went wrong");
+      toast.error(t("forgotPassword.unexpectedError"));
     }
 
     setLoading(false);
@@ -117,13 +117,13 @@ export default function ForgotPasswordPage() {
       const data = await res.json();
 
       if (res.ok) {
-        toast.success("OTP sent to your mobile number");
+        toast.success(t("forgotPassword.otpSentSuccess"));
         setStep("otp");
       } else {
-        toast.error(data.message || "Failed to send OTP");
+        toast.error(data.message || t("forgotPassword.otpSentFailed"));
       }
     } catch (err: any) {
-      toast.error("Failed to send OTP");
+      toast.error(t("forgotPassword.otpSentFailed"));
     } finally {
       setLoading(false);
     }
@@ -151,15 +151,15 @@ export default function ForgotPasswordPage() {
       console.log(">>> VERIFY OTP CLIENT DATA:", data);
 
       if (res.ok) {
-        toast.success("OTP verified successfully");
+        toast.success(t("forgotPassword.otpVerified"));
         const token = typeof data === "string" ? data : (data.resetToken || data.token || "");
         setResetToken(token);
         setStep("reset");
       } else {
-        toast.error(data.message || "Invalid OTP");
+        toast.error(data.message || t("forgotPassword.otpVerifyFailed"));
       }
     } catch (error) {
-      toast.error("Verification failed");
+      toast.error(t("forgotPassword.otpVerifyFailed"));
     } finally {
       setLoading(false);
     }
@@ -194,7 +194,7 @@ export default function ForgotPasswordPage() {
 
       if (res.ok) {
         // 3. Success handling
-        toast.success("Password reset successfully!");
+        toast.success(t("forgotPassword.passwordResetSuccess"));
         console.log(">>> RESET PASSWORD: Success");
 
         // Brief delay before redirecting to login
@@ -203,14 +203,14 @@ export default function ForgotPasswordPage() {
         }, 1500);
       } else {
         // 4. API Error handling
-        const errorMessage = data.message || data.error || "Failed to reset password. Please try again.";
+        const errorMessage = data.message || data.error || t("forgotPassword.passwordResetFailed");
         toast.error(errorMessage);
         console.error(">>> RESET PASSWORD: API Error:", errorMessage);
       }
     } catch (error: any) {
       // 5. Network or unexpected error handling
       console.error(">>> RESET PASSWORD: Exception occurred:", error);
-      toast.error("An unexpected error occurred. Please try again later.");
+      toast.error(t("forgotPassword.unexpectedError"));
     } finally {
       setLoading(false);
     }
@@ -241,7 +241,7 @@ export default function ForgotPasswordPage() {
           <div className="p-4 sm:p-6 md:p-8 flex flex-col gap-6">
             <div className="pb-4 border-b-[0.80px] border-gray-200">
               <div className="text-black text-base sm:text-lg font-bold uppercase tracking-wide">
-                {step === 'input' ? 'Forgot Password' : step === 'otp' ? 'Verify OTP' : 'Reset Password'}
+                {step === 'input' ? t("forgotPassword.title") : step === 'otp' ? t("forgotPassword.verifyOtp") : t("forgotPassword.resetPassword")}
               </div>
             </div>
 
@@ -253,14 +253,14 @@ export default function ForgotPasswordPage() {
                   className={`flex-1 py-3.5 text-xs font-semibold uppercase tracking-wider transition-all cursor-pointer ${resetMode === 'mobile' ? 'bg-black text-white' : 'bg-neutral-100 text-black hover:bg-neutral-200'}`}
                   onClick={() => { setResetMode("mobile"); setErrors({}); }}
                 >
-                  Login with OTP
+                  {t("login.modeOtp")}
                 </button>
                 <button
                   type="button"
                   className={`flex-1 py-3.5 text-xs font-semibold uppercase tracking-wider transition-all cursor-pointer ${resetMode === 'email' ? 'bg-black text-white' : 'bg-neutral-100 text-black hover:bg-neutral-200'}`}
                   onClick={() => { setResetMode("email"); setErrors({}); }}
                 >
-                  Login with Email
+                  {t("login.modePassword")}
                 </button>
               </div>
             )}
@@ -270,9 +270,9 @@ export default function ForgotPasswordPage() {
           <div className="px-4 sm:px-6 md:px-8 pb-6 sm:pb-8 flex flex-col gap-6">
             <div className="text-gray-600 text-xs font-normal leading-5 sm:leading-4">
               {step === 'input'
-                ? (resetMode === 'email' ? "Enter your email address to receive a reset link." : "Enter your mobile number to receive a verification code.")
-                : step === 'otp' ? `Enter the verification code sent to ${countryCode} ${mobileNumber}`
-                  : "Enter your new password below to reset your account access."}
+                ? (resetMode === 'email' ? t("forgotPassword.emailSubtitle") : t("forgotPassword.mobileSubtitle"))
+                : step === 'otp' ? `${t("forgotPassword.otpSubtitle")} ${countryCode} ${mobileNumber}`
+                  : t("forgotPassword.resetSubtitle")}
             </div>
 
             <form onSubmit={handleSubmit} className="flex flex-col gap-3 sm:gap-5" noValidate>
@@ -283,13 +283,13 @@ export default function ForgotPasswordPage() {
                   {resetMode === "email" ? (
                     <div className="flex flex-col gap-1.5">
                       <div className="flex items-center gap-1">
-                        <span className="text-black text-xs font-semibold uppercase tracking-tight">Email</span>
+                        <span className="text-black text-xs font-semibold uppercase tracking-tight">{t("forgotPassword.email")}</span>
                         <span className="text-red-600 text-xl font-semibold leading-none mt-1">*</span>
                       </div>
                       <input
                         id="email-input"
                         type="email"
-                        placeholder="Enter your email address"
+                        placeholder={t("login.emailPlaceholder")}
                         value={email}
                         onChange={(e) => { setEmail(e.target.value); if (errors.email) setErrors({ ...errors, email: "" }); }}
                         className={`w-full h-10 sm:h-11 bg-white px-3 text-sm rounded-[1px] outline outline-1 transition-all cursor-text ${errors.email ? 'outline-red-500' : 'outline-neutral-200 focus:outline-black focus:outline-2 focus:ring-1 focus:ring-black'}`}
@@ -299,7 +299,7 @@ export default function ForgotPasswordPage() {
                   ) : (
                     <div className="flex flex-col gap-1.5 relative">
                       <div className="flex items-center gap-1">
-                        <span className="text-black text-xs font-semibold uppercase tracking-tight">Mobile Number</span>
+                        <span className="text-black text-xs font-semibold uppercase tracking-tight">{t("forgotPassword.mobileNumber")}</span>
                         <span className="text-red-600 text-xl font-semibold leading-none mt-1">*</span>
                       </div>
                       <div className={`flex h-10 sm:h-11 bg-white rounded-[1px] outline outline-1 transition-all overflow-visible ${errors.mobile ? 'outline-red-500' : 'outline-neutral-200 focus-within:outline-black focus-within:outline-2'}`}>
@@ -314,7 +314,7 @@ export default function ForgotPasswordPage() {
                         <input
                           id="mobile-input"
                           type="tel"
-                          placeholder="Mobile Number"
+                          placeholder={t("login.mobilePlaceholder")}
                           value={mobileNumber}
                           onChange={(e) => { setMobileNumber(e.target.value.replace(/\D/g, "")); if (errors.mobile) setErrors({ ...errors, mobile: '' }); }}
                           className="flex-1 px-3 text-sm outline-none cursor-text"
@@ -346,13 +346,13 @@ export default function ForgotPasswordPage() {
               {step === "otp" && (
                 <div className="flex flex-col gap-1.5">
                   <div className="flex items-center gap-1">
-                    <span className="text-black text-xs font-semibold uppercase tracking-tight">Verification Code</span>
+                    <span className="text-black text-xs font-semibold uppercase tracking-tight">{t("login.verificationCode")}</span>
                     <span className="text-red-600 text-xl font-semibold leading-none mt-1">*</span>
                   </div>
                   <input
                     id="otp-input"
                     type="text"
-                    placeholder="Enter OTP"
+                    placeholder={t("login.enterOtp")}
                     value={otp}
                     onChange={(e) => { setOtp(e.target.value); if (errors.otp) setErrors({ ...errors, otp: "" }); }}
                     className={`w-full h-10 sm:h-11 bg-white px-3 text-sm text-center font-bold tracking-[6px] sm:tracking-[8px] rounded-[1px] outline outline-1 transition-all placeholder:tracking-normal placeholder:font-normal cursor-text ${errors.otp ? 'outline-red-500' : 'outline-neutral-200 focus:outline-black focus:outline-2 focus:ring-1 focus:ring-black'}`}
@@ -363,7 +363,7 @@ export default function ForgotPasswordPage() {
                     onClick={handleSendMobileOtp}
                     className="text-amber-600 text-[11px] font-semibold text-right mt-1 hover:underline cursor-pointer"
                   >
-                    Resend Code?
+                    {t("forgotPassword.resendCode")}
                   </button>
                 </div>
               )}
@@ -373,13 +373,13 @@ export default function ForgotPasswordPage() {
                 <>
                   <div className="flex flex-col gap-1.5">
                     <div className="flex items-center gap-1">
-                      <span className="text-black text-xs font-semibold uppercase tracking-tight">New Password</span>
+                      <span className="text-black text-xs font-semibold uppercase tracking-tight">{t("forgotPassword.newPassword")}</span>
                       <span className="text-red-600 text-xl font-semibold leading-none mt-1">*</span>
                     </div>
                     <input
                       id="new-password-input"
                       type="password"
-                      placeholder="Enter new password"
+                      placeholder={t("login.passwordPlaceholder")}
                       value={newPassword}
                       onChange={(e) => { setNewPassword(e.target.value); if (errors.password) setErrors({ ...errors, password: "" }); }}
                       className={`w-full h-10 sm:h-11 bg-white px-3 text-sm rounded-[1px] outline outline-1 transition-all cursor-text ${errors.password ? 'outline-red-500' : 'outline-neutral-200 focus:outline-black focus:outline-2 focus:ring-1 focus:ring-black'}`}
@@ -389,13 +389,13 @@ export default function ForgotPasswordPage() {
 
                   <div className="flex flex-col gap-1.5">
                     <div className="flex items-center gap-1">
-                      <span className="text-black text-xs font-semibold uppercase tracking-tight">Confirm Password</span>
+                      <span className="text-black text-xs font-semibold uppercase tracking-tight">{t("forgotPassword.confirmPassword")}</span>
                       <span className="text-red-600 text-xl font-semibold leading-none mt-1">*</span>
                     </div>
                     <input
                       id="confirm-password-input"
                       type="password"
-                      placeholder="Confirm new password"
+                      placeholder={t("forgotPassword.confirmPassword")}
                       value={confirmPassword}
                       onChange={(e) => { setConfirmPassword(e.target.value); if (errors.confirmPassword) setErrors({ ...errors, confirmPassword: "" }); }}
                       className={`w-full h-10 sm:h-11 bg-white px-3 text-sm rounded-[1px] outline outline-1 transition-all cursor-text ${errors.confirmPassword ? 'outline-red-500' : 'outline-neutral-200 focus:outline-black focus:outline-2 focus:ring-1 focus:ring-black'}`}
@@ -413,9 +413,9 @@ export default function ForgotPasswordPage() {
                   className="w-full h-12 bg-amber-400 hover:bg-amber-500 rounded-[3px] flex justify-center items-center transition-all disabled:opacity-50 shadow-sm active:scale-[0.98] cursor-pointer"
                 >
                   <div className="text-center text-black text-[13px] font-bold uppercase tracking-wider cursor-pointer">
-                    {loading || reduxLoading ? 'Sending...' : (
-                      step === 'input' ? (resetMode === 'email' ? 'Send Reset Link' : 'Send OTP') :
-                        step === 'otp' ? 'Verify OTP' : 'Reset Password'
+                    {loading || reduxLoading ? t("forgotPassword.sending") : (
+                      step === 'input' ? (resetMode === 'email' ? t("forgotPassword.sendResetLink") : t("forgotPassword.sendOtp")) :
+                        step === 'otp' ? t("forgotPassword.verifyOtpButton") : t("forgotPassword.resetPasswordButton")
                     )}
                   </div>
                 </button>
@@ -423,7 +423,7 @@ export default function ForgotPasswordPage() {
                 <div className="flex justify-between items-center">
                   <Link href={lp("/login")}>
                     <div className="text-black text-sm font-normal cursor-pointer hover:underline hover:text-amber-600 transition-colors">
-                      Back to Login
+                      {t("forgotPassword.backToLogin")}
                     </div>
                   </Link>
                   {step !== 'input' && (
@@ -432,7 +432,7 @@ export default function ForgotPasswordPage() {
                       onClick={() => setStep('input')}
                       className="text-gray-500 text-sm font-normal cursor-pointer hover:underline"
                     >
-                      Change Method
+                      {t("forgotPassword.changeMethod")}
                     </button>
                   )}
                 </div>

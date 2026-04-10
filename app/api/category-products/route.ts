@@ -107,7 +107,10 @@ export async function GET(request: NextRequest) {
         // Debug: log what locale the API route receives
         const xLocaleHeader = request.headers.get("x-locale");
         const localeCookie = request.cookies.get("NEXT_LOCALE")?.value;
-        console.log("[category-products] x-locale header:", xLocaleHeader, "| cookie:", localeCookie);
+        const referer = request.headers.get("referer") || "";
+        const langParam = new URL(request.url).searchParams.get("lang");
+        const resolvedLocale = getLocaleFromRequest(request);
+        console.log("[category-products] LOCALE DEBUG: lang=" + langParam + " header=" + xLocaleHeader + " cookie=" + localeCookie + " resolved=" + resolvedLocale + " referer=" + referer);
 
         const baseUrl = getBaseUrl(request);
         const magentoUrlStr = `${baseUrl}/category-products?${queryParts.join("&")}`;
@@ -207,7 +210,7 @@ export async function GET(request: NextRequest) {
         const finalFilters = Array.isArray(data.filters) ? data.filters : [];
 
         // Return the clean, normalized structure requested
-        // Set no-cache headers to prevent stale locale data
+        // Include debug info so we can see what locale was used
         return new Response(JSON.stringify({
             ...data,
             products: products,

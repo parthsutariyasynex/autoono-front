@@ -3,6 +3,7 @@
 import React from "react";
 import { Check } from "lucide-react";
 import { Address } from "@/modules/checkout/hooks/useCheckout";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface SelectedAddressCardProps {
     address: Address;
@@ -10,6 +11,7 @@ interface SelectedAddressCardProps {
 }
 
 const SelectedAddressCard: React.FC<SelectedAddressCardProps> = ({ address, onEdit }) => {
+    const { t } = useTranslation();
     return (
         <div className="relative flex items-center justify-between w-full p-6 bg-[#F8F9FA] border-2 border-[#00A651] rounded-sm transition-all duration-300">
             {/* Green Square Box with Check Icon at Top-Right */}
@@ -22,7 +24,7 @@ const SelectedAddressCard: React.FC<SelectedAddressCardProps> = ({ address, onEd
                 <p className="text-[14px] text-[#333] leading-relaxed font-medium">
                     <span className="font-bold text-black">{address.firstname} {address.lastname}</span>{" "}
                     {address.street} {address.city}, {address.postcode}{" "}
-                    {address.country_id === 'SA' ? 'Saudi Arabia' : address.country_id} {address.telephone}
+                    {address.country_id === 'SA' ? t("data.Saudi Arabia") : address.country_id} {address.telephone}
                     {[
                         address.custom_attributes?.find(ca => ca.attribute_code === 'store_view')?.value,
                         address.custom_attributes?.find(ca => ca.attribute_code === 'region_ship_to_party')?.value
@@ -38,7 +40,7 @@ const SelectedAddressCard: React.FC<SelectedAddressCardProps> = ({ address, onEd
                 }}
                 className="bg-[#F5B21B] text-black text-[12px] font-black px-6 py-3 uppercase tracking-widest hover:bg-black hover:text-white transition-all duration-300 flex-shrink-0"
             >
-                EDIT ADDRESS
+                {t("addressBook.editAddress")}
             </button>
         </div>
     );

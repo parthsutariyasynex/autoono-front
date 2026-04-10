@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useEffect, useState, useCallback } from "react";
+import React from "react";
 import { X } from "lucide-react";
+import Popup from "./Popup";
 
 interface DrawerProps {
     isOpen: boolean;
@@ -10,82 +11,38 @@ interface DrawerProps {
     title?: string;
 }
 
-function lockScroll() {
-    const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
-    document.documentElement.style.setProperty("--scrollbar-width", `${scrollbarWidth}px`);
-    document.documentElement.style.overflow = "hidden";
-    document.body.style.overflow = "hidden";
-    document.body.style.paddingRight = `${scrollbarWidth}px`;
-}
-
-function unlockScroll() {
-    document.documentElement.style.setProperty("--scrollbar-width", "0px");
-    document.documentElement.style.overflow = "";
-    document.body.style.overflow = "";
-    document.body.style.paddingRight = "";
-}
-
 /**
  * Reusable Side Drawer component that slides in from the right.
+ * Now powered by Framer Motion for premium smooth animations.
  */
 export default function Drawer({ isOpen, onClose, children, title }: DrawerProps) {
-    const [isRendered, setIsRendered] = useState(false);
-
-    useEffect(() => {
-        if (isOpen) {
-            setIsRendered(true);
-            lockScroll();
-            return () => unlockScroll();
-        } else {
-            // Keep rendered for exit animation, then remove
-            const timer = setTimeout(() => setIsRendered(false), 300);
-            unlockScroll();
-            return () => clearTimeout(timer);
-        }
-    }, [isOpen]);
-
-    // ESC key
-    const handleEsc = useCallback((e: KeyboardEvent) => {
-        if (e.key === "Escape") onClose();
-    }, [onClose]);
-
-    useEffect(() => {
-        window.addEventListener("keydown", handleEsc);
-        return () => window.removeEventListener("keydown", handleEsc);
-    }, [handleEsc]);
-
-    if (!isRendered && !isOpen) return null;
-
     return (
-        <div className={`fixed inset-0 z-[100] flex justify-end ${isOpen ? "visible" : "invisible pointer-events-none"}`}>
-            {/* Overlay */}
-            <div
-                className={`fixed inset-0 bg-black/40 transition-opacity duration-300 ease-in-out ${isOpen ? "opacity-100" : "opacity-0"}`}
-                onMouseDown={(e) => {
-                    // Only close if the click target is the overlay itself, not a portal rendered above it
-                    if (e.target === e.currentTarget) onClose();
-                }}
-            />
-
-            {/* Side Panel */}
-            <div
-                className={`relative w-full sm:w-[480px] h-full bg-white shadow-2xl flex flex-col transition-transform duration-300 ease-in-out transform ${isOpen ? "translate-x-0" : "translate-x-full"}`}
-                onClick={(e) => e.stopPropagation()}
-                onMouseDown={(e) => e.stopPropagation()}
+        <Popup
+            isOpen={isOpen}
+            onClose={onClose}
+            animation="slide-right"
+            className="flex flex-col"
+        >
+            {/* Close Button Overlay */}
+            <button
+                onClick={onClose}
+                className="absolute right-4 top-4 z-[110] p-2 bg-white/80 backdrop-blur-sm rounded-full shadow-sm hover:bg-gray-100 transition-colors text-gray-500 hover:text-black"
+                aria-label="Close drawer"
             >
-                {/* Close Button */}
-                <button
-                    onClick={onClose}
-                    className="absolute right-4 top-4 z-[110] p-2 bg-white/80 backdrop-blur-sm rounded-full shadow-sm hover:bg-gray-100 transition-colors text-gray-500 hover:text-black"
-                >
-                    <X size={22} strokeWidth={2.5} />
-                </button>
+                <X size={22} strokeWidth={2.5} />
+            </button>
 
-                {/* Content Area */}
-                <div className="flex-1 overflow-y-auto custom-scrollbar">
-                    {children}
+            {/* Header if title exists */}
+            {title && (
+                <div className="px-6 py-5 border-b border-gray-100 flex-shrink-0">
+                    <h2 className="text-xl font-bold text-gray-800">{title}</h2>
                 </div>
+            )}
+
+            {/* Content Area */}
+            <div className="flex-1 overflow-y-auto custom-scrollbar">
+                {children}
             </div>
-        </div>
+        </Popup>
     );
 }

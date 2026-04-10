@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback, useRef, memo, useMemo } from "react";
 import Link from "next/link";
 import { ChevronDown, ChevronLeft, Filter, X, FileText } from "lucide-react";
 import { useLocalePath } from "@/hooks/useLocalePath";
+import { useTranslation } from "@/hooks/useTranslation";
 
 export interface FilterOption {
     value: string;
@@ -27,7 +28,11 @@ const FilterItem = memo(({
     groupCode: string;
     isChecked: boolean;
     onCheckboxChange: (code: string, value: string, checked: boolean) => void
-}) => (
+}) => {
+    const { t } = useTranslation();
+    // Translate known filter values (brand, origin, stock) using data.* keys
+    const translatedLabel = t(`data.${option.label}`) !== `data.${option.label}` ? t(`data.${option.label}`) : option.label;
+    return (
     <label className="flex items-center justify-between cursor-pointer group/label">
         <div className="flex items-center gap-3">
             <div className="relative flex items-center justify-center">
@@ -42,14 +47,15 @@ const FilterItem = memo(({
                 </svg>
             </div>
             <span className={`text-[13px] transition-colors leading-tight ${isChecked ? 'text-black font-bold' : 'text-gray-600 font-medium group-hover/label:text-black'}`}>
-                {option.label}
+                {translatedLabel}
             </span>
         </div>
         <span className="text-[10px] font-bold text-gray-400 bg-gray-50 px-1.5 py-0.5 rounded border border-gray-100 group-hover/label:bg-gray-100 transition-colors">
             {option.count ?? 0}
         </span>
     </label>
-));
+    );
+});
 
 FilterItem.displayName = "FilterItem";
 
@@ -66,6 +72,7 @@ const FilterGroup = memo(({
     selectedValues: string[];
     onCheckboxChange: (code: string, value: string, checked: boolean) => void;
 }) => {
+    const { t } = useTranslation();
     const [searchTerm, setSearchTerm] = useState("");
 
     const filteredOptions = useMemo(() =>
@@ -82,7 +89,7 @@ const FilterGroup = memo(({
                 aria-expanded={isExpanded}
             >
                 <div className="flex items-center gap-2">
-                    <span className="font-bold text-gray-900 text-[15px]">{group.label}</span>
+                    <span className="font-bold text-gray-900 text-[15px]">{t(`filter.${group.code}`) !== `filter.${group.code}` ? t(`filter.${group.code}`) : group.label}</span>
                 </div>
                 <div className={`text-gray-400 transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`}>
                     <ChevronDown className="w-4 h-4" strokeWidth={2.5} />
@@ -95,7 +102,7 @@ const FilterGroup = memo(({
                         <div className="relative mb-1">
                             <input
                                 type="text"
-                                placeholder={`Search ${group.label}...`}
+                                placeholder={`${t("m.search")} ${group.label}...`}
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
                                 className="w-full pl-8 pr-3 py-1.5 text-xs border border-gray-200 rounded-md outline-none"
@@ -144,6 +151,7 @@ function SidebarFilter({
 }) {
     const [filterGroups, setFilterGroups] = useState<FilterGroupData[]>([]);
     const lp = useLocalePath();
+    const { t } = useTranslation();
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
     const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({});
@@ -192,7 +200,7 @@ function SidebarFilter({
                 const headers: any = { 'Content-Type': 'application/json', 'x-locale': fetchLocale };
                 if (token) headers['Authorization'] = `Bearer ${token}`;
 
-                const res = await fetch(`/api/filters?categoryId=${categoryId}`, { headers });
+                const res = await fetch(`/api/filters?categoryId=${categoryId}&lang=${fetchLocale}`, { headers });
                 if (cancelled) return;
                 if (res.status === 401) {
                     localStorage.removeItem("token");
@@ -282,7 +290,7 @@ function SidebarFilter({
                 {/* Header */}
                 <div className="flex border-b border-gray-200 h-[60px] flex-shrink-0 bg-white shadow-sm shrink-0">
                     <div className={`flex-1 px-6 flex items-center overflow-hidden transition-opacity duration-300 ${isCollapsed ? 'opacity-0' : 'opacity-100'}`}>
-                        <h2 className="font-bold text-gray-900 text-[16px] whitespace-nowrap">Filter Options</h2>
+                        <h2 className="font-bold text-gray-900 text-[16px] whitespace-nowrap">{t("m.filter-options")}</h2>
                     </div>
                     <div
                         onClick={() => setIsCollapsed(!isCollapsed)}
@@ -319,7 +327,7 @@ function SidebarFilter({
                         <Link href={lp("/guides")}>
                             <div className="bg-[#f5a623] rounded-sm p-4 flex items-center gap-4 cursor-pointer hover:bg-black group transition-all">
                                 <FileText size={20} className="text-white group-hover:scale-110 transition-transform" />
-                                <span className="font-black text-black group-hover:text-white text-xs uppercase">USER GUIDES</span>
+                                <span className="font-black text-black group-hover:text-white text-xs uppercase">{t("guides.title")}</span>
                             </div>
                         </Link>
                     </div>

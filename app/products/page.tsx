@@ -23,7 +23,8 @@ import { useLocale } from "@/lib/i18n/client";
 
 const PAGE_SIZE = 20;
 
-const TABLE_HEADERS = ['Brand', 'Size', 'Pattern', 'Year', 'Origin', 'Image', 'Offer', 'Stock', 'Price', 'Action'] as const;
+// Translation keys for table headers — resolved inside the component using t()
+const TABLE_HEADER_KEYS = ['m.brand', 'm.size', 'm.pattern', 'm.year', 'm.origin', 'm.image', 'm.offer', 'm.stock', 'm.price', 'm.action'] as const;
 const COL_WIDTHS = ['8%', '13%', '13%', '6%', '7%', '7%', '9%', '9%', '10%', '110px'] as const;
 const SHIMMER_ROWS = 10;
 const ROW_HEIGHT = 'h-auto md:h-[52px]';
@@ -41,7 +42,7 @@ function ShimmerRows() {
     <>
       {Array.from({ length: SHIMMER_ROWS }).map((_, i) => (
         <tr key={`shimmer-${i}`} className={`animate-pulse ${ROW_HEIGHT}`}>
-          {TABLE_HEADERS.map((_, j) => (
+          {TABLE_HEADER_KEYS.map((_, j) => (
             <td key={j} className="px-4">
               <div className="h-3 bg-gray-100 rounded w-full"></div>
             </td>
@@ -159,7 +160,7 @@ export default function ProductsPage() {
         const toastId = toast.loading("Adding to favorites...");
         try {
           await api.post("/kleverapi/favorite-products", { product_id: productId });
-          toast.success("Added to favorites", { id: toastId });
+          toast.success(t("favorites.cartAdded"), { id: toastId });
         } catch (err) {
           console.error("API favorite add error:", err);
           toast.error("Could not sync favorites", { id: toastId });
@@ -193,18 +194,24 @@ export default function ProductsPage() {
         // If token is missing, just skip the fetch silently (ProtectedLayout will set it).
         const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
         if (!token) return;
-        // Read locale from browser URL directly (not from useLocale which may be "en" during SSR/hydration)
-        const fetchLocale = typeof window !== "undefined" && window.location.pathname.startsWith("/ar") ? "ar" : "en";
-        console.log("[Products] fetch locale:", fetchLocale);
+        // Read locale from multiple sources for reliability
+        let fetchLocale = "en";
+        if (window.location.pathname.startsWith("/ar")) fetchLocale = "ar";
+        else {
+          const cookieMatch = document.cookie.match(/NEXT_LOCALE=([^;]+)/);
+          if (cookieMatch?.[1] === "ar") fetchLocale = "ar";
+        }
+        // console.log("[PRODUCTS FETCH]", fetchLocale);
         const headers: HeadersInit = { "Content-Type": "application/json", "Authorization": `Bearer ${token}`, "x-locale": fetchLocale };
         const queryString = formatMagentoQueryParams(debouncedFilters, currentPage, sortBy);
-        const url = `/api/category-products?${queryString}&categoryId=5&pageSize=${PAGE_SIZE}`;
+        const url = `/api/category-products?${queryString}&categoryId=5&pageSize=${PAGE_SIZE}&lang=${fetchLocale}`;
         const res = await fetch(url, { headers, signal: abortController.signal });
         if (!res.ok) {
           if (res.status === 401) { localStorage.removeItem("token"); redirectToLogin(router); return; }
           throw new Error(`API Error: ${res.status}`);
         }
         const data = await res.json();
+        // Debug removed
         const productArray = Array.isArray(data.products) ? data.products : (Array.isArray(data.items) ? data.items : []);
         const total = typeof data.total_count === "number" ? data.total_count : productArray.length;
         if (abortController.signal.aborted) return;
@@ -213,7 +220,7 @@ export default function ProductsPage() {
         if (data.filters) setApiFilters(data.filters);
       } catch (err: unknown) {
         if (err instanceof Error && err.name === "AbortError") return;
-        setError("Unable to load products. Please try again.");
+        setError(t("products.noProducts"));
         console.error(err);
       } finally {
         if (!abortController.signal.aborted) setLoading(false);
@@ -221,7 +228,9 @@ export default function ProductsPage() {
     };
     loadProducts();
     return () => abortController.abort();
-  }, [router, currentPage, debouncedFilters, sortBy, isInitialized, locale]);
+  }, [router, currentPage, debouncedFilters, sortBy, isInitialized]);
+  // Note: locale intentionally excluded — fetchLocale reads from window.location directly
+  // Adding locale here causes double-fetch and abort race condition
 
   const handleFilterChange = useCallback(
     (filters: Record<string, string[]>, labels: Record<string, { value: string; label: string }[]>) => {
@@ -263,7 +272,7 @@ export default function ProductsPage() {
   }, [addToCart, router]);
 
   const getStockBadge = (product: any) => {
-    const label = product?.stock_label || (product?.is_in_stock ? "Available" : "Not Available");
+    const label = product?.stock_label === "Available" ? t("stock.available") : product?.stock_label === "Not Available" ? t("stock.not_available") : product?.stock_label === "Limited" ? t("stock.limited") : product?.stock_label || (product?.is_in_stock ? t("stock.available") : t("stock.not_available"));
     const apiColor = product?.stock_color?.toLowerCase() || (product?.is_in_stock ? "green" : "red");
     const colorClass = apiColor === "green" ? "bg-green-500" : apiColor === "yellow" ? "bg-yellow-400" : "bg-red-500";
     return (
@@ -321,7 +330,7 @@ export default function ProductsPage() {
   const renderProductCard = (product: any, index: number) => {
     const brandName = product?.brand || (product?.name ? product.name.split(' ')[0] : "N/A");
     const isOutOfStock = product.stock_status === "Not Available" || Number(product?.stock_qty ?? 0) <= 0;
-    const stockLabel = product?.stock_label || (product?.is_in_stock ? "Available" : "Not Available");
+    const stockLabel = product?.stock_label === "Available" ? t("stock.available") : product?.stock_label === "Not Available" ? t("stock.not_available") : product?.stock_label === "Limited" ? t("stock.limited") : product?.stock_label || (product?.is_in_stock ? t("stock.available") : t("stock.not_available"));
     const stockColor = product?.stock_color?.toLowerCase() || (product?.is_in_stock ? "green" : "red");
     const dotColor = stockColor === "green" ? "bg-green-500" : stockColor === "yellow" ? "bg-yellow-400" : "bg-red-500";
 
@@ -335,7 +344,7 @@ export default function ProductsPage() {
             <div className="flex items-center gap-1.5 mt-1">
               <span className="text-[12px] font-bold text-black">{product?.tyre_size || "—"}</span>
               <div onClick={() => setSelectedProduct(product)} className="w-4 h-4 bg-gray-900 rounded-full flex items-center justify-center text-[9px] font-bold text-white cursor-pointer hover:bg-yellow-400 hover:text-black transition-all shadow-sm active:scale-95 flex-shrink-0">i</div>
-              {product?.origin && <span className="text-[11px] text-gray-400 font-normal">{product.origin}</span>}
+              {product?.origin && <span className="text-[11px] text-gray-400 font-normal">{t(`data.${product.origin}`) !== `data.${product.origin}` ? t(`data.${product.origin}`) : product.origin}</span>}
               {product?.year && <span className="text-[11px] text-gray-400 font-mono font-normal">{product.year}</span>}
             </div>
             <div className="flex items-center gap-1.5 mt-1.5">
@@ -368,7 +377,7 @@ export default function ProductsPage() {
                 {addingToCart === product.sku ? (
                   <div className="w-3.5 h-3.5 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
                 ) : justAdded === product.sku ? (
-                  <><Check size={14} strokeWidth={3} /> Added</>
+                  <><Check size={14} strokeWidth={3} /> {t("favorites.cartAdded")}</>
                 ) : (
                   <><ShoppingCart size={14} strokeWidth={2.5} /></>
                 )}
@@ -401,7 +410,7 @@ export default function ProductsPage() {
     return (
       <div className={`flex items-center justify-between ${compact ? 'py-3 px-1' : 'px-6 h-[52px] border-t border-gray-100 bg-gray-50/30'} ${show ? 'opacity-100' : 'opacity-0'} transition-opacity`}>
         <span className={`font-black text-gray-400 uppercase tracking-widest ${compact ? 'text-[10px]' : 'text-[10px]'}`}>
-          {compact ? `${displayCount} products` : <>Found <span className="text-gray-900">{displayCount}</span> Products</>}
+          {compact ? `${displayCount} ${t("m.products")}` : <>{t("m.found")} <span className="text-gray-900">{displayCount}</span> {t("m.products")}</>}
         </span>
         <div className="flex items-center gap-1 md:gap-1.5">
           <button disabled={currentPage === 1} onClick={() => setCurrentPage(p => p - 1)} className={`border border-gray-200 rounded-lg md:rounded-xl bg-white disabled:opacity-30 ${compact ? 'p-1.5' : 'p-2'}`}><ChevronLeft size={compact ? 14 : 16} /></button>
@@ -438,7 +447,7 @@ export default function ProductsPage() {
             <div className="bg-[#f5b21a] px-5 py-4 flex items-center justify-between flex-shrink-0">
               <h2 className="text-[14px] font-black text-black uppercase tracking-tight">Filter Options</h2>
               {Object.keys(selectedFilters).length > 0 && (
-                <button onClick={() => { clearAllFilters(); setIsMobileFilterOpen(false); }} className="text-[11px] font-bold text-black/70 uppercase underline">Clear All</button>
+                <button onClick={() => { clearAllFilters(); setIsMobileFilterOpen(false); }} className="text-[11px] font-bold text-black/70 uppercase underline">{t("m.clear-all")}</button>
               )}
             </div>
             <div className="flex-1 overflow-y-auto">
@@ -459,7 +468,7 @@ export default function ProductsPage() {
         <Drawer isOpen={isMobileSearchOpen} onClose={() => setIsMobileSearchOpen(false)}>
           <div className="flex flex-col h-full">
             <div className="bg-[#f5b21a] px-5 py-4 flex-shrink-0">
-              <h2 className="text-[14px] font-black text-black uppercase tracking-tight">Search by Tyre Size</h2>
+              <h2 className="text-[14px] font-black text-black uppercase tracking-tight">{t("m.search-by-size")}</h2>
             </div>
             <div className="flex-1 overflow-y-auto p-5">
               <HorizontalFilter vertical onSearch={(w, h, r) => { handleHorizontalSearch(w, h, r); if (w && h && r) setIsMobileSearchOpen(false); }} initialValues={{ width: debouncedFilters["width"]?.[0] || "", height: debouncedFilters["height"]?.[0] || "", rim: debouncedFilters["rim"]?.[0] || "" }} />
@@ -477,11 +486,11 @@ export default function ProductsPage() {
                 <Star className="w-4 h-4 fill-black text-black" /> Favourites
               </button>
               <button onClick={() => setIsMobileSearchOpen(true)} className="h-[44px] bg-[#f5b21a] rounded-xl flex items-center justify-center gap-2 text-[11px] font-bold uppercase tracking-wider shadow-sm active:scale-95 cursor-pointer">
-                <Search className="w-4 h-4" /> Search
+                <Search className="w-4 h-4" /> {t("m.search")}
               </button>
               <button onClick={() => setIsMobileSortOpen(true)} className="h-[44px] bg-white border border-gray-200 rounded-xl flex items-center justify-center gap-2 text-[11px] font-bold uppercase tracking-wider shadow-sm active:scale-95 cursor-pointer">
                 <ChevronDown className="w-4 h-4" />
-                {sortBy === "none" ? "Sort By" : sortBy === "price-asc" ? "Price: Low" : "Price: High"}
+                {sortBy === "none" ? t("products.sortByDefault") : sortBy === "price-asc" ? t("products.sortByLowToHigh") : t("products.sortByHighToLow")}
               </button>
               <button onClick={() => setIsMobileFilterOpen(true)} className="h-[44px] bg-white border border-gray-200 rounded-xl flex items-center justify-center gap-2 text-[11px] font-bold uppercase tracking-wider shadow-sm active:scale-95 cursor-pointer">
                 <Filter className="w-4 h-4" /> Filter
@@ -512,9 +521,9 @@ export default function ProductsPage() {
                 </div>
                 <div className="flex flex-col py-2">
                   {[
-                    { value: "none", label: "Default" },
-                    { value: "price-asc", label: "Price: Low to High" },
-                    { value: "price-desc", label: "Price: High to Low" },
+                    { value: "none", label: t("products.sortByDefault") },
+                    { value: "price-asc", label: t("products.sortByLowToHigh") },
+                    { value: "price-desc", label: t("products.sortByHighToLow") },
                   ].map((opt) => (
                     <button
                       key={opt.value}
@@ -534,7 +543,7 @@ export default function ProductsPage() {
           {/* ── MOBILE/TABLET CARD LIST ── */}
           <div className="xl:hidden flex-1 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5 overflow-y-auto">
             {loading ? <MobileCardShimmer /> : sortedProducts.length === 0 ? (
-              <div className="flex-1 flex items-center justify-center py-20 col-span-full"><p className="text-xs font-black text-gray-400 uppercase tracking-widest">No products found</p></div>
+              <div className="flex-1 flex items-center justify-center py-20 col-span-full"><p className="text-xs font-black text-gray-400 uppercase tracking-widest">{t("products.noProducts")}</p></div>
             ) : sortedProducts.map((p, i) => renderProductCard(p, i))}
           </div>
           <div className="xl:hidden">{renderPagination(true)}</div>
@@ -545,12 +554,12 @@ export default function ProductsPage() {
             <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center gap-4 min-h-[60px]">
               <div className="flex items-center gap-4">
                 <button onClick={() => router.push(lp("/favorites"))} className="bg-gray-50 border border-gray-200 text-black px-4 py-2 rounded-xl flex items-center gap-2 shadow-sm text-xs font-bold active:scale-95 cursor-pointer uppercase tracking-wider">
-                  <Star className="w-5 h-5 fill-black text-black" /> Favorite products
+                  <Star className="w-5 h-5 fill-black text-black" /> {t("sidebar.favoriteProducts")}
                 </button>
                 <div className="flex flex-1 items-center gap-2 overflow-x-auto custom-scrollbar-hide max-w-[800px]">
                   {isFavorite && (
                     <div className="flex items-center gap-1.5 bg-yellow-400 border border-yellow-500 px-3 py-1.5 rounded-full text-[12px] font-bold text-black shadow-sm flex-shrink-0">
-                      Favorites <button onClick={() => setIsFavorite(false)} className="hover:text-red-700"><X size={14} /></button>
+                      {t("sidebar.favoriteProducts")} <button onClick={() => setIsFavorite(false)} className="hover:text-red-700"><X size={14} /></button>
                     </div>
                   )}
                   {Object.entries(selectedFilterLabels).flatMap(([code, items]) => items.map((item) => (
@@ -560,13 +569,13 @@ export default function ProductsPage() {
                   )))}
                 </div>
                 {Object.keys(selectedFilters).length > 0 && (
-                  <button onClick={clearAllFilters} className="text-[10px] font-black text-red-500 uppercase flex items-center gap-1.5 bg-red-50 px-2.5 py-1 rounded-full flex-shrink-0"><X size={12} strokeWidth={3} /> Clear</button>
+                  <button onClick={clearAllFilters} className="text-[10px] font-black text-red-500 uppercase flex items-center gap-1.5 bg-red-50 px-2.5 py-1 rounded-full flex-shrink-0"><X size={12} strokeWidth={3} /> {t("m.clear")}</button>
                 )}
               </div>
               <PortalDropdown
                 value={sortBy}
                 onChange={setSortBy}
-                options={[{ label: "Sort By", value: "none" }, { label: "Price: Low-High", value: "price-asc" }, { label: "Price: High-Low", value: "price-desc" }]}
+                options={[{ label: t("products.sortByDefault"), value: "none" }, { label: t("products.sortByLowToHigh"), value: "price-asc" }, { label: t("products.sortByHighToLow"), value: "price-desc" }]}
                 buttonClassName="bg-gray-50 px-4 py-2 rounded-xl border border-gray-200 text-xs font-medium text-gray-800 cursor-pointer shadow-sm hover:border-gray-300 whitespace-nowrap"
                 minWidth={150}
               />
@@ -578,20 +587,20 @@ export default function ProductsPage() {
                 <TableColGroup />
                 <thead className="sticky top-0 z-20">
                   <tr className="bg-gray-50 border-b-2 border-gray-200">
-                    {TABLE_HEADERS.map(h => (
-                      <th key={h} className="px-2 md:px-4 py-2 md:py-3 text-[11px] font-black text-black uppercase tracking-widest text-center">{h}</th>
+                    {TABLE_HEADER_KEYS.map(key => (
+                      <th key={key} className="px-2 md:px-4 py-2 md:py-3 text-[11px] font-black text-black uppercase tracking-widest text-center">{t(key)}</th>
                     ))}
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-50">
                   {loading ? <ShimmerRows /> : products.length === 0 ? (
-                    <tr><td colSpan={totalColumns} className="py-24 text-center"><p className="text-xs font-black text-gray-400 uppercase tracking-[0.2em]">No products matched your search</p></td></tr>
+                    <tr><td colSpan={totalColumns} className="py-24 text-center"><p className="text-xs font-black text-gray-400 uppercase tracking-[0.2em]">{t("products.noProducts")}</p></td></tr>
                   ) : sortedProducts.map((product, index) => {
                     const brandName = product?.brand || (product?.name ? product.name.split(' ')[0] : "N/A");
                     const isOutOfStock = product.stock_status === "Not Available" || Number(product?.stock_qty ?? 0) <= 0;
                     return (
                       <tr key={index} className={`hover:bg-gray-50/50 transition-colors group ${ROW_HEIGHT}`}>
-                        <td className="px-2 md:px-4 text-[12px] font-normal text-gray-700 text-center">{brandName}</td>
+                        <td className="px-2 md:px-4 text-[12px] font-normal text-gray-700 text-center">{t(`data.${brandName}`) !== `data.${brandName}` ? t(`data.${brandName}`) : brandName}</td>
                         <td className="px-2 md:px-4 text-center whitespace-nowrap">
                           <div className="flex items-center justify-center gap-1.5">
                             <span className="text-[12px] font-normal text-gray-900 tracking-tight">{product?.tyre_size}</span>
@@ -600,7 +609,7 @@ export default function ProductsPage() {
                         </td>
                         <td className="px-2 md:px-4 text-[12px] font-normal text-gray-600 text-center">{product?.pattern || "—"}</td>
                         <td className="px-2 md:px-4 text-[12px] font-normal text-gray-500 text-center font-mono">{product?.year || "—"}</td>
-                        <td className="px-2 md:px-4 text-[12px] font-normal text-gray-600 text-center">{product?.origin || "—"}</td>
+                        <td className="px-2 md:px-4 text-[12px] font-normal text-gray-600 text-center">{product?.origin ? (t(`data.${product.origin}`) !== `data.${product.origin}` ? t(`data.${product.origin}`) : product.origin) : "—"}</td>
                         <td className="px-2 md:px-4 text-center">
                           <div className="w-10 h-10 mx-auto">
                             {product?.image_url ? (
@@ -663,14 +672,14 @@ export default function ProductsPage() {
         <div className="flex flex-col h-full bg-white">
           <div className="bg-[#FFB82B] px-4 md:px-8 py-4 md:py-6 flex items-center justify-center flex-shrink-0">
             <h2 className="text-[14px] md:text-[17px] font-black text-black text-center uppercase tracking-tight">
-              {previewProduct ? `${previewProduct?.pattern || '-'} - ${previewProduct?.tyre_size || '-'}` : "Product Preview"}
+              {previewProduct ? `${previewProduct?.pattern || '-'} - ${previewProduct?.tyre_size || '-'}` : t("m.preview")}
             </h2>
           </div>
           <div className="flex-1 overflow-y-auto p-4 md:p-8 flex flex-col items-center justify-center">
             <div className="bg-white flex items-center justify-center min-h-[200px] md:min-h-[400px] w-full">
-              <img src={selectedImage} alt={previewProduct ? `${previewProduct?.pattern} - ${previewProduct?.tyre_size}` : "Product Preview"} className="max-w-full max-h-[60vh] md:max-h-[75vh] object-contain rounded-lg" />
+              <img src={selectedImage} alt={previewProduct ? `${previewProduct?.pattern} - ${previewProduct?.tyre_size}` : t("m.preview")} className="max-w-full max-h-[60vh] md:max-h-[75vh] object-contain rounded-lg" />
             </div>
-            <button onClick={() => setIsImageModalOpen(false)} className="mt-6 w-full py-3 md:py-4 bg-black text-white font-black uppercase tracking-widest rounded shadow-xl hover:bg-gray-800 text-sm cursor-pointer active:scale-95">Close Preview</button>
+            <button onClick={() => setIsImageModalOpen(false)} className="mt-6 w-full py-3 md:py-4 bg-black text-white font-black uppercase tracking-widest rounded shadow-xl hover:bg-gray-800 text-sm cursor-pointer active:scale-95">{t("m.close")}</button>
           </div>
         </div>
       </Drawer>

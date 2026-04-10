@@ -59,9 +59,14 @@ export function formatPrice(price: number | string | null | undefined): string {
 
   if (isNaN(numericPrice)) return `${SYMBOL} 0.00`;
 
-  const formattedNumber = new Intl.NumberFormat("en-US", {
+  // Use Arabic-Indic numerals for AR locale, standard for EN
+  const isArabic = typeof window !== "undefined" && window.location.pathname.startsWith("/ar");
+  const numberLocale = isArabic ? "ar-SA" : "en-US";
+
+  const formattedNumber = new Intl.NumberFormat(numberLocale, {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
+    useGrouping: true,
   }).format(numericPrice);
 
   return `${SYMBOL} ${formattedNumber}`;

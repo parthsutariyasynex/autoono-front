@@ -33,11 +33,21 @@ export async function middleware(request: NextRequest) {
     // ── 1. Skip static assets & API routes ──────────────────────────────
     if (SKIP_PATHS.some((p) => pathname.startsWith(p))) {
         if (pathname.startsWith("/api")) {
+            // Determine locale: prefer client header, then cookie, then default
+            const clientLocale = request.headers.get("x-locale");
             const localeCookie = request.cookies.get(LOCALE_COOKIE)?.value;
-            const locale = localeCookie && isValidLocale(localeCookie) ? localeCookie : DEFAULT_LOCALE;
-            const response = NextResponse.next();
-            response.headers.set("x-locale", locale);
-            return response;
+            const locale = (clientLocale && isValidLocale(clientLocale))
+                ? clientLocale
+                : (localeCookie && isValidLocale(localeCookie))
+                    ? localeCookie
+                    : DEFAULT_LOCALE;
+
+            // Always forward locale via request headers so API route handlers can read it
+            const requestHeaders = new Headers(request.headers);
+            requestHeaders.set("x-locale", locale);
+            return NextResponse.next({
+                request: { headers: requestHeaders },
+            });
         }
         return NextResponse.next();
     }
@@ -64,12 +74,17 @@ export async function middleware(request: NextRequest) {
             },
         });
 
-        // Sync the locale cookie
+        // Set locale cookie — use both methods to ensure it persists
+        // response.cookies.set may not work on rewrite responses in some Next.js versions
         response.cookies.set(LOCALE_COOKIE, locale, {
             path: "/",
             maxAge: 60 * 60 * 24 * 365,
             sameSite: "lax",
         });
+        response.headers.append(
+            "Set-Cookie",
+            `${LOCALE_COOKIE}=${locale}; Path=/; Max-Age=${60 * 60 * 24 * 365}; SameSite=Lax`
+        );
 
         // Auth check
         if (PUBLIC_ROUTES.some((route) => pathnameWithoutLocale.startsWith(route))) {
