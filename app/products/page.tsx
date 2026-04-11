@@ -211,7 +211,7 @@ export default function ProductsPage() {
           throw new Error(`API Error: ${res.status}`);
         }
         const data = await res.json();
-        // Debug removed
+        console.log("[PRODUCTS DEBUG] Response keys:", Object.keys(data), "products:", Array.isArray(data.products) ? data.products.length : "not array", "items:", Array.isArray(data.items) ? data.items.length : "not array", "total_count:", data.total_count);
         const productArray = Array.isArray(data.products) ? data.products : (Array.isArray(data.items) ? data.items : []);
         const total = typeof data.total_count === "number" ? data.total_count : productArray.length;
         if (abortController.signal.aborted) return;
