@@ -199,24 +199,24 @@ export default function Navbar() {
               <div className="relative hidden lg:block" ref={dropdownRef}>
                 <div
                   onClick={() => setIsProfileOpen(!isProfileOpen)}
-                  className="flex items-center bg-white border border-gray-100 rounded-full pl-1 pr-2 lg:pr-4 py-1 shadow-[0_2px_8px_-3px_rgba(0,0,0,0.12)] hover:shadow-md transition-shadow group cursor-pointer"
+                  className="flex items-center bg-white border border-gray-100 rounded-full ltr:pl-1 ltr:pr-2 ltr:lg:pr-4 rtl:pr-1 rtl:pl-2 rtl:lg:pl-4 py-1 shadow-[0_2px_8px_-3px_rgba(0,0,0,0.12)] hover:shadow-md transition-shadow group cursor-pointer"
                 >
-                  <div className="w-7 h-7 bg-[#f5b21a] rounded-full flex items-center justify-center mr-1.5 lg:mr-2 flex-shrink-0 group-hover:scale-110 transition-transform">
+                  <div className="w-7 h-7 bg-[#f5b21a] rounded-full flex items-center justify-center ltr:mr-1.5 ltr:lg:mr-2 rtl:ml-1.5 rtl:lg:ml-2 flex-shrink-0 group-hover:scale-110 transition-transform">
                     <UserCircle size={16} strokeWidth={2.5} />
                   </div>
                   <div className="flex flex-col min-w-0">
-                    <span className="hidden lg:block text-[8px] text-gray-400 font-bold uppercase tracking-widest leading-none">{t("nav.welcomeBack")}</span>
-                    <span className="text-[11px] lg:text-[12px] text-black font-black uppercase tracking-tighter leading-snug mt-0.5 truncate max-w-[80px] lg:max-w-[140px]">
+                    <span className="hidden lg:block text-[8px] text-gray-400 font-bold uppercase tracking-widest leading-none ltr:text-left rtl:text-right">{t("nav.welcomeBack")}</span>
+                    <span className="text-[11px] lg:text-[12px] text-black font-black uppercase tracking-tighter leading-snug mt-0.5 truncate max-w-[80px] lg:max-w-[140px] ltr:text-left rtl:text-right">
                       {isSubAccount && subAccountName ? subAccountName : displayUser}
                     </span>
                   </div>
                 </div>
 
                 {isProfileOpen && (
-                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-sm shadow-2xl border border-gray-200 py-1 z-[100]">
+                  <div className="absolute ltr:right-0 rtl:left-0 mt-2 w-48 bg-white rounded-sm shadow-2xl border border-gray-200 py-1 z-[100]">
                     <Link
                       href={lp("/my-account")}
-                      className="block px-4 py-2.5 text-[12px] font-bold text-gray-800 hover:bg-gray-50 transition-colors"
+                      className="block px-4 py-2.5 text-[12px] font-bold text-gray-800 hover:bg-gray-50 transition-colors ltr:text-left rtl:text-right"
                       onClick={() => setIsProfileOpen(false)}
                     >
                       {t("nav.myAccount")}
@@ -224,7 +224,7 @@ export default function Navbar() {
                     {isSubAccount && (
                       <Link
                         href={lp("/my-account")}
-                        className="block px-4 py-2.5 text-[12px] font-bold text-red-600 hover:bg-red-50 transition-colors border-t border-gray-100"
+                        className="block px-4 py-2.5 text-[12px] font-bold text-red-600 hover:bg-red-50 transition-colors border-t border-gray-100 ltr:text-left rtl:text-right"
                         onClick={() => {
                           setIsProfileOpen(false);
                           localStorage.removeItem("subAccountName");
@@ -238,7 +238,7 @@ export default function Navbar() {
                     )}
                     <button
                       onClick={handleLogout}
-                      className="w-full text-left px-4 py-2.5 text-[12px] font-bold text-gray-800 hover:bg-gray-50 transition-colors cursor-pointer border-t border-gray-100"
+                      className="w-full ltr:text-left rtl:text-right px-4 py-2.5 text-[12px] font-bold text-gray-800 hover:bg-gray-50 transition-colors cursor-pointer border-t border-gray-100"
                     >
                       {t("nav.signOut")}
                     </button>
@@ -256,7 +256,7 @@ export default function Navbar() {
               >
                 <Bell size={20} fill="black" stroke="black" strokeWidth={1} />
                 {unreadCount > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-[#f5af02] text-black text-[8px] font-black w-4 h-4 flex items-center justify-center rounded-full border border-white">
+                  <span className="absolute -top-1 ltr:-right-1 rtl:-left-1 bg-[#f5af02] text-black text-[8px] font-black w-4 h-4 flex items-center justify-center rounded-full border border-white">
                     {unreadCount}
                   </span>
                 )}
@@ -272,7 +272,7 @@ export default function Navbar() {
               >
                 <ShoppingCart size={20} strokeWidth={1.5} />
                 {cartCount > 0 && (
-                  <span className="absolute -top-1.5 -right-2 bg-[#f5af02] text-black text-[8px] font-black w-4 h-4 flex items-center justify-center rounded-full border border-white">
+                  <span className="absolute -top-1.5 ltr:-right-2 rtl:-left-2 bg-[#f5af02] text-black text-[8px] font-black w-4 h-4 flex items-center justify-center rounded-full border border-white">
                     {cartCount}
                   </span>
                 )}
@@ -319,14 +319,14 @@ export default function Navbar() {
 
       {/* ── MOBILE DRAWER ── */}
       {isMenuOpen && (
-        <div className="lg:hidden absolute top-[56px] sm:top-[64px] left-0 w-full bg-white shadow-2xl z-40 border-t border-gray-100 animate-in slide-in-from-top duration-200">
+        <div className="lg:hidden absolute top-[56px] sm:top-[64px] ltr:left-0 rtl:right-0 w-full bg-white shadow-2xl z-40 border-t border-gray-100 animate-in slide-in-from-top duration-200">
           <div className="flex flex-col py-2">
 
             {/* User info */}
             {isAuthenticated && pathname !== "/login" && (
               <div className="px-4 py-3 bg-gray-50 border-b border-gray-100 mb-1">
                 <div className="flex items-center gap-3">
-                  <div className="flex flex-col overflow-hidden">
+                  <div className="flex flex-col overflow-hidden ltr:text-left rtl:text-right">
                     <span className="text-[9px] text-gray-400 font-bold uppercase tracking-widest leading-none">{t("nav.loggedInAs")}</span>
                     <span className="text-[12px] text-black font-black uppercase truncate tracking-tight">
                       {isSubAccount && subAccountName ? subAccountName : displayUser}
@@ -337,7 +337,7 @@ export default function Navbar() {
             )}
 
             {/* Nav links */}
-            <div className="px-4 py-2">
+            <div className="px-4 py-2 ltr:text-left rtl:text-right">
               <span className="text-[9px] font-bold text-gray-400 uppercase tracking-[0.2em] block mb-2">{t("nav.navigation")}</span>
               {navLinks.map((item) => (
                 <Link
@@ -348,13 +348,13 @@ export default function Navbar() {
                   onClick={() => setIsMenuOpen(false)}
                 >
                   {item.label}
-                  <span className="text-gray-300 group-hover:text-[#f5b21a] transition-colors text-[10px]">→</span>
+                  <span className="text-gray-300 group-hover:text-[#f5b21a] transition-colors text-[10px]">{locale === "ar" ? "←" : "→"}</span>
                 </Link>
               ))}
             </div>
 
             {/* Quick actions */}
-            <div className="px-4 py-3 mt-1 border-t border-gray-100">
+            <div className="px-4 py-3 mt-1 border-t border-gray-100 ltr:text-left rtl:text-right">
               <span className="text-[9px] font-bold text-gray-400 uppercase tracking-[0.2em] block mb-2">{t("nav.quickActions")}</span>
 
               {isAuthenticated && pathname !== "/login" && (

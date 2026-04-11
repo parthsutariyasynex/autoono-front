@@ -11,12 +11,59 @@ import { redirectToLogin } from "@/utils/helpers";
 import PortalDropdown from "@/components/PortalDropdown";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useLocalePath } from "@/hooks/useLocalePath";
+import { useLocale } from "@/lib/i18n/client";
 import Sidebar from "@/components/Sidebar";
+
+/**
+ * Translate notification text from English to Arabic.
+ * Handles patterns like:
+ *   "New Order# BT00028701" → "طلب جديد رقم BT00028701"
+ *   "New Order# BT00028701 placed successfully" → "تم عمل الطلب رقم BT00028701 بنجاح"
+ */
+function translateNotificationText(text: string, locale: string): string {
+    if (locale !== "ar" || !text) return text;
+
+    // "New Order# XXXXX placed successfully"
+    const placedMatch = text.match(/^New Order#?\s*(BT\d+)\s*placed successfully$/i);
+    if (placedMatch) return `تم عمل الطلب رقم ${placedMatch[1]} بنجاح`;
+
+    // "New Order# XXXXX"
+    const orderMatch = text.match(/^New Order#?\s*(BT\d+)$/i);
+    if (orderMatch) return `طلب جديد رقم ${orderMatch[1]}`;
+
+    // "Order# XXXXX has been shipped"
+    const shippedMatch = text.match(/^Order#?\s*(BT\d+)\s*has been shipped$/i);
+    if (shippedMatch) return `تم شحن الطلب رقم ${shippedMatch[1]}`;
+
+    // "Order# XXXXX has been invoiced"
+    const invoicedMatch = text.match(/^Order#?\s*(BT\d+)\s*has been invoiced$/i);
+    if (invoicedMatch) return `تمت فوترة الطلب رقم ${invoicedMatch[1]}`;
+
+    // "Order# XXXXX has been canceled"
+    const canceledMatch = text.match(/^Order#?\s*(BT\d+)\s*has been cancel/i);
+    if (canceledMatch) return `تم إلغاء الطلب رقم ${canceledMatch[1]}`;
+
+    return text;
+}
+
+function formatDate(dateStr: string, locale: string): string {
+    try {
+        const date = new Date(dateStr);
+        if (isNaN(date.getTime())) return dateStr;
+        return new Intl.DateTimeFormat(locale === "ar" ? "ar-SA" : "en-US", {
+            year: "numeric", month: "short", day: "numeric",
+            hour: "2-digit", minute: "2-digit", hour12: true,
+        }).format(date);
+    } catch {
+        return dateStr;
+    }
+}
 
 export default function NotificationsPage() {
     const router = useRouter();
     const { t } = useTranslation();
     const lp = useLocalePath();
+    const locale = useLocale();
     const { status } = useSession();
     const {
         notifications,
@@ -102,13 +149,13 @@ export default function NotificationsPage() {
                                                         {!item.is_read && (
                                                             <div className="absolute left-2 top-1/2 -translate-y-1/2 w-2 h-2 bg-[#f5af02] rounded-full shadow-sm"></div>
                                                         )}
-                                                        {item.date_added_formatted}
+                                                        {formatDate(item.date_added_formatted, locale)}
                                                     </td>
                                                     <td className={`px-6 py-6 text-[14px] text-center border-r border-[#ebebeb] hover:text-[#f5af02] transition-colors align-middle ${!item.is_read ? "font-bold text-black" : "font-normal text-[#666666]"}`}>
-                                                        {item.title}
+                                                        {translateNotificationText(item.title, locale)}
                                                     </td>
                                                     <td className={`px-6 py-6 text-[14px] text-center border-r border-[#ebebeb] leading-relaxed align-middle ${!item.is_read ? "font-medium text-black" : "text-[#666666]"}`}>
-                                                        {item.description}
+                                                        {translateNotificationText(item.description, locale)}
                                                     </td>
                                                     <td className="px-6 py-6 text-[13px] text-center align-middle">
                                                         <div className="flex items-center justify-center gap-2 whitespace-nowrap text-[#333333]">
@@ -150,12 +197,12 @@ export default function NotificationsPage() {
                                             <div className="flex items-start justify-between gap-2 mb-2">
                                                 <div className="flex items-center gap-2">
                                                     {!item.is_read && <div className="w-2 h-2 bg-[#f5af02] rounded-full flex-shrink-0 mt-1"></div>}
-                                                    <span className={`text-[13px] ${!item.is_read ? "font-bold text-black" : "font-normal text-[#666666]"}`}>{item.title}</span>
+                                                    <span className={`text-[13px] ${!item.is_read ? "font-bold text-black" : "font-normal text-[#666666]"}`}>{translateNotificationText(item.title, locale)}</span>
                                                 </div>
-                                                <span className="text-[11px] text-gray-400 flex-shrink-0">{item.date_added_formatted}</span>
+                                                <span className="text-[11px] text-gray-400 flex-shrink-0">{formatDate(item.date_added_formatted, locale)}</span>
                                             </div>
                                             <p className={`text-[12px] leading-relaxed mb-3 ${!item.is_read ? "font-medium text-black" : "text-[#666666]"}`}>
-                                                {item.description}
+                                                {translateNotificationText(item.description, locale)}
                                             </p>
                                             <div className="flex items-center gap-3 text-[11px] font-bold text-[#333333]">
                                                 {!item.is_read && (

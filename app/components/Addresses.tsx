@@ -1,5 +1,6 @@
 "use client";
 import { useLocalePath } from "@/hooks/useLocalePath";
+import { useTranslation } from "@/hooks/useTranslation";
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -32,15 +33,17 @@ type AddressCardProps = {
   address?: Address;
   onEdit?: (id: number | string) => void;
   buttonLabel?: string;
+  t: (key: string) => string;
+  isRtl: boolean;
 };
 
-function AddressCard({ title, address, onEdit, buttonLabel }: AddressCardProps) {
+function AddressCard({ title, address, onEdit, buttonLabel, t, isRtl }: AddressCardProps) {
   return (
     <div className="bg-white border border-[#ebebeb] rounded-md shadow-sm overflow-hidden flex flex-col h-full font-rubik">
-      <div className="bg-gray-50 px-4 py-3 border-b border-[#ebebeb] uppercase text-xs font-black text-black tracking-tight">
+      <div className="bg-gray-50 px-4 py-3 border-b border-[#ebebeb] uppercase text-xs font-black text-black tracking-tight ltr:text-left rtl:text-right">
         {title}
       </div>
-      <div className="p-6 flex-grow">
+      <div className="p-6 flex-grow ltr:text-left rtl:text-right">
         {address ? (
           <div className="space-y-1 text-xs text-gray-600">
             <p className="font-black text-black uppercase mb-2">
@@ -49,12 +52,12 @@ function AddressCard({ title, address, onEdit, buttonLabel }: AddressCardProps) 
             {address.company && <p className="font-medium">{address.company}</p>}
             <p className="font-medium">{address.street?.[0] || address.street}</p>
             <p className="font-medium">
-              {address.city}, {address.postcode}
+              {address.city}{isRtl ? "،" : ","} {address.postcode}
             </p>
-            <p className="font-medium">{address.country_id === 'SA' ? 'Saudi Arabia' : address.country_id}</p>
-            <p className="pt-2 text-black font-black">T: <span className="text-gray-600 font-medium hover:text-yellow-500 cursor-pointer transition-colors duration-200">
-              {address.telephone}
-            </span></p>
+            <p className="font-medium">{address.country_id === 'SA' ? t("addressBook.saudiArabia") : address.country_id}</p>
+            <p className="pt-2 text-black font-black">
+              {t("addressBook.phone")}: <span className="text-gray-600 font-medium hover:text-yellow-500 cursor-pointer transition-colors duration-200" dir="ltr">{address.telephone}</span>
+            </p>
             {buttonLabel && (
               <div className="pt-6">
                 <button
@@ -68,7 +71,7 @@ function AddressCard({ title, address, onEdit, buttonLabel }: AddressCardProps) 
             )}
           </div>
         ) : (
-          <p className="text-gray-400 italic text-xs">No default address set</p>
+          <p className="text-gray-400 italic text-xs">{t("addressBook.noDefaultAddress")}</p>
         )}
       </div>
     </div>
@@ -78,7 +81,8 @@ function AddressCard({ title, address, onEdit, buttonLabel }: AddressCardProps) 
 
 export default function Addresses() {
   const router = useRouter();
-    const lp = useLocalePath();
+  const lp = useLocalePath();
+  const { t, isRtl } = useTranslation();
   const dispatch = useDispatch();
   const { addresses, loading, error } = useSelector((state: RootState) => state.address);
   const [actionLoading, setActionLoading] = useState(false);
@@ -98,16 +102,16 @@ export default function Addresses() {
     }
 
     if (action === "delete") {
-      const confirmed = window.confirm("Are you sure you want to delete this address?");
+      const confirmed = window.confirm(t("addressBook.deleteConfirm"));
       if (!confirmed) return;
 
       setActionLoading(true);
       // @ts-ignore
       dispatch(deleteAddress(addressId, (err) => {
         if (!err) {
-          toast.success("Address deleted successfully");
+          toast.success(t("addressBook.deleted"));
         } else {
-          toast.error(err || "Failed to delete address");
+          toast.error(err || t("addressBook.deleteFailed"));
         }
         setActionLoading(false);
       }));
@@ -119,9 +123,9 @@ export default function Addresses() {
       // @ts-ignore
       dispatch(setDefaultAddress({ addressId, type: "billing" }, (err) => {
         if (!err) {
-          toast.success("Default billing address set");
+          toast.success(t("addressBook.defaultBillingSet"));
         } else {
-          toast.error(err || "Failed to set default billing");
+          toast.error(err || t("addressBook.defaultBillingFailed"));
         }
         setActionLoading(false);
       }));
@@ -133,9 +137,9 @@ export default function Addresses() {
       // @ts-ignore
       dispatch(setDefaultAddress({ addressId, type: "shipping" }, (err) => {
         if (!err) {
-          toast.success("Default shipping address set");
+          toast.success(t("addressBook.defaultShippingSet"));
         } else {
-          toast.error(err || "Failed to set default shipping");
+          toast.error(err || t("addressBook.defaultShippingFailed"));
         }
         setActionLoading(false);
       }));
@@ -153,49 +157,53 @@ export default function Addresses() {
     return (
       <div className="p-6 flex justify-center items-center min-h-[300px] font-rubik">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-yellow-400"></div>
-        <p className="ml-3 text-gray-400 text-xs italic">Loading addresses...</p>
+        <p className="ltr:ml-3 rtl:mr-3 text-gray-400 text-xs italic">{t("addressBook.loadingAddresses")}</p>
       </div>
     );
   }
 
   return (
-    <div className="w-full font-rubik">
+    <div className="w-full font-rubik" dir={isRtl ? "rtl" : "ltr"}>
       <div className="border-b-2 border-yellow-400 inline-block pb-1 mb-8">
-        <h2 className="text-lg font-black text-black uppercase tracking-tight">DEFAULT ADDRESSES</h2>
+        <h2 className="text-lg font-black text-black uppercase tracking-tight">{t("addressBook.defaultAddresses")}</h2>
       </div>
 
       <div className="grid md:grid-cols-2 gap-8 mb-12">
         <AddressCard
-          title="DEFAULT BILLING ADDRESS"
+          title={t("addressBook.defaultBillingAddress")}
           address={defaultBilling}
           onEdit={(id) => handleAddressAction("edit", id)}
-          buttonLabel="EDIT BILLING ADDRESS"
+          buttonLabel={t("addressBook.editBillingAddress")}
+          t={t}
+          isRtl={isRtl}
         />
         <AddressCard
-          title="DEFAULT SHIPPING ADDRESS"
+          title={t("addressBook.defaultShippingAddress")}
           address={defaultShipping}
           onEdit={(id) => handleAddressAction("edit", id)}
-          buttonLabel="EDIT SHIPPING ADDRESS"
+          buttonLabel={t("addressBook.editShippingAddress")}
+          t={t}
+          isRtl={isRtl}
         />
       </div>
 
       <div className="bg-white border border-[#ebebeb] rounded-md shadow-sm overflow-hidden">
         <div className="p-5 border-b border-[#ebebeb] flex items-center justify-between bg-gray-50 px-6 py-4">
           <div className="text-xs font-black text-black uppercase tracking-widest">
-            ADDITIONAL ADDRESS ENTRIES
+            {t("addressBook.additionalAddresses")}
           </div>
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
+          <table className="w-full border-collapse">
             <thead className="bg-gray-50 border-b border-[#ebebeb]">
               <tr className="text-black text-xs font-black uppercase tracking-wider h-[50px]">
-                <th className="px-6 py-4">First Name</th>
-                <th className="px-6 py-4">Last Name</th>
-                <th className="px-6 py-4">Street Address</th>
-                <th className="px-6 py-4">City</th>
-                <th className="px-6 py-4">Zip Code</th>
-                <th className="px-6 py-4">Phone</th>
+                <th className="px-6 py-4 ltr:text-left rtl:text-right">{t("addressBook.firstName")}</th>
+                <th className="px-6 py-4 ltr:text-left rtl:text-right">{t("addressBook.lastName")}</th>
+                <th className="px-6 py-4 ltr:text-left rtl:text-right">{t("addressBook.streetAddress")}</th>
+                <th className="px-6 py-4 ltr:text-left rtl:text-right">{t("addressBook.city")}</th>
+                <th className="px-6 py-4 ltr:text-left rtl:text-right">{t("addressBook.zipCode")}</th>
+                <th className="px-6 py-4 ltr:text-left rtl:text-right">{t("addressBook.phone")}</th>
               </tr>
             </thead>
 
@@ -203,27 +211,27 @@ export default function Addresses() {
               {error && (
                 <tr>
                   <td colSpan={6} className="px-6 py-20 text-center text-red-500 text-xs font-black uppercase tracking-widest">
-                    Error: {error}
+                    {t("common.error")}: {error}
                   </td>
                 </tr>
               )}
               {filteredAddresses.length === 0 && !loading && !error && (
                 <tr>
                   <td colSpan={6} className="px-6 py-20 text-center text-gray-400 text-xs italic tracking-widest uppercase font-bold">
-                    No additional addresses found.
+                    {t("addressBook.noAdditionalAddresses")}
                   </td>
                 </tr>
               )}
 
               {filteredAddresses.slice((currentPage - 1) * pageSize, currentPage * pageSize).map((address: any, idx: number) => (
                 <tr key={address.id} className={`${idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'} border-b border-[#ebebeb] hover:bg-yellow-50/30 transition-colors text-xs font-medium text-gray-600`}>
-                  <td className="px-6 py-5 font-bold text-black uppercase">{address.firstname}</td>
-                  <td className="px-6 py-5 font-bold text-black uppercase">{address.lastname}</td>
-                  <td className="px-6 py-5">{Array.isArray(address.street) ? address.street.join(", ") : address.street || "-"}</td>
-                  <td className="px-6 py-5 uppercase font-bold text-gray-800">{address.city}</td>
-                  <td className="px-6 py-5 font-bold">{address.postcode}</td>
-                  <td className="px-6 py-5">
-                    <span className="text-gray-600 hover:text-yellow-500 cursor-pointer transition-colors duration-200">
+                  <td className="px-6 py-5 font-bold text-black uppercase ltr:text-left rtl:text-right">{address.firstname}</td>
+                  <td className="px-6 py-5 font-bold text-black uppercase ltr:text-left rtl:text-right">{address.lastname}</td>
+                  <td className="px-6 py-5 ltr:text-left rtl:text-right">{Array.isArray(address.street) ? address.street.join(", ") : address.street || "-"}</td>
+                  <td className="px-6 py-5 uppercase font-bold text-gray-800 ltr:text-left rtl:text-right">{address.city}</td>
+                  <td className="px-6 py-5 font-bold ltr:text-left rtl:text-right"><span dir="ltr">{address.postcode}</span></td>
+                  <td className="px-6 py-5 ltr:text-left rtl:text-right">
+                    <span dir="ltr" className="text-gray-600 hover:text-yellow-500 cursor-pointer transition-colors duration-200">
                       {address.telephone}
                     </span>
                   </td>
@@ -236,9 +244,9 @@ export default function Addresses() {
         {
           filteredAddresses.length > 0 && (
             <div className="px-6 py-6 bg-gray-50/50 flex flex-col md:flex-row items-center justify-between border-t border-[#ebebeb]">
-              {/* Left side: Item count */}
+              {/* Item count */}
               <div className="text-[11px] text-gray-400 font-bold uppercase tracking-widest">
-                Items {(currentPage - 1) * pageSize + 1} to {Math.min(currentPage * pageSize, filteredAddresses.length)} of {filteredAddresses.length} total
+                {t("addressBook.items")} {(currentPage - 1) * pageSize + 1} - {Math.min(currentPage * pageSize, filteredAddresses.length)} {t("addressBook.of")} {filteredAddresses.length} {t("addressBook.total")}
               </div>
 
               {/* Center: Pagination buttons */}
@@ -257,11 +265,11 @@ export default function Addresses() {
                 ))}
               </div>
 
-              {/* Right side: Show per page */}
+              {/* Show per page */}
               <div className="flex items-center gap-2 text-[11px] text-gray-400 font-bold uppercase tracking-wider">
-                <span>Show</span>
+                <span>{t("addressBook.show")}</span>
                 <PortalDropdown value={String(pageSize)} onChange={() => {}} options={[{label:"10",value:"10"},{label:"20",value:"20"},{label:"50",value:"50"}]} minWidth={60} />
-                <span>per page</span>
+                <span>{t("addressBook.perPage")}</span>
               </div>
             </div>
           )

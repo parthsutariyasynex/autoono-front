@@ -55,7 +55,7 @@ export default function ManageSubAccountsPage() {
                 const data = await res.json();
 
                 if (!res.ok) {
-                    setError(data.message || "Failed to fetch sub-accounts");
+                    setError(data.message || t("common.failed"));
                     return;
                 }
 
@@ -70,7 +70,7 @@ export default function ManageSubAccountsPage() {
                 }
                 setSubAccounts(accounts);
             } catch (err: any) {
-                setError(err.message || "Failed to fetch sub-accounts");
+                setError(err.message || t("common.failed"));
             } finally {
                 setLoading(false);
             }
@@ -88,7 +88,7 @@ export default function ManageSubAccountsPage() {
         console.log("[ManageSubAccounts] Login as sub-account, ID:", subAccountId, "Full data:", JSON.stringify(subAccount));
 
         if (!subAccountId) {
-            alert("Could not find sub-account ID. Check console for API response structure.");
+            alert(t("common.error"));
             return;
         }
         setLoggingInId(subAccountId);
@@ -106,7 +106,7 @@ export default function ManageSubAccountsPage() {
             const data = await res.json();
 
             if (!res.ok) {
-                alert(data.message || "Failed to login as sub-account");
+                alert(data.message || t("common.failed"));
                 setLoggingInId(null);
                 return;
             }
@@ -124,7 +124,7 @@ export default function ManageSubAccountsPage() {
             // Redirect to sub-account my-account page
             router.push(lp("/subaccount/my-account"));
         } catch (err: any) {
-            alert(err.message || "Failed to login as sub-account");
+            alert(err.message || t("common.failed"));
             setLoggingInId(null);
         }
     };
@@ -151,14 +151,14 @@ export default function ManageSubAccountsPage() {
 
                     {error && (
                         <div className="bg-red-50 border border-red-100 text-red-700 p-4 mb-6 rounded-md" role="alert">
-                            <p className="text-xs font-bold uppercase mb-1">Error</p>
+                            <p className="text-xs font-bold uppercase mb-1">{t("common.error")}</p>
                             <p className="text-xs">{error}</p>
                         </div>
                     )}
 
                     {subAccounts.length === 0 && !error ? (
                         <div className="text-gray-500 text-xs py-8 italic">
-                            No sub-accounts found.
+                            {t("subaccounts.noSubaccounts")}
                         </div>
                     ) : (
                         <>
@@ -178,7 +178,7 @@ export default function ManageSubAccountsPage() {
                                                     </p>
                                                 </div>
                                                 <span className={`px-2 py-1 text-[10px] font-black uppercase rounded-md flex-shrink-0 ${account.is_active !== false ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}>
-                                                    {account.is_active !== false ? "Active" : "Inactive"}
+                                                    {account.is_active !== false ? t("m.active") : t("m.inactive")}
                                                 </span>
                                             </div>
                                             <button
@@ -186,7 +186,7 @@ export default function ManageSubAccountsPage() {
                                                 disabled={loggingInId === accountId}
                                                 className="w-full bg-yellow-400 hover:bg-yellow-500 text-black text-[11px] font-black px-4 py-2.5 uppercase tracking-widest transition-all rounded-md shadow-sm disabled:opacity-50 active:scale-95"
                                             >
-                                                {loggingInId === accountId ? "Logging in..." : "Login As"}
+                                                {loggingInId === accountId ? t("common.loading") : t("m.sign-in")}
                                             </button>
                                         </div>
                                     );
@@ -198,10 +198,10 @@ export default function ManageSubAccountsPage() {
                                 <table className="w-full text-left border-collapse bg-white">
                                     <thead className="bg-gray-50 border-b border-[#ebebeb]">
                                         <tr className="h-[50px]">
-                                            <th className="px-6 py-3 text-xs font-black text-black uppercase tracking-wider">Name</th>
-                                            <th className="px-6 py-3 text-xs font-black text-black uppercase tracking-wider">Email</th>
-                                            <th className="px-6 py-3 text-xs font-black text-black uppercase tracking-wider">Status</th>
-                                            <th className="px-6 py-3 text-xs font-black text-black uppercase tracking-wider text-center">Action</th>
+                                            <th className="px-6 py-3 text-xs font-black text-black uppercase tracking-wider">{t("m.name")}</th>
+                                            <th className="px-6 py-3 text-xs font-black text-black uppercase tracking-wider">{t("m.email")}</th>
+                                            <th className="px-6 py-3 text-xs font-black text-black uppercase tracking-wider">{t("m.status")}</th>
+                                            <th className="px-6 py-3 text-xs font-black text-black uppercase tracking-wider text-center">{t("m.action")}</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -217,7 +217,7 @@ export default function ManageSubAccountsPage() {
                                                     </td>
                                                     <td className="px-6 py-4 text-xs">
                                                         <span className={`px-2 py-1 text-[10px] font-black uppercase rounded-md ${account.is_active !== false ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}>
-                                                            {account.is_active !== false ? "Active" : "Inactive"}
+                                                            {account.is_active !== false ? t("m.active") : t("m.inactive")}
                                                         </span>
                                                     </td>
                                                     <td className="px-6 py-4 text-center">
@@ -226,7 +226,7 @@ export default function ManageSubAccountsPage() {
                                                             disabled={loggingInId === accountId}
                                                             className="bg-yellow-400 hover:bg-yellow-500 text-black text-[10px] font-black px-4 py-2 uppercase tracking-widest transition-all rounded-md shadow-sm disabled:opacity-50 active:scale-95"
                                                         >
-                                                            {loggingInId === accountId ? "Logging in..." : "Login As"}
+                                                            {loggingInId === accountId ? t("common.loading") : t("m.sign-in")}
                                                         </button>
                                                     </td>
                                                 </tr>

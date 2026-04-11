@@ -204,7 +204,7 @@ function EditAccountPageContent() {
                                             className={inputClass}
                                             value={email}
                                             onChange={(e) => setEmail(e.target.value)}
-                                            placeholder="Enter new email address"
+                                            placeholder={t("m.email")}
                                         />
                                     </div>
 
@@ -215,7 +215,7 @@ function EditAccountPageContent() {
                                         <input
                                             type="password"
                                             className={inputClass}
-                                            placeholder="Enter current password"
+                                            placeholder={t("changePassword.currentPassword")}
                                         />
                                     </div>
                                 </div>
@@ -237,7 +237,7 @@ function EditAccountPageContent() {
                                         <input
                                             type="password"
                                             className={inputClass}
-                                            placeholder="Enter current password"
+                                            placeholder={t("changePassword.currentPassword")}
                                         />
                                     </div>
 
@@ -248,7 +248,7 @@ function EditAccountPageContent() {
                                         <input
                                             type="password"
                                             className={inputClass}
-                                            placeholder="Enter new password"
+                                            placeholder={t("changePassword.newPassword")}
                                         />
                                         <div className="bg-[#f4f4f4] px-4 py-2 text-[12px] font-bold text-gray-600 border border-gray-100 italic">
                                             Password Strength: No Password
@@ -262,7 +262,7 @@ function EditAccountPageContent() {
                                         <input
                                             type="password"
                                             className={inputClass}
-                                            placeholder="Confirm new password"
+                                            placeholder={t("changePassword.confirmNewPassword")}
                                         />
                                     </div>
                                 </div>
