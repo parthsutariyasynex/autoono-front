@@ -73,7 +73,7 @@ export default function Navbar() {
 
   const handleLogout = async () => {
     localStorage.removeItem("token");
-    await signOut({ callbackUrl: lp("/login") });
+    await signOut({ callbackUrl: `${window.location.origin}${lp("/login")}` });
   };
 
   useEffect(() => {

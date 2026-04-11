@@ -1,5 +1,5 @@
 {
-  "login.title": "Registered Customers",
+  "login.title": "REGISTERED CUSTOMERS",
   "data.Saudi Arabia": "Saudi Arabia",
   "data.All": "All",
   "m.invoice-due": "Invoice Due",
@@ -102,8 +102,8 @@
   "login.modeOtp": "Login With OTP",
   "login.signIn": "Sign In",
   "login.forgotPassword": "Forgot Your Password?",
-  "login.verificationCode": "Verification Code",
-  "login.enterOtp": "Enter OTP",
+  "login.verificationCode": "OTP",
+  "login.enterOtp": "Enter 4-digit OTP",
   "login.otpSent": "OTP Sent",
   "login.loginSuccess": "Login Successful",
   "login.loginFailed": "Login failed. Please check your credentials.",

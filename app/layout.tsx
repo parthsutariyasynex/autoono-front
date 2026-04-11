@@ -18,6 +18,7 @@ import {
   LOCALE_COOKIE
 } from "@/lib/i18n/config";
 import { LocaleProvider } from "@/lib/i18n/LocaleProvider";
+import TranslationWrapper from "@/components/providers/TranslationWrapper";
 
 const rubik = Rubik({
   subsets: ["latin", "arabic"],
@@ -57,19 +58,21 @@ export default async function RootLayout({
 
   return (
     <html lang={locale} dir={dir}>
-      <body className={`${rubik.variable} font-sans`}>
+      <body className={`${rubik.variable} font-rubik`}>
         <LocaleProvider initialLocale={locale}>
-          <ReduxProvider>
-            <NextAuthProvider>
-              <CartProvider>
-                <DirectionSync />
-                <Toaster position="top-right" reverseOrder={false} />
-                <ProtectedLayout>
-                  {children}
-                </ProtectedLayout>
-              </CartProvider>
-            </NextAuthProvider>
-          </ReduxProvider>
+          <TranslationWrapper>
+            <ReduxProvider>
+              <NextAuthProvider>
+                <CartProvider>
+                  <DirectionSync />
+                  <Toaster position="top-right" reverseOrder={false} />
+                  <ProtectedLayout>
+                    {children}
+                  </ProtectedLayout>
+                </CartProvider>
+              </NextAuthProvider>
+            </ReduxProvider>
+          </TranslationWrapper>
         </LocaleProvider>
       </body>
     </html>

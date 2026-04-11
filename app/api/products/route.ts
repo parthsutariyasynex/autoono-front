@@ -1,20 +1,17 @@
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth/auth-options";
 import { NextRequest, NextResponse } from "next/server";
 import { getBaseUrl } from "@/lib/api/magento-url";
+import { getRequestToken } from "@/lib/api/auth-helper";
 
 export async function GET(req: NextRequest) {
-    const session: any = await getServerSession(authOptions);
-    const token = session?.accessToken;
-
-    if (!token) {
-        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    const token = await getRequestToken(req);
 
     const { searchParams } = new URL(req.url);
     const baseUrl = getBaseUrl(req);
-    // Base Magento Products API
-    const magentoUrl = new URL(baseUrl.split("/kleverapi")[0] + "/products");
+
+    // Base Magento Products API - more robust URL construction
+    // baseUrl is expected to be e.g. .../rest/en/V1/kleverapi
+    const magentoBase = baseUrl.split("/kleverapi")[0];
+    const magentoUrl = new URL(`${magentoBase}/products`);
 
     let filterGroupIndex = 0;
 
@@ -52,11 +49,10 @@ export async function GET(req: NextRequest) {
 
     // Dynamic filters loop
     searchParams.forEach((value, key) => {
-        // Skip our fixed param keys
-        if (key.startsWith("_")) return;
+        // Skip our fixed param keys and locale params
+        if (key.startsWith("_") || key === "lang") return;
 
         // E.g., brand=29, category_id=5
-        // A comma separated string implies multiple choices, we construct 'in'
         const values = value.split(",");
 
         magentoUrl.searchParams.append(`searchCriteria[filter_groups][${filterGroupIndex}][filters][0][field]`, key);
@@ -85,20 +81,30 @@ export async function GET(req: NextRequest) {
     try {
         const res = await fetch(magentoUrl.toString(), {
             headers: {
-                Authorization: `Bearer ${token}`,
+                ...(token && { Authorization: `Bearer ${token}` }),
                 "Content-Type": "application/json",
                 "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
                 "platform": "web",
             },
+            cache: "no-store"
         });
 
-        if (!res.ok) {
-            throw new Error(`API Error: ${res.status}`);
+        const contentType = res.headers.get("content-type");
+        let data;
+        if (contentType && contentType.includes("application/json")) {
+            data = await res.json();
+        } else {
+            data = { message: await res.text() };
         }
 
-        const data = await res.json();
+        if (!res.ok) {
+            console.error(`[products] Magento Error ${res.status}:`, data);
+            return NextResponse.json(data, { status: res.status });
+        }
+
         return NextResponse.json(data);
     } catch (error: any) {
+        console.error("[products] Exception:", error.message);
         return NextResponse.json({ error: error.message || "Failed to fetch products" }, { status: 500 });
     }
 }
