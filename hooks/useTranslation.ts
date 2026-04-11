@@ -1,14 +1,38 @@
 "use client";
 
 import { useLocale } from "@/lib/i18n/client";
-import en from "../public/locales/en.json";
-import ar from "../public/locales/ar.json";
+import { useState, useEffect, useCallback } from "react";
 
-const translations: Record<string, Record<string, string>> = { en, ar };
+let cachedTranslations: Record<string, Record<string, string>> = {};
 
 export function useTranslation() {
   const locale = useLocale();
-  const t = (key: string): string => translations[locale]?.[key] || key;
+  const [translations, setTranslations] = useState<Record<string, string>>(
+    cachedTranslations[locale] || {}
+  );
+
+  useEffect(() => {
+    if (cachedTranslations[locale]) {
+      setTranslations(cachedTranslations[locale]);
+      return;
+    }
+
+    fetch(`/locales/${locale}.json`)
+      .then((res) => res.json())
+      .then((data) => {
+        cachedTranslations[locale] = data;
+        setTranslations(data);
+      })
+      .catch((err) => {
+        console.error(`Failed to load ${locale} translations:`, err);
+      });
+  }, [locale]);
+
+  const t = useCallback(
+    (key: string): string => translations[key] || key,
+    [translations]
+  );
+
   const isRtl = locale === "ar";
   return { t, locale, isRtl };
 }
