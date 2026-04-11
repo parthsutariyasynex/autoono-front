@@ -160,10 +160,10 @@ export default function Navbar() {
   }, [locale]);
 
   return (
-    <div className="w-full fixed top-0 left-0 right-0 z-[60] flex flex-col" style={{ paddingRight: "var(--scrollbar-width)" }}>
+    <div className="w-full relative top-0 left-0 right-0 z-[60] flex flex-col" style={{ paddingRight: "var(--scrollbar-width)" }}>
 
       {/* ── HEADER ── */}
-      <header className="bg-white border-b border-gray-100 shadow-[0_1px_4px_rgba(0,0,0,0.06)]">
+      <header className="main-header bg-white border-b border-gray-100 shadow-[0_1px_4px_rgba(0,0,0,0.06)]">
         <div className="relative flex items-center justify-between h-[56px] sm:h-[64px] lg:h-[72px] px-3 sm:px-5 lg:px-8 xl:px-14">
 
           {/* LEFT: BTIRE logo */}
@@ -201,12 +201,12 @@ export default function Navbar() {
                   onClick={() => setIsProfileOpen(!isProfileOpen)}
                   className="flex items-center bg-white border border-gray-100 rounded-full pl-1 pr-2 lg:pr-4 py-1 shadow-[0_2px_8px_-3px_rgba(0,0,0,0.12)] hover:shadow-md transition-shadow group cursor-pointer"
                 >
-                  <div className="w-7 h-7 bg-[#f5b21a] rounded-full flex items-center justify-center mr-1.5 lg:mr-2 flex-shrink-0 group-hover:scale-110 transition-transform">
+                  <div className="w-7 h-7 bg-[#f5b21a] rounded-full flex items-center justify-center mr-1.5 lg:mr-2 flex-shrink-0 transition-transform">
                     <UserCircle size={16} strokeWidth={2.5} />
                   </div>
                   <div className="flex flex-col min-w-0">
                     <span className="hidden lg:block text-[8px] text-gray-400 font-bold uppercase tracking-widest leading-none">{t("nav.welcomeBack")}</span>
-                    <span className="text-[11px] lg:text-[12px] text-black font-black uppercase tracking-tighter leading-snug mt-0.5 truncate max-w-[80px] lg:max-w-[140px]">
+                    <span className="text-[11px] lg:text-[12px] text-black font-black tracking-tighter leading-snug mt-0.5 truncate max-w-[80px] lg:max-w-[140px] font-bold">
                       {isSubAccount && subAccountName ? subAccountName : displayUser}
                     </span>
                   </div>
@@ -250,13 +250,13 @@ export default function Navbar() {
             {/* Notification Bell */}
             {isAuthenticated && pathname !== "/login" && (
               <button
-                className="hidden sm:flex relative cursor-pointer hover:opacity-70 transition-opacity items-center justify-center"
+                className="hidden sm:flex relative cursor-pointer items-center justify-center"
                 onClick={() => setIsNotificationOpen(true)}
                 aria-label="Notifications"
               >
-                <Bell size={20} fill="black" stroke="black" strokeWidth={1} />
+                <Bell size={24} fill="black" stroke="black" strokeWidth={1} />
                 {unreadCount > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-[#f5af02] text-black text-[8px] font-black w-4 h-4 flex items-center justify-center rounded-full border border-white">
+                  <span className="absolute w-[26px] h-[26px] font-medium text-[12px] -top-[13px] -right-[14px] bg-[#f5af02] text-black font-black flex items-center justify-center rounded-full border border-white">
                     {unreadCount}
                   </span>
                 )}
@@ -267,12 +267,12 @@ export default function Navbar() {
             {isAuthenticated && pathname !== "/login" && (
               <button
                 onClick={() => setIsCartOpen(true)}
-                className="relative text-black hover:opacity-70 transition-opacity cursor-pointer"
+                className="relative text-black cursor-pointer pr-2 md:pr-0"
                 aria-label="Shopping Cart"
               >
-                <ShoppingCart size={20} strokeWidth={1.5} />
+                <ShoppingCart size={24} strokeWidth={1.5} />
                 {cartCount > 0 && (
-                  <span className="absolute -top-1.5 -right-2 bg-[#f5af02] text-black text-[8px] font-black w-4 h-4 flex items-center justify-center rounded-full border border-white">
+                  <span className="absolute w-[22px] md:w-[26px] h-[22px] md:h-[26px] font-medium text-[10px] md:text-[12px] -top-[13px] -right-[2px] md:-right-[14px] bg-[#f5af02] text-black font-black flex items-center justify-center rounded-full border border-white">
                     {cartCount}
                   </span>
                 )}
@@ -292,8 +292,8 @@ export default function Navbar() {
       </header>
 
       {/* ── YELLOW NAV BAR — desktop only ── */}
-      <nav className="bg-[#f5b21a] border-b border-yellow-600/10 w-full hidden lg:block">
-        <div className="flex items-center justify-center h-9 max-w-[1280px] mx-auto px-2 lg:px-4">
+      <nav className="bg-[#f5b21a] w-full hidden lg:block">
+        <div className="flex items-center justify-center max-w-[1280px] mx-auto px-2 lg:px-4">
           {navLoading ? (
             <div className="flex items-center gap-6">
               {[1, 2, 3, 4, 5].map(i => (
@@ -301,18 +301,23 @@ export default function Navbar() {
               ))}
             </div>
           ) : (
-            navLinks.map((item) => (
-              <Link
-                key={item.href}
-                href={lp(item.href)}
-                className={`flex items-center h-full px-2.5 lg:px-7 text-[11px] lg:text-[12px] font-semibold uppercase tracking-wide lg:tracking-wider transition-all duration-200 whitespace-nowrap ${pathname === item.href || pathname?.startsWith(item.href + "/")
-                  ? "bg-black text-white"
-                  : "text-black hover:bg-black hover:text-white"
-                  }`}
-              >
-                {item.label}
-              </Link>
-            ))
+            navLinks.map((item) => {
+              const itemPath = lp(item.href);
+              const isActive = pathname === itemPath || pathname?.startsWith(itemPath + "/");
+
+              return (
+                <Link
+                  key={item.href}
+                  href={itemPath}
+                  className={`py-3 flex items-center h-full px-2.5 lg:px-7 text-[11px] lg:text-[16px] font-semibold capitalize transition-all duration-200 whitespace-nowrap ${isActive
+                    ? "bg-black text-white"
+                    : "text-black hover:bg-black hover:text-white"
+                    }`}
+                >
+                  {item.label}
+                </Link>
+              );
+            })
           )}
         </div>
       </nav>

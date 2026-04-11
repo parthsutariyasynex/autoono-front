@@ -73,7 +73,6 @@ export default function ProtectedLayout({ children }: ProtectedLayoutProps) {
       <Navbar />
 
       {/* 📏 Header Spacer - Fixed header means we need a spacer to prevent content overlap */}
-      <div className="h-[56px] sm:h-[64px] lg:h-[108px] flex-shrink-0" aria-hidden="true" />
 
       {/* 🚀 Main Content Wrapper */}
       <main className="flex-1 flex flex-col w-full relative">
