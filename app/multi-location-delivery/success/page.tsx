@@ -56,7 +56,7 @@ const MultiShippingSuccessContent = () => {
                 // Magento returns: { message: "...", orders: [...], continue_shopping_url: "..." }
                 const apiOrders = Array.isArray(data?.orders) ? data.orders
                     : Array.isArray(data) ? data
-                    : [];
+                        : [];
 
                 const parsed: OrderRow[] = apiOrders.map((o: any) => ({
                     order_id: String(o.order_id || ""),
@@ -142,7 +142,7 @@ const MultiShippingSuccessContent = () => {
                                 </div>
                                 <div className="flex-1">
                                     <p className="text-[13px] md:text-[14px] text-gray-700 font-medium">
-                                        {order.shipping_address || t("multi.addressDetails")}
+                                        {order.shipping_address || t("m.address")}
                                     </p>
                                 </div>
                             </div>

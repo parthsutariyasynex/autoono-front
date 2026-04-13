@@ -180,7 +180,7 @@ export default function MyAccountPage() {
                         {isSubAccountSession && (
                             <div className="bg-[#e7f6e7] border-l-4 border-[#2d8a2d] text-[#1b5e20] p-4 mb-8 flex items-center gap-3 animate-in fade-in slide-in-from-top duration-500 shadow-sm" role="alert">
                                 <span className="text-[#2d8a2d] font-bold text-lg">✔</span>
-                                <p className="text-[14px] font-medium tracking-tight">You are logged as subaccount now.</p>
+                                <p className="text-[14px] font-medium tracking-tight">{t("account.youAreLoggedAs")}</p>
                             </div>
                         )}
 
@@ -201,21 +201,21 @@ export default function MyAccountPage() {
                                             {t("account.contactInformation")}
                                         </div>
                                         <div className="p-3 md:p-5 text-[13px] text-gray-700 space-y-2.5 font-medium leading-relaxed">
-                                            <p>Contact Name: {(customer as any).firstname} {(customer as any).lastname}</p>
-                                            <p>Email: {(customer as any).email}</p>
-                                            <p>Customer Mobile: {customerMobile}</p>
-                                            <p>Company Name: {customerCompany}</p>
-                                            <p>Customer Code: {getAttr("customer_code")}</p>
-                                            <p>Industry: {getAttr("industry") !== "N/A" ? getAttr("industry") : "N/A"}</p>
-                                            <p>Location: {customerLocation}</p>
-                                            <p>Contact Information: {(customer as any).email} ,{customerMobile}</p>
+                                            <p>{t("account.contactName")}: {(customer as any).firstname} {(customer as any).lastname}</p>
+                                            <p>{t("account.email")}: {(customer as any).email}</p>
+                                            <p>{t("account.customerMobile")}: {customerMobile}</p>
+                                            <p>{t("account.companyName")}: {customerCompany}</p>
+                                            <p>{t("account.customerCode")}: {getAttr("customer_code")}</p>
+                                            <p>{t("m.industry")}: {getAttr("industry") !== "N/A" ? getAttr("industry") : "N/A"}</p>
+                                            <p>{t("m.location")}: {customerLocation}</p>
+                                            <p>{t("account.contactInformation")}: {(customer as any).email} ,{customerMobile}</p>
 
                                             <div className="flex flex-col md:flex-row gap-3 pt-4 md:pt-6">
                                                 <Link href={lp("/customer/account/edit")} className="w-full md:w-auto text-center bg-[#F5B21B] hover:bg-[#e0a116] text-black text-[12px] font-bold px-6 py-2 uppercase transition-all rounded-sm">
-                                                    EDIT
+                                                    {t("m.edit")}
                                                 </Link>
                                                 <Link href={lp("/customer/account/edit?change=password")} className="w-full md:w-auto text-center bg-[#F5B21B] hover:bg-[#e0a116] text-black text-[12px] font-bold px-6 py-2 uppercase transition-all rounded-sm whitespace-nowrap">
-                                                    CHANGE PASSWORD
+                                                    {t("changePassword.title")}
                                                 </Link>
                                             </div>
                                         </div>
@@ -227,28 +227,28 @@ export default function MyAccountPage() {
                             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
                                 <div className={cardBase}>
                                     <div className={sectionHeader + " flex justify-between items-center"}>
-                                        <span>BUSINESS OVERVIEW</span>
+                                        <span>{t("dashboard.businessOverview")}</span>
                                         <button
                                             onClick={() => setIsEditModalOpen(true)}
                                             className="bg-[#F5B21B] hover:bg-black hover:text-white text-black text-[10px] font-bold px-4 py-1.5 uppercase transition-all rounded-sm shadow-sm"
                                         >
-                                            EDIT
+                                            {t("m.edit")}
                                         </button>
                                     </div>
                                     <div className="p-3 md:p-5 text-[13px] text-gray-700 space-y-2.5 font-medium leading-relaxed">
-                                        <p>Company Size: {getOverviewAttr("total_employees")} employees, {getOverviewAttr("trucks")} Trucks, {getOverviewAttr("annual_revenue")} annual revenue</p>
-                                        <p>Business Model: {getOverviewAttr("business_model")}</p>
-                                        <p>Products/Services Offered: {getOverviewAttr("products_offered")}</p>
+                                        <p>{t("m.company-size")}: {getOverviewAttr("total_employees")} {t("account.employees")}, {getOverviewAttr("trucks")} {t("account.trucks")}, {getOverviewAttr("annual_revenue")} {t("account.annualRevenue")}</p>
+                                        <p>{t("m.business-model")}: {getOverviewAttr("business_model")}</p>
+                                        <p>{t("m.products-services-offered")}: {getOverviewAttr("products_offered")}</p>
                                     </div>
                                 </div>
 
                                 <div className={cardBase}>
                                     <div className={sectionHeader}>
-                                        SALES DATA (QTY)
+                                        {t("m.sales-data-qty")}
                                     </div>
                                     <div className="p-3 md:p-5 text-[13px] text-gray-700 space-y-2.5 font-medium leading-relaxed">
-                                        <p>Total Sales Qty: {getAttr("total_sales_qty", "0")}</p>
-                                        <p>Order Frequency: {getAttr("order_frequency", "0")} orders/month</p>
+                                        <p>{t("m.total-sales-qty")}: {getAttr("total_sales_qty", "0")}</p>
+                                        <p>{t("m.order-frequency")}: {getAttr("order_frequency", "0")} {t("account.ordersPerMonth")}</p>
                                     </div>
                                 </div>
                             </div>
@@ -257,7 +257,7 @@ export default function MyAccountPage() {
                             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
                                 <div className={cardBase}>
                                     <div className={sectionHeader + " flex justify-between items-center"}>
-                                        <span>TARGETS AND ACHIEVEMENTS</span>
+                                        <span>{t("m.targets-and-achievements")}</span>
                                         <PortalDropdown
                                             value={selectedYear}
                                             onChange={setSelectedYear}
@@ -268,16 +268,16 @@ export default function MyAccountPage() {
                                     <div className="p-3 md:p-5 text-[13px] text-gray-700 space-y-2.5 font-medium leading-relaxed">
                                         {targets ? (
                                             <>
-                                                <p>Sales Target: {targets.sales_target || "0"}</p>
-                                                <p>Achievement: {targets.achievement || "0"}</p>
-                                                <p>Incentive: SAR {formatCurrency(targets.incentive)}</p>
-                                                {targets.remarks && <p className="text-[#F5B21B] font-bold">Remarks: {targets.remarks}</p>}
+                                                <p>{t("m.sales-targets")}: {targets.sales_target || "0"}</p>
+                                                <p>{t("m.achievements")}: {targets.achievement || "0"}</p>
+                                                <p>{t("m.incentive")}: SAR {formatCurrency(targets.incentive)}</p>
+                                                {targets.remarks && <p className="text-[#F5B21B] font-bold">{t("m.comment")}: {targets.remarks}</p>}
                                             </>
                                         ) : (
                                             <>
-                                                <p>Sales Targets: {getAttr("sales_targets")}</p>
-                                                <p>Achievements: {getAttr("achievements")}</p>
-                                                <p>Incentive: SAR {formatCurrency(getAttr("incentive"))}</p>
+                                                <p>{t("m.sales-targets")}: {getAttr("sales_targets")}</p>
+                                                <p>{t("m.achievements")}: {getAttr("achievements")}</p>
+                                                <p>{t("m.incentive")}: SAR {formatCurrency(getAttr("incentive"))}</p>
                                             </>
                                         )}
                                     </div>
@@ -285,26 +285,26 @@ export default function MyAccountPage() {
 
                                 <div className={cardBase}>
                                     <div className={sectionHeader}>
-                                        CUSTOMER BEHAVIOR
+                                        {t("m.customer-behavior")}
                                     </div>
                                     <div className="p-3 md:p-5 text-[13px] text-gray-700 space-y-2.5 font-medium leading-relaxed">
-                                        <p>Payment History(DSO): {getAttr("payment_history")}</p>
-                                        <p>Credit Limit: SAR {formatCurrency(getAttr("total_credit_limit"))}</p>
-                                        <p>Credit Period: {getAttr("credit_period")} days</p>
+                                        <p>{t("m.payment-historydso")}: {getAttr("payment_history")}</p>
+                                        <p>{t("m.credit-limit")}: SAR {formatCurrency(getAttr("total_credit_limit"))}</p>
+                                        <p>{t("m.credit-period")}: {getAttr("credit_period") } {t("account.days")}</p>
                                     </div>
                                 </div>
                             </div>
 
                             {/* ADDRESS BOOK */}
                             <div>
-                                <h2 className="text-[14px] md:text-[16px] font-bold text-black uppercase mb-3">ADDRESS BOOK</h2>
+                                <h2 className="text-[14px] md:text-[16px] font-bold text-black uppercase mb-3">{t("addressBook.title")}</h2>
                                 <hr className="border-gray-200 mb-6" />
 
                                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
                                     {/* Default Billing Address Card */}
                                     <div className={cardBase + " flex flex-col"}>
                                         <div className={sectionHeader}>
-                                            DEFAULT BILLING ADDRESS
+                                            {t("addressBook.defaultBillingAddress")}
                                         </div>
                                         <div className="p-3 md:p-5 flex flex-col flex-1">
                                             {defaultBilling ? (
@@ -313,11 +313,11 @@ export default function MyAccountPage() {
                                                     <p>{defaultBilling.company}</p>
                                                     {defaultBilling.street?.map((s: string, i: number) => <p key={i}>{s}</p>)}
                                                     <p>{defaultBilling.city}, {defaultBilling.postcode}</p>
-                                                    <p>{defaultBilling.country_id === 'SA' ? 'Saudi Arabia' : defaultBilling.country_id}</p>
+                                                    <p>{defaultBilling.country_id === 'SA' ? t("data.Saudi Arabia") : defaultBilling.country_id}</p>
                                                     <p>T: {defaultBilling.telephone}</p>
                                                 </div>
                                             ) : (
-                                                <p className="text-[13px] text-gray-500 italic flex-1">No default billing address set.</p>
+                                                <p className="text-[13px] text-gray-500 italic flex-1">{t("addressBook.noBillingAddress")}</p>
                                             )}
                                         </div>
                                     </div>
@@ -325,7 +325,7 @@ export default function MyAccountPage() {
                                     {/* Default Shipping Address Card */}
                                     <div className={cardBase + " flex flex-col"}>
                                         <div className={sectionHeader}>
-                                            DEFAULT SHIPPING ADDRESS
+                                            {t("addressBook.defaultShippingAddress")}
                                         </div>
                                         <div className="p-3 md:p-5 flex flex-col flex-1">
                                             {defaultShipping ? (
@@ -334,21 +334,21 @@ export default function MyAccountPage() {
                                                     <p>{defaultShipping.company}</p>
                                                     {defaultShipping.street?.map((s: string, i: number) => <p key={i}>{s}</p>)}
                                                     <p>{defaultShipping.city}, {defaultShipping.postcode}</p>
-                                                    <p>{defaultShipping.country_id === 'SA' ? 'Saudi Arabia' : defaultShipping.country_id}</p>
+                                                    <p>{defaultShipping.country_id === 'SA' ? t("data.Saudi Arabia") : defaultShipping.country_id}</p>
                                                     <p>T: {defaultShipping.telephone}</p>
                                                 </div>
                                             ) : (
-                                                <p className="text-[13px] text-gray-500 italic flex-1">No default shipping address set.</p>
+                                                <p className="text-[13px] text-gray-500 italic flex-1">{t("addressBook.noShippingAddress")}</p>
                                             )}
 
                                             <div className="pt-4 md:pt-8">
                                                 {defaultShipping?.id ? (
                                                     <Link href={lp(`/customer/address-book/edit/${defaultShipping.id}`)} className="w-full md:w-auto text-center bg-[#F5B21B] hover:bg-[#e0a116] text-black text-[13px] font-bold px-4 md:px-8 py-2.5 uppercase transition-all rounded-none inline-block">
-                                                        EDIT ADDRESS
+                                                        {t("addressBook.editAddress")}
                                                     </Link>
                                                 ) : (
                                                     <Link href={lp("/customer/address-book")} className="w-full md:w-auto text-center bg-[#F5B21B] hover:bg-[#e0a116] text-black text-[13px] font-bold px-4 md:px-8 py-2.5 uppercase transition-all rounded-none inline-block">
-                                                        ADD ADDRESS
+                                                        {t("addressBook.addAddress")}
                                                     </Link>
                                                 )}
                                             </div>

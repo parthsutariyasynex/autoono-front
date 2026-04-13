@@ -3,7 +3,7 @@ import { useTranslation } from "@/hooks/useTranslation";
 import { useLocalePath } from "@/hooks/useLocalePath";
 
 import { useState, useEffect, useRef, useCallback } from "react";
-import { Search, ShoppingCart, Trash2, Upload, FileDown, Check, X, Loader2, Plus, ArrowRight } from "lucide-react";
+import { Search, ShoppingCart, Trash2, Upload, FileDown, Check, X, Loader2, Plus, ArrowRight, ArrowLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/modules/cart/hooks/useCart";
 import { toast } from "react-hot-toast";
@@ -21,7 +21,7 @@ interface QuickOrderItem {
 
 export default function QuickOrderPage() {
     const router = useRouter();
-    const { t } = useTranslation();
+    const { t, isRtl } = useTranslation();
     const lp = useLocalePath();
     const { addToCart, refetchCart } = useCart();
     const [loading, setLoading] = useState(false);
@@ -117,7 +117,6 @@ export default function QuickOrderPage() {
 
     const downloadCSV = (fileName: string, base64Content: string) => {
         try {
-            // 1. Convert base64 to Blob
             const byteCharacters = atob(base64Content);
             const byteNumbers = new Array(byteCharacters.length);
             for (let i = 0; i < byteCharacters.length; i++) {
@@ -125,18 +124,12 @@ export default function QuickOrderPage() {
             }
             const byteArray = new Uint8Array(byteNumbers);
             const blob = new Blob([byteArray], { type: 'text/csv' });
-
-            // 2. Create download link
             const url = window.URL.createObjectURL(blob);
             const link = document.createElement('a');
             link.href = url;
             link.setAttribute('download', fileName);
-
-            // 3. Trigger download
             document.body.appendChild(link);
             link.click();
-
-            // 4. Cleanup
             link.parentNode?.removeChild(link);
             window.URL.revokeObjectURL(url);
             return true;
@@ -160,9 +153,6 @@ export default function QuickOrderPage() {
                 image: product.image_url
             }]);
         }
-        // Don't clear search to allow multiple selections
-        // setSearchTerm("");
-        // setSearchResults([]);
         toast.success(`${sku} ${t("quickOrder.added")}`);
     };
 
@@ -190,32 +180,27 @@ export default function QuickOrderPage() {
         } catch (err: any) {
             console.error(`Update qty error for ${sku}:`, err);
             setItems(originalItems);
-            toast.error(`${t("quickOrder.qtyUpdateFailed")} ${sku}`);
+            toast.error(`${t("quickOrder.qtyFailed")} ${sku}`);
         }
     };
 
     const handleDownloadSampleCsv = async (e: React.MouseEvent) => {
         e.preventDefault();
         setLoading(true);
-        const toastId = toast.loading(t("quickOrder.downloadStarted"));
+        const toastId = toast.loading(t("quickOrder.downloading"));
         try {
-            // Mageplaza Quick Order Download Sample API
             const response = await api.get("/kleverapi/quick-order/download-csv");
-
-            // Requirements 2 & 4: file_name and file_content
             const base64 = response?.file_content || response?.base64;
             const fileName = response?.file_name || response?.filename || "quick_order_sample.csv";
 
             if (base64) {
-                // Requirement 3: Use reusable downloadCSV function
                 const success = downloadCSV(fileName, base64);
                 if (success) {
                     toast.success(t("quickOrder.downloadStarted"), { id: toastId });
                 } else {
-                    toast.error(t("quickOrder.processFailed"), { id: toastId });
+                    toast.error(t("quickOrder.downloadFailed"), { id: toastId });
                 }
             } else {
-                console.warn("Invalid CSV structure received:", response);
                 toast.error(response.message || t("quickOrder.downloadFailed"), { id: toastId });
             }
         } catch (err: any) {
@@ -262,11 +247,7 @@ export default function QuickOrderPage() {
 
             if (res.ok) {
                 const validated = await res.json();
-                // Assuming Mageplaza returns items with data
-                // For items that are valid/found, Mageplaza usually returns data or successful results index
-                // If results is an array of items:
                 const results = Array.isArray(validated) ? validated : (validated.items || []);
-
                 const newItemsList: QuickOrderItem[] = [...items];
 
                 results.forEach((p: any) => {
@@ -317,13 +298,10 @@ export default function QuickOrderPage() {
         const toastId = toast.loading(`${t("quickOrder.processing")} ${file.name}...`);
 
         try {
-            // Requirement 2: Read file as base64 using FileReader
             const reader = new FileReader();
-
             const base64Promise = new Promise<string>((resolve, reject) => {
                 reader.onload = () => {
                     const result = reader.result as string;
-                    // Extract only the base64 part (after the comma: data:text/csv;base64,...)
                     const base64 = result.split(",")[1];
                     resolve(base64);
                 };
@@ -332,14 +310,11 @@ export default function QuickOrderPage() {
             });
 
             const base64Content = await base64Promise;
-
-            // Requirement 3: Send POST request with { fileContent: base64 }
             const response = await api.post("/kleverapi/quick-order/upload-csv", {
                 fileContent: base64Content,
                 fileName: file.name
             });
 
-            // Requirement 4 & 5: Parse response and Merge items
             const results = Array.isArray(response) ? response : (response.items || []);
 
             if (results.length > 0) {
@@ -348,7 +323,6 @@ export default function QuickOrderPage() {
                 results.forEach((p: any) => {
                     const sku = p.sku || p.product_sku;
                     if (sku) {
-                        // Merge with existing items if already present
                         const existingIndex = newItemsList.findIndex(i => i.sku === sku);
                         if (existingIndex > -1) {
                             newItemsList[existingIndex].qty += Number(p.qty || 1);
@@ -366,7 +340,7 @@ export default function QuickOrderPage() {
 
                 setItems(newItemsList);
                 setFile(null);
-                toast.success(`${t("quickOrder.successAdded")} ${results.length} ${t("quickOrder.itemsFrom")} ${file.name}`, { id: toastId });
+                toast.success(t("quickOrder.addedFromFile").replace("{0}", String(results.length)).replace("{1}", file.name), { id: toastId });
             } else {
                 toast.error(response.message || t("quickOrder.noValidProducts"), { id: toastId });
             }
@@ -398,8 +372,6 @@ export default function QuickOrderPage() {
             router.push(lp("/cart"));
         } catch (err: any) {
             console.error("Add to cart partial error:", err);
-            // Even if there's an error (like one SKU being out of stock), 
-            // we refetch to show what WAS added and redirect to cart as requested.
             await refetchCart();
             toast.error(err || t("quickOrder.someFailed"), { id: toastId });
             router.push(lp("/cart"));
@@ -438,7 +410,7 @@ export default function QuickOrderPage() {
     const handleClearAll = async () => {
         if (items.length === 0) return;
         setLoading(true);
-        const toastId = toast.loading(t("quickOrder.clearingList"));
+        const toastId = toast.loading(t("quickOrder.clearing"));
         try {
             const response = await api.delete("/kleverapi/quick-order/clear");
             if (response.success || response.message?.toLowerCase().includes("already empty")) {
@@ -456,9 +428,10 @@ export default function QuickOrderPage() {
     };
 
     const totalAmount = items.reduce((sum, item) => sum + (item.price * item.qty), 0);
+    const ArrowIcon = isRtl ? ArrowLeft : ArrowRight;
 
     return (
-        <div className="min-h-screen bg-white pb-32">
+        <div className="min-h-screen bg-white pb-32" dir={isRtl ? "rtl" : "ltr"}>
             <div className="max-w-[1400px] mx-auto px-4 lg:px-14">
 
                 {/* Top Header */}
@@ -467,14 +440,12 @@ export default function QuickOrderPage() {
                     <div className="flex gap-3 md:gap-4 w-full sm:w-auto">
                         <button
                             onClick={handleAddToCart}
-                            // disabled={loading}
                             className="flex-1 sm:flex-none h-[38px] md:h-[40px] px-4 md:px-6 bg-black text-white text-[10px] md:text-[11px] font-black uppercase tracking-[0.15em] rounded-sm hover:translate-y-[-2px] active:scale-95 transition-all disabled:opacity-30 disabled:cursor-not-allowed shadow-[0_4px_14px_rgba(0,0,0,0.1)]"
                         >
                             {t("quickOrder.addToCart")}
                         </button>
                         <button
                             onClick={handleCheckout}
-                            // disabled={loading}
                             className="flex-1 sm:flex-none h-[38px] md:h-[40px] px-4 md:px-6 bg-black text-white text-[10px] md:text-[11px] font-black uppercase tracking-[0.15em] rounded-sm hover:translate-y-[-2px] active:scale-95 transition-all shadow-[0_4px_14px_rgba(0,0,0,0.1)]"
                         >
                             {t("quickOrder.checkout")}
@@ -487,17 +458,16 @@ export default function QuickOrderPage() {
                     <div className="relative group">
                         <input
                             type="text"
-                            placeholder={t("quickOrder.instantSearch")}
+                            placeholder={t("m.search")}
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            className="w-full h-12 md:h-14 pl-4 md:pl-6 pr-12 md:pr-14 bg-white border border-gray-100 shadow-[0_2px_12px_rgba(0,0,0,0.04)] rounded-sm text-[13px] md:text-[14px] font-medium focus:outline-none focus:border-yellow-400 focus:shadow-lg transition-all placeholder:text-gray-300"
+                            className="w-full h-12 md:h-14 ltr:pl-4 ltr:md:pl-6 ltr:pr-12 ltr:md:pr-14 rtl:pr-4 rtl:md:pr-6 rtl:pl-12 rtl:md:pl-14 bg-white border border-gray-100 shadow-[0_2px_12px_rgba(0,0,0,0.04)] rounded-sm text-[13px] md:text-[14px] font-medium focus:outline-none focus:border-yellow-400 focus:shadow-lg transition-all placeholder:text-gray-300"
                         />
-                        <div className="absolute right-6 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-yellow-400 transition-colors">
+                        <div className="absolute ltr:right-6 rtl:left-6 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-yellow-400 transition-colors">
                             {isSearching ? <Loader2 size={24} className="animate-spin" /> : <Search size={20} />}
                         </div>
                     </div>
 
-                    {/* Instant Search Dropdown */}
                     {/* Search Results Dropdown */}
                     {searchResults.length > 0 && (
                         <div className="absolute top-[calc(100%+8px)] left-0 right-0 bg-white border border-gray-100 rounded-sm shadow-2xl z-[100] max-h-[480px] overflow-y-auto animate-in fade-in slide-in-from-top-2 duration-200">
@@ -510,7 +480,7 @@ export default function QuickOrderPage() {
                                     <div className="w-14 h-14 bg-white border border-gray-50 rounded flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform">
                                         {p.image_url ? <img src={p.image_url} alt={p.sku} className="w-12 h-12 object-contain" /> : <div className="w-12 h-12 bg-gray-50 rounded" />}
                                     </div>
-                                    <div className="ml-5 flex-1 min-w-0">
+                                    <div className="ltr:ml-5 rtl:mr-5 flex-1 min-w-0">
                                         <div className="flex items-center gap-2">
                                             <p className="text-[13px] font-black text-black uppercase tracking-tight">{p.sku}</p>
                                             {p.item_code && p.item_code !== p.sku && (
@@ -522,7 +492,7 @@ export default function QuickOrderPage() {
                                         </div>
                                         <p className="text-[11px] text-gray-400 font-medium truncate">{p.name}</p>
                                     </div>
-                                    <div className="ml-6 flex-shrink-0">
+                                    <div className="ltr:ml-6 rtl:mr-6 flex-shrink-0">
                                         <span className="w-8 h-8 bg-[#f5b21a] text-black rounded flex items-center justify-center font-black text-[16px] hover:bg-black hover:text-white transition-all shadow-sm active:scale-90">+</span>
                                     </div>
                                 </div>
@@ -538,17 +508,17 @@ export default function QuickOrderPage() {
                     )}
                 </div>
 
-                {/* Order Table - Desktop */}
+                {/* Order Table */}
                 <div className="bg-white border border-gray-100 rounded-sm shadow-[0_2px_15px_rgba(0,0,0,0.03)] overflow-hidden mb-20 flex flex-col">
                     {/* Desktop Table */}
                     <div className="hidden md:block overflow-y-auto max-h-[600px] custom-scrollbar border-b border-gray-50">
-                        <table className="w-full text-left border-collapse">
+                        <table className="w-full border-collapse">
                             <thead className="sticky top-0 z-20 bg-white">
                                 <tr className="border-b-2 border-gray-50 bg-white">
-                                    <th className="px-6 lg:px-8 py-4 text-[12px] font-black text-black uppercase tracking-[0.2em] w-[45%]">{t("quickOrder.items")}</th>
+                                    <th className="px-6 lg:px-8 py-4 text-[12px] font-black text-black uppercase tracking-[0.2em] w-[45%] ltr:text-left rtl:text-right">{t("quickOrder.items")}</th>
                                     <th className="px-4 lg:px-6 py-4 text-[12px] font-black text-black uppercase tracking-[0.2em] text-center">{t("quickOrder.skus")}</th>
                                     <th className="px-4 lg:px-6 py-4 text-[12px] font-black text-black uppercase tracking-[0.2em] text-center">{t("quickOrder.qty")}</th>
-                                    <th className="px-6 lg:px-8 py-4 text-[12px] font-black text-black uppercase tracking-[0.2em] text-right">{t("quickOrder.itemsTotal")}</th>
+                                    <th className="px-6 lg:px-8 py-4 text-[12px] font-black text-black uppercase tracking-[0.2em] ltr:text-right rtl:text-left">{t("quickOrder.itemsTotal")}</th>
                                     <th className="px-4 lg:px-6 py-4 text-[12px] font-black text-black uppercase tracking-[0.2em] text-center">{t("quickOrder.action")}</th>
                                 </tr>
                             </thead>
@@ -571,7 +541,7 @@ export default function QuickOrderPage() {
                                         <tr key={item.sku} className="group hover:bg-gray-50/50 transition-colors">
                                             <td className="px-6 lg:px-8 py-4">
                                                 <div className="flex items-center">
-                                                    <div className="w-10 h-10 bg-white rounded border border-gray-50 flex items-center justify-center mr-4 flex-shrink-0 group-hover:shadow-md transition-shadow">
+                                                    <div className="w-10 h-10 bg-white rounded border border-gray-50 flex items-center justify-center ltr:mr-4 rtl:ml-4 flex-shrink-0 group-hover:shadow-md transition-shadow">
                                                         {item.image ? <img src={item.image} alt={item.sku} className="w-8 h-8 object-contain" /> : <Loader2 size={12} className="text-gray-100" />}
                                                     </div>
                                                     <span className="text-[10px] font-bold text-gray-700 leading-snug line-clamp-2">{item.name}</span>
@@ -591,7 +561,7 @@ export default function QuickOrderPage() {
                                                     />
                                                 </div>
                                             </td>
-                                            <td className="px-6 lg:px-8 py-4 text-right">
+                                            <td className="px-6 lg:px-8 py-4 ltr:text-right rtl:text-left">
                                                 <span className="text-[10px] font-black text-black">
                                                     <Price amount={item.price * item.qty} />
                                                 </span>
@@ -600,7 +570,7 @@ export default function QuickOrderPage() {
                                                 <button
                                                     onClick={() => removeOrderItem(item.sku)}
                                                     className="w-10 h-10 mx-auto rounded-full flex items-center justify-center text-gray-400 hover:text-red-500 hover:bg-white hover:shadow-md hover:-translate-y-1 transition-all duration-300 active:scale-95 focus:outline-none focus:ring-2 focus:ring-red-100"
-                                                    title={t("quickOrder.removeItem")}
+                                                    title={t("m.remove-item")}
                                                 >
                                                     <Trash2 size={18} />
                                                 </button>
@@ -654,7 +624,7 @@ export default function QuickOrderPage() {
                                         <button
                                             onClick={() => removeOrderItem(item.sku)}
                                             className="w-10 h-10 rounded-full flex items-center justify-center text-gray-400 hover:text-red-500 hover:bg-white hover:shadow-md hover:-translate-y-1 transition-all duration-300 active:scale-95 focus:outline-none focus:ring-2 focus:ring-red-100"
-                                            title={t("quickOrder.removeItem")}
+                                            title={t("m.remove-item")}
                                         >
                                             <Trash2 size={18} />
                                         </button>
@@ -675,14 +645,12 @@ export default function QuickOrderPage() {
                         <div className="flex items-center gap-3 md:gap-4 w-full md:w-auto">
                             <button
                                 onClick={handleAddToCart}
-                                // disabled={loading || items.length === 0}
                                 className="flex-1 md:flex-none h-[44px] md:h-[48px] px-6 md:px-10 bg-white border-2 border-black text-black text-[11px] md:text-[12px] font-black uppercase tracking-[0.15em] rounded-sm hover:bg-black hover:text-white transition-all disabled:opacity-20 shadow-sm whitespace-nowrap"
                             >
                                 {t("quickOrder.addToCart")}
                             </button>
                             <button
                                 onClick={handleCheckout}
-                                // disabled={loading || items.length === 0}
                                 className="flex-1 md:flex-none h-[44px] md:h-[48px] px-6 md:px-12 bg-black text-white text-[11px] md:text-[12px] font-black uppercase tracking-[0.2em] rounded-sm hover:-translate-y-1 active:scale-95 transition-all shadow-xl whitespace-nowrap"
                             >
                                 {t("quickOrder.checkout")}
@@ -692,7 +660,7 @@ export default function QuickOrderPage() {
                 </div>
 
                 {/* Section: ADD MULTIPLE PRODUCTS */}
-                <h2 className="text-[20px] md:text-[28px] font-black text-black uppercase tracking-tight mb-6 md:mb-10 border-l-[6px] border-yellow-400 pl-4 md:pl-6">{t("quickOrder.addMultiple")}</h2>
+                <h2 className={`text-[20px] md:text-[28px] font-black text-black uppercase tracking-tight mb-6 md:mb-10 ${isRtl ? 'border-r-[6px] border-yellow-400 pr-4 md:pr-6' : 'border-l-[6px] border-yellow-400 pl-4 md:pl-6'}`}>{t("quickOrder.addMultiple")}</h2>
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-10 mb-12 md:mb-20">
 
                     {/* Box: Enter multiple SKUs */}
@@ -702,10 +670,10 @@ export default function QuickOrderPage() {
                             <h3 className="text-[14px] font-black text-black uppercase tracking-widest">{t("quickOrder.enterSkus")}</h3>
                         </div>
                         <textarea
-                            placeholder={t("quickOrder.skuPlaceholder")}
+                            placeholder={t("m.enter-sku-or-product-name")}
                             value={skuText}
                             onChange={(e) => setSkuText(e.target.value)}
-                            className="w-full h-48 bg-gray-50/30 border border-gray-100 rounded-sm p-6 text-[13px] font-medium focus:outline-none focus:border-yellow-400 focus:bg-white transition-all mb-6 resize-none placeholder:text-gray-200"
+                            className="w-full h-48 bg-gray-50/30 border border-gray-100 rounded-sm p-6 text-[13px] font-medium focus:outline-none focus:border-yellow-400 focus:bg-white transition-all mb-6 resize-none placeholder:text-gray-200 ltr:text-left rtl:text-right"
                         />
                         <div className="flex flex-col sm:flex-row justify-between items-center gap-6 mt-auto">
                             <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest bg-gray-100 px-3 py-1.5 rounded-full">{t("quickOrder.formatHint")}</p>
@@ -715,7 +683,7 @@ export default function QuickOrderPage() {
                                 className="w-full sm:w-auto h-[40px] px-10 bg-black text-white text-[11px] font-black uppercase tracking-[0.15em] rounded-sm hover:translate-x-1 transition-all disabled:opacity-50 flex items-center justify-center gap-2 group/btn"
                             >
                                 {loading ? <Loader2 size={16} className="animate-spin" /> : t("quickOrder.addToList")}
-                                {!loading && <ArrowRight size={14} className="group-hover/btn:translate-x-1 transition-transform" />}
+                                {!loading && <ArrowIcon size={14} className="group-hover/btn:translate-x-1 transition-transform" />}
                             </button>
                         </div>
                     </div>
@@ -775,7 +743,7 @@ export default function QuickOrderPage() {
                     </div>
                 </div>
 
-                <div className="flex justify-center md:justify-end mb-12 md:mb-20">
+                <div className={`flex justify-center ${isRtl ? 'md:justify-start' : 'md:justify-end'} mb-12 md:mb-20`}>
                     <button
                         onClick={handleClearAll}
                         disabled={loading}
@@ -784,7 +752,7 @@ export default function QuickOrderPage() {
                         <div className="w-12 h-12 border-2 border-black rounded-full flex items-center justify-center group-hover:border-red-600 group-hover:shadow-lg transition-all duration-300">
                             {loading ? <Loader2 size={20} className="animate-spin text-gray-300" /> : <X size={20} />}
                         </div>
-                        {loading ? t("quickOrder.clearing") : t("quickOrder.clearAllList")}
+                        {loading ? t("common.loading") : t("quickOrder.clearAll")}
                     </button>
                 </div>
 

@@ -3,13 +3,10 @@ import { authOptions } from "@/lib/auth/auth-options";
 import { NextRequest, NextResponse } from "next/server";
 import { getBaseUrl } from "@/lib/api/magento-url";
 
-export async function GET(request: NextRequest) {
-    let token: string | null = null;
+import { getRequestToken } from "@/lib/api/auth-helper";
 
-    const authHeader = request.headers.get("authorization");
-    if (authHeader && authHeader.startsWith("Bearer ")) {
-        token = authHeader.substring(7).replace(/['"]/g, "").trim();
-    }
+export async function GET(request: NextRequest) {
+    const token = await getRequestToken(request);
     // Optional token - if found use it, else proceed as guest
 
     const { searchParams } = new URL(request.url);

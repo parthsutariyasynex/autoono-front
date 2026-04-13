@@ -245,12 +245,12 @@ const MultiShippingReviewPage: React.FC = () => {
             <div className="max-w-[1240px] mx-auto pt-6 md:pt-10 px-3 sm:px-4">
                 <h1 className="text-[20px] sm:text-[24px] md:text-[28px] font-black text-black text-center uppercase mb-3 md:mb-4 tracking-tight">
                     {t("multi.reviewOrder")}
-</h1>
+                </h1>
 
                 {/* Billing Information Section */}
                 <h3 className="text-[14px] sm:text-[15px] md:text-[17px] font-black text-black text-center mb-5 md:mb-8 uppercase tracking-tight">
                     {t("multi.billingInformation")}
-</h3>
+                </h3>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8 mb-8 md:mb-12">
                     {/* Billing Address */}
@@ -258,7 +258,7 @@ const MultiShippingReviewPage: React.FC = () => {
                         <div className="bg-[#e2e2e2] py-3 md:py-3.5 px-4 md:px-6 text-center">
                             <h2 className="text-[11px] font-[900] text-black uppercase tracking-widest">
                                 {t("multi.billingAddress")}
-</h2>
+                            </h2>
                         </div>
                         <div className="p-5 md:p-8 text-[13px] md:text-[14px] text-black leading-[1.7]">
                             {billingAddress ? (
@@ -279,12 +279,12 @@ const MultiShippingReviewPage: React.FC = () => {
                         <div className="bg-[#e2e2e2] py-3 md:py-3.5 px-4 md:px-6 text-center">
                             <h2 className="text-[11px] font-[900] text-black uppercase tracking-widest">
                                 {t("multi.paymentMethod")}
-</h2>
+                            </h2>
                         </div>
                         <div className="p-5 md:p-8 space-y-4 md:space-y-6">
                             <div className="text-center">
                                 <p className="text-[13px] md:text-[14px] font-black text-black uppercase tracking-tight">
-                                    {paymentMethod?.title || t("multi.creditAccount")}
+                                    {paymentMethod?.title || t("m.credit-account")}
                                 </p>
                             </div>
 
@@ -317,7 +317,7 @@ const MultiShippingReviewPage: React.FC = () => {
                 {/* Shipping Information Header */}
                 <h3 className="text-[17px] sm:text-[18px] md:text-[20px] font-black text-black text-center mb-4 uppercase tracking-tighter">
                     {t("multi.shippingInformation")}
-</h3>
+                </h3>
 
                 {/* Groups iteration */}
                 {groups.map((group, index) => {
@@ -451,7 +451,7 @@ const MultiShippingReviewPage: React.FC = () => {
                         className="w-full sm:w-auto bg-black text-white px-6 md:px-10 py-3.5 md:py-4 text-[11px] font-black uppercase tracking-[0.15em] hover:opacity-90 transition-opacity text-center"
                     >
                         {t("multi.backToBilling")}
-</button>
+                    </button>
 
                     <button
                         onClick={handlePlaceOrder}
@@ -460,13 +460,13 @@ const MultiShippingReviewPage: React.FC = () => {
                     >
                         {isPlacingOrder && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
                         {t("multi.placeOrder")}
-</button>
+                    </button>
                 </div>
             </div>
 
             <style jsx>{`
                 .font-sans {
-                    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+                    font-family: var(--font-rubik), sans-serif;
                 }
             `}</style>
         </div>

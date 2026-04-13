@@ -246,7 +246,7 @@ const MultiShippingBillingPage: React.FC = () => {
 
             <style jsx>{`
                 .font-sans {
-                    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+                    font-family: var(--font-rubik), sans-serif;
                 }
             `}</style>
         </div>

@@ -64,35 +64,43 @@ export default function ProtectedLayout({ children }: ProtectedLayoutProps) {
   }, [session, status, dispatch, isPublicPage, wasAuthenticated]);
 
   const hideFooter = ['/login', '/register', '/forgot-password'].some(p => pathnameWithoutLocale.startsWith(p));
-  const showContent = isPublicPage || isAuthenticated;
+  const isLoading = status === 'loading';
 
-  // Always render children in the DOM to preserve layout dimensions.
+  // Redirect unauthenticated users to login on protected pages
+  useEffect(() => {
+    if (status === 'unauthenticated' && !isPublicPage) {
+      const loginUrl = `/${locale}/login?callbackUrl=${encodeURIComponent(pathname)}`;
+      window.location.href = loginUrl;
+    }
+  }, [status, isPublicPage, locale, pathname]);
+
+  // Show loading overlay while auth is checking on protected pages
+  if (isLoading && !isPublicPage) {
+    return (
+      <div className="flex flex-col min-h-screen bg-white">
+        <Navbar />
+        <div className="h-[56px] sm:h-[64px] lg:h-[108px] flex-shrink-0" aria-hidden="true" />
+        <div className="flex-1 flex items-center justify-center">
+          <div className="h-10 w-10 animate-spin rounded-full border-4 border-gray-100 border-t-[#f5a623]"></div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col min-h-screen bg-white">
-      {/* 🧭 Sticky Navbar - Consolidated with internal Navbar sticky handling */}
       <Navbar />
 
-      {/* 📏 Header Spacer - Fixed header means we need a spacer to prevent content overlap */}
       <div className="h-[56px] sm:h-[64px] lg:h-[108px] flex-shrink-0" aria-hidden="true" />
 
-      {/* 🚀 Main Content Wrapper */}
       <main className="flex-1 flex flex-col w-full relative">
         <div className="flex-1 flex flex-col w-full min-h-0">
           {children}
         </div>
 
-        {/* 🧱 Footer */}
         {!hideFooter && <Footer />}
-
-        {/* ⏲ Global Loading State (Fixed overlay only when not ready) */}
-        {!showContent && (
-          <div className="fixed inset-0 flex items-center justify-center bg-white z-[70] transition-opacity duration-300">
-            <div className="h-10 w-10 animate-spin rounded-full border-4 border-gray-100 border-t-[#f5a623]"></div>
-          </div>
-        )}
       </main>
 
-      {/* 🔝 Scroll To Top */}
       <ScrollToTop />
     </div>
   );

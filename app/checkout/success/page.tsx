@@ -57,7 +57,7 @@ const CheckoutSuccessContent = () => {
                 localStorage.removeItem('last_order_summary');
             } catch (error: any) {
                 console.error("Success Data Error:", error);
-                if (!orderData) toast.error("Failed to load order details");
+                if (!orderData) toast.error(t("orderDetails.failedLoadDetails"));
             } finally {
                 setIsLoading(false);
             }
@@ -92,7 +92,7 @@ const CheckoutSuccessContent = () => {
                             {t("checkoutSuccess.orderNumber")} <span className="font-bold">{orderData?.order_increment_id || "..."}</span>.
                         </p>
                         <p className="text-[13px] sm:text-[14px] md:text-[16px] text-[#555] font-medium max-w-lg mx-auto leading-relaxed">
-                            We'll email you an order confirmation with details and tracking info.
+                            {t("checkoutSuccess.orderConfirmation")}
                         </p>
                     </div>
 

@@ -75,9 +75,6 @@ export default function MyForecastPage() {
         }
     }, [status, token, dispatch, router, currentPage, pageSize]);
 
-    /**
-     * Proper data fetching from the proxy API
-     */
     const [downloadingId, setDownloadingId] = useState<string | number | null>(null);
 
     const pullForecasts = async (page: number, size: number) => {
@@ -89,11 +86,8 @@ export default function MyForecastPage() {
 
             if (response.ok) {
                 const data: ForecastResponse = await response.json();
-
-                // Set the items, handling both direct array responses or collection objects
                 const items = data.items || (Array.isArray(data) ? data : []);
                 const total = data.total_count || items.length;
-
                 setForecasts(items);
                 setTotalItems(total);
             }
@@ -104,9 +98,6 @@ export default function MyForecastPage() {
         }
     };
 
-    /**
-     * File download handler
-     */
     const handleDownload = async (file: ForecastFile) => {
         const id = file.forecast_id || file.entity_id || file.id || file.file_id;
         const name = file.file_name || "forecast_file";
@@ -132,7 +123,7 @@ export default function MyForecastPage() {
 
             if (!response.ok) {
                 const errData = await response.json().catch(() => ({}));
-                throw new Error(errData.message || t("forecast.downloadFailed"));
+                throw new Error(errData.message || t("forecast.downloadError"));
             }
 
             const blob = await response.blob();
@@ -143,8 +134,6 @@ export default function MyForecastPage() {
             a.download = name;
             document.body.appendChild(a);
             a.click();
-
-            // Cleanup
             document.body.removeChild(a);
             window.URL.revokeObjectURL(url);
         } catch (err: any) {
@@ -155,9 +144,6 @@ export default function MyForecastPage() {
         }
     };
 
-    /**
-     * File upload handler
-     */
     const handleUpload = async () => {
         if (!selectedFile) {
             alert(t("forecast.selectFile"));
@@ -196,31 +182,27 @@ export default function MyForecastPage() {
         }
     };
 
-    /**
-     * Finds and formats the 'proper' date from the API object.
-     * Converts "2026-03-24 13:14:49" to "March 24, 2026"
-     */
     const getProperDate = (file: any) => {
         const rawDate = file.uploaded_date || file.created_at || file.uploaded_at ||
             file.date || file.upload_date || file.updated_at ||
             file.creation_time || file.createdDate;
 
+        const locale = isRtl ? 'ar-SA' : 'en-US';
         const options: Intl.DateTimeFormatOptions = { month: 'long', day: 'numeric', year: 'numeric' };
 
         if (rawDate) {
             try {
-                const parsedDate = new Date(rawDate.replace(' ', 'T')); // Handle space between date and time
+                const parsedDate = new Date(rawDate.replace(' ', 'T'));
                 if (!isNaN(parsedDate.getTime())) {
-                    return parsedDate.toLocaleDateString(isRtl ? 'ar-SA' : 'en-US', options);
+                    return parsedDate.toLocaleDateString(locale, options);
                 }
-                return rawDate; // Fallback to raw if parsing fails but exists
+                return rawDate;
             } catch (e) {
                 return rawDate;
             }
         }
 
-        // Final fallback to today
-        return new Date().toLocaleDateString(isRtl ? 'ar-SA' : 'en-US', options);
+        return new Date().toLocaleDateString(locale, options);
     };
 
     if (loading || loadingForecasts) {
@@ -239,7 +221,7 @@ export default function MyForecastPage() {
         <div className="flex flex-col lg:flex-row min-h-screen">
             <Sidebar />
 
-            <main dir={isRtl ? "rtl" : "ltr"} className="flex-1 p-4 md:p-8 bg-[#f9f9f9] min-h-screen">
+            <main className="flex-1 p-4 md:p-8 bg-[#f9f9f9] min-h-screen" dir={isRtl ? "rtl" : "ltr"}>
                 {/* Header with Refresh */}
                 <div className="flex justify-between items-center mb-6 md:mb-8">
                     <h1 className="text-[18px] md:text-[22px] font-black text-black uppercase tracking-tight">
@@ -285,13 +267,13 @@ export default function MyForecastPage() {
                             )}
                             <div className="text-center">
                                 <span className="text-[11px] md:text-[14px] font-medium text-gray-600 leading-relaxed">
-                                    {t("forecast.allowedFiles")}
+                                    {t("forecast.allowedFileTypes")}
                                 </span>
                             </div>
                         </div>
                     </div>
 
-                    <div className="bg-white px-4 md:px-8 pb-4 md:pb-8 flex justify-center md:justify-end">
+                    <div className={`bg-white px-4 md:px-8 pb-4 md:pb-8 flex justify-center ${isRtl ? 'md:justify-start' : 'md:justify-end'}`}>
                         <button
                             onClick={handleUpload}
                             disabled={uploading}
@@ -304,8 +286,8 @@ export default function MyForecastPage() {
 
                 {/* Desktop Table Header */}
                 <div className="hidden sm:grid grid-cols-2 bg-[#fcfcfc] border border-gray-100 py-3 md:py-4 mb-2">
-                    <span className="text-[12px] md:text-[13px] font-black text-black px-4 md:px-6">{t("forecast.fileName")}</span>
-                    <span className="text-[12px] md:text-[13px] font-black text-black text-center border-l border-gray-100">{t("forecast.uploadedDate")}</span>
+                    <span className="text-[12px] md:text-[13px] font-black text-black px-4 md:px-6 ltr:text-left rtl:text-right">{t("forecast.fileName")}</span>
+                    <span className={`text-[12px] md:text-[13px] font-black text-black text-center ${isRtl ? 'border-r' : 'border-l'} border-gray-100`}>{t("forecast.uploadedDate")}</span>
                 </div>
 
                 {/* Mobile Header */}
@@ -327,7 +309,7 @@ export default function MyForecastPage() {
                                             disabled={downloadingId !== null && downloadingId === fileId}
                                             className="text-[13px] text-gray-700 font-medium group-hover:text-[#f4b400] hover:underline ltr:text-left rtl:text-right disabled:opacity-50 break-all"
                                         >
-                                            {file.file_name || file.filename || file.name || t("forecast.noName")}
+                                            {file.file_name || file.filename || file.name || t("m.name")}
                                         </button>
                                         {downloadingId !== null && downloadingId === fileId && (
                                             <div className="animate-spin h-3 w-3 border-b-2 border-[#f4b400] rounded-full flex-shrink-0 mt-1"></div>
@@ -345,13 +327,13 @@ export default function MyForecastPage() {
                                             disabled={downloadingId !== null && downloadingId === fileId}
                                             className="text-[13px] text-gray-700 font-medium group-hover:text-[#f4b400] hover:underline ltr:text-left rtl:text-right disabled:opacity-50"
                                         >
-                                            {file.file_name || file.filename || file.name || t("forecast.noName")}
+                                            {file.file_name || file.filename || file.name || t("m.name")}
                                         </button>
                                         {downloadingId !== null && downloadingId === fileId && (
                                             <div className="animate-spin h-3 w-3 border-b-2 border-[#f4b400] rounded-full"></div>
                                         )}
                                     </div>
-                                    <span className="text-[13px] text-gray-700 font-medium text-center border-l border-gray-50">
+                                    <span className={`text-[13px] text-gray-700 font-medium text-center ${isRtl ? 'border-r' : 'border-l'} border-gray-50`}>
                                         {getProperDate(file)}
                                     </span>
                                 </div>

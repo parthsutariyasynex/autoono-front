@@ -34,9 +34,10 @@ type AddressCardProps = {
   onEdit?: (id: number | string) => void;
   buttonLabel?: string;
   t: (key: string) => string;
+  isRtl: boolean;
 };
 
-function AddressCard({ title, address, onEdit, buttonLabel, t }: AddressCardProps) {
+function AddressCard({ title, address, onEdit, buttonLabel, t, isRtl }: AddressCardProps) {
   return (
     <div className="bg-white border border-[#ebebeb] rounded-md shadow-sm overflow-hidden flex flex-col h-full font-rubik">
       <div className="bg-gray-50 px-4 py-3 border-b border-[#ebebeb] uppercase text-xs font-black text-black tracking-tight ltr:text-left rtl:text-right">
@@ -51,12 +52,12 @@ function AddressCard({ title, address, onEdit, buttonLabel, t }: AddressCardProp
             {address.company && <p className="font-medium">{address.company}</p>}
             <p className="font-medium">{address.street?.[0] || address.street}</p>
             <p className="font-medium">
-              {address.city}, {address.postcode}
+              {address.city}{isRtl ? "،" : ","} {address.postcode}
             </p>
             <p className="font-medium">{address.country_id === 'SA' ? t("addressBook.saudiArabia") : address.country_id}</p>
-            <p className="pt-2 text-black font-black">{t("addressBook.phone")}: <span className="text-gray-600 font-medium hover:text-yellow-500 cursor-pointer transition-colors duration-200" dir="ltr">
-              {address.telephone}
-            </span></p>
+            <p className="pt-2 text-black font-black">
+              {t("addressBook.phone")}: <span className="text-gray-600 font-medium hover:text-yellow-500 cursor-pointer transition-colors duration-200" dir="ltr">{address.telephone}</span>
+            </p>
             {buttonLabel && (
               <div className="pt-6">
                 <button
@@ -173,6 +174,7 @@ export default function Addresses() {
           onEdit={(id) => handleAddressAction("edit", id)}
           buttonLabel={t("addressBook.editBillingAddress")}
           t={t}
+          isRtl={isRtl}
         />
         <AddressCard
           title={t("addressBook.defaultShippingAddress")}
@@ -180,6 +182,7 @@ export default function Addresses() {
           onEdit={(id) => handleAddressAction("edit", id)}
           buttonLabel={t("addressBook.editShippingAddress")}
           t={t}
+          isRtl={isRtl}
         />
       </div>
 
@@ -240,8 +243,9 @@ export default function Addresses() {
         {
           filteredAddresses.length > 0 && (
             <div className="px-6 py-6 bg-gray-50/50 flex flex-col md:flex-row items-center justify-between border-t border-[#ebebeb]">
+              {/* Item count */}
               <div className="text-[11px] text-gray-400 font-bold uppercase tracking-widest">
-                {t("addressBook.items")} {(currentPage - 1) * pageSize + 1} {t("addressBook.to")} {Math.min(currentPage * pageSize, filteredAddresses.length)} {t("addressBook.of")} {filteredAddresses.length} {t("addressBook.total")}
+                {t("addressBook.items")} {(currentPage - 1) * pageSize + 1} - {Math.min(currentPage * pageSize, filteredAddresses.length)} {t("addressBook.of")} {filteredAddresses.length} {t("addressBook.total")}
               </div>
 
               <div className="flex items-center gap-1.5 my-4 md:my-0">
@@ -259,15 +263,16 @@ export default function Addresses() {
                 ))}
               </div>
 
+              {/* Show per page */}
               <div className="flex items-center gap-2 text-[11px] text-gray-400 font-bold uppercase tracking-wider">
                 <span>{t("addressBook.show")}</span>
-                <PortalDropdown value={String(pageSize)} onChange={() => {}} options={[{label:"10",value:"10"},{label:"20",value:"20"},{label:"50",value:"50"}]} minWidth={60} />
+                <PortalDropdown value={String(pageSize)} onChange={() => { }} options={[{ label: "10", value: "10" }, { label: "20", value: "20" }, { label: "50", value: "50" }]} minWidth={60} />
                 <span>{t("addressBook.perPage")}</span>
               </div>
             </div>
           )
         }
-      </div >
-    </div >
+      </div>
+    </div>
   );
 }

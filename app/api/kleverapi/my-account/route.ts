@@ -1,48 +1,46 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { getBaseUrl } from '@/lib/api/magento-url';
+import { getRequestToken } from '@/lib/api/auth-helper';
 
-
-
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
     try {
         const baseUrl = getBaseUrl(request);
-        // 1. Get the customer token from the incoming request headers
-        const authHeader = request.headers.get('Authorization');
+        const token = await getRequestToken(request);
 
-        if (!authHeader) {
+        if (!token) {
             return NextResponse.json(
-                { message: 'Authentication required. Authorization header is missing.' },
+                { message: 'Authentication required.' },
                 { status: 401 }
             );
         }
 
-        // Use a more robust normalization to match the expected https://altalayi-demo.btire.com/rest/V1/kleverapi format
-        // Removing the localized /en/rest/en/ prefixes
-        
         const magentoUrl = `${baseUrl}/my-account`;
-
         console.log(`[API ROUTE] Fetching Customer Info from: ${magentoUrl}`);
 
-        // 3. Forward the request to the Magento REST API
         const response = await fetch(magentoUrl, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': authHeader,
+                'Authorization': `Bearer ${token}`,
                 'platform': 'web',
             },
-            // Disable caching for real-time account data
             cache: 'no-store',
         });
 
-        const data = await response.json();
+        const contentType = response.headers.get("content-type");
+        let data;
+        if (contentType && contentType.includes("application/json")) {
+            data = await response.json();
+        } else {
+            data = { message: await response.text() };
+        }
 
         if (!response.ok) {
             console.error(`[API ROUTE ERROR] Magento returned ${response.status}:`, data);
+            return NextResponse.json(data, { status: response.status });
         }
 
-        // 4. Return the data back to the frontend (Redux)
-        return NextResponse.json(data, { status: response.status });
+        return NextResponse.json(data);
 
     } catch (error: any) {
         console.error('[API ROUTE ERROR] My Account GET Catch:', error);
@@ -67,7 +65,7 @@ export async function POST(request: Request) {
         }
 
         // Use normalized URL to match standard REST path
-        
+
         const magentoUrl = `${baseUrl}/my-account`;
         console.log(`[API ROUTE] Updating Customer Info at: ${magentoUrl}`);
 

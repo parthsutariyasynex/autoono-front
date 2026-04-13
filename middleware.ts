@@ -13,27 +13,14 @@ function isValidLocale(value: string): value is Locale {
 
 // ─── Route config ───────────────────────────────────────────────────────────
 const PUBLIC_ROUTES = ["/login", "/register", "/forgot-password", "/about", "/locations", "/guides", "/catalogue"];
-const SKIP_PATHS = ["/api", "/_next", "/favicon.ico", "/logo", "/images"];
+const SKIP_PATHS = ["/api", "/_next", "/favicon.ico", "/logo", "/images", "/locales"];
 
-/**
- * Middleware handles two concerns:
- *
- * 1. LOCALE — Ensure every page URL has a locale prefix.
- *    /login       → redirect to /en/login
- *    /products    → redirect to /en/products
- *    /            → redirect to /en
- *    /en/login    → works (rewrite to /login)
- *    /ar/login    → works (rewrite to /login)
- *
- * 2. AUTH — Protected routes require a valid token.
- */
 export async function middleware(request: NextRequest) {
     const { pathname } = request.nextUrl;
 
     // ── 1. Skip static assets & API routes ──────────────────────────────
     if (SKIP_PATHS.some((p) => pathname.startsWith(p))) {
         if (pathname.startsWith("/api")) {
-            // Determine locale: prefer client header, then cookie, then default
             const clientLocale = request.headers.get("x-locale");
             const localeCookie = request.cookies.get(LOCALE_COOKIE)?.value;
             const locale = (clientLocale && isValidLocale(clientLocale))
@@ -42,7 +29,6 @@ export async function middleware(request: NextRequest) {
                     ? localeCookie
                     : DEFAULT_LOCALE;
 
-            // Always forward locale via request headers so API route handlers can read it
             const requestHeaders = new Headers(request.headers);
             requestHeaders.set("x-locale", locale);
             return NextResponse.next({
@@ -52,30 +38,24 @@ export async function middleware(request: NextRequest) {
         return NextResponse.next();
     }
 
-    // ── 2. Check if URL already has a locale prefix ─────────────────────
+    // ── 2. URL has locale prefix (/en/..., /ar/...) ─────────────────────
     const segments = pathname.split("/").filter(Boolean);
     const firstSegment = segments[0];
 
     if (firstSegment && isValidLocale(firstSegment)) {
-        // URL has locale → rewrite to the actual page path
         const locale = firstSegment;
         const pathnameWithoutLocale = "/" + segments.slice(1).join("/") || "/";
 
         const url = request.nextUrl.clone();
         url.pathname = pathnameWithoutLocale;
 
-        // Pass locale to Layout via request headers
         const requestHeaders = new Headers(request.headers);
         requestHeaders.set("x-locale", locale);
 
         const response = NextResponse.rewrite(url, {
-            request: {
-                headers: requestHeaders,
-            },
+            request: { headers: requestHeaders },
         });
 
-        // Set locale cookie — use both methods to ensure it persists
-        // response.cookies.set may not work on rewrite responses in some Next.js versions
         response.cookies.set(LOCALE_COOKIE, locale, {
             path: "/",
             maxAge: 60 * 60 * 24 * 365,
@@ -86,11 +66,22 @@ export async function middleware(request: NextRequest) {
             `${LOCALE_COOKIE}=${locale}; Path=/; Max-Age=${60 * 60 * 24 * 365}; SameSite=Lax`
         );
 
-        // Auth check
+        // Root path "/" → redirect to login or products based on auth
+        if (pathnameWithoutLocale === "/") {
+            const isAuthenticated = await checkAuth(request);
+            const redirectUrl = request.nextUrl.clone();
+            redirectUrl.pathname = isAuthenticated
+                ? `/${locale}/products`
+                : `/${locale}/login`;
+            return NextResponse.redirect(redirectUrl);
+        }
+
+        // Public routes — no auth needed
         if (PUBLIC_ROUTES.some((route) => pathnameWithoutLocale.startsWith(route))) {
             return response;
         }
 
+        // Protected routes — require auth
         const isAuthenticated = await checkAuth(request);
         if (!isAuthenticated) {
             const loginUrl = request.nextUrl.clone();
@@ -103,17 +94,15 @@ export async function middleware(request: NextRequest) {
         return response;
     }
 
-    // ── 3. No locale prefix → redirect to /en/... (default locale) ──────
-    //    /login              → /en/login
-    //    /login?mode=password → /en/login?mode=password
-    //    /products?page=2   → /en/products?page=2
-    //    /                  → /en
+    // ── 3. No locale prefix → redirect to /{locale}/... ─────────────────
+    const cookieLocale = request.cookies.get(LOCALE_COOKIE)?.value;
+    const localeToUse = (cookieLocale && isValidLocale(cookieLocale)) ? cookieLocale : DEFAULT_LOCALE;
+
     const url = request.nextUrl.clone();
-    url.pathname = `/${DEFAULT_LOCALE}${pathname === "/" ? "" : pathname}`;
-    // url.search is preserved automatically by clone()
+    url.pathname = `/${localeToUse}${pathname === "/" ? "" : pathname}`;
 
     const response = NextResponse.redirect(url);
-    response.cookies.set(LOCALE_COOKIE, DEFAULT_LOCALE, {
+    response.cookies.set(LOCALE_COOKIE, localeToUse, {
         path: "/",
         maxAge: 60 * 60 * 24 * 365,
         sameSite: "lax",
@@ -129,7 +118,8 @@ async function checkAuth(request: NextRequest): Promise<boolean> {
     try {
         const token = await getToken({
             req: request,
-            secret: process.env.NEXTAUTH_SECRET,
+            secret: process.env.NEXTAUTH_SECRET || "yoursecret",
+            secureCookie: process.env.NODE_ENV === "production",
         });
         if (token?.accessToken && token?.error !== "MagentoTokenExpired") {
             return true;

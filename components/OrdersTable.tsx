@@ -1,7 +1,7 @@
 "use client";
-
 import React from "react";
 import { useTranslation } from "@/hooks/useTranslation";
+import Price from "@/app/components/Price";
 
 export interface Order {
     id: string;
@@ -29,8 +29,8 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders, onViewOrder, onReorde
                 <table className="w-full text-[13px] text-left border-collapse min-w-[700px]">
                     <thead>
                         <tr className="bg-[#f5a623] text-black text-[12px] uppercase font-bold tracking-wide">
-                            <th className="px-2 lg:px-4 py-3 border border-[#e6950f]/30">{t("orders.orderHash")}</th>
-                            <th className="px-2 lg:px-4 py-3 border border-[#e6950f]/30">{t("orders.sapOrderNumber")}</th>
+                            <th className="px-2 lg:px-4 py-3 border border-[#e6950f]/30">{t("orders.orderId")}</th>
+                            <th className="px-2 lg:px-4 py-3 border border-[#e6950f]/30">{t("orders.sapOrder")}</th>
                             <th className="px-2 lg:px-4 py-3 border border-[#e6950f]/30 whitespace-nowrap text-center">{t("orders.date")}</th>
                             <th className="px-2 lg:px-4 py-3 border border-[#e6950f]/30 whitespace-nowrap text-right">{t("orders.grandTotal")}</th>
                             <th className="px-2 lg:px-4 py-3 border border-[#e6950f]/30 text-center">{t("orders.orderedBy")}</th>
@@ -58,14 +58,14 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders, onViewOrder, onReorde
                                         {order.date}
                                     </td>
                                     <td className="px-2 lg:px-4 py-3 border-r border-gray-200 text-gray-800 whitespace-nowrap text-right price currency-riyal">
-                                        {order.grandTotal}
+                                        <Price amount={order.grandTotal} />
                                     </td>
 
                                     <td className="px-2 lg:px-4 py-3 border-r border-gray-200 text-gray-500 text-center">
                                         {order.orderedBy}
                                     </td>
                                     <td className="px-2 lg:px-4 py-3 border-r border-gray-200 text-gray-500 text-center">
-                                        {order.status}
+                                        {t(`data.${order.status}`) !== `data.${order.status}` ? t(`data.${order.status}`) : order.status}
                                     </td>
                                     <td className="px-2 lg:px-4 py-3 whitespace-nowrap text-center">
                                         <div className="flex items-center justify-center gap-3 text-[12px]">
@@ -119,28 +119,28 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders, onViewOrder, onReorde
                             {/* Status badge */}
                             <div>
                                 <span className="inline-block text-[11px] uppercase font-semibold tracking-wide bg-[#f5a623]/15 text-[#b37a00] px-2.5 py-1 rounded-full">
-                                    {order.status}
+                                    {t(`data.${order.status}`) !== `data.${order.status}` ? t(`data.${order.status}`) : order.status}
                                 </span>
                             </div>
 
                             {/* SAP Order Number */}
                             {order.sapOrderNumber && (
                                 <div className="flex justify-between text-[12px]">
-                                    <span className="text-gray-400">SAP Order</span>
+                                    <span className="text-gray-400">{t("orders.sapOrder")}</span>
                                     <span className="text-gray-600">{order.sapOrderNumber}</span>
                                 </div>
                             )}
 
                             {/* Ordered By (Ship To) */}
                             <div className="flex justify-between text-[12px]">
-                                <span className="text-gray-400">Ship To</span>
+                                <span className="text-gray-400">{t("orders.shipTo")}</span>
                                 <span className="text-gray-600">{order.orderedBy}</span>
                             </div>
 
                             {/* Order Total */}
                             <div className="flex justify-between text-[12px]">
-                                <span className="text-gray-400">Order Total</span>
-                                <span className="text-gray-800 font-medium price currency-riyal">{order.grandTotal}</span>
+                                <span className="text-gray-400">{t("orders.orderTotal")}</span>
+                                <span className="text-gray-800 font-medium price currency-riyal"><Price amount={order.grandTotal} /></span>
                             </div>
 
                             {/* Actions */}
@@ -149,21 +149,21 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders, onViewOrder, onReorde
                                     onClick={() => onViewOrder(order.entity_id)}
                                     className="text-[#f5a623] font-medium hover:underline underline-offset-2 transition-colors"
                                 >
-                                    View Order
+                                    {t("orders.viewOrder")}
                                 </button>
                                 <span className="text-gray-300">|</span>
                                 <button
                                     onClick={() => onReorder(order)}
                                     className="text-gray-700 hover:text-[#f5a623] hover:underline underline-offset-2 transition-colors"
                                 >
-                                    Reorder
+                                    {t("orders.reorder")}
                                 </button>
                             </div>
                         </div>
                     ))
                 ) : (
                     <div className="px-4 py-10 text-center text-gray-400 italic">
-                        We couldn&apos;t find any records.
+                        {t("orders.noRecords")}
                     </div>
                 )}
             </div>

@@ -176,6 +176,18 @@ function SidebarFilter({
 
         setFilterGroups(mapped);
 
+        // Keep them closed by default unless they have an active selection
+        setExpandedGroups(prev => {
+            const init: Record<string, boolean> = { ...prev };
+            mapped.forEach(g => {
+                const hasSelection = selectedFilters[g.code] && selectedFilters[g.code].length > 0;
+                if (hasSelection) {
+                    init[g.code] = true;
+                }
+            });
+            return init;
+        });
+
         setLoading(false);
     }, [initialFilters]);
 
@@ -216,8 +228,15 @@ function SidebarFilter({
 
                 setFilterGroups(mapped);
 
-                // Start with all groups collapsed
-                setExpandedGroups({});
+                // Start all groups closed unless they have an active selection
+                const initialExpanded: Record<string, boolean> = {};
+                mapped.forEach(g => {
+                    const hasSelection = selectedFilters[g.code] && selectedFilters[g.code].length > 0;
+                    if (hasSelection) {
+                        initialExpanded[g.code] = true;
+                    }
+                });
+                setExpandedGroups(initialExpanded);
             } catch (err: any) {
                 if (!cancelled) setError(err.message);
             } finally {

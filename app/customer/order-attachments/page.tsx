@@ -8,7 +8,6 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Sidebar from "@/components/Sidebar";
 import PortalDropdown from "@/components/PortalDropdown";
-import { Search, RotateCcw } from "lucide-react";
 import Pagination from "@/components/Pagination";
 import toast from "react-hot-toast";
 import { redirectToLogin } from "@/utils/helpers";
@@ -90,24 +89,19 @@ export default function OrderAttachmentsPage() {
     const docTypeOptions = filterOptionsData?.document_type_options || filterOptionsData?.document_types || [];
     const invoiceDueOptions = filterOptionsData?.invoice_due_options || filterOptionsData?.invoice_due || [];
 
-    // Translate API data values using data.* keys
-    const translateData = (val: string): string => {
-        if (!val) return val;
-        const translated = t(`data.${val}`);
-        return translated !== `data.${val}` ? translated : val;
-    };
-
     // Helper to ensure "All" is present and at the start, translate labels
     const getOptionsWithAll = (options: any[]) => {
-        const allLabel = t("m.all") !== "m.all" ? t("m.all") : "All";
-        const allOption = { label: allLabel, value: "All" };
+        const allOption = { label: t("m.all") || "All", value: "All" };
         if (!options || options.length === 0) return [allOption];
-        const normalized = normalizeOptions(options).map(opt => ({
-            ...opt,
-            label: opt.value.toLowerCase() === "all" ? allLabel : translateData(opt.label)
-        }));
-        const hasAll = normalized.some(opt => opt.value.toLowerCase() === "all");
-        if (hasAll) return normalized;
+        const normalized = normalizeOptions(options);
+        const hasAll = normalized.some(opt => opt.value.toLowerCase() === "all" || opt.label.toLowerCase() === "all");
+        if (hasAll) {
+            return normalized.map(opt =>
+                opt.value.toLowerCase() === "all" || opt.label.toLowerCase() === "all"
+                    ? { ...opt, label: t("m.all") || "All" }
+                    : opt
+            );
+        }
         return [allOption, ...normalized];
     };
 
@@ -174,26 +168,26 @@ export default function OrderAttachmentsPage() {
             setTimeout(() => window.URL.revokeObjectURL(url), 5000);
         } catch (error: any) {
             console.error("View File Error:", error);
-            toast.error(error.message || t("orderAttachments.unableToOpen"));
+            toast.error(error.message || t("common.error"));
         } finally {
             setOpeningFileId(null);
         }
     };
 
     const getDocTypeLabel = (fileName: string, origType: string) => {
-        if (origType && origType !== "-") return translateData(origType);
-        if (!fileName) return t("orderAttachments.genericDocument");
+        if (origType && origType !== "-") return origType;
+        if (!fileName) return "documents";
         const ext = fileName.split('.').pop()?.toLowerCase();
         switch (ext) {
-            case 'pdf': return t("orderAttachments.pdfDocument");
+            case 'pdf': return "PDF";
             case 'jpg':
             case 'jpeg':
-            case 'png': return t("orderAttachments.image");
+            case 'png': return "image";
             case 'doc':
-            case 'docx': return t("orderAttachments.wordDocument");
+            case 'docx': return "Word";
             case 'xls':
-            case 'xlsx': return t("orderAttachments.excelDocument");
-            default: return t("orderAttachments.genericDocument");
+            case 'xlsx': return "Excel";
+            default: return "documents";
         }
     };
 
@@ -202,7 +196,8 @@ export default function OrderAttachmentsPage() {
         try {
             const d = new Date(dateStr);
             if (isNaN(d.getTime())) return dateStr;
-            if (isRtl) {
+            const isAr = typeof window !== "undefined" && window.location.pathname.startsWith("/ar");
+            if (isAr) {
                 return new Intl.DateTimeFormat("ar-SA", { year: "numeric", month: "2-digit", day: "2-digit" }).format(d);
             }
             const day = String(d.getDate()).padStart(2, '0');
@@ -238,22 +233,22 @@ export default function OrderAttachmentsPage() {
                                 type="text"
                                 value={searchText}
                                 onChange={(e) => setSearchText(e.target.value)}
-                                placeholder={t("orderAttachments.searchPlaceholder")}
+                                placeholder={t("m.search")}
                                 className="w-full bg-white border border-[#ebebeb] rounded-md px-4 py-2.5 text-xs text-black focus:outline-none focus:border-yellow-400 placeholder:text-gray-400 font-bold shadow-sm"
                             />
                         </div>
                         <button
                             onClick={handleSearch}
-                            className="w-full sm:w-auto bg-yellow-400 hover:bg-yellow-500 text-black font-black py-2.5 px-4 md:px-6 rounded-md text-xs uppercase tracking-widest transition-all shadow-sm active:scale-95"
+                            className="w-full sm:w-auto bg-yellow-400 hover:bg-yellow-500 text-black font-black h-[40px] px-4 md:px-6 rounded-md text-xs uppercase tracking-widest transition-all shadow-sm active:scale-95"
                         >
-                            {t("orderAttachments.search")}
+                            {t("m.search")}
                         </button>
                     </div>
 
                     {/* Filters Section */}
                     <div className="flex flex-col sm:flex-row gap-4 items-end mb-6 md:mb-10 bg-white p-4 md:p-6 border border-[#ebebeb] rounded-md shadow-sm">
                         <div className="w-full sm:w-auto sm:min-w-[200px]">
-                            <label className="block text-xs font-black text-black mb-2 uppercase tracking-wider">{t("orderAttachments.document")}</label>
+                            <label className="block text-xs font-black text-black mb-2 uppercase tracking-wider">{t("m.document-type")}</label>
                             <PortalDropdown
                                 value={documentType}
                                 onChange={(val) => { setDocumentType(val); setCurrentPage(1); }}
@@ -263,7 +258,7 @@ export default function OrderAttachmentsPage() {
                         </div>
 
                         <div className="w-full sm:w-auto sm:min-w-[200px]">
-                            <label className="block text-xs font-black text-black mb-2 uppercase tracking-wider">{t("orderAttachments.invoiceDue")}</label>
+                            <label className="block text-xs font-black text-black mb-2 uppercase tracking-wider">{t("m.invoice-due")}</label>
                             <PortalDropdown
                                 value={invoiceDue}
                                 onChange={(val) => { setInvoiceDue(val); setCurrentPage(1); }}
@@ -277,7 +272,7 @@ export default function OrderAttachmentsPage() {
                                 onClick={handleReset}
                                 className="w-full sm:w-auto bg-black hover:bg-gray-800 text-white font-black h-[40px] px-6 md:px-8 rounded-md text-xs uppercase tracking-widest transition-all shadow-md active:scale-95"
                             >
-                                {t("orderAttachments.reset")}
+                                {t("m.reset")}
                             </button>
                         </div>
                     </div>
@@ -285,19 +280,19 @@ export default function OrderAttachmentsPage() {
                     {/* Table Section */}
                     {error ? (
                         <div className="bg-red-50 border border-red-100 text-red-600 p-4 md:p-8 rounded-md text-center">
-                            <p className="font-black text-xs uppercase mb-2">{t("orderAttachments.errorLoading")}</p>
+                            <p className="font-black text-xs uppercase mb-2">{t("common.error")}</p>
                             <p className="text-xs">{error.message}</p>
                             <button
                                 onClick={() => mutate()}
                                 className="mt-6 px-10 py-3 bg-red-600 text-white rounded-md font-black text-xs uppercase tracking-widest shadow-md active:scale-95"
                             >
-                                {t("orderAttachments.tryAgain")}
+                                {t("common.tryAgain")}
                             </button>
                         </div>
                     ) : isLoading ? (
                         <div className="bg-white p-16 flex flex-col items-center justify-center border border-[#ebebeb] rounded-md shadow-sm">
                             <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-yellow-400 mb-4"></div>
-                            <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">{t("orderAttachments.loading")}</span>
+                            <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">{t("common.loading")}</span>
                         </div>
                     ) : attachments.length > 0 ? (
                         <>
@@ -306,12 +301,12 @@ export default function OrderAttachmentsPage() {
                                 <table className="w-full border-collapse bg-white">
                                     <thead className="bg-gray-50 border-b border-[#ebebeb]">
                                         <tr className="h-[50px]">
-                                            <th className="px-6 py-3 font-black text-xs text-black uppercase tracking-wider text-center">{t("orderAttachments.orderHash")}</th>
-                                            <th className="px-6 py-3 font-black text-xs text-black uppercase tracking-wider ltr:text-left rtl:text-right">{t("orderAttachments.fileName")}</th>
-                                            <th className="px-6 py-3 font-black text-xs text-black uppercase tracking-wider text-center">{t("orderAttachments.documentType")}</th>
-                                            <th className="px-6 py-3 font-black text-xs text-black uppercase tracking-wider ltr:text-left rtl:text-right">{t("orderAttachments.createdOn")}</th>
-                                            <th className="px-6 py-3 font-black text-xs text-black uppercase tracking-wider ltr:text-left rtl:text-right">{t("orderAttachments.invoiceDue")}</th>
-                                            <th className="px-6 py-3 font-black text-xs text-black uppercase tracking-wider ltr:text-left rtl:text-right">{t("orderAttachments.payment")}</th>
+                                            <th className="px-6 py-3 font-black text-xs text-black uppercase tracking-wider text-center">{t("orders.orderId")}</th>
+                                            <th className="px-6 py-3 font-black text-xs text-black uppercase tracking-wider ltr:text-left rtl:text-right">{t("m.file-name")}</th>
+                                            <th className="px-6 py-3 font-black text-xs text-black uppercase tracking-wider text-center">{t("m.document-type")}</th>
+                                            <th className="px-6 py-3 font-black text-xs text-black uppercase tracking-wider ltr:text-left rtl:text-right">{t("m.created-at")}</th>
+                                            <th className="px-6 py-3 font-black text-xs text-black uppercase tracking-wider ltr:text-left rtl:text-right">{t("m.invoice-due")}</th>
+                                            <th className="px-6 py-3 font-black text-xs text-black uppercase tracking-wider ltr:text-left rtl:text-right">{t("m.payment")}</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -319,7 +314,7 @@ export default function OrderAttachmentsPage() {
                                             const attId = attachment.id || attachment.attachment_id || String(idx);
                                             const isOpening = openingFileId === String(attId);
                                             const orderDisplay = attachment.order_increment_id || attachment.order_id || "-";
-                                            const fileName = attachment.file_name || attachment.label || t("orderAttachments.downloadFile");
+                                            const fileName = attachment.file_name || attachment.label || t("m.download");
                                             const docTypeLabel = getDocTypeLabel(fileName, attachment.comment || attachment.document_type || attachment.attachment_type);
                                             const createdAt = formatDate(attachment.created_at || attachment.upload_date);
                                             const invoiceDueVal = attachment.invoice_due ? formatDate(attachment.invoice_due) : "";
@@ -336,11 +331,11 @@ export default function OrderAttachmentsPage() {
                                                             {isOpening && <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-yellow-400"></div>}
                                                         </div>
                                                     </td>
-                                                    <td className="px-6 py-4 text-center font-bold text-gray-600 uppercase">{docTypeLabel}</td>
+                                                    <td className="px-6 py-4 text-center font-bold text-gray-600 uppercase">{t(`m.${docTypeLabel.toLowerCase()}`) !== `m.${docTypeLabel.toLowerCase()}` ? t(`m.${docTypeLabel.toLowerCase()}`) : (t(`data.${docTypeLabel}`) !== `data.${docTypeLabel}` ? t(`data.${docTypeLabel}`) : docTypeLabel)}</td>
                                                     <td className="px-6 py-4 ltr:text-left rtl:text-right font-bold text-gray-500">{createdAt}</td>
                                                     <td className="px-6 py-4 ltr:text-left rtl:text-right font-bold text-gray-500">{invoiceDueVal}</td>
                                                     <td className="px-6 py-4 ltr:text-left rtl:text-right">
-                                                        <span className={`px-2 py-1 rounded-md font-black uppercase text-[10px] ${paymentStatus.toLowerCase().includes('paid') ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}>{paymentStatus ? translateData(paymentStatus) : "-"}</span>
+                                                        <span className={`px-2 py-1 rounded-md font-black uppercase text-[10px] ${paymentStatus.toLowerCase().includes('paid') ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}>{paymentStatus ? (t(`data.${paymentStatus}`) !== `data.${paymentStatus}` ? t(`data.${paymentStatus}`) : paymentStatus) : "-"}</span>
                                                     </td>
                                                 </tr>
                                             );
@@ -355,7 +350,7 @@ export default function OrderAttachmentsPage() {
                                     const attId = attachment.id || attachment.attachment_id || String(idx);
                                     const isOpening = openingFileId === String(attId);
                                     const orderDisplay = attachment.order_increment_id || attachment.order_id || "-";
-                                    const fileName = attachment.file_name || attachment.label || t("orderAttachments.downloadFile");
+                                    const fileName = attachment.file_name || attachment.label || t("m.download");
                                     const docTypeLabel = getDocTypeLabel(fileName, attachment.comment || attachment.document_type || attachment.attachment_type);
                                     const createdAt = formatDate(attachment.created_at || attachment.upload_date);
                                     const invoiceDueVal = attachment.invoice_due ? formatDate(attachment.invoice_due) : "";
@@ -373,19 +368,19 @@ export default function OrderAttachmentsPage() {
                                                         {fileName}
                                                         {isOpening && <span className="inline-block ltr:ml-2 rtl:mr-2 animate-spin rounded-full h-3 w-3 border-b-2 border-yellow-400 align-middle"></span>}
                                                     </button>
-                                                    <p className="text-[11px] text-gray-500 font-medium mt-1">{docTypeLabel}</p>
+                                                    <p className="text-[11px] text-gray-500 font-medium mt-1 uppercase tracking-wider">{t(`m.${docTypeLabel.toLowerCase()}`) !== `m.${docTypeLabel.toLowerCase()}` ? t(`m.${docTypeLabel.toLowerCase()}`) : (t(`data.${docTypeLabel}`) !== `data.${docTypeLabel}` ? t(`data.${docTypeLabel}`) : docTypeLabel)}</p>
                                                 </div>
                                                 <span className={`px-2 py-1 rounded-md font-black uppercase text-[10px] flex-shrink-0 ${paymentStatus.toLowerCase().includes('paid') ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}>
-                                                    {paymentStatus || "-"}
+                                                    {paymentStatus ? (t(`data.${paymentStatus}`) !== `data.${paymentStatus}` ? t(`data.${paymentStatus}`) : paymentStatus) : "-"}
                                                 </span>
                                             </div>
                                             <div className="flex items-center justify-between text-[11px] text-gray-500 font-medium border-t border-gray-100 pt-2.5">
                                                 <div className="flex items-center gap-1">
-                                                    <span className="font-black text-black">{t("orderAttachments.order")}</span>
+                                                    <span className="font-black text-black uppercase text-[10px]">{t("m.order")}:</span>
                                                     <button onClick={() => handleViewOrder(attachment.order_id)} className="text-black hover:text-yellow-600 font-bold">{orderDisplay}</button>
                                                 </div>
                                                 <span>{createdAt}</span>
-                                                {invoiceDueVal && <span>{t("orderAttachments.due")} {invoiceDueVal}</span>}
+                                                {invoiceDueVal && <span>{t("m.invoice-due")}: {invoiceDueVal}</span>}
                                             </div>
                                         </div>
                                     );
