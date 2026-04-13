@@ -6,10 +6,12 @@ import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import toast from "react-hot-toast";
 import { useTranslation } from "@/hooks/useTranslation";
+import { useLocalePath } from "@/hooks/useLocalePath";
 
 const MultiShippingBillingPage: React.FC = () => {
     const router = useRouter();
-    const { t } = useTranslation();
+    const { t, locale } = useTranslation();
+    const lp = useLocalePath();
     const {
         addresses,
         paymentMethods,
@@ -35,8 +37,16 @@ const MultiShippingBillingPage: React.FC = () => {
 
         // Fetch payment methods when billing address changes if needed
         // but here we just fetch them once on mount
+        // Debug line
+        console.log(`[MultiShippingBilling] Mounted. Current Locale: ${locale}`);
         refetchPaymentMethods();
-    }, [addresses, selectedAddressId, refetchPaymentMethods]);
+    }, [addresses, selectedAddressId, refetchPaymentMethods, locale]);
+
+    useEffect(() => {
+        if (paymentMethods.length > 0) {
+            console.log(`[MultiShippingBilling] API Response (Payment Methods):`, paymentMethods);
+        }
+    }, [paymentMethods]);
 
     useEffect(() => {
         if (paymentMethods.length > 0 && !selectedPaymentCode) {
@@ -49,7 +59,7 @@ const MultiShippingBillingPage: React.FC = () => {
 
     const handleGoToReview = async () => {
         if (!selectedAddressId || !selectedPaymentCode) {
-            toast.error("Please select a billing address and payment method.");
+            toast.error(t("multi.selectBillingError"));
             return;
         }
 
@@ -107,8 +117,8 @@ const MultiShippingBillingPage: React.FC = () => {
             localStorage.setItem('multi_shipping_payment_method', selectedPaymentCode);
             localStorage.setItem('multi_shipping_billing_address_id', selectedAddressId);
 
-            toast.success("Billing information saved!");
-            // router.push('/multi-location-delivery/review');
+            toast.success(t("multi.billingSaved"));
+            router.push(lp('/multi-location-delivery/review'));
         } catch (err: any) {
             console.error("Billing update error:", err);
             toast.error(err.message || "Failed to save billing information.");
@@ -132,7 +142,7 @@ const MultiShippingBillingPage: React.FC = () => {
 
             <div className="max-w-[1240px] mx-auto pt-8 md:pt-16 px-3 sm:px-4">
                 <h1 className="text-[20px] sm:text-[24px] md:text-[28px] font-black text-black text-center uppercase mb-8 md:mb-16 tracking-tight">
-                    BILLING INFORMATION
+                    {t("multi.billingInfo")}
                 </h1>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8 mb-8 md:mb-12">
@@ -140,7 +150,7 @@ const MultiShippingBillingPage: React.FC = () => {
                     <div className="flex flex-col bg-white border border-[#f0f0f0] shadow-sm">
                         <div className="bg-[#e9e9e9] py-3 px-4 md:px-6 text-center">
                             <h2 className="text-[11px] font-black text-black uppercase tracking-widest leading-none">
-                                BILLING ADDRESS
+                                {t("multi.billingAddress")}
                             </h2>
                         </div>
                         <div className="p-5 md:p-10 flex-grow min-h-[200px] md:min-h-[300px]">
@@ -150,12 +160,12 @@ const MultiShippingBillingPage: React.FC = () => {
                                     <p>{currentAddress.company}</p>
                                     <p>{currentAddress.street}</p>
                                     <p>{currentAddress.city}, {currentAddress.postcode}</p>
-                                    <p>Saudi Arabia</p>
+                                    <p>{t("multi.saudiArabia")}</p>
                                     <p className="mt-4">T: {currentAddress.telephone}</p>
 
                                 </div>
                             ) : (
-                                <p className="text-gray-400 italic">No address selected.</p>
+                                <p className="text-gray-400 italic">{t("multi.noAddress")}</p>
                             )}
                         </div>
                     </div>
@@ -164,7 +174,7 @@ const MultiShippingBillingPage: React.FC = () => {
                     <div className="flex flex-col bg-white border border-[#f0f0f0] shadow-sm">
                         <div className="bg-[#e9e9e9] py-3 px-4 md:px-6 text-center">
                             <h2 className="text-[11px] font-black text-black uppercase tracking-widest leading-none">
-                                PAYMENT METHOD
+                                {t("multi.paymentMethod")}
                             </h2>
                         </div>
                         <div className="p-5 md:p-10 flex-grow min-h-[200px] md:min-h-[300px]">
@@ -191,7 +201,9 @@ const MultiShippingBillingPage: React.FC = () => {
                                                     )}
                                                 </div>
                                                 <span className="text-[13px] md:text-[14px] font-black text-black uppercase tracking-tight group-hover:text-[#f5b21a] transition-colors mt-0.5">
-                                                    {method.title}
+                                                    {t(`payment_method.${method.code}`) !== `payment_method.${method.code}`
+                                                        ? t(`payment_method.${method.code}`)
+                                                        : method.title}
                                                 </span>
                                             </label>
                                         ))
@@ -202,7 +214,7 @@ const MultiShippingBillingPage: React.FC = () => {
                                             <div className="absolute w-2 h-2 bg-[#f5b21a] rounded-full" />
                                         </div>
                                         <span className="text-[13px] md:text-[14px] font-black text-black uppercase tracking-tight mt-0.5">
-                                            Credit Account
+                                            {t("multi.creditAccount")}
                                         </span>
                                     </div>
                                 )}
@@ -214,11 +226,11 @@ const MultiShippingBillingPage: React.FC = () => {
                 {/* Footer Actions */}
                 <div className="bg-[#f2f2f2] p-4 sm:p-6 md:p-8 flex flex-col sm:flex-row justify-between items-center gap-3 sm:gap-4">
                     <button
-                        onClick={() => router.push('/multi-location-delivery/shipping')}
+                        onClick={() => router.push(lp('/multi-location-delivery/shipping'))}
                         disabled={isSubmitting}
                         className="w-full sm:w-auto text-center bg-black text-white px-6 md:px-10 py-3.5 md:py-4 text-[11px] font-black uppercase tracking-[0.15em] hover:opacity-90 transition-opacity disabled:opacity-50"
                     >
-                        BACK TO SHIPPING INFORMATION
+                        {t("multi.backToShipping")}
                     </button>
 
                     <button
@@ -227,14 +239,14 @@ const MultiShippingBillingPage: React.FC = () => {
                         className="w-full sm:w-auto justify-center bg-[#f5b21a] text-black px-8 md:px-12 py-3.5 md:py-4 text-[11px] font-black uppercase tracking-[0.15em] hover:bg-black hover:text-white transition-all shadow-sm flex items-center gap-2 disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed"
                     >
                         {isSubmitting && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
-                        GO TO REVIEW YOUR ORDER
+                        {t("multi.goToReview")}
                     </button>
                 </div>
             </div>
 
             <style jsx>{`
                 .font-sans {
-                    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+                    font-family: var(--font-rubik), sans-serif;
                 }
             `}</style>
         </div>

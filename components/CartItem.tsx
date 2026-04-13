@@ -19,17 +19,19 @@ interface CartItemProps {
 
 const CartItem: React.FC<CartItemProps> = ({ item, currencyCode, onUpdateQty, onRemove }) => {
     const { t } = useTranslation();
-    const [updating, setUpdating] = useState(false);
+    const [localQty, setLocalQty] = useState(item.qty);
 
-    const handleQtyChange = async (newQty: number) => {
-        if (newQty < 1 || updating) return;
-        setUpdating(true);
-        try {
-            await onUpdateQty(item.item_id, newQty);
-        } finally {
-            setUpdating(false);
-        }
+    const handleQtyChange = (newQty: number) => {
+        if (newQty < 1) return;
+        setLocalQty(newQty);
+        onUpdateQty(item.item_id, newQty);
     };
+
+    // Update local state if the prop changes (e.g. after a successful batch update)
+    React.useEffect(() => {
+        setLocalQty(item.qty);
+    }, [item.qty]);
+
 
     return (
         <div className="relative bg-white border border-gray-100 rounded-3xl p-4 lg:p-6 hover:shadow-xl hover:shadow-gray-100/50 transition-all duration-500 group/item">
@@ -80,23 +82,23 @@ const CartItem: React.FC<CartItemProps> = ({ item, currencyCode, onUpdateQty, on
                 <div className="flex items-center justify-between mt-4 bg-gray-50/50 p-2 rounded-xl border border-gray-100">
                     <div className="flex items-center bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm">
                         <button
-                            onClick={() => handleQtyChange(item.qty - 1)}
-                            disabled={item.qty <= 1 || updating}
+                            onClick={() => handleQtyChange(localQty - 1)}
+                            disabled={localQty <= 1}
                             className="w-8 h-8 flex items-center justify-center hover:bg-yellow-400 font-bold transition-all disabled:opacity-20"
                         >
                             <Minus size={12} strokeWidth={3} />
                         </button>
                         <span className="w-10 h-8 flex items-center justify-center text-xs font-black text-black">
-                            {updating ? <Loader2 className="w-3 h-3 animate-spin text-yellow-500" /> : item.qty}
+                            {localQty}
                         </span>
                         <button
-                            onClick={() => handleQtyChange(item.qty + 1)}
-                            disabled={updating}
+                            onClick={() => handleQtyChange(localQty + 1)}
                             className="w-8 h-8 flex items-center justify-center hover:bg-yellow-400 font-bold transition-all disabled:opacity-20"
                         >
                             <Plus size={12} strokeWidth={3} />
                         </button>
                     </div>
+
                     <div className="text-right">
                         <span className="text-sm font-black text-black">
                             <Price amount={item.row_total} />
@@ -144,27 +146,23 @@ const CartItem: React.FC<CartItemProps> = ({ item, currencyCode, onUpdateQty, on
                 <div className="w-[20%] flex justify-center items-center">
                     <div className="flex items-center border border-gray-100 bg-white rounded-lg shadow-sm overflow-hidden focus-within:ring-2 focus-within:ring-yellow-400 transition-all">
                         <button
-                            onClick={() => handleQtyChange(item.qty - 1)}
-                            disabled={item.qty <= 1 || updating}
+                            onClick={() => handleQtyChange(localQty - 1)}
+                            disabled={localQty <= 1}
                             className="w-7 h-7 flex items-center justify-center hover:bg-yellow-400 text-black transition-all disabled:opacity-20 active:scale-95"
                         >
                             <Minus size={11} strokeWidth={3} />
                         </button>
                         <div className="w-8 h-7 flex items-center justify-center border-x border-gray-50">
-                            {updating ? (
-                                <Loader2 className="w-3 h-3 animate-spin text-yellow-500" />
-                            ) : (
-                                <span className="text-xs font-black text-gray-900">{item.qty}</span>
-                            )}
+                            <span className="text-xs font-black text-gray-900">{localQty}</span>
                         </div>
                         <button
-                            onClick={() => handleQtyChange(item.qty + 1)}
-                            disabled={updating}
+                            onClick={() => handleQtyChange(localQty + 1)}
                             className="w-7 h-7 flex items-center justify-center hover:bg-yellow-400 text-black transition-all disabled:opacity-20 active:scale-95"
                         >
                             <Plus size={11} strokeWidth={3} />
                         </button>
                     </div>
+
                 </div>
 
                 {/* Total (20%) */}

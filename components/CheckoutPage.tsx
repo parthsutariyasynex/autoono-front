@@ -378,14 +378,21 @@ const CheckoutPageUI: React.FC = () => {
         }
 
         // 1. Validations with Auto-Repair
-        if (!selectedAddressId) {
-            if (addresses.length > 0) {
-                const defaultAddr = addresses.find((a) => a.isDefault) || addresses[0];
-                setSelectedAddressId(defaultAddr.id);
-                setShippingAddress(defaultAddr.id)
-                    .then(() => setIsAddressSetOnBackend(true))
-                    .catch(() => { });
-                toast.success(t("checkout.saveBillingInfo"));
+        if (!selectedAddressId || !isAddressSetOnBackend) {
+            const idToSet = selectedAddressId || (addresses.length > 0 ? (addresses.find(a => a.isDefault)?.id || addresses[0].id) : "");
+
+            if (idToSet) {
+                try {
+                    console.log("Syncing address to backend before order placement:", idToSet);
+                    await setShippingAddress(idToSet);
+                    setSelectedAddressId(idToSet);
+                    setIsAddressSetOnBackend(true);
+                    toast.success(t("checkout.saveBillingInfo"));
+                } catch (err) {
+                    console.error("Address sync failed:", err);
+                    toast.error("Failed to sync shipping address to backend");
+                    return;
+                }
             } else {
                 toast.error("Please select a shipping address or add a new one.");
                 document.getElementById('step-1')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -393,18 +400,35 @@ const CheckoutPageUI: React.FC = () => {
             }
         }
 
+        // 2. Ensure Shipping Method is selected and SYNCED
         if (!selectedShippingMethodCode) {
             if (shippingMethods.length > 0) {
                 const method = shippingMethods.find(m =>
                     shippingType === "pickup" ? m.code.includes("pickup") : !m.code.includes("pickup")
                 ) || shippingMethods[0];
                 setSelectedShippingMethodCode(method.code);
-                setShippingMethod(method.carrierCode, method.methodCode).catch(() => { });
+                try {
+                    await setShippingMethod(method.carrierCode, method.methodCode);
+                } catch (err) {
+                    console.error("Auto-repair shipping method failed:", err);
+                }
                 toast.success(`Selected shipping: ${method.title}`);
             } else {
                 toast.error("Please select a shipping method");
                 document.getElementById('step-3')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 return;
+            }
+        } else {
+            // Even if already selected in state, re-sync to backend to avoid "shipping method missing" race conditions
+            const method = shippingMethods.find(m => m.code === selectedShippingMethodCode);
+            if (method) {
+                try {
+                    console.log("Syncing shipping method to backend before order placement:", method.code);
+                    await setShippingMethod(method.carrierCode, method.methodCode);
+                } catch (err) {
+                    console.error("Final shipping method sync failed:", err);
+                    // We continue anyway, maybe it was already set
+                }
             }
         }
 

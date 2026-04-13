@@ -47,10 +47,11 @@ export function redirectToLogin(router: { replace: (url: string) => void }) {
  * Requirement: SAR 1,650.00
  * 
  * @param price - The numeric or string value to format
+ * @param locale - The locale to use for formatting (e.g. "en" or "ar")
  * @returns A formatted string with SAR symbol, thousands separator, and 2 decimal places.
  */
-export function formatPrice(price: number | string | null | undefined): string {
-  // "SAR" is used as a prefix; Price component will replace it with the custom icon character \uE900
+export function formatPrice(price: number | string | null | undefined, locale: string = "en"): string {
+  // "SAR" is used as a prefix; Price component will replace it with the custom font character mapping (Unicode E900)
   const SYMBOL = "SAR";
 
   if (price === null || price === undefined || price === "") return `${SYMBOL} 0.00`;
@@ -60,8 +61,7 @@ export function formatPrice(price: number | string | null | undefined): string {
   if (isNaN(numericPrice)) return `${SYMBOL} 0.00`;
 
   // Use Arabic-Indic numerals for AR locale, standard for EN
-  const isArabic = typeof window !== "undefined" && window.location.pathname.startsWith("/ar");
-  const numberLocale = isArabic ? "ar-SA" : "en-US";
+  const numberLocale = locale === "ar" ? "ar-SA" : "en-US";
 
   const formattedNumber = new Intl.NumberFormat(numberLocale, {
     minimumFractionDigits: 2,

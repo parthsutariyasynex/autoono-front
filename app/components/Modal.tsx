@@ -3,27 +3,14 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { X } from "lucide-react";
 
+import { useLockBodyScroll } from "@/hooks/useLockBodyScroll";
+
 interface ModalProps {
     isOpen: boolean;
     onClose: () => void;
     title?: string;
     children: React.ReactNode;
     maxWidth?: "sm" | "md" | "lg" | "xl" | "2xl" | "3xl" | "4xl" | "5xl" | "full";
-}
-
-function lockScroll() {
-    const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
-    document.documentElement.style.setProperty("--scrollbar-width", `${scrollbarWidth}px`);
-    document.documentElement.style.overflow = "hidden";
-    document.body.style.overflow = "hidden";
-    document.body.style.paddingRight = `${scrollbarWidth}px`;
-}
-
-function unlockScroll() {
-    document.documentElement.style.setProperty("--scrollbar-width", "0px");
-    document.documentElement.style.overflow = "";
-    document.body.style.overflow = "";
-    document.body.style.paddingRight = "";
 }
 
 const Modal: React.FC<ModalProps> = ({
@@ -35,15 +22,15 @@ const Modal: React.FC<ModalProps> = ({
 }) => {
     const [isRendered, setIsRendered] = useState(false);
 
+    // Apply global body scroll lock
+    useLockBodyScroll(isOpen);
+
     useEffect(() => {
         if (isOpen) {
             setIsRendered(true);
-            lockScroll();
-            return () => unlockScroll();
         } else {
             // Keep rendered for exit animation, then remove
             const timer = setTimeout(() => setIsRendered(false), 300);
-            unlockScroll();
             return () => clearTimeout(timer);
         }
     }, [isOpen]);

@@ -75,7 +75,7 @@ export async function GET(request: NextRequest) {
         if (Array.isArray(filters)) {
             filters = filters.map((f: any) => {
                 let code = f.code || f.attribute_code;
-                
+
                 // Map backend keys to what the frontend expects
                 if (code === "color") code = "tyre_size";
                 if (code === "manufacturer") code = "origin";

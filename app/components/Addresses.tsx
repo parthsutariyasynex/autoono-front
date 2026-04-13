@@ -147,8 +147,7 @@ export default function Addresses() {
   };
 
   const additionalAddresses = addresses.filter((address: any) => !address.default_billing && !address.default_shipping);
-  const filteredAddresses = additionalAddresses; // No search bar in screenshot
-
+  const filteredAddresses = additionalAddresses;
 
   const defaultBilling = addresses.find((address: any) => address.default_billing);
   const defaultShipping = addresses.find((address: any) => address.default_shipping);
@@ -249,7 +248,6 @@ export default function Addresses() {
                 {t("addressBook.items")} {(currentPage - 1) * pageSize + 1} - {Math.min(currentPage * pageSize, filteredAddresses.length)} {t("addressBook.of")} {filteredAddresses.length} {t("addressBook.total")}
               </div>
 
-              {/* Center: Pagination buttons */}
               <div className="flex items-center gap-1.5 my-4 md:my-0">
                 {Array.from({ length: Math.ceil(filteredAddresses.length / pageSize) }, (_, i) => i + 1).map((p) => (
                   <button
@@ -268,13 +266,13 @@ export default function Addresses() {
               {/* Show per page */}
               <div className="flex items-center gap-2 text-[11px] text-gray-400 font-bold uppercase tracking-wider">
                 <span>{t("addressBook.show")}</span>
-                <PortalDropdown value={String(pageSize)} onChange={() => {}} options={[{label:"10",value:"10"},{label:"20",value:"20"},{label:"50",value:"50"}]} minWidth={60} />
+                <PortalDropdown value={String(pageSize)} onChange={() => { }} options={[{ label: "10", value: "10" }, { label: "20", value: "20" }, { label: "50", value: "50" }]} minWidth={60} />
                 <span>{t("addressBook.perPage")}</span>
               </div>
             </div>
           )
         }
-      </div >
-    </div >
+      </div>
+    </div>
   );
 }

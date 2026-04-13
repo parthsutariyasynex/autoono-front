@@ -1,4 +1,7 @@
+"use client";
+
 import { formatPrice } from "@/utils/helpers";
+import { useLocale } from "@/lib/i18n/client";
 
 interface PriceProps {
     amount: number | string | null | undefined;
@@ -7,7 +10,8 @@ interface PriceProps {
 }
 
 export default function Price({ amount, className = "price", symbolClassName = "" }: PriceProps) {
-    const formatted = formatPrice(amount);
+    const locale = useLocale();
+    const formatted = formatPrice(amount, locale);
 
     // The formatPrice utility returns "SAR 1,234.56"
     // We want to replace the text "SAR" with the custom font character mapping (Unicode E900)

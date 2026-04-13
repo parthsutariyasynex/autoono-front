@@ -6,6 +6,7 @@ import { formatPrice } from "@/utils/helpers";
 import { toast } from "react-hot-toast";
 import Drawer from "./Drawer";
 import Price from "./Price";
+import { useTranslation } from "@/hooks/useTranslation";
 
 
 interface InquiryModalProps {
@@ -15,6 +16,7 @@ interface InquiryModalProps {
 }
 
 export default function InquiryModal({ product, isOpen, onClose }: InquiryModalProps) {
+    const { t } = useTranslation();
     const [formData, setFormData] = useState({
         name: "",
         email: "",
@@ -31,10 +33,10 @@ export default function InquiryModal({ product, isOpen, onClose }: InquiryModalP
 
         try {
             await new Promise((resolve) => setTimeout(resolve, 1000));
-            toast.success("Inquiry sent successfully!");
+            toast.success(t("inquiry.success"));
             onClose();
         } catch (error) {
-            toast.error("Failed to send inquiry. Please try again.");
+            toast.error(t("inquiry.failed"));
         } finally {
             setIsSubmitting(false);
         }
@@ -45,7 +47,7 @@ export default function InquiryModal({ product, isOpen, onClose }: InquiryModalP
             <div className="flex flex-col h-full bg-white overflow-hidden">
                 {/* Header - Keeps same styling but fits in drawer */}
                 <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100 bg-gray-50/50 flex-shrink-0">
-                    <h2 className="text-xl font-bold text-gray-800">Product Inquiry</h2>
+                    <h2 className="text-xl font-bold text-gray-800">{t("inquiry.title")}</h2>
                 </div>
 
                 <form onSubmit={handleSubmit} className="p-6 space-y-6 overflow-y-auto flex-1 pb-10">
@@ -87,11 +89,11 @@ export default function InquiryModal({ product, isOpen, onClose }: InquiryModalP
                     {/* Form Fields */}
                     <div className="space-y-6">
                         <div>
-                            <label className="block text-xs font-bold text-gray-700 uppercase tracking-widest mb-2 ml-0.5">Full Name</label>
+                            <label className="block text-xs font-bold text-gray-700 uppercase tracking-widest mb-2 ml-0.5">{t("inquiry.fullName")}</label>
                             <input
                                 required
                                 type="text"
-                                placeholder="Enter your full name"
+                                placeholder={t("inquiry.fullNamePlaceholder")}
                                 className="w-full px-4 py-3.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400 bg-white outline-none transition-all text-sm font-medium"
                                 value={formData.name}
                                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
@@ -99,11 +101,11 @@ export default function InquiryModal({ product, isOpen, onClose }: InquiryModalP
                         </div>
 
                         <div>
-                            <label className="block text-xs font-bold text-gray-700 uppercase tracking-widest mb-2 ml-0.5">Email Address</label>
+                            <label className="block text-xs font-bold text-gray-700 uppercase tracking-widest mb-2 ml-0.5">{t("inquiry.emailAddress")}</label>
                             <input
                                 required
                                 type="email"
-                                placeholder="example@mail.com"
+                                placeholder={t("inquiry.emailPlaceholder")}
                                 className="w-full px-4 py-3.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400 bg-white outline-none transition-all text-sm font-medium"
                                 value={formData.email}
                                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
@@ -111,11 +113,11 @@ export default function InquiryModal({ product, isOpen, onClose }: InquiryModalP
                         </div>
 
                         <div>
-                            <label className="block text-xs font-bold text-gray-700 uppercase tracking-widest mb-2 ml-0.5">Mobile Number</label>
+                            <label className="block text-xs font-bold text-gray-700 uppercase tracking-widest mb-2 ml-0.5">{t("inquiry.mobileNumber")}</label>
                             <input
                                 required
                                 type="tel"
-                                placeholder="+966 5X XXX XXXX"
+                                placeholder={t("inquiry.mobilePlaceholder")}
                                 className="w-full px-4 py-3.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400 bg-white outline-none transition-all text-sm font-medium"
                                 value={formData.phone}
                                 onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
@@ -123,11 +125,11 @@ export default function InquiryModal({ product, isOpen, onClose }: InquiryModalP
                         </div>
 
                         <div>
-                            <label className="block text-xs font-bold text-gray-700 uppercase tracking-widest mb-2 ml-0.5">Your Message</label>
+                            <label className="block text-xs font-bold text-gray-700 uppercase tracking-widest mb-2 ml-0.5">{t("inquiry.yourMessage")}</label>
                             <textarea
                                 required
                                 rows={4}
-                                placeholder="Write your inquiry details here..."
+                                placeholder={t("inquiry.messagePlaceholder")}
                                 className="w-full px-4 py-3.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400 bg-white outline-none transition-all text-sm font-medium resize-none shadow-sm"
                                 value={formData.message}
                                 onChange={(e) => setFormData({ ...formData, message: e.target.value })}
@@ -141,7 +143,7 @@ export default function InquiryModal({ product, isOpen, onClose }: InquiryModalP
                             onClick={onClose}
                             className="flex-1 py-4 px-4 rounded-lg border border-gray-300 text-sm font-bold text-gray-600 hover:bg-gray-50 transition-colors uppercase tracking-widest shadow-sm"
                         >
-                            Cancel
+                            {t("inquiry.cancel")}
                         </button>
                         <button
                             type="submit"
@@ -153,7 +155,7 @@ export default function InquiryModal({ product, isOpen, onClose }: InquiryModalP
                             ) : (
                                 <>
                                     <Send size={18} strokeWidth={3} />
-                                    Submit Inquiry
+                                    {t("inquiry.submit")}
                                 </>
                             )}
                         </button>

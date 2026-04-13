@@ -9,7 +9,7 @@ const AUTH_RETRY_DELAY = 800;
  * Read the current locale — checks URL first (most up-to-date during switch),
  * then falls back to cookie.
  */
-function getClientLocale(): string {
+export function getClientLocale(): string {
     if (typeof window === "undefined") return "en";
     // URL is the source of truth (cookie may lag behind during language switch)
     const pathSegments = window.location.pathname.split("/").filter(Boolean);
@@ -79,7 +79,21 @@ async function apiClient(
 
     try {
         const response = await fetch(`${BASE_URL}${endpoint}`, config);
-        const data = await response.json();
+
+        let data: any = null;
+        const contentType = response.headers.get("content-type");
+        if (contentType && contentType.includes("application/json")) {
+            data = await response.json();
+        } else {
+            // Non-JSON response (e.g., HTML error page)
+            const text = await response.text();
+            console.error(`[api-client] Received non-JSON response from ${endpoint}:`, text.substring(0, 100));
+
+            if (!response.ok) {
+                throw new Error(`Server returned ${response.status}: ${response.statusText}`);
+            }
+            return text; // Or handle as needed
+        }
 
         if (response.ok) {
             return data;
@@ -107,9 +121,9 @@ async function apiClient(
             throw new Error("Session expired. Please login again.");
         }
 
-        throw new Error(data.message || "Something went wrong");
+        throw new Error(data?.message || `API Error ${response.status}: ${response.statusText}`);
     } catch (error: any) {
-        return Promise.reject(error.message);
+        return Promise.reject(error.message || error);
     }
 }
 

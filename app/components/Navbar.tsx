@@ -13,9 +13,13 @@ import {
   Menu,
   X,
   LogOut,
+  Search,
 } from "lucide-react";
+
 import CartDrawer from "./CartDrawer";
 import NotificationDrawer from "./NotificationDrawer";
+import SearchPopup from "./SearchPopup";
+
 import { useCart } from "@/modules/cart/hooks/useCart";
 import { useNotifications } from "@/modules/notifications/hooks/useNotifications";
 import { fetchCustomerInfo } from "@/store/actions/customerActions";
@@ -31,12 +35,12 @@ interface NavLink {
 }
 
 const FALLBACK_NAV_KEYS: { key: string; href: string }[] = [
-  { key: "nav.allTyres", href: "/products" },
-  { key: "nav.quickOrder", href: "/quick-order" },
-  { key: "nav.aboutUs", href: "/about" },
-  { key: "nav.branchLocations", href: "/locations" },
-  { key: "nav.userGuides", href: "/guides" },
-  { key: "nav.productCatalogue", href: "/catalogue" },
+  { key: "allTyres", href: "/products" },
+  { key: "quickOrder", href: "/quick-order" },
+  { key: "aboutUs", href: "/about" },
+  { key: "branchLocations", href: "/locations" },
+  { key: "userGuides", href: "/guides" },
+  { key: "productCatalogue", href: "/catalogue" },
 ];
 
 export default function Navbar() {
@@ -57,13 +61,16 @@ export default function Navbar() {
   const displayUser = isLoadingName
     ? ""
     : (customerData as any)?.firstname
-      ? `${(customerData as any).firstname} ${(customerData as any).lastname}`
+      ? `${(customerData as any).firstname} ${(customerData as any).lastname || ""}`.trim()
       : session?.user?.name || session?.user?.email;
+
 
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+
   const [subAccountName, setSubAccountName] = useState<string | null>(null);
   const [isSubAccount, setIsSubAccount] = useState(false);
   const { unreadCount, fetchNotifications: pullNotifications } = useNotifications();
@@ -73,7 +80,7 @@ export default function Navbar() {
 
   const handleLogout = async () => {
     localStorage.removeItem("token");
-    await signOut({ callbackUrl: lp("/login") });
+    await signOut({ callbackUrl: `${window.location.origin}${lp("/login")}` });
   };
 
   useEffect(() => {
@@ -210,6 +217,7 @@ export default function Navbar() {
                       {isSubAccount && subAccountName ? subAccountName : displayUser}
                     </span>
                   </div>
+
                 </div>
 
                 {isProfileOpen && (
@@ -247,8 +255,24 @@ export default function Navbar() {
               </div>
             )}
 
+
+            {/* Search Icon */}
+            {isAuthenticated && pathname !== "/login" && (
+              <button
+                onClick={() => setIsSearchOpen(true)}
+                className="hidden sm:flex relative cursor-pointer hover:opacity-70 transition-opacity items-center justify-center -mb-1 focus:outline-none"
+                aria-label="Search"
+              >
+                <Search size={22} stroke="black" strokeWidth={1.5} />
+              </button>
+            )}
+
+
+
+
             {/* Notification Bell */}
             {isAuthenticated && pathname !== "/login" && (
+
               <button
                 className="hidden sm:flex relative cursor-pointer items-center justify-center"
                 onClick={() => setIsNotificationOpen(true)}
@@ -278,6 +302,8 @@ export default function Navbar() {
                 )}
               </button>
             )}
+
+
 
             {/* Mobile hamburger */}
             <button
@@ -360,12 +386,20 @@ export default function Navbar() {
               {isAuthenticated && pathname !== "/login" && (
                 <>
                   <button
+                    onClick={() => { setIsSearchOpen(true); setIsMenuOpen(false); }}
+                    className="py-2.5 text-[12px] font-bold text-gray-700 flex items-center gap-3 w-full text-start"
+                  >
+                    <Search size={16} /> {t("nav.searchProducts") || "Search Products"}
+                  </button>
+
+                  <button
                     onClick={() => { setIsNotificationOpen(true); setIsMenuOpen(false); }}
                     className="py-2.5 text-[12px] font-bold text-gray-700 flex items-center gap-3 w-full"
                   >
                     <Bell size={16} /> {t("nav.notifications")} ({unreadCount})
                   </button>
                   <Link href={lp("/my-account")} className="py-2.5 text-[12px] font-bold text-gray-700 flex items-center gap-3" onClick={() => setIsMenuOpen(false)}>
+
                     <UserCircle size={16} /> {t("nav.myAccount")}
                   </Link>
                 </>
@@ -390,6 +424,8 @@ export default function Navbar() {
 
       <CartDrawer isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
       <NotificationDrawer isOpen={isNotificationOpen} onClose={() => setIsNotificationOpen(false)} />
+      <SearchPopup isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
+
     </div>
   );
 }

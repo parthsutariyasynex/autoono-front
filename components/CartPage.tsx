@@ -20,19 +20,23 @@ const CartPage: React.FC = () => {
     const lp = useLocalePath();
     const { cart, isLoading, error, removeFromCart, updateCartItem, clearCart, refetchCart } = useCart();
     const { startMultiShipping } = useCheckout({ skipInitialFetch: true });
+    const [pendingQtys, setPendingQtys] = React.useState<Record<number, number>>({});
     const [isStartingMultiShipping, setIsStartingMultiShipping] = React.useState(false);
 
-    const handleUpdateQty = async (id: number, qty: number) => {
-        try {
-            await updateCartItem(id, qty);
-        } catch (err) {
-            toast.error(t("cart.updateFailed"));
-        }
+
+    const handleUpdateQty = (id: number, qty: number) => {
+        setPendingQtys(prev => ({ ...prev, [id]: qty }));
     };
 
     const handleRemove = async (id: number) => {
         try {
             await removeFromCart(id);
+            // Clear pending update for this item if any
+            if (pendingQtys[id]) {
+                const newPending = { ...pendingQtys };
+                delete newPending[id];
+                setPendingQtys(newPending);
+            }
             toast.success(t("cart.itemRemoved"));
         } catch (err) {
             toast.error(t("cart.itemRemovalFailed"));
@@ -40,13 +44,27 @@ const CartPage: React.FC = () => {
     };
 
     const handleUpdateCart = async () => {
-        try {
+        const updateIds = Object.keys(pendingQtys);
+        if (updateIds.length === 0) {
             await refetchCart();
-            toast.success("Cart updated");
+            toast.success(t("cart.updated"));
+            return;
+        }
+
+        const toastId = toast.loading(t("cart.updating") || "Updating cart...");
+        try {
+            // Process updates sequentially to avoid cart lock issues
+            for (const id of updateIds) {
+                await updateCartItem(Number(id), pendingQtys[Number(id)]);
+            }
+            setPendingQtys({});
+            await refetchCart();
+            toast.success(t("cart.updated"), { id: toastId });
         } catch (err) {
-            toast.error(t("cart.updateFailed"));
+            toast.error(t("cart.updateFailed"), { id: toastId });
         }
     };
+
 
     const handleClearCart = async () => {
         try {
@@ -79,7 +97,7 @@ const CartPage: React.FC = () => {
             // the assign step will handle the actual session setup
             console.warn("Multi-shipping start warning (proceeding):", err.message);
         }
-        toast.success("Starting multi-location delivery...");
+        toast.success(t("cart.startingMultiLocation"));
         router.push(lp("/multi-location-delivery"));
         setIsStartingMultiShipping(false);
     };
@@ -141,11 +159,11 @@ const CartPage: React.FC = () => {
 
                         <div className="flex flex-col h-full">
                             {/* Table Header (Sticky Top) */}
-                            <div className="hidden lg:flex sticky top-0 z-20 bg-white border border-gray-100 rounded-xl items-center py-3.5 px-6 mb-4 shadow-sm">
-                                <div className="w-[45%] text-[9px] font-black text-gray-400 uppercase tracking-widest">{t("cart.itemDescription")}</div>
-                                <div className="w-[15%] text-[9px] font-black text-gray-400 uppercase tracking-widest text-center">{t("cart.price")}</div>
-                                <div className="w-[20%] text-[9px] font-black text-gray-400 uppercase tracking-widest text-center">{t("cart.qty")}</div>
-                                <div className="w-[20%] text-[9px] font-black text-gray-400 uppercase tracking-widest text-right">{t("cart.total")}</div>
+                            <div className="hidden lg:flex sticky top-0 z-20 bg-white border border-gray-100 rounded-xl items-center py-4 px-10 mb-4 shadow-sm">
+                                <div className="w-[45%] text-[10px] font-bold text-black uppercase tracking-widest">{t("cart.itemDescription")}</div>
+                                <div className="w-[15%] text-[10px] font-bold text-black uppercase tracking-widest text-center">{t("cart.price")}</div>
+                                <div className="w-[20%] text-[10px] font-bold text-black uppercase tracking-widest text-center">{t("cart.qty")}</div>
+                                <div className="w-[20%] text-[10px] font-bold text-black uppercase tracking-widest text-right">{t("cart.total")}</div>
                             </div>
 
                             {/* Scrollable Items Container */}
