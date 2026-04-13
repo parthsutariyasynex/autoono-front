@@ -66,6 +66,7 @@ export default function Navbar() {
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const [subAccountName, setSubAccountName] = useState<string | null>(null);
   const [isSubAccount, setIsSubAccount] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
   const { unreadCount, fetchNotifications: pullNotifications } = useNotifications();
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -109,6 +110,14 @@ export default function Navbar() {
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 0);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   // Fetch dynamic menu from API (re-fetches when locale changes)
@@ -160,10 +169,10 @@ export default function Navbar() {
   }, [locale]);
 
   return (
-    <div className="w-full relative top-0 left-0 right-0 z-[60] flex flex-col" style={{ paddingRight: "var(--scrollbar-width)" }}>
+    <div className={`main-header w-full ${isScrolled ? 'fixed fadeInDown' : 'relative'} top-0 left-0 right-0 z-[60] flex flex-col transition-all duration-300 ease-in-out`} style={{ paddingRight: "var(--scrollbar-width)" }}>
 
       {/* ── HEADER ── */}
-      <header className="main-header bg-white border-b border-gray-100 shadow-[0_1px_4px_rgba(0,0,0,0.06)]">
+      <header className="bg-white border-b border-gray-100 shadow-[0_1px_4px_rgba(0,0,0,0.06)]">
         <div className="relative flex items-center justify-between h-[56px] sm:h-[64px] lg:h-[72px] px-3 sm:px-5 lg:px-8 xl:px-14">
 
           {/* LEFT: BTIRE logo */}
@@ -292,7 +301,7 @@ export default function Navbar() {
       </header>
 
       {/* ── YELLOW NAV BAR — desktop only ── */}
-      <nav className="bg-[#f5b21a] border-b border-yellow-600/10 w-full hidden lg:block">
+      <nav className="bg-[#f5b21a] w-full hidden lg:block">
         <div className="flex items-center justify-center max-w-[1280px] mx-auto px-2 lg:px-4">
           {navLoading ? (
             <div className="flex items-center gap-6">
@@ -301,18 +310,22 @@ export default function Navbar() {
               ))}
             </div>
           ) : (
-            navLinks.map((item) => (
-              <Link
-                key={item.href}
-                href={lp(item.href)}
-                className={`py-3 flex items-center h-full px-2.5 lg:px-7 text-[11px] lg:text-[16px] font-semibold capitalize transition-all duration-200 whitespace-nowrap ${pathname === item.href || pathname?.startsWith(item.href + "/")
-                  ? "bg-black text-white"
-                  : "text-black hover:bg-black hover:text-white"
-                  }`}
-              >
-                {item.label}
-              </Link>
-            ))
+            navLinks.map((item) => {
+              const href = lp(item.href);
+              const isActive = pathname === href || pathname?.startsWith(href + "/");
+              return (
+                <Link
+                  key={item.href}
+                  href={href}
+                  className={`py-3 flex items-center h-full px-2.5 lg:px-7 text-[11px] lg:text-[16px] font-semibold capitalize transition-all duration-200 whitespace-nowrap ${isActive
+                    ? "bg-black text-white"
+                    : "text-black hover:bg-black hover:text-white"
+                    }`}
+                >
+                  {item.label}
+                </Link>
+              );
+            })
           )}
         </div>
       </nav>
@@ -339,18 +352,22 @@ export default function Navbar() {
             {/* Nav links */}
             <div className="px-4 py-2">
               <span className="text-[9px] font-bold text-gray-400 uppercase tracking-[0.2em] block mb-2">{t("nav.navigation")}</span>
-              {navLinks.map((item) => (
-                <Link
-                  key={item.href}
-                  href={lp(item.href)}
-                  className={`py-2.5 text-[12px] font-bold uppercase tracking-wide flex items-center justify-between group ${pathname === item.href ? "text-[#f5b21a]" : "text-black hover:text-[#f5b21a]"
-                    }`}
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  {item.label}
-                  <span className="text-gray-300 group-hover:text-[#f5b21a] transition-colors text-[10px]">→</span>
-                </Link>
-              ))}
+              {navLinks.map((item) => {
+                const href = lp(item.href);
+                const isActive = pathname === href || pathname?.startsWith(href + "/");
+                return (
+                  <Link
+                    key={item.href}
+                    href={href}
+                    className={`py-2.5 text-[12px] font-bold uppercase tracking-wide flex items-center justify-between group ${isActive ? "text-[#f5b21a]" : "text-black hover:text-[#f5b21a]"
+                      }`}
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    {item.label}
+                    <span className="text-gray-300 group-hover:text-[#f5b21a] transition-colors text-[10px]">→</span>
+                  </Link>
+                );
+              })}
             </div>
 
             {/* Quick actions */}
