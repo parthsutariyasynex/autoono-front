@@ -1,7 +1,6 @@
 "use client";
-import { useTranslation } from "@/hooks/useTranslation";
-
 import React from "react";
+import { useTranslation } from "@/hooks/useTranslation";
 import Price from "@/app/components/Price";
 
 export interface Order {

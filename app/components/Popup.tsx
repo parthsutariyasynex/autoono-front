@@ -2,6 +2,8 @@
 
 import React, { useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useLockBodyScroll } from "@/hooks/useLockBodyScroll";
+import { useTranslation } from "@/hooks/useTranslation";
 
 /**
  * Highly reusable Popup component using Framer Motion for smooth transitions.
@@ -21,6 +23,7 @@ interface PopupProps {
     showOverlay?: boolean;
     closeOnOverlayClick?: boolean;
     className?: string;
+    scrollable?: boolean;
 }
 
 const Popup: React.FC<PopupProps> = ({
@@ -34,7 +37,10 @@ const Popup: React.FC<PopupProps> = ({
     showOverlay = true,
     closeOnOverlayClick = true,
     className = "",
+    scrollable = true,
 }) => {
+    const { isRtl } = useTranslation();
+
     // Handle ESC key
     const handleKeyDown = useCallback(
         (e: KeyboardEvent) => {
@@ -45,25 +51,15 @@ const Popup: React.FC<PopupProps> = ({
         [isOpen, onClose]
     );
 
+    // Apply global body scroll lock
+    useLockBodyScroll(isOpen);
+
     useEffect(() => {
         if (isOpen) {
-            // Prevent Layout Shift
-            const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
-            document.body.style.overflow = "hidden";
-            document.body.style.paddingRight = `${scrollbarWidth}px`;
-            document.documentElement.style.setProperty("--scrollbar-width", `${scrollbarWidth}px`);
-
             window.addEventListener("keydown", handleKeyDown);
-        } else {
-            document.body.style.overflow = "";
-            document.body.style.paddingRight = "";
-            document.documentElement.style.setProperty("--scrollbar-width", "0px");
         }
         return () => {
             window.removeEventListener("keydown", handleKeyDown);
-            document.body.style.overflow = "";
-            document.body.style.paddingRight = "";
-            document.documentElement.style.setProperty("--scrollbar-width", "0px");
         };
     }, [isOpen, handleKeyDown]);
 
@@ -74,24 +70,30 @@ const Popup: React.FC<PopupProps> = ({
     };
 
     const getVariants = () => {
+        // Adjust side-slide animations for RTL
+        // LTR: slide-right slides to x: "100%" (off screen right)
+        // RTL: slide-right (usually on the left) slides to x: "-100%" (off screen left)
+        const slideRightX = isRtl ? "-100%" : "100%";
+        const slideLeftX = isRtl ? "100%" : "-100%";
+
         switch (animation) {
             case "fade-scale":
                 return {
-                    hidden: { opacity: 0, scale: 0.9 },
-                    visible: { opacity: 1, scale: 1 },
-                    exit: { opacity: 0, scale: 0.9 },
+                    hidden: { opacity: 0, scale: 0.9, y: 10 },
+                    visible: { opacity: 1, scale: 1, y: 0 },
+                    exit: { opacity: 0, scale: 0.9, y: 10 },
                 };
             case "slide-right":
                 return {
-                    hidden: { x: "100%" },
+                    hidden: { x: slideRightX },
                     visible: { x: 0 },
-                    exit: { x: "100%" },
+                    exit: { x: slideRightX },
                 };
             case "slide-left":
                 return {
-                    hidden: { x: "-100%" },
+                    hidden: { x: slideLeftX },
                     visible: { x: 0 },
-                    exit: { x: "-100%" },
+                    exit: { x: slideLeftX },
                 };
             case "slide-bottom":
                 return {
@@ -139,7 +141,14 @@ const Popup: React.FC<PopupProps> = ({
     return (
         <AnimatePresence>
             {isOpen && (
-                <div className={`fixed inset-0 z-[1000] flex ${getLayoutClasses()}`}>
+                <motion.div
+                    key="popup-container"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.3 }}
+                    className={`fixed inset-0 z-[1000] flex ${getLayoutClasses()}`}
+                >
                     {/* Overlay */}
                     {showOverlay && (
                         <motion.div
@@ -147,8 +156,8 @@ const Popup: React.FC<PopupProps> = ({
                             animate="visible"
                             exit="hidden"
                             variants={backdropVariants}
-                            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-                            className="absolute inset-0 bg-black/60 backdrop-blur-[2px]"
+                            transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                            className="absolute inset-0 bg-black/60 backdrop-blur-[2px] cursor-pointer"
                             onClick={closeOnOverlayClick ? onClose : undefined}
                         />
                     )}
@@ -160,7 +169,7 @@ const Popup: React.FC<PopupProps> = ({
                         exit="hidden"
                         variants={contentVariants}
                         transition={{
-                            duration: 0.6,
+                            duration: 0.5,
                             ease: [0.22, 1, 0.36, 1],
                         }}
                         className={`relative bg-white shadow-2xl overflow-hidden pointer-events-auto flex flex-col ${getContentClasses()} ${className}`}
@@ -170,14 +179,15 @@ const Popup: React.FC<PopupProps> = ({
                                 <h3 className="text-lg font-bold text-gray-900">{title}</h3>
                             </div>
                         )}
-                        <div className="flex-1 overflow-y-auto">
+                        <div className={`flex-1 ${scrollable ? "overflow-y-auto" : "flex flex-col h-full"}`}>
                             {children}
                         </div>
                     </motion.div>
-                </div>
+                </motion.div>
             )}
         </AnimatePresence>
     );
 };
 
 export default Popup;
+

@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useState, useEffect } from "react";
+import { usePathname } from "next/navigation";
 import { isValidLocale, Locale, defaultLocale } from "./config";
 
 export const LocaleContext = createContext<Locale>(defaultLocale);
@@ -23,15 +24,16 @@ export function LocaleProvider({
     initialLocale: Locale
 }) {
     const [locale, setLocale] = useState<Locale>(initialLocale);
+    const pathname = usePathname();
 
-    // On mount: read locale from browser URL (fixes SSR mismatch after rewrite)
-    // Root layout doesn't re-render on client navigation, so initialLocale can be stale.
+    // Sync locale from browser URL on mount AND on every client navigation.
+    // This fixes AR leaking into EN when navigating between locales.
     useEffect(() => {
         const urlLocale = getBrowserLocale();
         if (urlLocale !== locale) {
             setLocale(urlLocale);
         }
-    }, []);
+    }, [pathname]);
 
     // Listen for language switch events (from LanguageSwitcher)
     useEffect(() => {

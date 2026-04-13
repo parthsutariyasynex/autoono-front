@@ -14,7 +14,8 @@ import { useCart } from "@/modules/cart/context/CartContext";
 export default function OrderDetailsPage() {
     const { data: session, status: authStatus } = useSession();
     const router = useRouter();
-    const { t } = useTranslation();
+    const { t, locale } = useTranslation();
+
     const lp = useLocalePath();
     const { orderId } = useParams();
     const { refetchCart } = useCart();
@@ -47,8 +48,10 @@ export default function OrderDetailsPage() {
             const response = await fetch(`/api/kleverapi/order/${orderId}`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
+                    "x-locale": locale,
                 },
             });
+
 
             if (!response.ok) {
                 throw new Error("Failed to fetch order details");
@@ -74,8 +77,10 @@ export default function OrderDetailsPage() {
             const response = await fetch(`/api/kleverapi/order/${orderId}/attachments`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
+                    "x-locale": locale,
                 },
             });
+
 
             const data = await response.json();
 
@@ -127,8 +132,10 @@ export default function OrderDetailsPage() {
             const response = await fetch(`/api/kleverapi/order/${orderId}/pdf`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
+                    "x-locale": locale,
                 },
             });
+
 
             if (!response.ok) {
                 const errorData = await response.json().catch(() => ({}));
@@ -190,8 +197,12 @@ export default function OrderDetailsPage() {
             const targetOrderId = order?.entity_id || orderId;
             const res = await fetch(`/api/kleverapi/order/${targetOrderId}/reorder`, {
                 method: "POST",
-                headers: { Authorization: `Bearer ${token}` },
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    "x-locale": locale
+                },
             });
+
 
             const data = await res.json();
             if (!res.ok) throw new Error(data.message || "Failed to reorder");
@@ -219,8 +230,12 @@ export default function OrderDetailsPage() {
             const proxyUrl = `/api/kleverapi/order-attachments/file/${attachmentId}?url=${encodeURIComponent(fileUrl)}`;
 
             const response = await fetch(proxyUrl, {
-                headers: { Authorization: `Bearer ${token}` },
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    "x-locale": locale
+                },
             });
+
 
             if (!response.ok) {
                 const errData = await response.json().catch(() => ({}));
@@ -252,20 +267,37 @@ export default function OrderDetailsPage() {
 
     // Helpers
     const formatStatus = (status: string) => {
-        if (!status) return;
-        if (status === "approval_pending") return "Check Pending";
-        return status.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase());
+        if (!status) return "";
+        return status;
     };
+
 
     const formatDate = (dateString: string) => {
         if (!dateString) return "-";
         const dateObj = new Date(dateString);
-        return dateObj.toLocaleDateString("en-US", {
+        return dateObj.toLocaleDateString(locale === "ar" ? "ar-SA" : "en-US", {
             year: "numeric",
             month: "long",
             day: "numeric",
         });
     };
+
+    const translateDynamic = (val: string) => {
+        if (!val) return "";
+        // Try direct key first
+        let translated = t(val);
+        if (translated !== val) return translated;
+
+        // Try with data. prefix
+        const dataKey = `data.${val}`;
+        translated = t(dataKey);
+        if (translated !== dataKey) return translated;
+
+        return val;
+    };
+
+
+
 
     const formatCurrency = (amount: number | string | undefined | null) => {
         return <Price amount={amount} />;
@@ -291,13 +323,15 @@ export default function OrderDetailsPage() {
                     <Sidebar />
                     <main className="flex-1 w-full px-4 md:px-6 lg:px-8 py-10">
                         <div className="bg-red-50 border border-red-100 text-red-600 p-4 md:p-8 rounded-lg text-center shadow-sm">
-                            <p className="font-bold text-[14px] uppercase tracking-widest mb-2">Error Loading Order</p>
+                            <p className="font-bold text-[14px] uppercase tracking-widest mb-2">{t("orderDetails.errorLoading")}</p>
+
                             <p className="text-xs">{error}</p>
                             <button
                                 onClick={fetchOrderDetails}
                                 className="mt-6 px-6 md:px-8 py-2.5 bg-red-600 text-white rounded-md font-black text-[10px] uppercase tracking-widest hover:bg-red-700 transition-all active:scale-95 w-full sm:w-auto"
                             >
-                                Try Again
+                                {t("orderDetails.tryAgain")}
+
                             </button>
                         </div>
                     </main>
@@ -325,8 +359,9 @@ export default function OrderDetailsPage() {
                         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 md:mb-10 border-b-2 border-yellow-400 pb-2 gap-2 sm:gap-0">
                             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4">
                                 <h1 className="text-[20px] md:text-[26px] font-black text-black uppercase tracking-tight">
-                                    ORDER # {order.increment_id}
+                                    {t("orderDetails.orderHash")} {order.increment_id}
                                 </h1>
+
                                 <span className={`inline-flex px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${order.status?.toLowerCase().includes('pending') ? 'bg-yellow-100 text-yellow-700' :
                                     order.status?.toLowerCase().includes('complete') ? 'bg-green-100 text-green-700' :
                                         order.status?.toLowerCase().includes('cancel') ? 'bg-red-100 text-red-700' :
@@ -345,7 +380,8 @@ export default function OrderDetailsPage() {
                                 onClick={handleReorder}
                                 className="bg-yellow-400 hover:bg-yellow-500 text-black font-black py-2.5 px-6 md:px-8 rounded-md text-[11px] uppercase tracking-widest transition-all shadow-sm active:scale-95 border border-yellow-500 w-full sm:w-auto"
                             >
-                                REORDER
+                                {t("orderDetails.reorder")}
+
                             </button>
                             <button
                                 onClick={handlePrintOrder}
@@ -361,7 +397,8 @@ export default function OrderDetailsPage() {
                                         <rect x="6" y="14" width="12" height="8"></rect>
                                     </svg>
                                 )}
-                                {isPrinting ? "PRINTING..." : "PRINT ORDER"}
+                                {isPrinting ? t("orderDetails.printing") : t("orderDetails.printOrder")}
+
                             </button>
                         </div>
                     </div>
@@ -370,7 +407,8 @@ export default function OrderDetailsPage() {
                     <div className="bg-white rounded-md border border-[#ebebeb] overflow-hidden mb-10 shadow-sm">
                         <div className="border-b border-[#ebebeb] px-3 md:px-6 py-3 md:py-4 bg-gray-50">
                             <h2 className="text-xs font-black text-black uppercase tracking-widest">
-                                Items Ordered
+                                {t("orderDetails.itemsOrdered")}
+
                             </h2>
                         </div>
                         {/* Desktop Table */}
@@ -378,11 +416,12 @@ export default function OrderDetailsPage() {
                             <table className="w-full text-left min-w-[500px]">
                                 <thead className="bg-gray-50/50 text-[11px] font-black text-black uppercase border-b border-[#ebebeb]">
                                     <tr>
-                                        <th className="px-3 md:px-6 py-3 md:py-4 tracking-widest">Product Name</th>
-                                        <th className="px-3 md:px-6 py-3 md:py-4 tracking-widest text-center">SKU</th>
-                                        <th className="px-3 md:px-6 py-3 md:py-4 tracking-widest text-center">Price</th>
-                                        <th className="px-3 md:px-6 py-3 md:py-4 tracking-widest text-center">Qty</th>
-                                        <th className="px-3 md:px-6 py-3 md:py-4 tracking-widest text-right">Subtotal</th>
+                                        <th className="px-3 md:px-6 py-3 md:py-4 tracking-widest">{t("orderDetails.productName")}</th>
+                                        <th className="px-3 md:px-6 py-3 md:py-4 tracking-widest text-center">{t("orderDetails.sku")}</th>
+                                        <th className="px-3 md:px-6 py-3 md:py-4 tracking-widest text-center">{t("orderDetails.price")}</th>
+                                        <th className="px-3 md:px-6 py-3 md:py-4 tracking-widest text-center">{t("orderDetails.qty")}</th>
+                                        <th className="px-3 md:px-6 py-3 md:py-4 tracking-widest text-right">{t("orderDetails.subtotal")}</th>
+
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-[#ebebeb]">
@@ -400,7 +439,8 @@ export default function OrderDetailsPage() {
                                             <td className="px-3 md:px-6 py-3 md:py-5 text-center text-gray-500 font-bold uppercase">
                                                 {Math.round(item.qty_ordered)}
                                             </td>
-                                            <td className="px-3 md:px-6 py-3 md:py-5 text-right font-black text-black">
+                                            <td className="px-3 md:px-6 py-3 md:py-5 text-end font-black text-black">
+
                                                 {formatCurrency(item.row_total)}
                                             </td>
                                         </tr>
@@ -414,17 +454,21 @@ export default function OrderDetailsPage() {
                             {order.items?.map((item: any, idx: number) => (
                                 <div key={item.item_id || item.id} className={`p-4 text-xs ${idx % 2 !== 0 ? 'bg-gray-50' : 'bg-white'}`}>
                                     <p className="text-black font-black text-sm mb-2">{item.name}</p>
-                                    <p className="text-gray-400 font-bold uppercase tracking-widest text-[10px] mb-3">SKU: {item.sku}</p>
+                                    <p className="text-gray-400 font-bold uppercase tracking-widest text-[10px] mb-3">{t("orderDetails.sku")}: {item.sku}</p>
+
                                     <div className="flex justify-between items-center mb-1">
-                                        <span className="text-gray-500 font-bold uppercase tracking-widest">Price</span>
+                                        <span className="text-gray-500 font-bold uppercase tracking-widest">{t("orderDetails.price")}</span>
+
                                         <span className="text-black font-bold">{formatCurrency(item.price)}</span>
                                     </div>
                                     <div className="flex justify-between items-center mb-1">
-                                        <span className="text-gray-500 font-bold uppercase tracking-widest">Qty</span>
+                                        <span className="text-gray-500 font-bold uppercase tracking-widest">{t("orderDetails.qty")}</span>
+
                                         <span className="text-gray-500 font-bold">{Math.round(item.qty_ordered)}</span>
                                     </div>
                                     <div className="flex justify-between items-center pt-2 border-t border-gray-100">
-                                        <span className="text-black font-black uppercase tracking-widest">Subtotal</span>
+                                        <span className="text-black font-black uppercase tracking-widest">{t("orderDetails.subtotal")}</span>
+
                                         <span className="text-black font-black">{formatCurrency(item.row_total)}</span>
                                     </div>
                                 </div>
@@ -435,29 +479,38 @@ export default function OrderDetailsPage() {
                         <div className="flex justify-end p-4 md:p-8 bg-gray-50/30 border-t border-[#ebebeb]">
                             <div className="w-full max-w-[340px] space-y-3">
                                 <div className="flex justify-between items-center text-xs">
-                                    <span className="text-gray-400 font-bold uppercase tracking-widest flex-1 text-right mr-10">Items Total</span>
-                                    <span className="font-black text-black w-[110px] text-right">
+                                    <span className="text-gray-400 font-bold uppercase tracking-widest flex-1 text-end me-10">{t("orderDetails.itemsTotal")}</span>
+
+
+                                    <span className="font-black text-black w-[110px] text-end">
+
                                         {formatCurrency(order.subtotal)}
                                     </span>
                                 </div>
 
                                 <div className="flex justify-between items-center text-xs">
-                                    <span className="text-gray-400 font-bold uppercase tracking-widest flex-1 text-right mr-10">VAT (15%)</span>
-                                    <span className="font-black text-black w-[110px] text-right">
+                                    <span className="text-gray-400 font-bold uppercase tracking-widest flex-1 text-end me-10">{t("orderDetails.vat")}</span>
+
+
+                                    <span className="font-black text-black w-[110px] text-end">
+
                                         {formatCurrency(order.tax_amount)}
                                     </span>
                                 </div>
 
                                 <div className="flex justify-between items-center text-black pt-4 border-t border-gray-200">
-                                    <span className="font-black uppercase tracking-tighter flex-1 text-right mr-10 text-[18px]">Grand Total</span>
-                                    <span className="font-black w-[110px] text-right text-[18px]">
+                                    <span className="font-black uppercase tracking-tighter flex-1 text-end me-10 text-[18px]">{t("orderDetails.grandTotal")}</span>
+                                    <span className="font-black w-[110px] text-end text-[18px]">
+
                                         {formatCurrency(order.grand_total)}
                                     </span>
                                 </div>
 
                                 <div className="flex justify-between items-center text-[11px] pt-1 pt-4 opacity-50">
-                                    <span className="text-gray-500 font-black uppercase tracking-widest flex-1 text-right mr-10">Total Qty</span>
-                                    <span className="font-black text-black w-[110px] text-right">
+                                    <span className="text-gray-500 font-black uppercase tracking-widest flex-1 text-end me-10">{t("orderDetails.totalQty")}</span>
+
+                                    <span className="font-black text-black w-[110px] text-end">
+
                                         {Math.round(order.total_item_count || order.items?.reduce((acc: number, item: any) => acc + (item.qty_ordered || 0), 0))}
                                     </span>
                                 </div>
@@ -469,7 +522,8 @@ export default function OrderDetailsPage() {
                     <div className="mb-10">
                         <div className="border-b-2 border-yellow-400 inline-block pb-1 mb-10">
                             <h2 className="text-[16px] md:text-[18px] font-black text-black uppercase tracking-tight">
-                                Order Information
+                                {t("orderDetails.orderInfo")}
+
                             </h2>
                         </div>
 
@@ -477,7 +531,8 @@ export default function OrderDetailsPage() {
                             {/* Shipping Address */}
                             <div className="bg-white border border-[#ebebeb] rounded-md shadow-sm overflow-hidden">
                                 <div className="bg-gray-50 px-5 py-3 border-b border-[#ebebeb]">
-                                    <h3 className="text-xs font-black text-black uppercase tracking-widest">Shipping Address</h3>
+                                    <h3 className="text-xs font-black text-black uppercase tracking-widest">{t("orderDetails.shippingAddress")}</h3>
+
                                 </div>
                                 <div className="p-4 md:p-6 text-xs text-gray-600 leading-relaxed min-h-[140px]">
                                     {shippingAddress ? (
@@ -486,11 +541,13 @@ export default function OrderDetailsPage() {
                                             {shippingAddress.company && <p className="font-medium">{shippingAddress.company}</p>}
                                             <p className="font-medium">{shippingAddress.street?.join(", ")}</p>
                                             <p className="font-medium">{shippingAddress.city}, {shippingAddress.postcode}</p>
-                                            <p className="font-medium">{shippingAddress.country_id === "SA" ? "Saudi Arabia" : shippingAddress.country_id}</p>
+                                            <p className="font-medium">{shippingAddress.country_id === "SA" ? t("data.Saudi Arabia") : shippingAddress.country_id}</p>
+
                                             <p className="pt-2 text-black font-black">T: <span className="text-gray-600 font-medium">{shippingAddress.telephone}</span></p>
                                         </div>
                                     ) : (
-                                        <p className="text-gray-400 italic">No shipping address available</p>
+                                        <p className="text-gray-400 italic">{t("orderDetails.noShippingAddress")}</p>
+
                                     )}
                                 </div>
                             </div>
@@ -498,12 +555,15 @@ export default function OrderDetailsPage() {
                             {/* Shipping Method */}
                             <div className="bg-white border border-[#ebebeb] rounded-md shadow-sm overflow-hidden">
                                 <div className="bg-gray-50 px-5 py-3 border-b border-[#ebebeb]">
-                                    <h3 className="text-xs font-black text-black uppercase tracking-widest">Shipping Method</h3>
+                                    <h3 className="text-xs font-black text-black uppercase tracking-widest">{t("orderDetails.shippingMethod")}</h3>
+
                                 </div>
                                 <div className="p-4 md:p-6 text-xs text-gray-600 leading-relaxed min-h-[140px]">
-                                    <p className="font-black text-black uppercase mb-2">{order.shipping_description || "Pickup from Warehouse"}</p>
+                                    <p className="font-black text-black uppercase mb-2">{translateDynamic(order.shipping_description || "Pickup from Warehouse")}</p>
+
                                     <div className="mt-4 pt-4 border-t border-gray-100">
-                                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Expected Delivery</p>
+                                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">{t("orderDetails.expectedDelivery")}</p>
+
                                         <p className="font-bold text-black">N/A</p>
                                     </div>
                                 </div>
@@ -512,7 +572,8 @@ export default function OrderDetailsPage() {
                             {/* Billing Address */}
                             <div className="bg-white border border-[#ebebeb] rounded-md shadow-sm overflow-hidden">
                                 <div className="bg-gray-50 px-5 py-3 border-b border-[#ebebeb]">
-                                    <h3 className="text-xs font-black text-black uppercase tracking-widest">Billing Address</h3>
+                                    <h3 className="text-xs font-black text-black uppercase tracking-widest">{t("orderDetails.billingAddress")}</h3>
+
                                 </div>
                                 <div className="p-4 md:p-6 text-xs text-gray-600 leading-relaxed min-h-[140px]">
                                     {billingAddress ? (
@@ -521,11 +582,13 @@ export default function OrderDetailsPage() {
                                             {billingAddress.company && <p className="font-medium">{billingAddress.company}</p>}
                                             <p className="font-medium">{billingAddress.street?.join(", ")}</p>
                                             <p className="font-medium">{billingAddress.city}, {billingAddress.postcode}</p>
-                                            <p className="font-medium">{billingAddress.country_id === "SA" ? "Saudi Arabia" : billingAddress.country_id}</p>
+                                            <p className="font-medium">{billingAddress.country_id === "SA" ? t("data.Saudi Arabia") : billingAddress.country_id}</p>
+
                                             <p className="pt-2 text-black font-black">T: <span className="text-gray-600 font-medium">{billingAddress.telephone}</span></p>
                                         </div>
                                     ) : (
-                                        <p className="text-gray-400 italic">No billing address available</p>
+                                        <p className="text-gray-400 italic">{t("orderDetails.noBillingAddress")}</p>
+
                                     )}
                                 </div>
                             </div>
@@ -533,13 +596,16 @@ export default function OrderDetailsPage() {
                             {/* Payment Method */}
                             <div className="bg-white border border-[#ebebeb] rounded-md shadow-sm overflow-hidden">
                                 <div className="bg-gray-50 px-5 py-3 border-b border-[#ebebeb]">
-                                    <h3 className="text-xs font-black text-black uppercase tracking-widest">Payment Method</h3>
+                                    <h3 className="text-xs font-black text-black uppercase tracking-widest">{t("orderDetails.paymentMethod")}</h3>
+
                                 </div>
                                 <div className="p-4 md:p-6 text-xs text-gray-600 leading-relaxed min-h-[140px]">
-                                    <p className="font-black text-black uppercase mb-1">{order.payment?.method_title || paymentMethod}</p>
+                                    <p className="font-black text-black uppercase mb-1">{translateDynamic(order.payment?.method_title || paymentMethod)}</p>
+
                                     <div className="mt-4 pt-4 border-t border-gray-100 flex items-center gap-2">
                                         <div className="w-2 h-2 rounded-full bg-green-500"></div>
-                                        <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Payment Confirmed</span>
+                                        <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{t("orderDetails.paymentConfirmed")}</span>
+
                                     </div>
                                 </div>
                             </div>
@@ -550,7 +616,8 @@ export default function OrderDetailsPage() {
                     <div className="mb-12">
                         <div className="border-b-2 border-yellow-400 inline-block pb-1 mb-10">
                             <h2 className="text-[16px] md:text-[18px] font-black text-black uppercase tracking-tight">
-                                Order Attachments
+                                {t("orderDetails.orderAttachments")}
+
                             </h2>
                         </div>
 
@@ -569,11 +636,12 @@ export default function OrderDetailsPage() {
                                     <table className="w-full text-xs border-collapse">
                                         <thead className="bg-gray-50 border-b border-[#ebebeb]">
                                             <tr className="h-[50px]">
-                                                <th className="px-3 md:px-6 py-3 md:py-4 font-black text-black text-left tracking-widest uppercase">File Name</th>
-                                                <th className="px-3 md:px-6 py-3 md:py-4 font-black text-black text-center tracking-widest uppercase">Type</th>
-                                                <th className="px-3 md:px-6 py-3 md:py-4 font-black text-black text-center tracking-widest uppercase">Created On</th>
-                                                <th className="px-3 md:px-6 py-3 md:py-4 font-black text-black text-center tracking-widest uppercase">Due Date</th>
-                                                <th className="px-3 md:px-6 py-3 md:py-4 font-black text-black text-center tracking-widest uppercase">Payment</th>
+                                                <th className="px-3 md:px-6 py-3 md:py-4 font-black text-black text-left tracking-widest uppercase">{t("orderDetails.fileName")}</th>
+                                                <th className="px-3 md:px-6 py-3 md:py-4 font-black text-black text-center tracking-widest uppercase">{t("orderDetails.type")}</th>
+                                                <th className="px-3 md:px-6 py-3 md:py-4 font-black text-black text-center tracking-widest uppercase">{t("orderDetails.createdOn")}</th>
+                                                <th className="px-3 md:px-6 py-3 md:py-4 font-black text-black text-center tracking-widest uppercase">{t("orderDetails.dueDate")}</th>
+                                                <th className="px-3 md:px-6 py-3 md:py-4 font-black text-black text-center tracking-widest uppercase">{t("orderDetails.payment")}</th>
+
                                             </tr>
                                         </thead>
                                         <tbody className="divide-y divide-[#ebebeb]">
@@ -632,7 +700,8 @@ export default function OrderDetailsPage() {
                             </div>
                         ) : (
                             <div className="bg-white border border-[#ebebeb] p-10 md:p-20 text-center text-gray-400 italic rounded-md shadow-sm text-xs font-bold uppercase tracking-widest">
-                                No attachments available for this order
+                                {t("orderDetails.noAttachments")}
+
                             </div>
                         )}
                     </div>
@@ -645,23 +714,27 @@ export default function OrderDetailsPage() {
                 <div className="printable-header">
                     <div className="comp-info">
                         <p className="font-bold">Btire.com</p>
-                        <p>Jeddah</p>
-                        <p>Saudi Arabia</p>
-                        <p>TRN: </p>
-                        <p>Phone: {shippingAddress?.telephone || "-"}</p>
-                        <p>Website: https://altalayi-demo.btire.com/</p>
+                        <p>{t("data.Jeddah")}</p>
+                        <p>{t("data.Saudi Arabia")}</p>
+                        <p>{t("orderDetails.trn")}: </p>
+                        <p>{t("orderDetails.phone")}: {shippingAddress?.telephone || "-"}</p>
+                        <p>{t("orderDetails.website")}: https://altalayi-demo.btire.com/</p>
+
                     </div>
                     <div className="order-title-box">
-                        <h1 className="order-summary-title">ORDER SUMMARY</h1>
+                        <h1 className="order-summary-title">{t("orderDetails.orderSummary")}</h1>
+
                     </div>
                     <div className="order-meta">
                         <img src="/logo/atcl-bridgestone-logo-v1.jpg" alt="Logo" className="print-logo" />
                         <div className="meta-row">
-                            <span className="label">ORDER #</span>
+                            <span className="label">{t("orderDetails.orderHash")}</span>
+
                             <span className="value">{order.increment_id}</span>
                         </div>
                         <div className="meta-row">
-                            <span className="label">DATE</span>
+                            <span className="label">{t("orderDetails.createdOn")}</span>
+
                             <span className="value">{formatDate(order.created_at)}</span>
                         </div>
                     </div>
@@ -669,26 +742,30 @@ export default function OrderDetailsPage() {
 
                 <div className="address-box-container">
                     <div className="address-header-row">
-                        <div className="header-cell">BILLING ADDRESS</div>
-                        <div className="header-cell">SHIP TO</div>
+                        <div className="header-cell">{t("orderDetails.billingAddress")}</div>
+                        <div className="header-cell">{t("orderDetails.shipTo")}</div>
+
                     </div>
                     <div className="address-content-row">
-                        <div className="content-cell border-r border-black">
+                        <div className={`content-cell ${locale === 'ar' ? 'border-l' : 'border-r'} border-black text-start`}>
+
                             <p className="font-bold">{billingAddress?.firstname} {billingAddress?.lastname}</p>
                             <p>{billingAddress?.company || "-"}</p>
                             <p>{billingAddress?.street?.join(", ")}</p>
                             <p>{billingAddress?.city}, {billingAddress?.postcode}</p>
-                            <p>{billingAddress?.country_id === "SA" ? "Saudi Arabia" : billingAddress?.country_id}</p>
-                            <p>Phone: {billingAddress?.telephone}</p>
+                            <p>{billingAddress?.country_id === "SA" ? t("data.Saudi Arabia") : billingAddress?.country_id}</p>
+                            <p>{t("orderDetails.phone")}: {billingAddress?.telephone}</p>
                             <p>Email: {order.customer_email || "-"}</p>
+
                         </div>
                         <div className="content-cell">
                             <p className="font-bold">{shippingAddress?.firstname} {shippingAddress?.lastname}</p>
                             <p>{shippingAddress?.company || "-"}</p>
                             <p>{shippingAddress?.street?.join(", ")}</p>
                             <p>{shippingAddress?.city}, {shippingAddress?.postcode}</p>
-                            <p>{shippingAddress?.country_id === "SA" ? "Saudi Arabia" : shippingAddress?.country_id}</p>
-                            <p>Phone: {shippingAddress?.telephone}</p>
+                            <p>{shippingAddress?.country_id === "SA" ? t("data.Saudi Arabia") : shippingAddress?.country_id}</p>
+                            <p>{t("orderDetails.phone")}: {shippingAddress?.telephone}</p>
+
                         </div>
                     </div>
                 </div>
@@ -696,10 +773,11 @@ export default function OrderDetailsPage() {
                 <table className="items-print-table">
                     <thead>
                         <tr>
-                            <th className="text-left">DESCRIPTION</th>
-                            <th className="text-center">QTY</th>
-                            <th className="text-right">UNIT PRICE</th>
-                            <th className="text-right">TOTAL</th>
+                            <th className="text-left">{t("orderDetails.description")}</th>
+                            <th className="text-center">{t("orderDetails.qty")}</th>
+                            <th className="text-right">{t("orderDetails.unitPrice")}</th>
+                            <th className="text-right">{t("orderDetails.total")}</th>
+
                         </tr>
                     </thead>
                     <tbody>
@@ -720,15 +798,18 @@ export default function OrderDetailsPage() {
                 <div className="totals-print-container">
                     <div className="totals-wrapper">
                         <div className="total-row">
-                            <span>SUB TOTAL</span>
+                            <span>{t("orderDetails.subtotal")}</span>
+
                             <span>{formatCurrency(order.subtotal)}</span>
                         </div>
                         <div className="total-row">
-                            <span>TAX</span>
+                            <span>{t("orderDetails.vat")}</span>
+
                             <span>{formatCurrency(order.tax_amount)}</span>
                         </div>
                         <div className="total-row grand-total-row">
-                            <span>GRAND TOTAL</span>
+                            <span>{t("orderDetails.grandTotal")}</span>
+
                             <span>{formatCurrency(order.grand_total)}</span>
                         </div>
                     </div>

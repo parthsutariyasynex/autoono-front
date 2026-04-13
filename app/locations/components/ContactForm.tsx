@@ -3,8 +3,10 @@
 import React, { useState } from "react";
 import { Send, User, Phone, Mail, MessageSquare, Loader2, CheckCircle2 } from "lucide-react";
 import styles from "../locations.module.css";
+import { useTranslation } from "@/hooks/useTranslation";
 
 const ContactForm: React.FC = () => {
+    const { t } = useTranslation();
     const [formData, setFormData] = useState({
         name: "",
         phone: "",
@@ -17,14 +19,14 @@ const ContactForm: React.FC = () => {
 
     const validate = () => {
         const newErrors: Record<string, string> = {};
-        if (!formData.name.trim()) newErrors.name = "Your Name is required";
-        if (!formData.phone.trim()) newErrors.phone = "Phone number is required";
+        if (!formData.name.trim()) newErrors.name = t("contact.nameRequired");
+        if (!formData.phone.trim()) newErrors.phone = t("contact.phoneRequired");
         if (!formData.email.trim()) {
-            newErrors.email = "Email address is required";
+            newErrors.email = t("contact.emailRequired");
         } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-            newErrors.email = "Email format is invalid";
+            newErrors.email = t("contact.emailInvalid");
         }
-        if (!formData.comment.trim()) newErrors.comment = "Please provide your message";
+        if (!formData.comment.trim()) newErrors.comment = t("contact.messageRequired");
 
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
@@ -55,13 +57,13 @@ const ContactForm: React.FC = () => {
                 <div className="flex justify-center mb-6">
                     <CheckCircle2 className="w-20 h-20 text-green-500 animate-bounce" />
                 </div>
-                <h3 className="text-[26px] font-black text-green-800 mb-4 uppercase tracking-tight">Message Sent Successfully!</h3>
-                <p className="text-green-700 font-medium text-[16px]">Thank you for reaching out. Our team will get back to you within 24 hours.</p>
+                <h3 className="text-[26px] font-black text-green-800 mb-4 uppercase tracking-tight">{t("contact.success")}</h3>
+                <p className="text-green-700 font-medium text-[16px]">{t("contact.successDesc")}</p>
                 <button
                     onClick={() => setIsSubmitted(false)}
                     className="mt-10 px-8 py-3 bg-green-800 text-white font-bold rounded hover:bg-green-900 transition-all uppercase text-[13px] tracking-widest shadow-md"
                 >
-                    Send Another Message
+                    {t("contact.sendAnother")}
                 </button>
             </div>
         );
@@ -78,7 +80,7 @@ const ContactForm: React.FC = () => {
                         <input
                             name="name"
                             type="text"
-                            placeholder="Your Name"
+                            placeholder={t("contact.namePlaceholder")}
                             value={formData.name}
                             onChange={handleChange}
                             className={`w-full pl-10 sm:pl-12 pr-5 py-4.5 border-2 ${errors.name ? 'border-red-400 focus:border-red-500' : 'border-gray-100 focus:border-[#f5a623]'} focus:outline-none transition-all bg-white text-black text-[15px] shadow-sm rounded-sm`}
@@ -92,7 +94,7 @@ const ContactForm: React.FC = () => {
                         <input
                             name="phone"
                             type="tel"
-                            placeholder="Phone"
+                            placeholder={t("contact.phonePlaceholder")}
                             value={formData.phone}
                             onChange={handleChange}
                             className={`w-full pl-10 sm:pl-12 pr-5 py-4.5 border-2 ${errors.phone ? 'border-red-400 focus:border-red-500' : 'border-gray-100 focus:border-[#f5a623]'} focus:outline-none transition-all bg-white text-black text-[15px] shadow-sm rounded-sm`}
@@ -108,7 +110,7 @@ const ContactForm: React.FC = () => {
                     <input
                         name="email"
                         type="email"
-                        placeholder="Your Email"
+                        placeholder={t("contact.emailPlaceholder")}
                         value={formData.email}
                         onChange={handleChange}
                         className={`w-full pl-10 sm:pl-12 pr-5 py-4.5 border-2 ${errors.email ? 'border-red-400 focus:border-red-500' : 'border-gray-100 focus:border-[#f5a623]'} focus:outline-none transition-all bg-white text-black text-[15px] shadow-sm rounded-sm`}
@@ -122,7 +124,7 @@ const ContactForm: React.FC = () => {
                     </div>
                     <textarea
                         name="comment"
-                        placeholder="What's on your mind?"
+                        placeholder={t("contact.messagePlaceholder")}
                         rows={7}
                         value={formData.comment}
                         onChange={handleChange}
@@ -140,16 +142,16 @@ const ContactForm: React.FC = () => {
                         {isLoading ? (
                             <>
                                 <Loader2 className="w-6 h-6 animate-spin" />
-                                Processing...
+                                {t("contact.processing")}
                             </>
                         ) : (
                             <>
                                 <Send className="w-5 h-5" />
-                                SEND MESSAGE
+                                {t("contact.sendMessage")}
                             </>
                         )}
                     </button>
-                    <p className="text-[11px] text-gray-500 mt-2 font-medium italic">We&apos;ll never share your email with anyone else.</p>
+                    <p className="text-[11px] text-gray-500 mt-2 font-medium italic">{t("contact.privacyNote")}</p>
                 </div>
             </form>
         </section>

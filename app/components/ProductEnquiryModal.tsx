@@ -6,6 +6,7 @@ import { toast } from "react-hot-toast";
 import { getSession } from "next-auth/react";
 import Drawer from "./Drawer";
 import Price from "./Price";
+import { useTranslation } from "@/hooks/useTranslation";
 
 
 interface ProductEnquiryModalProps {
@@ -23,6 +24,7 @@ export default function ProductEnquiryModal({
     isOpen,
     onClose,
 }: ProductEnquiryModalProps) {
+    const { t } = useTranslation();
     const [formData, setFormData] = useState({
         quantity: "1",
         comment: "",
@@ -51,7 +53,7 @@ export default function ProductEnquiryModal({
         e.preventDefault();
 
         if (parseInt(formData.quantity) <= 0) {
-            toast.error("Quantity must be greater than 0");
+            toast.error(t("inquiry.qtyError"));
             return;
         }
 
@@ -83,7 +85,7 @@ export default function ProductEnquiryModal({
                 throw new Error(errorData.message || "Something went wrong");
             }
 
-            toast.success("Enquiry submitted successfully!");
+            toast.success(t("inquiry.enquirySuccess"));
             onClose();
             // Reset form
             setFormData({
@@ -104,21 +106,21 @@ export default function ProductEnquiryModal({
             <div className="flex flex-col h-full bg-white font-sans">
                 {/* HEADER */}
                 <div className="bg-[#FFB82B] py-6 flex items-center justify-center relative flex-shrink-0">
-                    <h2 className="text-[18px] font-bold text-black uppercase tracking-tight">Product Enquiry</h2>
+                    <h2 className="text-[18px] font-bold text-black uppercase tracking-tight">{t("inquiry.title")}</h2>
                 </div>
 
                 <form onSubmit={handleSubmit} className="p-8 space-y-6 overflow-y-auto flex-1 pb-10">
                     {/* Product Info Section (Matches provided Image Layout) */}
                     <div className="px-1 space-y-5">
                         <div className="space-y-1">
-                            <h3 className="text-[16px] font-bold text-black leading-none">Name</h3>
+                            <h3 className="text-[16px] font-bold text-black leading-none">{t("inquiry.name")}</h3>
                             <p className="text-[15px] text-black leading-snug truncate-none">
                                 {productName}
                             </p>
                         </div>
 
                         <div className="space-y-1">
-                            <h3 className="text-[16px] font-bold text-black leading-none">Price</h3>
+                            <h3 className="text-[16px] font-bold text-black leading-none">{t("inquiry.price")}</h3>
                             <div className="text-[18px] text-black price currency-riyal">
 
                                 <Price amount={productPrice} />
@@ -130,7 +132,7 @@ export default function ProductEnquiryModal({
                     <div className="space-y-6">
                         {/* Quantity */}
                         <div className="space-y-2">
-                            <label className="text-[16px] font-bold text-black leading-none ml-0.5">Order Quantity</label>
+                            <label className="text-[16px] font-bold text-black leading-none">{t("inquiry.orderQuantity")}</label>
                             <input
                                 required
                                 type="number"
@@ -143,10 +145,10 @@ export default function ProductEnquiryModal({
 
                         {/* Comment */}
                         <div className="space-y-2">
-                            <label className="text-[16px] font-bold text-black leading-none ml-0.5">Notes / Comments</label>
+                            <label className="text-[16px] font-bold text-black leading-none">{t("inquiry.notesComments")}</label>
                             <textarea
                                 rows={4}
-                                placeholder="Any special requests or questions?"
+                                placeholder={t("inquiry.placeholder")}
                                 className="w-full px-4 py-3.5 bg-white border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-[#FFB82B] transition-all text-base resize-none shadow-sm"
                                 value={formData.comment}
                                 onChange={(e) => setFormData({ ...formData, comment: e.target.value })}
@@ -165,7 +167,7 @@ export default function ProductEnquiryModal({
                                     />
                                 </div>
                                 <span className="text-[15px] font-bold text-gray-700 group-hover:text-black transition-colors">
-                                    Notify me when this product is back in stock
+                                    {t("inquiry.notifyStock")}
                                 </span>
                             </label>
                         </div>
@@ -181,7 +183,7 @@ export default function ProductEnquiryModal({
                             {isSubmitting ? (
                                 <div className="w-6 h-6 border-3 border-black border-t-transparent rounded-full animate-spin"></div>
                             ) : (
-                                "SUBMIT ENQUIRY"
+                                t("inquiry.submitEnquiry")
                             )}
                         </button>
                     </div>

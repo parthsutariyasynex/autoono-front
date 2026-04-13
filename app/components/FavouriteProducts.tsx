@@ -10,6 +10,7 @@ import ProductDialog from "./ProductDialog";
 import Drawer from "./Drawer";
 import Modal from "./Modal";
 import Price from "./Price";
+import AddToCartPopup from "./AddToCartPopup";
 
 import { api } from "@/lib/api/api-client";
 import { useTranslation } from "@/hooks/useTranslation";
@@ -60,6 +61,8 @@ export default function FavouriteProducts() {
     const [addingToCart, setAddingToCart] = useState<string | null>(null);
     const [quantities, setQuantities] = useState<Record<number, number>>({});
     const [removing, setRemoving] = useState<number | null>(null);
+    const [isAddedPopupOpen, setIsAddedPopupOpen] = useState(false);
+    const [addedProduct, setAddedProduct] = useState<any | null>(null);
 
     const [currentPage, setCurrentPage] = useState(1);
     const [pageSize, setPageSize] = useState(10);
@@ -170,16 +173,16 @@ export default function FavouriteProducts() {
     const onAddToCart = async (product: Product) => {
         const qty = quantities[product.product_id] || 1;
         setAddingToCart(product.sku);
-        const toastId = toast.loading(t("m.add-to-cart"));
         try {
             await api.post("/kleverapi/cart/add", { sku: product.sku, qty });
             await refetchCart();
-            toast.success(`${product.name.substring(0, 15)}... ${t("favorites.cartAdded")}`, { id: toastId });
+            setAddedProduct(product);
+            setIsAddedPopupOpen(true);
         } catch (err) {
             if (err === "Unauthorized") {
                 redirectToLogin(router);
             }
-            toast.error(t("cart.updateFailed"), { id: toastId });
+            toast.error(t("cart.updateFailed"));
         } finally {
             setAddingToCart(null);
         }
@@ -517,6 +520,15 @@ export default function FavouriteProducts() {
                 product={selectedProduct}
                 isOpen={!!selectedProduct}
                 onClose={() => setSelectedProduct(null)}
+            />
+
+            <AddToCartPopup
+                isOpen={isAddedPopupOpen}
+                product={addedProduct}
+                onClose={() => {
+                    setIsAddedPopupOpen(false);
+                    setAddedProduct(null);
+                }}
             />
 
             {/* Image Preview - Side Drawer */}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useLocale } from "@/lib/i18n/client";
+import { useLocale } from "../lib/i18n/client";
 
 /**
  * Returns a function that prefixes any path with the current locale.

@@ -2,14 +2,16 @@
 
 import type { Product } from "../../modules/types/product";
 import Drawer from "./Drawer";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface ProductDialogProps {
   product: Product | null;
-  isOpen: boolean; // Added isOpen prop to align with Drawer pattern
+  isOpen: boolean;
   onClose: () => void;
 }
 
 export default function ProductDialog({ product, isOpen, onClose }: ProductDialogProps) {
+  const { t, isRtl } = useTranslation();
   const p = (product || {}) as any;
 
   const getAttr = (code: string) => {
@@ -22,33 +24,33 @@ export default function ProductDialog({ product, isOpen, onClose }: ProductDialo
   };
 
   const details = [
-    { label: "Item Code", value: getAttr("item_code") || p.sku || p.id },
-    { label: "Brand", value: getAttr("brand") || p.manufacturer || (p.name ? p.name.split(' ')[0] : "N/A") },
-    { label: "Size", value: getAttr("tyre_size") || p.size },
-    { label: "Pattern", value: p.pattern },
-    { label: "Year", value: getAttr("year") || p.model_year },
-    { label: "Origin", value: getAttr("origin") || p.country_of_manufacture },
+    { label: t("productDialog.itemCode"), value: getAttr("item_code") || p.sku || p.id },
+    { label: t("productDialog.brand"), value: getAttr("brand") || p.manufacturer || (p.name ? p.name.split(' ')[0] : "N/A") },
+    { label: t("productDialog.size"), value: getAttr("tyre_size") || p.size },
+    { label: t("productDialog.pattern"), value: p.pattern },
+    { label: t("productDialog.year"), value: getAttr("year") || p.model_year },
+    { label: t("productDialog.origin"), value: getAttr("origin") || p.country_of_manufacture },
     {
-      label: "Product Group",
+      label: t("productDialog.productGroup"),
       value: getAttr("product_group") || getAttr("category_name") || getAttr("types") || getAttr("type")
     },
     {
-      label: "Tyre Type",
+      label: t("productDialog.tyreType"),
       value: getAttr("tyre_type") || getAttr("types") || getAttr("type_of_tyre") || getAttr("construction_type")
     },
     {
-      label: "OEM Marking",
+      label: t("productDialog.oemMarking"),
       value: getAttr("oem_marking") || getAttr("marking") || getAttr("oem")
     },
   ];
 
   return (
     <Drawer isOpen={isOpen} onClose={onClose}>
-      <div className="flex flex-col h-full bg-white">
+      <div className="flex flex-col h-full bg-white" dir={isRtl ? "rtl" : "ltr"}>
         {/* Yellow Header */}
         <div className="bg-[#FFB82B] px-4 md:px-8 py-4 md:py-6 flex items-center justify-center relative flex-shrink-0">
           <h2 className="text-[14px] md:text-[17px] font-black text-black text-center uppercase tracking-tight">
-            {p.pattern || p.name || "Product"} {p.tyre_size ? `- ${p.tyre_size}` : ""}
+            {p.pattern || p.name || t("productDialog.product")} {p.tyre_size ? `- ${p.tyre_size}` : ""}
           </h2>
         </div>
 
@@ -63,7 +65,7 @@ export default function ProductDialog({ product, isOpen, onClose }: ProductDialo
                 <span className="text-[12px] md:text-[14px] font-bold text-gray-800 flex-shrink-0">
                   {row.label}
                 </span>
-                <span className="text-[12px] md:text-[14px] font-black text-black text-right truncate">
+                <span className="text-[12px] md:text-[14px] font-black text-black ltr:text-right rtl:text-left truncate">
                   {row.value || "-"}
                 </span>
               </div>
@@ -75,7 +77,7 @@ export default function ProductDialog({ product, isOpen, onClose }: ProductDialo
               onClick={onClose}
               className="w-full py-3 md:py-4 bg-gray-900 text-white text-[12px] md:text-[14px] font-black uppercase tracking-widest rounded shadow-lg hover:bg-black transition-all"
             >
-              Close Details
+              {t("productDialog.closeDetails")}
             </button>
           </div>
         </div>

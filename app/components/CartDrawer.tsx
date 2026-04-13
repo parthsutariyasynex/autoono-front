@@ -10,6 +10,10 @@ import { useTranslation } from "@/hooks/useTranslation";
 import { useLocalePath } from "@/hooks/useLocalePath";
 
 
+import Drawer from "./Drawer";
+import Popup from "./Popup";
+import toast from "react-hot-toast";
+
 interface CartDrawerProps {
     isOpen: boolean;
     onClose: () => void;
@@ -19,7 +23,10 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
     const { cart, isLoading, updateCartItem, removeFromCart, refetchCart } = useCart();
     const { t } = useTranslation();
     const lp = useLocalePath();
-    const [isAnimating, setIsAnimating] = useState(false);
+
+    // Confirmation State
+    const [confirmId, setConfirmId] = useState<number | null>(null);
+    const [isRemoving, setIsRemoving] = useState(false);
 
     // Sync with cart-updated events
     useEffect(() => {
@@ -28,159 +35,179 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
         return () => window.removeEventListener("cart-updated", handleCartUpdate);
     }, [refetchCart]);
 
-    useEffect(() => {
-        if (isOpen) {
-            setIsAnimating(true);
-            // Don't disable scroll for a dropdown-style cart, only for full drawers
-            // document.body.style.overflow = "hidden"; 
-        } else {
-            const timer = setTimeout(() => setIsAnimating(false), 300);
-            return () => clearTimeout(timer);
+    const handleConfirmDelete = async () => {
+        if (!confirmId) return;
+        setIsRemoving(true);
+        try {
+            await removeFromCart(confirmId);
+            toast.success(t("cart.itemRemoved"));
+            setConfirmId(null);
+        } catch (error) {
+            toast.error(t("cart.error"));
+        } finally {
+            setIsRemoving(false);
         }
-    }, [isOpen]);
+    };
 
-    if (!isOpen && !isAnimating) return null;
+    const itemToDelete = cart?.items.find(i => i.item_id === confirmId);
 
     return (
-        <div className={`fixed inset-0 z-[100] transition-opacity duration-300 ${isOpen ? "opacity-100" : "opacity-0 pointer-events-none"}`}>
-            {/* Overlay - allows clicking outside to close */}
-            <div
-                className="absolute inset-0 bg-black/20 backdrop-blur-[2px]"
-                onClick={onClose}
-            />
-
-            {/* Dropdown Panel */}
-            <div
-                className={`absolute right-0 sm:right-4 top-0 sm:top-20 w-full sm:w-[350px] h-full sm:h-auto bg-white sm:rounded-xl shadow-2xl flex flex-col transition-all duration-300 ease-in-out transform ${isOpen
-                    ? "translate-x-0 sm:translate-y-0 opacity-100 sm:scale-100"
-                    : "translate-x-full sm:translate-x-0 sm:-translate-y-4 opacity-0 sm:scale-95 pointer-events-none"
-                    } overflow-hidden sm:max-h-[calc(100vh-120px)]`}
+        <>
+            <Drawer
+                isOpen={isOpen}
+                onClose={onClose}
+                title={`${cart?.items_count || 0} ${t("cart.itemsInCart")}`}
             >
-                {/* Top Section */}
-                <div className="p-4 border-b border-gray-100">
-                    <div className="flex justify-between items-center">
-                        <h2 className="text-[15px] sm:text-[17px] font-bold text-gray-900">
-                            {cart?.items_count || 0} {t("cart.itemsInCart")}
-                        </h2>
-                        <button
-                            onClick={onClose}
-                            className="p-2 hover:bg-gray-100 rounded-full transition-colors -mr-1"
-                            aria-label="Close cart"
-                        >
-                            <X size={22} className="text-gray-500" />
-                        </button>
-                    </div>
-                    <div className="flex justify-between items-end mt-2">
-                        <div className="text-right ml-auto">
-                            <p className="text-xs text-gray-500 font-semibold uppercase tracking-wider">{t("cart.subtotal")}</p>
-                            <p className="text-[15px] sm:text-[17px] font-black text-[#003d7e] price currency-riyal">
-
+                <div className="flex flex-col h-full bg-white">
+                    {/* Header Sub-info */}
+                    <div className="px-6 py-4 bg-gray-50/50 border-b border-gray-100">
+                        <div className="flex justify-between items-center">
+                            <span className="text-[11px] font-black text-gray-400 uppercase tracking-widest leading-none">
+                                {t("cart.subtotal")}
+                            </span>
+                            <span className="text-[17px] font-black text-[#003d7e] price currency-riyal">
                                 <Price amount={cart?.subtotal || 0} />
-
-                            </p>
+                            </span>
                         </div>
                     </div>
-                </div>
 
-                {/* Cart Product List */}
-                <div className="flex-1 overflow-y-auto custom-scrollbar min-h-[100px] sm:max-h-[450px]">
-                    {isLoading ? (
-                        <div className="flex flex-col items-center justify-center py-12 space-y-3">
-                            <div className="w-8 h-8 border-3 border-[#f5b21a] border-t-transparent rounded-full animate-spin"></div>
-                            <p className="text-xs text-gray-400 font-medium">{t("cart.updatingCart")}</p>
-                        </div>
-                    ) : (cart?.items?.length || 0) === 0 ? (
-                        <div className="text-center py-12 px-6">
-                            <div className="bg-gray-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                                <ShoppingCartIcon />
+                    {/* Cart Product List */}
+                    <div className="flex-1 overflow-y-auto custom-scrollbar">
+                        {isLoading ? (
+                            <div className="flex flex-col items-center justify-center py-20 space-y-4">
+                                <div className="w-10 h-10 border-3 border-[#f5b21a] border-t-transparent rounded-full animate-spin"></div>
+                                <p className="text-xs text-gray-400 font-black uppercase tracking-widest">{t("cart.updatingCart")}</p>
                             </div>
-                            <p className="text-gray-500 font-bold">{t("cart.yourCartIsEmpty")}</p>
-                            <p className="text-xs text-gray-400 mt-1">{t("cart.addItems")}</p>
-                        </div>
-                    ) : (
-                        <div className="divide-y divide-gray-100">
-                            {cart?.items.map((item) => (
-                                <div key={item.item_id} className="p-4 flex gap-4 hover:bg-gray-50/50 transition-colors group relative">
-                                    {/* Left: Product Image */}
-                                    <div className="w-20 h-20 bg-white border border-gray-100 rounded-lg flex-shrink-0 p-1 flex items-center justify-center group-hover:border-[#f5b21a]/30 transition-colors">
-                                        <img
-                                            src={item.image_url || "/images/tyre-sample.png"}
-                                            alt={item.name}
-                                            className="max-w-full max-h-full object-contain"
-                                            onError={(e) => {
-                                                (e.target as HTMLImageElement).src = "/images/tyre-sample.png";
-                                            }}
-                                        />
-                                    </div>
-
-                                    {/* Center: Info */}
-                                    <div className="flex-1 min-w-0 flex flex-col justify-between">
-                                        <div>
-                                            <h3 className="text-sm font-bold text-gray-900 leading-tight line-clamp-2">
-                                                {item.name}
-                                            </h3>
-                                            <p className="text-[15px] font-black text-[#003d7e] mt-1 price currency-riyal">
-
-                                                <Price amount={item.price} />
-
-                                            </p>
+                        ) : (cart?.items?.length || 0) === 0 ? (
+                            <div className="flex flex-col items-center justify-center py-24 px-10 text-center">
+                                <div className="bg-gray-50 w-20 h-20 rounded-full flex items-center justify-center mb-6 shadow-inner">
+                                    <ShoppingCartIcon />
+                                </div>
+                                <p className="text-[16px] font-black text-gray-900 uppercase tracking-tight">{t("cart.yourCartIsEmpty")}</p>
+                                <p className="text-xs text-gray-400 mt-2 font-medium">{t("cart.addItems")}</p>
+                                <button
+                                    onClick={onClose}
+                                    className="mt-8 text-[11px] font-black text-[#f5b21a] uppercase tracking-[0.2em] hover:text-black transition-colors"
+                                >
+                                    {t("multi.continueShopping")}
+                                </button>
+                            </div>
+                        ) : (
+                            <div className="divide-y divide-gray-100 pb-20">
+                                {cart?.items.map((item) => (
+                                    <div key={item.item_id} className="p-6 flex gap-6 hover:bg-gray-50/30 transition-all group">
+                                        {/* Left: Product Image */}
+                                        <div className="w-24 h-24 bg-white border border-gray-100 rounded-lg flex-shrink-0 p-2 flex items-center justify-center shadow-sm group-hover:shadow-md transition-all duration-300">
+                                            <img
+                                                src={item.image_url || "/images/tyre-sample.png"}
+                                                alt={item.name}
+                                                className="max-w-full max-h-full object-contain"
+                                                onError={(e) => {
+                                                    (e.target as HTMLImageElement).src = "/images/tyre-sample.png";
+                                                }}
+                                            />
                                         </div>
 
-                                        {/* Quantity Selector */}
-                                        <div className="flex items-center gap-2 mt-2">
-                                            <span className="text-[11px] font-bold text-gray-400 uppercase">{t("cart.qty")}:</span>
-                                            <div className="flex items-center bg-gray-100 rounded-md p-0.5 border border-gray-200">
+                                        {/* Center: Info */}
+                                        <div className="flex-1 min-w-0 flex flex-col justify-center">
+                                            <div>
+                                                <h3 className="text-sm font-black text-gray-900 leading-snug line-clamp-2 uppercase tracking-tight">
+                                                    {item.name}
+                                                </h3>
+                                                <p className="text-[16px] font-black text-[#003d7e] mt-1.5 price currency-riyal">
+                                                    <Price amount={item.price} />
+                                                </p>
+                                            </div>
+
+                                            {/* Quantity & Actions */}
+                                            <div className="flex items-center justify-between mt-4">
+                                                <div className="flex items-center bg-gray-100 rounded-md p-0.5 border border-gray-200">
+                                                    <button
+                                                        onClick={() => updateCartItem(item.item_id, item.qty - 1)}
+                                                        className="w-7 h-7 flex items-center justify-center hover:bg-white hover:shadow-sm rounded transition-all text-gray-600 disabled:opacity-30"
+                                                        disabled={item.qty <= 1}
+                                                    >
+                                                        <Minus size={12} strokeWidth={3} />
+                                                    </button>
+                                                    <span className="w-10 text-center text-xs font-black text-gray-900 bg-transparent">
+                                                        {item.qty}
+                                                    </span>
+                                                    <button
+                                                        onClick={() => updateCartItem(item.item_id, item.qty + 1)}
+                                                        className="w-7 h-7 flex items-center justify-center hover:bg-white hover:shadow-sm rounded transition-all text-gray-600"
+                                                    >
+                                                        <Plus size={12} strokeWidth={3} />
+                                                    </button>
+                                                </div>
+
                                                 <button
-                                                    onClick={() => updateCartItem(item.item_id, item.qty - 1)}
-                                                    className="w-6 h-6 flex items-center justify-center hover:bg-white hover:shadow-sm rounded transition-all text-gray-600"
-                                                    disabled={item.qty <= 1}
+                                                    onClick={() => setConfirmId(item.item_id)}
+                                                    className="w-9 h-9 flex items-center justify-center text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-full transition-all"
+                                                    aria-label="Remove item"
                                                 >
-                                                    <Minus size={12} strokeWidth={3} />
-                                                </button>
-                                                <input
-                                                    type="text"
-                                                    value={item.qty}
-                                                    readOnly
-                                                    className="w-8 text-center text-xs font-bold text-gray-900 bg-transparent"
-                                                />
-                                                <button
-                                                    onClick={() => updateCartItem(item.item_id, item.qty + 1)}
-                                                    className="w-6 h-6 flex items-center justify-center hover:bg-white hover:shadow-sm rounded transition-all text-gray-600"
-                                                >
-                                                    <Plus size={12} strokeWidth={3} />
+                                                    <Trash2 size={18} strokeWidth={2.5} />
                                                 </button>
                                             </div>
                                         </div>
                                     </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
 
-                                    {/* Right: Delete Icon */}
-                                    <button
-                                        onClick={() => removeFromCart(item.item_id)}
-                                        className="text-gray-300 hover:text-red-500 transition-colors self-start mt-1"
-                                        aria-label="Remove item"
-                                    >
-                                        <Trash2 size={18} strokeWidth={2.5} />
-                                    </button>
-                                </div>
-                            ))}
-                        </div>
-                    )}
+                    {/* Bottom Section */}
+                    <div className="p-6 bg-white border-t border-gray-100 shadow-[0_-10px_40px_rgba(0,0,0,0.04)] z-10">
+                        <Link
+                            href={lp("/cart")}
+                            onClick={onClose}
+                            className="w-full h-[55px] bg-[#f5b21a] hover:bg-black text-black hover:text-white font-black rounded-sm transition-all duration-300 flex items-center justify-center shadow-lg hover:shadow-xl uppercase tracking-[0.2em] text-[12px]"
+                        >
+                            {t("cart.viewAndEditCart")}
+                        </Link>
+                    </div>
                 </div>
+            </Drawer>
 
-                {/* Bottom Section */}
-                <div className="p-4 bg-white border-t border-gray-100 sticky bottom-0">
-                    <Link
-                        href={lp("/cart")}
-                        onClick={onClose}
-                        className="w-full h-[48px] sm:h-[55px] bg-[#f5b21a] hover:bg-[#e0a218] text-black font-black rounded-lg transition-all duration-300 flex items-center justify-center shadow-lg hover:shadow-xl uppercase tracking-widest text-[12px] sm:text-sm"
+            <Popup
+                isOpen={!!confirmId}
+                onClose={() => setConfirmId(null)}
+                animation="fade-scale"
+                maxWidth="max-w-[550px]"
+                className="!rounded-[4px] shadow-2xl"
+            >
+                <div className="bg-white relative">
+                    {/* Close Button */}
+                    <button
+                        onClick={() => setConfirmId(null)}
+                        className="absolute top-4 right-4 w-7 h-7 bg-black rounded-full flex items-center justify-center text-white hover:scale-110 transition-transform z-10"
                     >
-                        {t("cart.viewAndEditCart")}
-                    </Link>
+                        <X size={14} strokeWidth={3} />
+                    </button>
+
+                    <div className="p-8 pb-6">
+                        <p className="text-gray-900 text-[15px] font-medium leading-relaxed mt-2">
+                            Are you sure you would like to remove this item from the shopping cart?
+                        </p>
+                    </div>
+
+                    <div className="border-t border-gray-100 p-6 pt-5 pb-5 flex justify-end gap-3 bg-white">
+                        <button
+                            onClick={() => setConfirmId(null)}
+                            className="px-8 py-2.5 bg-black text-white font-black uppercase tracking-widest text-[12px] hover:bg-gray-900 transition-all rounded-sm min-w-[120px]"
+                        >
+                            CANCEL
+                        </button>
+                        <button
+                            onClick={handleConfirmDelete}
+                            disabled={isRemoving}
+                            className="px-10 py-2.5 bg-[#fdb913] text-black font-black uppercase tracking-widest text-[12px] hover:bg-[#e5a811] transition-all rounded-sm min-w-[100px] flex items-center justify-center gap-2"
+                        >
+                            {isRemoving ? <div className="w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin" /> : "OK"}
+                        </button>
+                    </div>
                 </div>
-            </div>
-
-
-        </div>
+            </Popup>
+        </>
     );
 }
 

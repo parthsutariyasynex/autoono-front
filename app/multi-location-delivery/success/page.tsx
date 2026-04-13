@@ -56,7 +56,7 @@ const MultiShippingSuccessContent = () => {
                 // Magento returns: { message: "...", orders: [...], continue_shopping_url: "..." }
                 const apiOrders = Array.isArray(data?.orders) ? data.orders
                     : Array.isArray(data) ? data
-                    : [];
+                        : [];
 
                 const parsed: OrderRow[] = apiOrders.map((o: any) => ({
                     order_id: String(o.order_id || ""),
@@ -94,7 +94,7 @@ const MultiShippingSuccessContent = () => {
             <div className="min-h-screen flex items-center justify-center bg-white">
                 <div className="flex flex-col items-center gap-4">
                     <div className="w-12 h-12 border-4 border-gray-200 border-t-[#f5b21a] rounded-full animate-spin" />
-                    <p className="text-[11px] font-black text-gray-400 uppercase tracking-widest">VERIFYING YOUR ORDER...</p>
+                    <p className="text-[11px] font-black text-gray-400 uppercase tracking-widest">{t("multi.verifying")}</p>
                 </div>
             </div>
         );
@@ -107,25 +107,25 @@ const MultiShippingSuccessContent = () => {
                 {/* Header */}
                 <div className="text-center mb-10 md:mb-16">
                     <h1 className="text-[24px] md:text-[32px] font-black text-black uppercase tracking-tight mb-4">
-                        THANK YOU FOR YOUR PURCHASE!
+                        {t("multi.thankYou")}
                     </h1>
                     <p className="text-[13px] md:text-[14px] text-black font-medium max-w-4xl mx-auto leading-relaxed">
-                        For successfully order items, you'll receive a confirmation email including order numbers, tracking information and more details.
+                        {t("multi.confirmationEmail")}
                     </p>
                 </div>
 
                 {/* Successfully ordered */}
                 <div className="mb-6 text-center">
                     <h2 className="text-[15px] md:text-[16px] font-bold text-black tracking-tight">
-                        Successfully ordered
+                        {t("multi.successOrdered")}
                     </h2>
                 </div>
 
                 <div className="border border-gray-200 shadow-sm overflow-hidden">
                     {/* Table Header */}
                     <div className="flex bg-[#f8f8f8] border-b border-gray-200 py-3 px-6">
-                        <div className="w-[180px] md:w-[220px] flex-shrink-0 text-[12px] md:text-[13px] font-black text-black">Order Id</div>
-                        <div className="flex-1 text-[12px] md:text-[13px] font-black text-black">Ship to</div>
+                        <div className="w-[180px] md:w-[220px] flex-shrink-0 text-[12px] md:text-[13px] font-black text-black">{t("multi.orderId")}</div>
+                        <div className="flex-1 text-[12px] md:text-[13px] font-black text-black">{t("multi.shipTo")}</div>
                     </div>
 
                     {/* Table Body */}
@@ -148,7 +148,7 @@ const MultiShippingSuccessContent = () => {
                             </div>
                         )) : (
                             <div className="py-10 text-center text-gray-400 text-[14px]">
-                                No order details found.
+                                {t("multi.noOrderDetails")}
                             </div>
                         )}
                     </div>
@@ -159,7 +159,7 @@ const MultiShippingSuccessContent = () => {
                             href={lp("/products")}
                             className="bg-[#f5b21a] text-black px-8 md:px-12 py-3 text-[11px] font-black uppercase tracking-[0.1em] hover:bg-black hover:text-white transition-all shadow-sm"
                         >
-                            CONTINUE SHOPPING
+                            {t("multi.continueShopping")}
                         </Link>
                     </div>
                 </div>
