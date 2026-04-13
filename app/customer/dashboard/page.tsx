@@ -19,7 +19,7 @@ type CustomAttribute = {
 
 export default function DashboardPage() {
     const router = useRouter();
-    const { t } = useTranslation();
+    const { t, isRtl } = useTranslation();
     const pathname = usePathname();
     const dispatch = useDispatch<AppDispatch>();
     const { data: session, status } = useSession();
@@ -141,14 +141,14 @@ export default function DashboardPage() {
             <Sidebar />
 
             {/* Right Content Area */}
-            <main className="flex-1 p-4 md:p-6 lg:p-8 bg-[#f9f9f9] min-h-0 font-['Rubik',sans-serif]">
+            <main dir={isRtl ? "rtl" : "ltr"} className="flex-1 p-4 md:p-6 lg:p-8 bg-[#f9f9f9] min-h-0 font-['Rubik',sans-serif]">
                 <div className="max-w-[1240px] mx-auto">
 
                     {/* Sub-account Identity Banner */}
                     {isSubAccountSession && (
                         <div className="bg-[#e7f6e7] border-l-4 border-[#2d8a2d] text-[#1b5e20] p-3 md:p-4 mb-4 md:mb-8 rounded-r-md flex items-center gap-3 animate-in fade-in slide-in-from-top duration-500 shadow-sm" role="alert">
                             <span className="text-[#2d8a2d] font-bold text-lg">✔</span>
-                            <p className="text-[14px] font-medium tracking-tight">You are logged as subaccount now.</p>
+                            <p className="text-[14px] font-medium tracking-tight">{t("dashboard.subAccountBanner")}</p>
                         </div>
                     )}
 
@@ -160,7 +160,7 @@ export default function DashboardPage() {
                     <section className="bg-white border border-gray-200 rounded-sm shadow-sm mb-12 overflow-hidden">
                         {/* Header Section */}
                         <div className="bg-[#f8f8f8] p-3 md:p-4 px-4 md:px-8 border-b border-gray-200 flex items-center gap-6">
-                            <span className="text-[13px] font-black uppercase text-black tracking-wider">COMPARE?</span>
+                            <span className="text-[13px] font-black uppercase text-black tracking-wider">{t("dashboard.compare")}</span>
                             <input
                                 type="checkbox"
                                 checked={isCompare}
@@ -186,13 +186,13 @@ export default function DashboardPage() {
                                         setIsCompare(true);
                                     }}
                                     options={availableYears.map(y => ({ label: String(y), value: String(y) }))}
-                                    buttonClassName="w-full h-full flex items-center justify-between gap-2 cursor-pointer bg-transparent outline-none text-left font-black text-[12px] md:text-[14px] uppercase tracking-wide text-black"
+                                    buttonClassName="w-full h-full flex items-center justify-between gap-2 cursor-pointer bg-transparent outline-none ltr:text-left rtl:text-right font-black text-[12px] md:text-[14px] uppercase tracking-wide text-black"
                                     className="w-full h-full"
                                 />
                             </div>
 
                             {/* Constant "vs." label */}
-                            <span className="text-[12px] md:text-[14px] font-bold text-black px-4 lowercase italic">vs.</span>
+                            <span className="text-[12px] md:text-[14px] font-bold text-black px-4 lowercase italic">{t("dashboard.vs")}</span>
 
                             {/* Second Selector - Now always active and identical to the first */}
                             <div className="flex-1 w-full bg-[#f4b400] h-11 px-5 relative flex items-center shadow-sm rounded-sm group hover:brightness-105 transition-all">
@@ -203,7 +203,7 @@ export default function DashboardPage() {
                                         setIsCompare(true);
                                     }}
                                     options={availableYears.map(y => ({ label: String(y), value: String(y) }))}
-                                    buttonClassName="w-full h-full flex items-center justify-between gap-2 cursor-pointer bg-transparent outline-none text-left font-black text-[12px] md:text-[14px] uppercase tracking-wide text-black"
+                                    buttonClassName="w-full h-full flex items-center justify-between gap-2 cursor-pointer bg-transparent outline-none ltr:text-left rtl:text-right font-black text-[12px] md:text-[14px] uppercase tracking-wide text-black"
                                     className="w-full h-full"
                                 />
                             </div>
@@ -215,20 +215,20 @@ export default function DashboardPage() {
                         <>
                             {/* TOTAL ORDER QTY SECTION */}
                             <section className="mb-12">
-                                <h2 className="text-[18px] font-black text-black mb-4 md:mb-6 uppercase tracking-tight border-b-2 border-[#f4b400] inline-block pb-1">Total Order Qty</h2>
+                                <h2 className="text-[18px] font-black text-black mb-4 md:mb-6 uppercase tracking-tight border-b-2 border-[#f4b400] inline-block pb-1">{t("dashboard.totalOrderQty")}</h2>
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mt-4">
                                     <QtyCard
-                                        label={`Year - ${searchYear}`}
+                                        label={`${t("dashboard.year")} - ${searchYear}`}
                                         value={dashboardData?.yearly_summary?.[0]?.qty || "0"}
                                         compareValue={isCompare ? (dashboardData?.compare_yearly?.[0]?.qty || "0") : undefined}
                                     />
                                     <QtyCard
-                                        label="Quarter"
+                                        label={t("dashboard.quarter")}
                                         value={dashboardData?.quarterly_summary?.[0]?.qty || "0"}
                                         compareValue={isCompare ? (dashboardData?.compare_quarterly?.find((q: any) => q.year === compareYear && q.period === (dashboardData?.quarterly_summary?.[0]?.period || 1))?.qty || "0") : undefined}
                                     />
                                     <QtyCard
-                                        label="Months"
+                                        label={t("dashboard.months")}
                                         value={dashboardData?.monthly_summary?.[0]?.qty || "0"}
                                         compareValue={isCompare ? (dashboardData?.compare_monthly?.find((m: any) => m.year === compareYear && m.period === (dashboardData?.monthly_summary?.[0]?.period || 1))?.qty || "0") : undefined}
                                     />
@@ -237,20 +237,20 @@ export default function DashboardPage() {
 
                             {/* TOTAL ORDER VALUE SECTION */}
                             <section className="mb-14">
-                                <h2 className="text-[18px] font-black text-black mb-4 md:mb-6 uppercase tracking-tight border-b-2 border-[#f4b400] inline-block pb-1">Total Order Value</h2>
+                                <h2 className="text-[18px] font-black text-black mb-4 md:mb-6 uppercase tracking-tight border-b-2 border-[#f4b400] inline-block pb-1">{t("dashboard.totalOrderValue")}</h2>
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mt-4">
                                     <ValueCard
-                                        label={`Year - ${searchYear}`}
+                                        label={`${t("dashboard.year")} - ${searchYear}`}
                                         value={formatValue(dashboardData?.yearly_summary?.[0]?.amount)}
                                         compareValue={isCompare ? formatValue(dashboardData?.compare_yearly?.[0]?.amount) : undefined}
                                     />
                                     <ValueCard
-                                        label="Quarter"
+                                        label={t("dashboard.quarter")}
                                         value={formatValue(dashboardData?.quarterly_summary?.[0]?.amount)}
                                         compareValue={isCompare ? formatValue(dashboardData?.compare_quarterly?.find((q: any) => q.year === compareYear && q.period === (dashboardData?.quarterly_summary?.[0]?.period || 1))?.amount) : undefined}
                                     />
                                     <ValueCard
-                                        label="Months"
+                                        label={t("dashboard.months")}
                                         value={formatValue(dashboardData?.monthly_summary?.[0]?.amount)}
                                         compareValue={isCompare ? formatValue(dashboardData?.compare_monthly?.find((m: any) => m.year === compareYear && m.period === (dashboardData?.monthly_summary?.[0]?.period || 1))?.amount) : undefined}
                                     />
@@ -264,7 +264,7 @@ export default function DashboardPage() {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10 mt-12 mb-16 px-1">
                             {/* Product Group Filter */}
                             <div className="flex-1">
-                                <h3 className="text-[13px] md:text-[15px] font-black text-black mb-3 md:mb-5 uppercase tracking-tight">Product Group</h3>
+                                <h3 className="text-[13px] md:text-[15px] font-black text-black mb-3 md:mb-5 uppercase tracking-tight">{t("dashboard.productGroupLabel")}</h3>
                                 <div className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
                                     <div className="bg-[#f4b400] h-12 px-5 flex items-center text-black relative">
                                         <PortalDropdown
@@ -272,11 +272,11 @@ export default function DashboardPage() {
                                             onChange={(val) => setSelectedProductGroup(val)}
                                             options={
                                                 (!dashboardData?.product_groups || dashboardData.product_groups.length === 0)
-                                                    ? [{ label: "No Groups", value: "" }]
+                                                    ? [{ label: t("dashboard.noGroups"), value: "" }]
                                                     : dashboardData.product_groups.map((pg: any) => ({ label: pg.product_group, value: pg.product_group }))
                                             }
-                                            placeholder="Select Group"
-                                            buttonClassName="w-full h-full flex items-center justify-between gap-2 cursor-pointer bg-transparent outline-none text-left font-black text-[12px] md:text-[14px] uppercase tracking-wide text-black"
+                                            placeholder={t("dashboard.selectGroup")}
+                                            buttonClassName="w-full h-full flex items-center justify-between gap-2 cursor-pointer bg-transparent outline-none ltr:text-left rtl:text-right font-black text-[12px] md:text-[14px] uppercase tracking-wide text-black"
                                             className="w-full h-full"
                                         />
                                     </div>
@@ -290,7 +290,7 @@ export default function DashboardPage() {
 
                             {/* Tyre Size Filter */}
                             <div className="flex-1">
-                                <h3 className="text-[13px] md:text-[15px] font-black text-black mb-3 md:mb-5 uppercase tracking-tight">Tyre Size</h3>
+                                <h3 className="text-[13px] md:text-[15px] font-black text-black mb-3 md:mb-5 uppercase tracking-tight">{t("dashboard.tyreSizeLabel")}</h3>
                                 <div className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
                                     <div className="bg-[#f4b400] h-12 px-5 flex items-center text-black relative">
                                         <PortalDropdown
@@ -298,11 +298,11 @@ export default function DashboardPage() {
                                             onChange={(val) => setSelectedTyreSize(val)}
                                             options={
                                                 (!dashboardData?.tyre_sizes || dashboardData.tyre_sizes.length === 0)
-                                                    ? [{ label: "No Sizes", value: "" }]
+                                                    ? [{ label: t("dashboard.noSizes"), value: "" }]
                                                     : dashboardData.tyre_sizes.map((ts: any) => ({ label: ts.size_pattern, value: ts.size_pattern }))
                                             }
-                                            placeholder="Select Size"
-                                            buttonClassName="w-full h-full flex items-center justify-between gap-2 cursor-pointer bg-transparent outline-none text-left font-black text-[12px] md:text-[14px] uppercase tracking-wide text-black"
+                                            placeholder={t("dashboard.selectSize")}
+                                            buttonClassName="w-full h-full flex items-center justify-between gap-2 cursor-pointer bg-transparent outline-none ltr:text-left rtl:text-right font-black text-[12px] md:text-[14px] uppercase tracking-wide text-black"
                                             className="w-full h-full"
                                         />
                                     </div>
@@ -321,7 +321,7 @@ export default function DashboardPage() {
                         <section className="bg-white border border-[#f4b400] rounded-sm shadow-sm p-0 mb-16 overflow-hidden animate-in fade-in slide-in-from-bottom duration-500">
                             <div className="p-4 md:p-8 pb-2 md:pb-4">
                                 <h2 className="text-[16px] md:text-[20px] font-black text-black uppercase tracking-tight">
-                                    COMPARE {searchYear} WITH {compareYear}
+                                    {t("dashboard.compareWith").replace("{0}", String(searchYear)).replace("{1}", String(compareYear))}
                                 </h2>
                             </div>
 
@@ -332,14 +332,14 @@ export default function DashboardPage() {
                                     className={`px-4 md:px-8 py-2 md:py-3 text-[11px] md:text-[13px] font-black uppercase tracking-wide cursor-pointer transition-all border-r border-white
                                         ${activeTab === 'quarterly' ? 'bg-[#f4b400] text-black shadow-inner' : 'bg-[#e5e7eb] text-gray-600 hover:bg-[#d1d5db]'}`}
                                 >
-                                    Quarterly Sales Data
+                                    {t("dashboard.quarterlySalesData")}
                                 </button>
                                 <button
                                     onClick={() => setActiveTab('monthly')}
                                     className={`px-4 md:px-8 py-2 md:py-3 text-[11px] md:text-[13px] font-black uppercase tracking-wide cursor-pointer transition-all
                                         ${activeTab === 'monthly' ? 'bg-[#f4b400] text-black shadow-inner' : 'bg-[#e5e7eb] text-gray-600 hover:bg-[#d1d5db]'}`}
                                 >
-                                    Monthly Sales Data
+                                    {t("dashboard.monthlySalesData")}
                                 </button>
                             </div>
 
@@ -401,9 +401,9 @@ export default function DashboardPage() {
                                                 <th className="bg-[#fff] py-3 md:py-4 px-3 md:px-6 text-[12px] md:text-[15px] font-black text-black uppercase border-l border-gray-100">{compareYear}</th>
                                             </tr>
                                             <tr className="bg-[#fff] border-b border-gray-100">
-                                                <th className="py-3 md:py-4 px-3 md:px-6 text-[12px] font-black text-black uppercase tracking-wider">{activeTab === 'quarterly' ? 'QUARTER' : 'MONTH'}</th>
-                                                <th className="py-3 md:py-4 px-3 md:px-6 text-[12px] font-black text-black uppercase tracking-wider border-l border-gray-100">QTY</th>
-                                                <th className="py-3 md:py-4 px-3 md:px-6 text-[12px] font-black text-black uppercase tracking-wider border-l border-gray-100">QTY</th>
+                                                <th className="py-3 md:py-4 px-3 md:px-6 text-[12px] font-black text-black uppercase tracking-wider">{activeTab === 'quarterly' ? t("dashboard.quarterLabel") : t("dashboard.monthLabel")}</th>
+                                                <th className="py-3 md:py-4 px-3 md:px-6 text-[12px] font-black text-black uppercase tracking-wider border-l border-gray-100">{t("dashboard.qty")}</th>
+                                                <th className="py-3 md:py-4 px-3 md:px-6 text-[12px] font-black text-black uppercase tracking-wider border-l border-gray-100">{t("dashboard.qty")}</th>
                                             </tr>
                                         </thead>
                                         <tbody>

@@ -1,8 +1,9 @@
 "use client";
 
 import { useLocale } from "../lib/i18n/client";
-import en from "../public/locales/en.json";
-import ar from "../public/locales/ar.json";
+// import en from "../public/locales/en.json";
+import en from "../public/locales/en.json"
+import ar from "../public/locales/ar.json"
 
 const translations: Record<string, Record<string, string>> = { en, ar };
 

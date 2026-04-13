@@ -33,27 +33,27 @@ const FilterItem = memo(({
     // Translate known filter values (brand, origin, stock) using data.* keys
     const translatedLabel = t(`data.${option.label}`) !== `data.${option.label}` ? t(`data.${option.label}`) : option.label;
     return (
-    <label className="flex items-center justify-between cursor-pointer group/label">
-        <div className="flex items-center gap-3">
-            <div className="relative flex items-center justify-center">
-                <input
-                    type="checkbox"
-                    checked={isChecked}
-                    onChange={(e) => onCheckboxChange(groupCode, option.value, e.target.checked)}
-                    className="peer appearance-none w-4 h-4 border-2 border-gray-300 rounded-[3px] checked:bg-yellow-400 checked:border-yellow-400 focus:outline-none focus:ring-2 focus:ring-yellow-400/50 focus:ring-offset-1 transition-all cursor-pointer"
-                />
-                <svg className="absolute w-3 h-3 text-black pointer-events-none opacity-0 peer-checked:opacity-100 transition-opacity" viewBox="0 0 14 10" fill="none">
-                    <path d="M1 5L4.5 8.5L13 1" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
+        <label className="flex items-center justify-between cursor-pointer group/label">
+            <div className="flex items-center gap-3">
+                <div className="relative flex items-center justify-center">
+                    <input
+                        type="checkbox"
+                        checked={isChecked}
+                        onChange={(e) => onCheckboxChange(groupCode, option.value, e.target.checked)}
+                        className="peer appearance-none w-4 h-4 border-2 border-gray-300 rounded-[3px] checked:bg-yellow-400 checked:border-yellow-400 focus:outline-none focus:ring-2 focus:ring-yellow-400/50 focus:ring-offset-1 transition-all cursor-pointer"
+                    />
+                    <svg className="absolute w-3 h-3 text-black pointer-events-none opacity-0 peer-checked:opacity-100 transition-opacity" viewBox="0 0 14 10" fill="none">
+                        <path d="M1 5L4.5 8.5L13 1" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                </div>
+                <span className={`text-[13px] transition-colors leading-tight ${isChecked ? 'text-black font-bold' : 'text-gray-600 font-medium group-hover/label:text-black'}`}>
+                    {translatedLabel}
+                </span>
             </div>
-            <span className={`text-[13px] transition-colors leading-tight ${isChecked ? 'text-black font-bold' : 'text-gray-600 font-medium group-hover/label:text-black'}`}>
-                {translatedLabel}
+            <span className="text-[10px] font-bold text-gray-400 bg-gray-50 px-1.5 py-0.5 rounded border border-gray-100 group-hover/label:bg-gray-100 transition-colors">
+                {option.count ?? 0}
             </span>
-        </div>
-        <span className="text-[10px] font-bold text-gray-400 bg-gray-50 px-1.5 py-0.5 rounded border border-gray-100 group-hover/label:bg-gray-100 transition-colors">
-            {option.count ?? 0}
-        </span>
-    </label>
+        </label>
     );
 });
 
@@ -176,14 +176,6 @@ function SidebarFilter({
 
         setFilterGroups(mapped);
 
-        // ✅ Auto-expand first 3 groups to ensure filter content is visible when opened
-        setExpandedGroups(prev => {
-            if (Object.keys(prev).length > 0) return prev;
-            const init: Record<string, boolean> = {};
-            mapped.slice(0, 3).forEach(g => init[g.code] = true);
-            return init;
-        });
-
         setLoading(false);
     }, [initialFilters]);
 
@@ -224,10 +216,8 @@ function SidebarFilter({
 
                 setFilterGroups(mapped);
 
-                // Expand first 3 groups by default
-                const initialExpanded: Record<string, boolean> = {};
-                mapped.slice(0, 3).forEach(g => initialExpanded[g.code] = true);
-                setExpandedGroups(initialExpanded);
+                // Start with all groups collapsed
+                setExpandedGroups({});
             } catch (err: any) {
                 if (!cancelled) setError(err.message);
             } finally {

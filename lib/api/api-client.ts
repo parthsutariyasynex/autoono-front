@@ -9,7 +9,7 @@ const AUTH_RETRY_DELAY = 800;
  * Read the current locale — checks URL first (most up-to-date during switch),
  * then falls back to cookie.
  */
-function getClientLocale(): string {
+export function getClientLocale(): string {
     if (typeof window === "undefined") return "en";
     // URL is the source of truth (cookie may lag behind during language switch)
     const pathSegments = window.location.pathname.split("/").filter(Boolean);

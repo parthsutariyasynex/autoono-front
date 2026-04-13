@@ -370,9 +370,9 @@ import { useLocalePath } from "@/hooks/useLocalePath";
 
 
 const COUNTRY_CODES = [
-  { code: "+966", country: "Saudi Arabia", iso: "sa", flagClass: "iti__flag iti__sa" },
-  { code: "+91", country: "India", iso: "in", flagClass: "iti__flag iti__in" },
-  { code: "+971", country: "United Arab Emirates", iso: "ae", flagClass: "iti__flag iti__ae" },
+  { code: "+966", country: "Saudi Arabia", arCountry: "المملكة العربية السعودية", iso: "sa", flagClass: "iti__flag iti__sa" },
+  { code: "+91", country: "India", arCountry: "الهند", iso: "in", flagClass: "iti__flag iti__in" },
+  { code: "+971", country: "United Arab Emirates", arCountry: "الإمارات العربية المتحدة", iso: "ae", flagClass: "iti__flag iti__ae" },
 ];
 
 export default function LoginPage() {
@@ -578,7 +578,7 @@ function LoginPageContent() {
             {/* ── CHANGE: removed border-b and pb-2 (no more bottom line) ── */}
             <div className="text-left">
               {/* ── CHANGE: text-[20px] → text-[15px], tracking-tight → tracking-widest ── */}
-              <h1 className="text-[15px] font-black tracking-widest uppercase text-gray-900">
+              <h1 className="text-[15px] font-medium tracking-widest uppercase text-gray-900">
                 {t("login.title")}
               </h1>
             </div>
@@ -592,23 +592,23 @@ function LoginPageContent() {
                    active tab = solid black fill, no rounded corners inside ── */}
               <button
                 type="button"
-                className={`flex-1 py-[11px] text-[11px] font-bold uppercase tracking-wider transition-all cursor-pointer ${mode === 'otp'
+                className={`flex-1 py-[14px] text-[13px] font-medium uppercase tracking-wider transition-all cursor-pointer ${mode === 'otp'
                   ? 'bg-black text-white'
-                  : 'bg-white text-gray-500 hover:text-black hover:bg-gray-50'
+                  : 'bg-white text-gray-900 hover:bg-gray-50'
                   }`}
                 onClick={() => { setMode("otp"); setOtpSent(false); setErrors({}); window.history.replaceState(null, "", lp("/login?mode=otp")); }}
               >
-                {t("login.modeOtp")}
+                {t("login.modeOtp") || "Login With OTP"}
               </button>
               <button
                 type="button"
-                className={`flex-1 py-[11px] text-[11px] font-bold uppercase tracking-wider transition-all cursor-pointer border-l border-gray-200 ${mode === 'password'
+                className={`flex-1 py-[14px] text-[13px] font-medium uppercase tracking-wider transition-all cursor-pointer border-l border-gray-100 ${mode === 'password'
                   ? 'bg-black text-white'
-                  : 'bg-white text-gray-500 hover:text-black hover:bg-gray-50'
+                  : 'bg-white text-gray-900 hover:bg-gray-50'
                   }`}
                 onClick={() => { setMode("password"); setOtpSent(false); setErrors({}); window.history.replaceState(null, "", lp("/login?mode=password")); }}
               >
-                {t("login.modePassword")}
+                {t("login.modePassword") || "Login With Password"}
               </button>
             </div>
           </div>
@@ -629,7 +629,7 @@ function LoginPageContent() {
                   {/* ── CHANGE: space-y-2 → flex flex-col gap-[5px] ── */}
                   <div className="flex flex-col gap-[5px]">
                     {/* ── CHANGE: text-[12px] → text-[13px], removed uppercase/tracking ── */}
-                    <label className="block text-[13px] font-bold text-gray-900 cursor-pointer">
+                    <label className="block text-[13px] font-medium text-gray-900 cursor-pointer">
                       {t("login.emailLabel")} <span className="text-red-600">*</span>
                     </label>
                     {/* ── CHANGE: h-12 → h-10, outline → border, removed rounded-[1px] ── */}
@@ -639,14 +639,14 @@ function LoginPageContent() {
                       placeholder={t("login.emailPlaceholder")}
                       value={email}
                       onChange={(e) => { setEmail(e.target.value); if (errors.email) setErrors({ ...errors, email: '' }); }}
-                      className={`w-full h-10 bg-white px-3 text-sm border transition-all outline-none cursor-text ${errors.email ? 'border-red-500' : 'border-gray-300 focus:border-gray-600'
+                      className={`w-full h-[48px] bg-white px-3 text-sm border transition-all outline-none cursor-text ${errors.email ? 'border-red-500' : 'border-gray-300 focus:border-gray-600'
                         }`}
                     />
                     {errors.email && <span className="text-red-500 text-[11px] font-bold">{errors.email}</span>}
                   </div>
 
                   <div className="flex flex-col gap-[5px]">
-                    <label className="block text-[13px] font-bold text-gray-900 cursor-pointer">
+                    <label className="block text-[13px] font-medium text-gray-900 cursor-pointer">
                       {t("login.passwordLabel")} <span className="text-red-600">*</span>
                     </label>
                     <input
@@ -655,7 +655,7 @@ function LoginPageContent() {
                       placeholder={t("login.passwordPlaceholder")}
                       value={password}
                       onChange={(e) => { setPassword(e.target.value); if (errors.password) setErrors({ ...errors, password: '' }); }}
-                      className={`w-full h-10 bg-white px-3 text-sm border transition-all outline-none cursor-text ${errors.password ? 'border-red-500' : 'border-gray-300 focus:border-gray-600'
+                      className={`w-full h-[48px] bg-white px-3 text-sm border transition-all outline-none cursor-text ${errors.password ? 'border-red-500' : 'border-gray-300 focus:border-gray-600'
                         }`}
                     />
                     {errors.password && <span className="text-red-500 text-[11px] font-bold">{errors.password}</span>}
@@ -666,19 +666,19 @@ function LoginPageContent() {
               {mode === 'otp' && (
                 <>
                   <div className="flex flex-col gap-[5px] relative">
-                    <label className="block text-[13px] font-bold text-gray-900">
+                    <label className="block text-[13px] font-medium text-gray-900">
                       {t("login.mobileNumberLabel")} <span className="text-red-600">*</span>
                     </label>
                     {/* ── CHANGE: h-12 → h-10, outline → border ── */}
-                    <div className={`flex h-10 bg-white border transition-all ${errors.mobile ? 'border-red-500' : 'border-gray-300 focus-within:border-gray-600'
+                    <div className={`flex h-[48px] bg-white border transition-all ${errors.mobile ? 'border-red-500' : 'border-gray-300 focus-within:border-gray-600'
                       }`}>
                       <div
-                        className="bg-gray-50 px-3 flex items-center gap-1.5 border-r border-gray-300 cursor-pointer min-w-[75px] sm:min-w-[90px] hover:bg-gray-100 transition-colors"
+                        className="px-4 flex items-center gap-2 border-r border-gray-100 cursor-pointer min-w-[110px] sm:min-w-[120px] hover:bg-gray-50 transition-colors"
                         onClick={() => setShowDropdown(!showDropdown)}
                       >
-                        <span className={`${selectedCountry?.flagClass}`}></span>
-                        <span className="text-gray-900 font-black text-xs">{selectedCountry?.code}</span>
-                        <span className="text-[9px] text-gray-400">▼</span>
+                        <span className={`${selectedCountry?.flagClass} scale-125`}></span>
+                        <span className="text-red-500 font-normal text-[18px]">{selectedCountry?.code}</span>
+                        <span className="text-[10px] text-gray-400 ml-auto">▲</span>
                       </div>
                       <input
                         id="mobile-input"
@@ -690,16 +690,21 @@ function LoginPageContent() {
                       />
 
                       {showDropdown && (
-                        <div className="absolute top-full mt-1 left-0 w-full bg-white border border-gray-200 shadow-xl z-50 overflow-hidden">
+                        <div className="absolute top-full left-0 w-full bg-white border border-gray-100 shadow-[0_15px_60px_-15px_rgba(0,0,0,0.15)] z-[100] rounded-sm mt-1 sm:min-w-[400px]">
                           {COUNTRY_CODES.map((item) => (
                             <div
                               key={item.code}
                               onClick={() => { setCountryCode(item.code); setShowDropdown(false); }}
-                              className="px-4 py-2.5 hover:bg-gray-50 cursor-pointer flex items-center gap-3 border-b last:border-0 border-gray-100 transition-colors"
+                              className="px-4 py-3.5 hover:bg-gray-50 cursor-pointer flex items-center justify-between group border-b last:border-0 border-gray-50"
                             >
-                              <span className={`${item.flagClass}`}></span>
-                              <span className="text-xs font-black text-gray-900">{item.code}</span>
-                              <span className="text-[10px] text-gray-500 uppercase font-bold tracking-wider">{item.country}</span>
+                              <div className="flex items-center gap-4">
+                                <span className={`${item.flagClass} scale-[1.3]`}></span>
+                                <div className="flex items-center gap-1.5 min-w-0">
+                                  <span className="text-[14px] font-normal text-red-500 whitespace-nowrap">{item.country}</span>
+                                  <span className="text-[14px] font-normal text-red-500 whitespace-nowrap" dir="rtl">({item.arCountry})</span>
+                                </div>
+                              </div>
+                              <span className="text-[14px] font-normal text-gray-400 whitespace-nowrap">{item.code}</span>
                             </div>
                           ))}
                         </div>
@@ -710,7 +715,7 @@ function LoginPageContent() {
 
                   {otpSent && (
                     <div className="flex flex-col gap-[5px]">
-                      <label className="block text-[13px] font-bold text-gray-900">
+                      <label className="block text-[13px] font-medium text-gray-900">
                         {t("login.verificationCode")} <span className="text-red-600">*</span>
                       </label>
                       <input
@@ -736,7 +741,7 @@ function LoginPageContent() {
                   type={mode === 'otp' && !otpSent ? 'button' : 'submit'}
                   disabled={loading || reduxLoading}
                   onClick={mode === 'otp' && !otpSent ? handleSendOtp : undefined}
-                  className="w-full h-10 sm:h-[46px] bg-[#f5b21a] hover:bg-[#e0a218] text-black font-black uppercase transition-all disabled:opacity-50 cursor-pointer active:scale-[0.98] tracking-widest text-[11px] sm:text-[12px]"
+                  className="w-full h-10 sm:h-[46px] bg-[#f5b21a] hover:bg-[#e0a218] text-black font-medium uppercase transition-all disabled:opacity-50 cursor-pointer active:scale-[0.98] tracking-widest text-[11px] sm:text-[12px]"
                 >
                   {mode === 'otp' && !otpSent ? t("forgotPassword.sendOtp") : (loading || reduxLoading ? t("login.pleaseWait") : t("login.signIn"))}
                 </button>

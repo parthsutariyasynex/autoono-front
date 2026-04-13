@@ -13,9 +13,13 @@ import {
   Menu,
   X,
   LogOut,
+  Search,
 } from "lucide-react";
+
 import CartDrawer from "./CartDrawer";
 import NotificationDrawer from "./NotificationDrawer";
+import SearchPopup from "./SearchPopup";
+
 import { useCart } from "@/modules/cart/hooks/useCart";
 import { useNotifications } from "@/modules/notifications/hooks/useNotifications";
 import { fetchCustomerInfo } from "@/store/actions/customerActions";
@@ -31,12 +35,12 @@ interface NavLink {
 }
 
 const FALLBACK_NAV_KEYS: { key: string; href: string }[] = [
-  { key: "nav.allTyres", href: "/products" },
-  { key: "nav.quickOrder", href: "/quick-order" },
-  { key: "nav.aboutUs", href: "/about" },
-  { key: "nav.branchLocations", href: "/locations" },
-  { key: "nav.userGuides", href: "/guides" },
-  { key: "nav.productCatalogue", href: "/catalogue" },
+  { key: "allTyres", href: "/products" },
+  { key: "quickOrder", href: "/quick-order" },
+  { key: "aboutUs", href: "/about" },
+  { key: "branchLocations", href: "/locations" },
+  { key: "userGuides", href: "/guides" },
+  { key: "productCatalogue", href: "/catalogue" },
 ];
 
 export default function Navbar() {
@@ -57,13 +61,16 @@ export default function Navbar() {
   const displayUser = isLoadingName
     ? ""
     : (customerData as any)?.firstname
-      ? `${(customerData as any).firstname} ${(customerData as any).lastname}`
+      ? `${(customerData as any).firstname} ${(customerData as any).lastname || ""}`.trim()
       : session?.user?.name || session?.user?.email;
+
 
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+
   const [subAccountName, setSubAccountName] = useState<string | null>(null);
   const [isSubAccount, setIsSubAccount] = useState(false);
   const { unreadCount, fetchNotifications: pullNotifications } = useNotifications();
@@ -199,21 +206,22 @@ export default function Navbar() {
               <div className="relative hidden lg:block" ref={dropdownRef}>
                 <div
                   onClick={() => setIsProfileOpen(!isProfileOpen)}
-                  className="flex items-center bg-white border border-gray-100 rounded-full pl-1 pr-2 lg:pr-4 py-1 shadow-[0_2px_8px_-3px_rgba(0,0,0,0.12)] hover:shadow-md transition-shadow group cursor-pointer"
+                  className="flex items-center bg-white border border-gray-100 rounded-full ps-1 pe-2 lg:pe-4 py-1 shadow-[0_2px_8px_-3px_rgba(0,0,0,0.12)] hover:shadow-md transition-shadow group cursor-pointer"
                 >
-                  <div className="w-7 h-7 bg-[#f5b21a] rounded-full flex items-center justify-center mr-1.5 lg:mr-2 flex-shrink-0 group-hover:scale-110 transition-transform">
+                  <div className="w-7 h-7 bg-[#f5b21a] rounded-full flex items-center justify-center me-1.5 lg:me-2 flex-shrink-0 group-hover:scale-110 transition-transform">
                     <UserCircle size={16} strokeWidth={2.5} />
                   </div>
                   <div className="flex flex-col min-w-0">
-                    <span className="hidden lg:block text-[8px] text-gray-400 font-bold uppercase tracking-widest leading-none">{t("nav.welcomeBack")}</span>
-                    <span className="text-[11px] lg:text-[12px] text-black font-black uppercase tracking-tighter leading-snug mt-0.5 truncate max-w-[80px] lg:max-w-[140px]">
+                    <span className="hidden lg:block text-[10px] text-gray-400 font-bold uppercase tracking-widest leading-tight">{t("nav.welcomeBack")}</span>
+                    <span className="text-[11px] lg:text-[13px] text-black font-black uppercase tracking-tighter leading-tight mt-0.5 truncate max-w-[100px] lg:max-w-[160px]">
                       {isSubAccount && subAccountName ? subAccountName : displayUser}
                     </span>
                   </div>
+
                 </div>
 
                 {isProfileOpen && (
-                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-sm shadow-2xl border border-gray-200 py-1 z-[100]">
+                  <div className="absolute end-0 mt-2 w-48 bg-white rounded-sm shadow-2xl border border-gray-200 py-1 z-[100]">
                     <Link
                       href={lp("/my-account")}
                       className="block px-4 py-2.5 text-[12px] font-bold text-gray-800 hover:bg-gray-50 transition-colors"
@@ -247,8 +255,24 @@ export default function Navbar() {
               </div>
             )}
 
+
+            {/* Search Icon */}
+            {isAuthenticated && pathname !== "/login" && (
+              <button
+                onClick={() => setIsSearchOpen(true)}
+                className="hidden sm:flex relative cursor-pointer hover:opacity-70 transition-opacity items-center justify-center -mb-1 focus:outline-none"
+                aria-label="Search"
+              >
+                <Search size={22} stroke="black" strokeWidth={1.5} />
+              </button>
+            )}
+
+
+
+
             {/* Notification Bell */}
             {isAuthenticated && pathname !== "/login" && (
+
               <button
                 className="hidden sm:flex relative cursor-pointer hover:opacity-70 transition-opacity items-center justify-center"
                 onClick={() => setIsNotificationOpen(true)}
@@ -256,7 +280,7 @@ export default function Navbar() {
               >
                 <Bell size={20} fill="black" stroke="black" strokeWidth={1} />
                 {unreadCount > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-[#f5af02] text-black text-[8px] font-black w-4 h-4 flex items-center justify-center rounded-full border border-white">
+                  <span className="absolute -top-1 -end-1 bg-[#f5af02] text-black text-[8px] font-black w-4 h-4 flex items-center justify-center rounded-full border border-white">
                     {unreadCount}
                   </span>
                 )}
@@ -272,12 +296,13 @@ export default function Navbar() {
               >
                 <ShoppingCart size={20} strokeWidth={1.5} />
                 {cartCount > 0 && (
-                  <span className="absolute -top-1.5 -right-2 bg-[#f5af02] text-black text-[8px] font-black w-4 h-4 flex items-center justify-center rounded-full border border-white">
+                  <span className="absolute -top-1.5 -end-2 bg-[#f5af02] text-black text-[8px] font-black w-4 h-4 flex items-center justify-center rounded-full border border-white">
                     {cartCount}
                   </span>
                 )}
               </button>
             )}
+
 
             {/* Mobile hamburger */}
             <button
@@ -360,12 +385,20 @@ export default function Navbar() {
               {isAuthenticated && pathname !== "/login" && (
                 <>
                   <button
+                    onClick={() => { setIsSearchOpen(true); setIsMenuOpen(false); }}
+                    className="py-2.5 text-[12px] font-bold text-gray-700 flex items-center gap-3 w-full text-start"
+                  >
+                    <Search size={16} /> {t("nav.searchProducts") || "Search Products"}
+                  </button>
+
+                  <button
                     onClick={() => { setIsNotificationOpen(true); setIsMenuOpen(false); }}
                     className="py-2.5 text-[12px] font-bold text-gray-700 flex items-center gap-3 w-full"
                   >
                     <Bell size={16} /> {t("nav.notifications")} ({unreadCount})
                   </button>
                   <Link href={lp("/my-account")} className="py-2.5 text-[12px] font-bold text-gray-700 flex items-center gap-3" onClick={() => setIsMenuOpen(false)}>
+
                     <UserCircle size={16} /> {t("nav.myAccount")}
                   </Link>
                 </>
@@ -390,6 +423,8 @@ export default function Navbar() {
 
       <CartDrawer isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
       <NotificationDrawer isOpen={isNotificationOpen} onClose={() => setIsNotificationOpen(false)} />
+      <SearchPopup isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
+
     </div>
   );
 }

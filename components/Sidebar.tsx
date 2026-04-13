@@ -30,8 +30,10 @@ const Sidebar = () => {
         (session as any)?.user?.is_sub_account;
 
     return (
-        <aside className="w-full lg:w-64 flex-shrink-0 bg-[#f8f8f8] p-0 lg:p-4 border-b lg:border-b-0 lg:border-r border-[#ebebeb] z-30 h-full self-stretch min-h-full">
-            <nav className="sticky top-0 lg:top-[80px] overflow-x-auto lg:overflow-x-visible custom-scrollbar">
+        <aside className="w-full lg:w-64 flex-shrink-0 bg-[#f8f8f8] p-0 lg:p-4 border-b lg:border-b-0 lg:border-r border-[#ebebeb] z-30 lg:sticky lg:top-[108px] lg:h-[calc(100vh-108px)] self-start overflow-y-auto custom-scrollbar">
+            <nav className="overflow-x-auto lg:overflow-x-visible custom-scrollbar">
+
+
                 <ul className="flex flex-row lg:flex-col space-y-0 lg:space-y-1">
                     {accountSidebarMenu
                         .filter(item => {

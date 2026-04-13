@@ -5,6 +5,7 @@ import { ShoppingCart, X, Star, ChevronLeft, ChevronRight, ChevronDown, AlertTri
 import { useRouter, useSearchParams } from "next/navigation";
 import ProductDialog from "../components/ProductDialog";
 import ProductEnquiryModal from "../components/ProductEnquiryModal";
+import AddToCartPopup from "../components/AddToCartPopup";
 import { checkAuth } from "./api";
 import { useCart } from "@/modules/cart/hooks/useCart";
 import SidebarFilter from "../components/SidebarFilter";
@@ -97,6 +98,8 @@ export default function ProductsPage() {
   const { cart, addToCart } = useCart();
   const [addingToCart, setAddingToCart] = useState<string | null>(null);
   const [justAdded, setJustAdded] = useState<string | null>(null);
+  const [isAddedPopupOpen, setIsAddedPopupOpen] = useState(false);
+  const [addedProduct, setAddedProduct] = useState<any | null>(null);
 
   const [products, setProducts] = useState<any[]>([]);
   const [totalCount, setTotalCount] = useState(0);
@@ -253,12 +256,13 @@ export default function ProductsPage() {
     setCurrentPage(1);
   };
 
-  const handleAddToCart = useCallback(async (sku: string) => {
+  const handleAddToCart = useCallback(async (product: any) => {
     try {
-      setAddingToCart(sku);
-      await addToCart(sku, 1);
-      toast.success("Product added to cart!");
-      setJustAdded(sku);
+      setAddingToCart(product.sku);
+      await addToCart(product.sku, 1);
+      setAddedProduct(product);
+      setIsAddedPopupOpen(true);
+      setJustAdded(product.sku);
       setTimeout(() => setJustAdded(null), 2000);
     } catch (err: unknown) {
       if (err instanceof Error && err.message === "401") {
@@ -370,7 +374,7 @@ export default function ProductsPage() {
           <div className="flex items-center gap-1 flex-shrink-0">
             {!isOutOfStock ? (
               <button
-                onClick={() => handleAddToCart(product.sku)}
+                onClick={() => handleAddToCart(product)}
                 disabled={addingToCart === product.sku}
                 className={`h-9 px-2.5 rounded-lg flex items-center gap-1.5 text-[11px] font-black uppercase shadow-sm active:scale-95 cursor-pointer flex-shrink-0 ${justAdded === product.sku ? "bg-green-500 text-white" : "bg-[#f5b21a] text-black"}`}
               >
@@ -635,7 +639,7 @@ export default function ProductsPage() {
                             )}
                             {/* Col 2: Cart or Enquiry */}
                             {!isOutOfStock ? (
-                              <button onClick={() => handleAddToCart(product.sku)} disabled={addingToCart === product.sku} className={`w-8 h-8 rounded-md flex items-center justify-center shadow-md hover:-translate-y-0.5 transition-all cursor-pointer ${justAdded === product.sku ? "bg-green-500 text-white" : "bg-yellow-400 text-black hover:bg-yellow-500"}`}>
+                              <button onClick={() => handleAddToCart(product)} disabled={addingToCart === product.sku} className={`w-8 h-8 rounded-md flex items-center justify-center shadow-md hover:-translate-y-0.5 transition-all cursor-pointer ${justAdded === product.sku ? "bg-green-500 text-white" : "bg-yellow-400 text-black hover:bg-yellow-500"}`}>
                                 {addingToCart === product.sku ? <div className="w-3.5 h-3.5 border-2 border-black border-t-transparent rounded-full animate-spin"></div> : justAdded === product.sku ? <Check size={15} strokeWidth={3} /> : <ShoppingCart size={15} strokeWidth={2.5} />}
                               </button>
                             ) : (
@@ -668,6 +672,7 @@ export default function ProductsPage() {
       </div>
       <ProductDialog product={selectedProduct} isOpen={!!selectedProduct} onClose={() => setSelectedProduct(null)} />
       <ProductEnquiryModal isOpen={isInquiryModalOpen} productSku={inquiryProduct?.sku || ""} productName={inquiryProduct?.name || ""} productPrice={inquiryProduct?.final_price || 0} onClose={() => { setIsInquiryModalOpen(false); setInquiryProduct(null); }} />
+      <AddToCartPopup isOpen={isAddedPopupOpen} product={addedProduct} onClose={() => { setIsAddedPopupOpen(false); setAddedProduct(null); }} />
       <Drawer isOpen={isImageModalOpen && !!selectedImage} onClose={() => setIsImageModalOpen(false)}>
         <div className="flex flex-col h-full bg-white">
           <div className="bg-[#FFB82B] px-4 md:px-8 py-4 md:py-6 flex items-center justify-center flex-shrink-0">

@@ -120,7 +120,7 @@ const MultiLocationDeliveryPage: React.FC = () => {
             });
 
             if (apiAssignments.length === 0) {
-                toast.error("Please assign items to at least one address.");
+                toast.error(t("multi.assignError"));
                 return;
             }
 
@@ -129,8 +129,8 @@ const MultiLocationDeliveryPage: React.FC = () => {
 
             // On success
             localStorage.setItem('multi_shipping_assignments', JSON.stringify(assignments));
-            toast.success("Addresses assigned successfully!");
-            router.push('/multi-location-delivery/shipping');
+            toast.success(t("multi.assignSuccess"));
+            router.push(lp('/multi-location-delivery/shipping'));
         } catch (err: any) {
             console.error("Assignment error:", err);
             toast.error(err.message || "Failed to assign addresses. Please try again.");
@@ -156,7 +156,7 @@ const MultiLocationDeliveryPage: React.FC = () => {
 
                 <div className="max-w-[1440px] mx-auto py-12 md:py-24 px-3 sm:px-4 flex flex-col items-center text-center">
                     <h1 className="text-[20px] sm:text-[24px] md:text-[28px] font-black text-black uppercase mb-8 md:mb-12 tracking-wide">
-                        SHOPPING CART
+                        {t("multi.shoppingCart")}
                     </h1>
 
                     <div className="relative mb-8">
@@ -170,14 +170,14 @@ const MultiLocationDeliveryPage: React.FC = () => {
                     </div>
 
                     <h2 className="text-[13px] sm:text-[15px] md:text-[17px] font-bold text-black uppercase tracking-tight mb-6 md:mb-8">
-                        YOU HAVE NO ITEMS IN YOUR SHOPPING CART.
+                        {t("multi.emptyCart")}
                     </h2>
 
                     <Link
                         href={lp("/")}
                         className="bg-[#f5b21a] text-black px-8 sm:px-10 md:px-12 py-3.5 md:py-4 text-[11px] sm:text-[12px] md:text-[13px] font-black uppercase tracking-[0.1em] hover:bg-black hover:text-white transition-all shadow-md"
                     >
-                        CONTINUE SHOPPING
+                        {t("multi.continueShopping")}
                     </Link>
                 </div>
             </div>
@@ -196,7 +196,7 @@ const MultiLocationDeliveryPage: React.FC = () => {
                 {/* Heading Block */}
                 <div className="text-center mb-6 md:mb-10">
                     <h1 className="text-[18px] sm:text-[22px] md:text-[26px] font-black text-black uppercase tracking-normal mb-1">
-                        SHIP TO MULTIPLE ADDRESSES
+                        {t("multi.shipToMultiple")}
                     </h1>
                     {/* <p className="text-[12px] sm:text-[13px] md:text-[14px] text-gray-800 font-medium italic">
                         Please assign Qty against shipping address for applicable items.
@@ -214,16 +214,16 @@ const MultiLocationDeliveryPage: React.FC = () => {
                                         rowSpan={2}
                                         className="py-3 md:py-5 px-3 md:px-6 text-left text-[11px] sm:text-[12px] md:text-[14px] font-black uppercase text-black border-r border-b border-gray-300 w-[160px] md:w-[240px] bg-white align-middle"
                                     >
-                                        Product
+                                        {t("multi.product")}
                                     </th>
                                     <th className="py-3 md:py-5 px-2 md:px-4 text-center text-[11px] sm:text-[12px] md:text-[14px] font-black uppercase text-black border-r border-b border-gray-300 w-[80px] md:w-[120px] bg-white">
-                                        Cart Qty
+                                        {t("multi.cartQty")}
                                     </th>
                                     <th
                                         className="py-3 md:py-5 px-2 md:px-4 text-center text-[11px] sm:text-[12px] md:text-[14px] font-black uppercase text-black border-b border-gray-300 bg-white"
                                         colSpan={addresses.length + 1}
                                     >
-                                        Assign Qty against Shipping Location
+                                        {t("multi.assignQty")}
                                     </th>
                                 </tr>
                                 {/* Sub Header Row */}
@@ -257,7 +257,7 @@ const MultiLocationDeliveryPage: React.FC = () => {
                                             {/* Column 2: Cart Qty Box */}
                                             <td className="py-4 md:py-10 px-2 md:px-4 border-r border-gray-300 align-middle">
                                                 <div className="flex flex-col items-center">
-                                                    <span className="text-[10px] md:text-[11px] font-bold text-black mb-1.5 md:mb-2 uppercase tracking-tighter">Qty</span>
+                                                    <span className="text-[10px] md:text-[11px] font-bold text-black mb-1.5 md:mb-2 uppercase tracking-tighter">{t("multi.qty")}</span>
                                                     <div className="w-[40px] md:w-[50px] h-[34px] md:h-[38px] flex items-center justify-center border border-gray-300 text-gray-400 font-bold bg-white text-[13px] md:text-[14px]">
                                                         {item.qty}
                                                     </div>
@@ -291,7 +291,7 @@ const MultiLocationDeliveryPage: React.FC = () => {
                                             <td className="py-4 md:py-10 px-2 md:px-4 align-middle bg-white">
                                                 {!isItemValid && (
                                                     <div className="text-[#ff0000] text-[11px] font-bold leading-[1.3] text-center whitespace-pre-line uppercase tracking-tight">
-                                                        Assigned{"\n"}Qty{"\n"}should{"\n"}be{"\n"}matched{"\n"}with{"\n"}Cart Qty.
+                                                        {t("multi.qtyMismatch")}
                                                     </div>
                                                 )}
                                             </td>
@@ -309,7 +309,7 @@ const MultiLocationDeliveryPage: React.FC = () => {
                         href={lp("/cart")}
                         className="w-full sm:w-auto text-center bg-black text-white px-6 md:px-10 py-3.5 md:py-4 text-[11px] font-black uppercase tracking-[0.1em] hover:bg-zinc-900 transition-colors"
                     >
-                        BACK TO SHOPPING CART
+                        {t("multi.backToCart")}
                     </Link>
 
                     <button
@@ -325,10 +325,10 @@ const MultiLocationDeliveryPage: React.FC = () => {
                         {isAssigning ? (
                             <>
                                 <Loader2 className="w-4 h-4 animate-spin" />
-                                PROCESSING...
+                                {t("multi.processing")}
                             </>
                         ) : (
-                            "PROCEED TO SHIPPING INFORMATION"
+                            t("multi.proceedToShipping")
                         )}
                     </button>
                 </div>

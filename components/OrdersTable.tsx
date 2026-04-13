@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { useTranslation } from "@/hooks/useTranslation";
 
 export interface Order {
     id: string;
@@ -20,6 +21,7 @@ interface OrdersTableProps {
 }
 
 const OrdersTable: React.FC<OrdersTableProps> = ({ orders, onViewOrder, onReorder }) => {
+    const { t } = useTranslation();
     return (
         <div className="w-full">
             {/* Desktop Table */}
@@ -27,13 +29,13 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders, onViewOrder, onReorde
                 <table className="w-full text-[13px] text-left border-collapse min-w-[700px]">
                     <thead>
                         <tr className="bg-[#f5a623] text-black text-[12px] uppercase font-bold tracking-wide">
-                            <th className="px-2 lg:px-4 py-3 border border-[#e6950f]/30">Order #</th>
-                            <th className="px-2 lg:px-4 py-3 border border-[#e6950f]/30">SAP Order Number</th>
-                            <th className="px-2 lg:px-4 py-3 border border-[#e6950f]/30 whitespace-nowrap text-center">Date</th>
-                            <th className="px-2 lg:px-4 py-3 border border-[#e6950f]/30 whitespace-nowrap text-right">Grand Total</th>
-                            <th className="px-2 lg:px-4 py-3 border border-[#e6950f]/30 text-center">Ordered By</th>
-                            <th className="px-2 lg:px-4 py-3 border border-[#e6950f]/30 text-center">Status</th>
-                            <th className="px-2 lg:px-4 py-3 border border-[#e6950f]/30 text-center">Action</th>
+                            <th className="px-2 lg:px-4 py-3 border border-[#e6950f]/30">{t("orders.orderHash")}</th>
+                            <th className="px-2 lg:px-4 py-3 border border-[#e6950f]/30">{t("orders.sapOrderNumber")}</th>
+                            <th className="px-2 lg:px-4 py-3 border border-[#e6950f]/30 whitespace-nowrap text-center">{t("orders.date")}</th>
+                            <th className="px-2 lg:px-4 py-3 border border-[#e6950f]/30 whitespace-nowrap text-right">{t("orders.grandTotal")}</th>
+                            <th className="px-2 lg:px-4 py-3 border border-[#e6950f]/30 text-center">{t("orders.orderedBy")}</th>
+                            <th className="px-2 lg:px-4 py-3 border border-[#e6950f]/30 text-center">{t("orders.status")}</th>
+                            <th className="px-2 lg:px-4 py-3 border border-[#e6950f]/30 text-center">{t("orders.action")}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -71,14 +73,14 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders, onViewOrder, onReorde
                                                 onClick={() => onViewOrder(order.entity_id)}
                                                 className="text-gray-700 hover:text-[#f5a623] hover:underline underline-offset-2 transition-colors"
                                             >
-                                                View Order
+                                                {t("orders.viewOrder")}
                                             </button>
                                             <span className="text-gray-300">|</span>
                                             <button
                                                 onClick={() => onReorder(order)}
                                                 className="text-gray-700 hover:text-[#f5a623] hover:underline underline-offset-2 transition-colors"
                                             >
-                                                Reorder
+                                                {t("orders.reorder")}
                                             </button>
                                         </div>
                                     </td>
@@ -87,7 +89,7 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders, onViewOrder, onReorde
                         ) : (
                             <tr>
                                 <td colSpan={7} className="px-4 py-10 text-center text-gray-400 italic">
-                                    We couldn&apos;t find any records.
+                                    {t("orders.noRecords")}
                                 </td>
                             </tr>
                         )}
