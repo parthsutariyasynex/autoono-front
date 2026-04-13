@@ -142,7 +142,7 @@ const MultiShippingSuccessContent = () => {
                                 </div>
                                 <div className="flex-1">
                                     <p className="text-[13px] md:text-[14px] text-gray-700 font-medium">
-                                        {order.shipping_address || "Address Details"}
+                                        {order.shipping_address || t("m.address")}
                                     </p>
                                 </div>
                             </div>

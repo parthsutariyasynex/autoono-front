@@ -79,7 +79,7 @@ export default function MyStatementPage() {
     const handleGetStatement = async () => {
         const token = (session as any)?.accessToken;
         if (!token) {
-            toast.error("You must be logged in to download statements.");
+            toast.error(t("orders.mustLoggedIn"));
             return;
         }
 
@@ -126,7 +126,7 @@ export default function MyStatementPage() {
                     document.body.removeChild(a);
                 }, 100);
 
-                toast.success("Statement Downloaded Successfully!", { id: "statement-download" });
+                toast.success(t("common.success"), { id: "statement-download" });
             } else {
                 // Handle JSON fallback (if backend didn't follow the URL)
                 const data = await response.json();
@@ -138,7 +138,7 @@ export default function MyStatementPage() {
                     document.body.appendChild(link);
                     link.click();
                     document.body.removeChild(link);
-                    toast.success("Download link opened in new tab.", { id: "statement-download" });
+                    toast.success(t("common.success"), { id: "statement-download" });
                 } else {
                     throw new Error("Invalid response format received from server.");
                 }
@@ -162,14 +162,14 @@ export default function MyStatementPage() {
                 {/* Right Content */}
                 <main className="flex-1 p-4 md:p-6 lg:p-8 bg-[#fcfcfc] min-h-0">
                     <h1 className="text-[18px] sm:text-[20px] md:text-[24px] font-black text-black tracking-tight uppercase mb-4 md:mb-8">
-                        MY STATEMENT
+                        {t("statement.title")}
                     </h1>
 
                     <div className="max-w-[700px] bg-white border border-gray-200 rounded-sm shadow-sm overflow-hidden">
                         {/* Card Header */}
                         <div className="bg-[#f8f8f8] px-6 py-3 border-b border-gray-200">
                             <h2 className="text-[14px] font-bold text-black uppercase tracking-wide">
-                                GET YOUR STATEMENT
+                                {t("m.get-your-statement")}
                             </h2>
                         </div>
 
@@ -179,7 +179,7 @@ export default function MyStatementPage() {
                                 {/* Start Date */}
                                 <div>
                                     <label className="block text-[13px] font-bold text-gray-800 mb-2">
-                                        Start Date
+                                        {t("m.start-date")}
                                     </label>
                                     <input
                                         type="date"
@@ -192,7 +192,7 @@ export default function MyStatementPage() {
                                 {/* End Date */}
                                 <div>
                                     <label className="block text-[13px] font-bold text-gray-800 mb-2">
-                                        End Date
+                                        {t("m.end-date")}
                                     </label>
                                     <input
                                         type="date"
@@ -206,13 +206,13 @@ export default function MyStatementPage() {
                             {/* Statement Type */}
                             <div className="mb-6 md:mb-10">
                                 <label className="block text-[13px] font-bold text-gray-800 mb-2">
-                                    Statement Type
+                                    {t("m.type")}
                                 </label>
                                 <PortalDropdown
                                     value={statementType}
                                     onChange={(val) => setStatementType(val)}
                                     options={statementTypes}
-                                    placeholder={statementTypes.length > 0 ? "Select" : "Loading statement types..."}
+                                    placeholder={statementTypes.length > 0 ? t("m.select") : t("common.loading")}
                                     buttonClassName="w-full h-[45px] px-4 border border-gray-300 text-[14px] text-gray-700 focus:outline-none focus:border-[#f5a623] transition-colors bg-white font-medium shadow-sm flex items-center justify-between cursor-pointer"
                                 />
                             </div>
@@ -227,16 +227,16 @@ export default function MyStatementPage() {
                                     {isDownloading ? (
                                         <>
                                             <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-black"></div>
-                                            Downloading...
+                                            {t("common.loading")}
                                         </>
                                     ) : (
-                                        "Get Statement"
+                                        t("m.get-statement")
                                     )}
                                 </button>
 
                                 {error && (
                                     <div className="mt-4 p-4 bg-red-50 border-l-4 border-red-500 text-red-700">
-                                        <p className="text-[13px] font-bold mb-1">Download Error</p>
+                                        <p className="text-[13px] font-bold mb-1">{t("common.error")}</p>
                                         <p className="text-[12px]">{error}</p>
                                     </div>
                                 )}

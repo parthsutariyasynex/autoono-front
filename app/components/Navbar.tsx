@@ -292,7 +292,7 @@ export default function Navbar() {
       </header>
 
       {/* ── YELLOW NAV BAR — desktop only ── */}
-      <nav className="bg-[#f5b21a] w-full hidden lg:block">
+      <nav className="bg-[#f5b21a] border-b border-yellow-600/10 w-full hidden lg:block">
         <div className="flex items-center justify-center max-w-[1280px] mx-auto px-2 lg:px-4">
           {navLoading ? (
             <div className="flex items-center gap-6">
@@ -301,23 +301,18 @@ export default function Navbar() {
               ))}
             </div>
           ) : (
-            navLinks.map((item) => {
-              const itemPath = lp(item.href);
-              const isActive = pathname === itemPath || pathname?.startsWith(itemPath + "/");
-
-              return (
-                <Link
-                  key={item.href}
-                  href={itemPath}
-                  className={`py-3 flex items-center h-full px-2.5 lg:px-7 text-[11px] lg:text-[16px] font-semibold capitalize transition-all duration-200 whitespace-nowrap ${isActive
-                    ? "bg-black text-white"
-                    : "text-black hover:bg-black hover:text-white"
-                    }`}
-                >
-                  {item.label}
-                </Link>
-              );
-            })
+            navLinks.map((item) => (
+              <Link
+                key={item.href}
+                href={lp(item.href)}
+                className={`py-3 flex items-center h-full px-2.5 lg:px-7 text-[11px] lg:text-[16px] font-semibold capitalize transition-all duration-200 whitespace-nowrap ${pathname === item.href || pathname?.startsWith(item.href + "/")
+                  ? "bg-black text-white"
+                  : "text-black hover:bg-black hover:text-white"
+                  }`}
+              >
+                {item.label}
+              </Link>
+            ))
           )}
         </div>
       </nav>

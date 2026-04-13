@@ -76,7 +76,7 @@ function EditAddressPageContent() {
                     telephone: data.telephone || "",
                 });
             } catch (err: any) {
-                toast.error(err || "Failed to fetch address details");
+                toast.error(err || t("addressBook.addressFetchFailed"));
                 console.error(err);
             } finally {
                 setLoading(false);
@@ -106,9 +106,9 @@ function EditAddressPageContent() {
 
     const validate = () => {
         const newErrors = {
-            firstname: !formData.firstname.trim() ? "First Name is required" : "",
-            lastname: !formData.lastname.trim() ? "Last Name is required" : "",
-            telephone: !formData.telephone.trim() ? "Phone Number is required" : ""
+            firstname: !formData.firstname.trim() ? t("addressBook.firstNameRequired") : "",
+            lastname: !formData.lastname.trim() ? t("addressBook.lastNameRequired") : "",
+            telephone: !formData.telephone.trim() ? t("addressBook.phoneRequired") : ""
         };
 
         setErrors(newErrors);
@@ -132,13 +132,13 @@ function EditAddressPageContent() {
             };
 
             await api.put(`/kleverapi/addresses/${addressId}`, updatePayload);
-            toast.success("Address updated successfully!");
+            toast.success(t("addressBook.addressUpdated"));
 
             // Redirect back to original page or address book
             const redirectUrl = searchParams.get("redirect") || "/customer/address-book";
             router.push(redirectUrl);
         } catch (err: any) {
-            toast.error(err || "Failed to update address");
+            toast.error(err || t("addressBook.addressUpdateFailed"));
             console.error(err);
         } finally {
             setSaving(false);
@@ -164,15 +164,15 @@ function EditAddressPageContent() {
                 <Sidebar />
 
                 <main className="flex-1 w-full min-w-0 p-4 md:p-10 bg-[#fdfdfd]">
-                    <h1 className="text-[22px] md:text-[32px] font-black text-black uppercase tracking-tight mb-6 md:mb-10 px-1 md:px-0">
-                        EDIT ADDRESS
+                    <h1 className="text-[22px] md:text-[32px] font-black text-black uppercase tracking-tight mb-6 md:mb-10 px-1 md:px-0 ltr:text-left rtl:text-right">
+                        {t("addressBook.editAddress")}
                     </h1>
 
                     <div className="bg-white border border-gray-200 shadow-sm rounded-sm overflow-hidden max-w-4xl">
                         {/* Section Header */}
                         <div className="bg-white px-5 md:px-8 py-3.5 md:py-4 border-b border-gray-100">
-                            <h2 className="text-[14px] md:text-[16px] font-black text-black uppercase tracking-tight">
-                                CONTACT INFORMATION
+                            <h2 className="text-[14px] md:text-[16px] font-black text-black uppercase tracking-tight ltr:text-left rtl:text-right">
+                                {t("addressBook.contactInformation")}
                             </h2>
                         </div>
 
@@ -180,60 +180,61 @@ function EditAddressPageContent() {
                             <form onSubmit={onSubmit} className="space-y-6 md:space-y-8">
                                 {/* First Name */}
                                 <div>
-                                    <label className="block text-[14px] font-bold text-[#333] mb-2">
-                                        First Name <span className="text-red-600 font-bold">*</span>
+                                    <label className="block text-[14px] font-bold text-[#333] mb-2 ltr:text-left rtl:text-right">
+                                        {t("addressBook.firstName")} <span className="text-red-600 font-bold">*</span>
                                     </label>
                                     <input
                                         name="firstname"
                                         value={formData.firstname}
                                         onChange={handleInputChange}
                                         type="text"
-                                        className={`w-full p-2.5 md:p-3 border ${errors.firstname ? 'border-red-500' : 'border-gray-300'} rounded-sm focus:outline-none focus:border-[#f5a623] text-sm text-gray-700`}
-                                        placeholder="Enter first name"
+                                        className={`w-full p-2.5 md:p-3 border ${errors.firstname ? 'border-red-500' : 'border-gray-300'} rounded-sm focus:outline-none focus:border-[#f5a623] text-sm text-gray-700 ltr:text-left rtl:text-right`}
+                                        placeholder={t("addressBook.firstName")}
                                     />
                                     {errors.firstname && (
-                                        <p className="mt-1 text-xs text-red-500">{errors.firstname}</p>
+                                        <p className="mt-1 text-xs text-red-500 ltr:text-left rtl:text-right">{errors.firstname}</p>
                                     )}
                                 </div>
 
                                 {/* Last Name */}
                                 <div>
-                                    <label className="block text-[14px] font-bold text-[#333] mb-2">
-                                        Last Name <span className="text-red-600 font-bold">*</span>
+                                    <label className="block text-[14px] font-bold text-[#333] mb-2 ltr:text-left rtl:text-right">
+                                        {t("addressBook.lastName")} <span className="text-red-600 font-bold">*</span>
                                     </label>
                                     <input
                                         name="lastname"
                                         value={formData.lastname}
                                         onChange={handleInputChange}
                                         type="text"
-                                        className={`w-full p-2.5 md:p-3 border ${errors.lastname ? 'border-red-500' : 'border-gray-300'} rounded-sm focus:outline-none focus:border-[#f5a623] text-sm text-gray-700`}
-                                        placeholder="Enter last name"
+                                        className={`w-full p-2.5 md:p-3 border ${errors.lastname ? 'border-red-500' : 'border-gray-300'} rounded-sm focus:outline-none focus:border-[#f5a623] text-sm text-gray-700 ltr:text-left rtl:text-right`}
+                                        placeholder={t("addressBook.lastName")}
                                     />
                                     {errors.lastname && (
-                                        <p className="mt-1 text-xs text-red-500">{errors.lastname}</p>
+                                        <p className="mt-1 text-xs text-red-500 ltr:text-left rtl:text-right">{errors.lastname}</p>
                                     )}
                                 </div>
 
                                 {/* Phone Number */}
                                 <div>
-                                    <label className="block text-[14px] font-bold text-[#333] mb-2">
-                                        Phone Number <span className="text-red-600 font-bold">*</span>
+                                    <label className="block text-[14px] font-bold text-[#333] mb-2 ltr:text-left rtl:text-right">
+                                        {t("addressBook.phoneNumber")} <span className="text-red-600 font-bold">*</span>
                                     </label>
                                     <input
                                         name="telephone"
                                         value={formData.telephone}
                                         onChange={handleInputChange}
                                         type="tel"
-                                        className={`w-full p-2.5 md:p-3 border ${errors.telephone ? 'border-red-500' : 'border-gray-300'} rounded-sm focus:outline-none focus:border-[#f5a623] text-sm text-gray-700`}
-                                        placeholder="Enter phone number"
+                                        dir="ltr"
+                                        className={`w-full p-2.5 md:p-3 border ${errors.telephone ? 'border-red-500' : 'border-gray-300'} rounded-sm focus:outline-none focus:border-[#f5a623] text-sm text-gray-700 ltr:text-left rtl:text-right`}
+                                        placeholder={t("addressBook.phoneNumber")}
                                     />
                                     {errors.telephone && (
-                                        <p className="mt-1 text-xs text-red-500">{errors.telephone}</p>
+                                        <p className="mt-1 text-xs text-red-500 ltr:text-left rtl:text-right">{errors.telephone}</p>
                                     )}
                                 </div>
 
                                 {/* Save Button */}
-                                <div className="pt-2">
+                                <div className="pt-2 ltr:text-left rtl:text-right">
                                     <button
                                         type="submit"
                                         disabled={saving}
@@ -242,7 +243,7 @@ function EditAddressPageContent() {
                                         {saving ? (
                                             <div className="h-5 w-5 animate-spin rounded-full border-2 border-black border-t-transparent"></div>
                                         ) : (
-                                            "SAVE ADDRESS"
+                                            t("addressBook.saveAddress")
                                         )}
                                     </button>
                                 </div>

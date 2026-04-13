@@ -128,7 +128,7 @@
 //                             }}
 //                             className="h-[42px] min-w-[180px] px-3 bg-[#f5a623] text-black text-[13px] font-bold flex items-center justify-between cursor-pointer focus:outline-none rounded-[1px]"
 //                         >
-//                             <span>{selectedStatusLabel}</span>
+//                             <span>{t(`data.${selectedStatusLabel}`) !== `data.${selectedStatusLabel}` ? t(`data.${selectedStatusLabel}`) : selectedStatusLabel}</span>
 //                             <svg className={`w-3.5 h-3.5 transition-transform duration-200 ${isStatusOpen ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
 //                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
 //                             </svg>
@@ -207,6 +207,7 @@
 
 "use client";
 
+import { useTranslation } from "@/hooks/useTranslation";
 import React, { useState, useRef, useEffect, useMemo } from "react";
 
 interface FiltersProps {
@@ -230,6 +231,7 @@ const Filters: React.FC<FiltersProps> = ({
     isFiltered = false,
     statusCounts = {},
 }) => {
+    const { t } = useTranslation();
     const [isStatusOpen, setIsStatusOpen] = useState(false);
     const [isOrderOpen, setIsOrderOpen] = useState(false);
 
@@ -324,7 +326,7 @@ const Filters: React.FC<FiltersProps> = ({
                 {/* Status Dropdown */}
                 <div className="flex flex-col gap-1.5 min-w-[180px]">
                     <label className="text-xs font-black text-black uppercase tracking-wide">
-                        Filter By Status
+                        {t("common.filter")} {t("common.status")}
                     </label>
                     <div className="relative" ref={statusRef}>
                         <button
@@ -335,7 +337,7 @@ const Filters: React.FC<FiltersProps> = ({
                             }}
                             className="h-[38px] w-full px-3 bg-white border border-gray-300 text-black text-xs font-bold flex items-center justify-between cursor-pointer focus:outline-none focus:border-yellow-400 rounded-md transition-colors"
                         >
-                            <span>{selectedStatusLabel}</span>
+                            <span>{t(`data.${selectedStatusLabel}`) !== `data.${selectedStatusLabel}` ? t(`data.${selectedStatusLabel}`) : selectedStatusLabel}</span>
                             <svg className={`w-3 h-3 text-gray-500 transition-transform duration-200 ${isStatusOpen ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7" />
                             </svg>
@@ -360,7 +362,7 @@ const Filters: React.FC<FiltersProps> = ({
                                                         : "text-gray-700 hover:bg-yellow-50 hover:text-yellow-600"
                                                     }`}
                                             >
-                                                {optionLabel}
+                                                {t(`data.${optionLabel}`) !== `data.${optionLabel}` ? t(`data.${optionLabel}`) : optionLabel}
                                             </button>
                                         </li>
                                     );
@@ -373,7 +375,7 @@ const Filters: React.FC<FiltersProps> = ({
                 {/* Search By Order # (Text Input) */}
                 <div className="flex-1 min-w-[200px]">
                     <label className="block text-xs font-black text-black mb-1.5 uppercase tracking-wide">
-                        Filter By Order
+                        {t("common.filter")} {t("orders.orderId")}
                     </label>
                     <div className="relative">
                         <input
@@ -385,7 +387,7 @@ const Filters: React.FC<FiltersProps> = ({
                                     onApplySearch();
                                 }
                             }}
-                            placeholder="e.g. 000001"
+                            placeholder={t("m.search")}
                             className="w-full h-[38px] px-3 bg-white border border-gray-300 text-xs text-black focus:outline-none focus:border-yellow-400 transition-colors rounded-md placeholder:text-gray-400"
                         />
                     </div>
@@ -397,13 +399,13 @@ const Filters: React.FC<FiltersProps> = ({
                         onClick={onApplySearch}
                         className="h-[38px] px-6 bg-yellow-400 hover:bg-yellow-500 text-black text-xs font-bold uppercase tracking-wider transition-all rounded-md shadow-sm active:scale-95"
                     >
-                        SEARCH
+                        {t("m.search")}
                     </button>
                     <button
                         onClick={onReset}
                         className="h-[38px] px-6 bg-gray-100 hover:bg-gray-200 text-black text-xs font-bold uppercase tracking-wider transition-all rounded-md shadow-sm active:scale-95 border border-gray-200"
                     >
-                        RESET
+                        {t("m.reset")}
                     </button>
                 </div>
             </div>

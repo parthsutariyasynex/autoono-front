@@ -83,8 +83,8 @@ export default function EditAddressPage() {
 
     const validate = () => {
         const newErrors = {
-            firstname: !formData.firstname.trim() ? "First Name is required" : "",
-            lastname: !formData.lastname.trim() ? "Last Name is required" : "",
+            firstname: !formData.firstname.trim() ? t("addressBook.firstNameRequired") : "",
+            lastname: !formData.lastname.trim() ? t("addressBook.lastNameRequired") : "",
             telephone: !formData.telephone.trim() ? "Phone Number is required" : ""
         };
 
@@ -166,7 +166,7 @@ export default function EditAddressPage() {
                                             onChange={handleInputChange}
                                             type="text"
                                             className={`w-full p-2.5 md:p-3 border ${errors.firstname ? 'border-red-500' : 'border-gray-300'} rounded-sm focus:outline-none focus:border-[#f5a623] text-sm text-gray-700`}
-                                            placeholder="Enter first name"
+                                            placeholder={t("addressBook.firstName")}
                                         />
                                         {errors.firstname && (
                                             <p className="mt-1 text-xs text-red-500">{errors.firstname}</p>
@@ -184,7 +184,7 @@ export default function EditAddressPage() {
                                             onChange={handleInputChange}
                                             type="text"
                                             className={`w-full p-2.5 md:p-3 border ${errors.lastname ? 'border-red-500' : 'border-gray-300'} rounded-sm focus:outline-none focus:border-[#f5a623] text-sm text-gray-700`}
-                                            placeholder="Enter last name"
+                                            placeholder={t("addressBook.lastName")}
                                         />
                                         {errors.lastname && (
                                             <p className="mt-1 text-xs text-red-500">{errors.lastname}</p>
@@ -202,7 +202,7 @@ export default function EditAddressPage() {
                                             onChange={handleInputChange}
                                             type="tel"
                                             className={`w-full p-2.5 md:p-3 border ${errors.telephone ? 'border-red-500' : 'border-gray-300'} rounded-sm focus:outline-none focus:border-[#f5a623] text-sm text-gray-700`}
-                                            placeholder="Enter phone number"
+                                            placeholder={t("addressBook.phoneNumber")}
                                         />
                                         {errors.telephone && (
                                             <p className="mt-1 text-xs text-red-500">{errors.telephone}</p>

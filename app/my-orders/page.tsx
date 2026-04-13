@@ -14,16 +14,30 @@ import Pagination from "@/components/Pagination";
 import { useCart } from "@/modules/cart/context/CartContext";
 import { toast } from "react-hot-toast";
 
+function formatOrderDate(dateStr: string): string {
+    if (!dateStr) return "";
+    try {
+        const d = new Date(dateStr);
+        if (isNaN(d.getTime())) return dateStr;
+        const isArabic = typeof window !== "undefined" && window.location.pathname.startsWith("/ar");
+        return new Intl.DateTimeFormat(isArabic ? "ar-SA" : "en-US", {
+            year: "2-digit", month: "numeric", day: "numeric"
+        }).format(d);
+    } catch {
+        return dateStr;
+    }
+}
+
+function formatOrderStatus(status: string): string {
+    if (!status) return "";
+    if (status === "approval_pending") return "Check Pending";
+    return status.replace(/_/g, " ").replace(/\b\w/g, (c: string) => c.toUpperCase());
+}
+
 function mapOrder(item: any): Order {
     const id = item.increment_id || "";
     const sapOrderNumber = item.sap_order_number || "";
-
-    let date = "";
-    if (item.created_at) {
-        const d = new Date(item.created_at);
-        date = `${d.getMonth() + 1}/${d.getDate()}/${d.getFullYear().toString().slice(-2)}`;
-    }
-
+    const date = formatOrderDate(item.created_at);
     const grandTotal = item.grand_total;
 
     let orderedBy = item.ordered_by || "";
@@ -34,12 +48,7 @@ function mapOrder(item: any): Order {
         orderedBy = `${item.customer_firstname || ""} ${item.customer_lastname || ""}`.trim();
     }
 
-    let status = item.status || "";
-    if (status === "approval_pending") {
-        status = "Check Pending";
-    } else if (status) {
-        status = status.replace(/_/g, " ").replace(/\b\w/g, (c: string) => c.toUpperCase());
-    }
+    const status = formatOrderStatus(item.status || "");
 
     return {
         id,
@@ -163,7 +172,7 @@ function MyOrdersPageContent() {
             setOrders(items.map(mapOrder));
             setTotalItems(data.total_count || items.length);
         } catch (err: any) {
-            setError(err.message || "Something went wrong");
+            setError(err.message || t("orders.exportFailed"));
         } finally {
             setIsLoading(false);
             setHasFetched(true);
@@ -184,7 +193,7 @@ function MyOrdersPageContent() {
 
         // Handle Toast if no data for selected status
         if (newStatus !== "All" && (statusCounts[newStatus.toLowerCase()] === 0 || statusCounts[newStatus] === 0)) {
-            toast.error("No orders found for selected status");
+            toast.error(t("orders.noOrdersForStatus"));
         }
 
         if (newSearch && newSearch !== "All") params.set("orderNumber", newSearch);
@@ -242,11 +251,11 @@ function MyOrdersPageContent() {
     const handleReorder = async (order: Order) => {
         const token = (session as any)?.accessToken;
         if (!token) {
-            toast.error("You must be logged in to reorder.");
+            toast.error(t("orders.mustLoggedIn"));
             return;
         }
 
-        const toastId = toast.loading("Adding items to cart...");
+        const toastId = toast.loading(t("m.add-to-cart"));
         try {
             const res = await fetch(`/api/kleverapi/order/${order.entity_id}/reorder`, {
                 method: "POST",
@@ -257,22 +266,22 @@ function MyOrdersPageContent() {
             if (!res.ok) throw new Error(data.message || "Failed to reorder");
 
             await refetchCart();
-            toast.success("Items added to cart", { id: toastId });
+            toast.success(t("orders.addedToCart"), { id: toastId });
             router.push(lp("/cart"));
         } catch (err: any) {
-            toast.error(err.message || "Something went wrong", { id: toastId });
+            toast.error(err.message || t("orders.exportFailed"), { id: toastId });
         }
     };
 
     const handleExportOrders = async () => {
         const token = (session as any)?.accessToken;
         if (!token) {
-            toast.error("You must be logged in to export orders.");
+            toast.error(t("orders.mustLoggedInExport"));
             return;
         }
 
         setIsExporting(true);
-        const toastId = toast.loading("Exporting orders...");
+        const toastId = toast.loading(t("orders.exporting"));
 
         try {
             const response = await fetch("/api/kleverapi/orders/export", {
@@ -306,10 +315,10 @@ function MyOrdersPageContent() {
                 document.body.removeChild(a);
             }, 100);
 
-            toast.success("Orders exported successfully", { id: toastId });
+            toast.success(t("orders.exportSuccess"), { id: toastId });
         } catch (err: any) {
             console.error("Export Error:", err);
-            toast.error(err.message || "Something went wrong", { id: toastId });
+            toast.error(err.message || t("orders.exportFailed"), { id: toastId });
         } finally {
             setIsExporting(false);
         }
@@ -373,7 +382,7 @@ function MyOrdersPageContent() {
                     */}
                     {!isLoading && !hasFetched && orders.length === 0 && (
                         <div className="text-gray-500 py-10 md:py-20 text-center animate-pulse">
-                            Initializing orders dashboard...
+                            {t("orders.initializingDashboard")}
                         </div>
                     )}
 
@@ -384,7 +393,7 @@ function MyOrdersPageContent() {
                                     onClick={handleResetClick}
                                     className="px-4 py-1.5 bg-[#f0f0f0] border border-gray-300 text-[13px] text-black hover:bg-gray-200 transition-colors rounded-[2px]"
                                 >
-                                    Reset
+                                    {t("orders.reset")}
                                 </button>
                             </div>
                             <div className="flex items-center gap-3 bg-[#fef9c3] border border-[#fef08a] p-4 rounded-md text-[#854d0e]">

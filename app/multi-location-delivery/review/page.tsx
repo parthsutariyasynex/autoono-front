@@ -284,7 +284,7 @@ const MultiShippingReviewPage: React.FC = () => {
                         <div className="p-5 md:p-8 space-y-4 md:space-y-6">
                             <div className="text-center">
                                 <p className="text-[13px] md:text-[14px] font-black text-black uppercase tracking-tight">
-                                    {paymentMethod?.title || "Credit Account"}
+                                    {paymentMethod?.title || t("m.credit-account")}
                                 </p>
                             </div>
 

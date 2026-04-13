@@ -94,12 +94,18 @@ export default function OrderAttachmentsPage() {
 
     // Helper to ensure "All" is present and at the start
     const getOptionsWithAll = (options: any[]) => {
-        if (!options || options.length === 0) return ["All"];
-        const hasAll = options.some(opt => {
-            const label = typeof opt === 'string' ? opt : (opt.label || opt.name || opt.status || "");
-            return label.toLowerCase() === "all";
-        });
-        return hasAll ? options : ["All", ...options];
+        const allOption = { label: t("m.all") || "All", value: "All" };
+        if (!options || options.length === 0) return [allOption];
+        const normalized = normalizeOptions(options);
+        const hasAll = normalized.some(opt => opt.value.toLowerCase() === "all" || opt.label.toLowerCase() === "all");
+        if (hasAll) {
+            return normalized.map(opt =>
+                opt.value.toLowerCase() === "all" || opt.label.toLowerCase() === "all"
+                    ? { ...opt, label: t("m.all") || "All" }
+                    : opt
+            );
+        }
+        return [allOption, ...normalized];
     };
 
     const finalDocTypes = getOptionsWithAll(docTypeOptions);
@@ -172,7 +178,7 @@ export default function OrderAttachmentsPage() {
             setTimeout(() => window.URL.revokeObjectURL(url), 5000);
         } catch (error: any) {
             console.error("View File Error:", error);
-            toast.error(error.message || "Unable to open file");
+            toast.error(error.message || t("common.error"));
         } finally {
             setOpeningFileId(null);
         }
@@ -182,19 +188,19 @@ export default function OrderAttachmentsPage() {
         // If the backend provides a type (like "Invoice" or "Purchase Order"), use it directly
         if (origType && origType !== "-") return origType;
 
-        if (!fileName) return "Document";
+        if (!fileName) return t("m.documents");
         const ext = fileName.split('.').pop()?.toLowerCase();
 
         switch (ext) {
-            case 'pdf': return "PDF Document";
+            case 'pdf': return "PDF";
             case 'jpg':
             case 'jpeg':
-            case 'png': return "Image";
+            case 'png': return t("m.image");
             case 'doc':
-            case 'docx': return "Word Document";
+            case 'docx': return "Word";
             case 'xls':
-            case 'xlsx': return "Excel Document";
-            default: return "Document";
+            case 'xlsx': return "Excel";
+            default: return t("m.documents");
         }
     };
 
@@ -206,7 +212,7 @@ export default function OrderAttachmentsPage() {
             const day = String(d.getDate()).padStart(2, '0');
             const month = String(d.getMonth() + 1).padStart(2, '0');
             const year = d.getFullYear();
-            return `${day}-${month}-${year}`;
+            const isAr = typeof window !== "undefined" && window.location.pathname.startsWith("/ar"); return isAr ? new Intl.DateTimeFormat("ar-SA", { year: "numeric", month: "2-digit", day: "2-digit" }).format(d) : `${day}-${month}-${year}`;
         } catch {
             return dateStr;
         }
@@ -237,7 +243,7 @@ export default function OrderAttachmentsPage() {
                     {/* Right Content */}
                     <main className="flex-1 w-full px-4 md:px-6 lg:px-8 py-10 min-w-0">
                         <h1 className="text-[20px] md:text-[26px] font-black text-black mb-6 md:mb-10 uppercase tracking-wide">
-                            MY ORDER ATTACHMENTS
+                            {t("orderAttachments.title")}
                         </h1>
 
                         {/* Search Section */}
@@ -247,7 +253,7 @@ export default function OrderAttachmentsPage() {
                                     type="text"
                                     value={searchText}
                                     onChange={(e) => setSearchText(e.target.value)}
-                                    placeholder="Search Order..."
+                                    placeholder={t("m.search")}
                                     className="w-full bg-white border border-[#ebebeb] rounded-md px-4 py-2.5 text-xs text-black focus:outline-none focus:border-yellow-400 placeholder:text-gray-400 font-bold shadow-sm"
                                 />
                             </div>
@@ -255,7 +261,7 @@ export default function OrderAttachmentsPage() {
                                 onClick={handleSearch}
                                 className="w-full sm:w-auto bg-yellow-400 hover:bg-yellow-500 text-black font-black py-2.5 px-4 md:px-6 rounded-md text-xs uppercase tracking-widest transition-all shadow-sm active:scale-95"
                             >
-                                SEARCH
+                                {t("m.search")}
                             </button>
                         </div>
 
@@ -263,7 +269,7 @@ export default function OrderAttachmentsPage() {
                         <div className="flex flex-col sm:flex-row gap-4 items-end mb-6 md:mb-10 bg-white p-4 md:p-6 border border-[#ebebeb] rounded-md shadow-sm">
                             {/* Document Type */}
                             <div className="w-full sm:w-auto sm:min-w-[200px]">
-                                <label className="block text-xs font-black text-black mb-2 uppercase tracking-wider">Document</label>
+                                <label className="block text-xs font-black text-black mb-2 uppercase tracking-wider">{t("m.document-type")}</label>
                                 <PortalDropdown
                                     value={documentType}
                                     onChange={(val) => { setDocumentType(val); setCurrentPage(1); }}
@@ -274,7 +280,7 @@ export default function OrderAttachmentsPage() {
 
                             {/* Invoice Due */}
                             <div className="w-full sm:w-auto sm:min-w-[200px]">
-                                <label className="block text-xs font-black text-black mb-2 uppercase tracking-wider">Invoice Due</label>
+                                <label className="block text-xs font-black text-black mb-2 uppercase tracking-wider">{t("m.invoice-due")}</label>
                                 <PortalDropdown
                                     value={invoiceDue}
                                     onChange={(val) => { setInvoiceDue(val); setCurrentPage(1); }}
@@ -289,7 +295,7 @@ export default function OrderAttachmentsPage() {
                                     onClick={handleReset}
                                     className="w-full sm:w-auto bg-black hover:bg-gray-800 text-white font-black h-[40px] px-6 md:px-8 rounded-md text-xs uppercase tracking-widest transition-all shadow-md active:scale-95"
                                 >
-                                    RESET
+                                    {t("m.reset")}
                                 </button>
                             </div>
                         </div>
@@ -297,33 +303,33 @@ export default function OrderAttachmentsPage() {
                         {/* Table Section */}
                         {error ? (
                             <div className="bg-red-50 border border-red-100 text-red-600 p-4 md:p-8 rounded-md text-center">
-                                <p className="font-black text-xs uppercase mb-2">Error Loading Attachments</p>
+                                <p className="font-black text-xs uppercase mb-2">{t("common.error")}</p>
                                 <p className="text-xs">{error.message}</p>
                                 <button
                                     onClick={() => mutate()}
                                     className="mt-6 px-10 py-3 bg-red-600 text-white rounded-md font-black text-xs uppercase tracking-widest shadow-md active:scale-95"
                                 >
-                                    Try Again
+                                    {t("common.tryAgain")}
                                 </button>
                             </div>
                         ) : isLoading ? (
                             <div className="bg-white p-16 flex flex-col items-center justify-center border border-[#ebebeb] rounded-md shadow-sm">
                                 <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-yellow-400 mb-4"></div>
-                                <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">Loading...</span>
+                                <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">{t("common.loading")}</span>
                             </div>
                         ) : attachments.length > 0 ? (
                             <>
                                 {/* Desktop Table */}
                                 <div className="hidden md:block overflow-x-auto w-full border border-[#ebebeb] rounded-md shadow-sm">
-                                    <table className="w-full text-left border-collapse bg-white">
+                                    <table className="w-full border-collapse bg-white" style={{ textAlign: "start" }}>
                                         <thead className="bg-gray-50 border-b border-[#ebebeb]">
                                             <tr className="h-[50px]">
-                                                <th className="px-6 py-3 font-black text-xs text-black uppercase tracking-wider text-center"># Order</th>
-                                                <th className="px-6 py-3 font-black text-xs text-black uppercase tracking-wider">File Name</th>
-                                                <th className="px-6 py-3 font-black text-xs text-black uppercase tracking-wider text-center">Document Type</th>
-                                                <th className="px-6 py-3 font-black text-xs text-black uppercase tracking-wider">Created On</th>
-                                                <th className="px-6 py-3 font-black text-xs text-black uppercase tracking-wider">Invoice Due</th>
-                                                <th className="px-6 py-3 font-black text-xs text-black uppercase tracking-wider">Payment</th>
+                                                <th className="px-6 py-3 font-black text-xs text-black uppercase tracking-wider text-center">{t("orders.orderId")}</th>
+                                                <th className="px-6 py-3 font-black text-xs text-black uppercase tracking-wider ltr:text-left rtl:text-right">{t("m.file-name")}</th>
+                                                <th className="px-6 py-3 font-black text-xs text-black uppercase tracking-wider text-center">{t("m.document-type")}</th>
+                                                <th className="px-6 py-3 font-black text-xs text-black uppercase tracking-wider ltr:text-left rtl:text-right">{t("m.created-at")}</th>
+                                                <th className="px-6 py-3 font-black text-xs text-black uppercase tracking-wider ltr:text-left rtl:text-right">{t("m.invoice-due")}</th>
+                                                <th className="px-6 py-3 font-black text-xs text-black uppercase tracking-wider ltr:text-left rtl:text-right">{t("m.payment")}</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -331,7 +337,7 @@ export default function OrderAttachmentsPage() {
                                                 const attId = attachment.id || attachment.attachment_id || String(idx);
                                                 const isOpening = openingFileId === String(attId);
                                                 const orderDisplay = attachment.order_increment_id || attachment.order_id || "-";
-                                                const fileName = attachment.file_name || attachment.label || "Download File";
+                                                const fileName = attachment.file_name || attachment.label || t("m.download");
                                                 const docTypeLabel = getDocTypeLabel(fileName, attachment.comment || attachment.document_type || attachment.attachment_type);
                                                 const createdAt = formatDate(attachment.created_at || attachment.upload_date);
                                                 const invoiceDueVal = attachment.invoice_due ? formatDate(attachment.invoice_due) : "";
@@ -342,17 +348,17 @@ export default function OrderAttachmentsPage() {
                                                         <td className="px-6 py-4 text-center font-black">
                                                             <button onClick={() => handleViewOrder(attachment.order_id)} className="text-black hover:text-yellow-600 hover:underline transition-all cursor-pointer focus:outline-none">{orderDisplay}</button>
                                                         </td>
-                                                        <td className="px-6 py-4 text-left font-medium">
+                                                        <td className="px-6 py-4 ltr:text-left rtl:text-right font-medium">
                                                             <div className="flex items-center gap-3">
-                                                                <button onClick={() => { const useUrl = attachment.file_url || attachment.file_path; handleViewFile({ ...attachment, file_url: useUrl, attachment_id: attId }); }} disabled={isOpening} className={`text-black hover:underline inline-block break-all text-left focus:outline-none font-bold ${isOpening ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}>{fileName}</button>
+                                                                <button onClick={() => { const useUrl = attachment.file_url || attachment.file_path; handleViewFile({ ...attachment, file_url: useUrl, attachment_id: attId }); }} disabled={isOpening} className={`text-black hover:underline inline-block break-all ltr:text-left rtl:text-right focus:outline-none font-bold ${isOpening ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}>{fileName}</button>
                                                                 {isOpening && <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-yellow-400"></div>}
                                                             </div>
                                                         </td>
-                                                        <td className="px-6 py-4 text-center font-bold text-gray-600 uppercase">{docTypeLabel}</td>
-                                                        <td className="px-6 py-4 text-left font-bold text-gray-500">{createdAt}</td>
-                                                        <td className="px-6 py-4 text-left font-bold text-gray-500">{invoiceDueVal}</td>
-                                                        <td className="px-6 py-4 text-left">
-                                                            <span className={`px-2 py-1 rounded-md font-black uppercase text-[10px] ${paymentStatus.toLowerCase().includes('paid') ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}>{paymentStatus || "-"}</span>
+                                                        <td className="px-6 py-4 text-center font-bold text-gray-600 uppercase">{t(`data.${docTypeLabel}`) !== `data.${docTypeLabel}` ? t(`data.${docTypeLabel}`) : docTypeLabel}</td>
+                                                        <td className="px-6 py-4 ltr:text-left rtl:text-right font-bold text-gray-500">{createdAt}</td>
+                                                        <td className="px-6 py-4 ltr:text-left rtl:text-right font-bold text-gray-500">{invoiceDueVal}</td>
+                                                        <td className="px-6 py-4 ltr:text-left rtl:text-right">
+                                                            <span className={`px-2 py-1 rounded-md font-black uppercase text-[10px] ${paymentStatus.toLowerCase().includes('paid') ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}>{paymentStatus ? (t(`data.${paymentStatus}`) !== `data.${paymentStatus}` ? t(`data.${paymentStatus}`) : paymentStatus) : "-"}</span>
                                                         </td>
                                                     </tr>
                                                 );
@@ -367,7 +373,7 @@ export default function OrderAttachmentsPage() {
                                         const attId = attachment.id || attachment.attachment_id || String(idx);
                                         const isOpening = openingFileId === String(attId);
                                         const orderDisplay = attachment.order_increment_id || attachment.order_id || "-";
-                                        const fileName = attachment.file_name || attachment.label || "Download File";
+                                        const fileName = attachment.file_name || attachment.label || t("m.download");
                                         const docTypeLabel = getDocTypeLabel(fileName, attachment.comment || attachment.document_type || attachment.attachment_type);
                                         const createdAt = formatDate(attachment.created_at || attachment.upload_date);
                                         const invoiceDueVal = attachment.invoice_due ? formatDate(attachment.invoice_due) : "";
@@ -385,19 +391,19 @@ export default function OrderAttachmentsPage() {
                                                             {fileName}
                                                             {isOpening && <span className="inline-block ml-2 animate-spin rounded-full h-3 w-3 border-b-2 border-yellow-400 align-middle"></span>}
                                                         </button>
-                                                        <p className="text-[11px] text-gray-500 font-medium mt-1">{docTypeLabel}</p>
+                                                        <p className="text-[11px] text-gray-500 font-medium mt-1">{t(`data.${docTypeLabel}`) !== `data.${docTypeLabel}` ? t(`data.${docTypeLabel}`) : docTypeLabel}</p>
                                                     </div>
                                                     <span className={`px-2 py-1 rounded-md font-black uppercase text-[10px] flex-shrink-0 ${paymentStatus.toLowerCase().includes('paid') ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}>
-                                                        {paymentStatus || "-"}
+                                                        {paymentStatus ? (t(`data.${paymentStatus}`) !== `data.${paymentStatus}` ? t(`data.${paymentStatus}`) : paymentStatus) : "-"}
                                                     </span>
                                                 </div>
                                                 <div className="flex items-center justify-between text-[11px] text-gray-500 font-medium border-t border-gray-100 pt-2.5">
                                                     <div className="flex items-center gap-1">
-                                                        <span className="font-black text-black">Order:</span>
+                                                        <span className="font-black text-black">{t("m.order")}:</span>
                                                         <button onClick={() => handleViewOrder(attachment.order_id)} className="text-black hover:text-yellow-600 font-bold">{orderDisplay}</button>
                                                     </div>
                                                     <span>{createdAt}</span>
-                                                    {invoiceDueVal && <span>Due: {invoiceDueVal}</span>}
+                                                    {invoiceDueVal && <span>{t("m.invoice-due")}: {invoiceDueVal}</span>}
                                                 </div>
                                             </div>
                                         );
@@ -420,7 +426,7 @@ export default function OrderAttachmentsPage() {
                             </>
                         ) : (
                             <div className="border border-[#ebebeb] p-8 md:p-24 text-center rounded-md bg-white shadow-sm">
-                                <p className="text-gray-400 italic text-xs uppercase tracking-widest">No order attachments found.</p>
+                                <p className="text-gray-400 italic text-xs uppercase tracking-widest">{t("orderAttachments.noRecords")}</p>
                             </div>
                         )}
                     </main>
