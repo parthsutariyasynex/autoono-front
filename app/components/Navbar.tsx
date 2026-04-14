@@ -73,6 +73,7 @@ export default function Navbar() {
 
   const [subAccountName, setSubAccountName] = useState<string | null>(null);
   const [isSubAccount, setIsSubAccount] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
   const { unreadCount, fetchNotifications: pullNotifications } = useNotifications();
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -116,6 +117,14 @@ export default function Navbar() {
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 0);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   // Fetch dynamic menu from API (re-fetches when locale changes)
@@ -167,7 +176,7 @@ export default function Navbar() {
   }, [locale]);
 
   return (
-    <div className="w-full fixed top-0 left-0 right-0 z-[60] flex flex-col" style={{ paddingRight: "var(--scrollbar-width)" }}>
+    <div className={`main-header w-full ${isScrolled ? 'fixed fadeInDown' : 'relative'} top-0 left-0 right-0 z-[60] flex flex-col transition-all duration-300 ease-in-out`} style={{ paddingRight: "var(--scrollbar-width)" }}>
 
       {/* ── HEADER ── */}
       <header className="bg-white border-b border-gray-100 shadow-[0_1px_4px_rgba(0,0,0,0.06)]">
@@ -206,14 +215,14 @@ export default function Navbar() {
               <div className="relative hidden lg:block" ref={dropdownRef}>
                 <div
                   onClick={() => setIsProfileOpen(!isProfileOpen)}
-                  className="flex items-center bg-white border border-gray-100 rounded-full ltr:pl-1 ltr:pr-2 ltr:lg:pr-4 rtl:pr-1 rtl:pl-2 rtl:lg:pl-4 py-1 shadow-[0_2px_8px_-3px_rgba(0,0,0,0.12)] hover:shadow-md transition-shadow group cursor-pointer"
+                  className="flex items-center bg-white border border-gray-100 rounded-full pl-1 pr-2 lg:pr-4 py-1 shadow-[0_2px_8px_-3px_rgba(0,0,0,0.12)] hover:shadow-md transition-shadow group cursor-pointer"
                 >
-                  <div className="w-7 h-7 bg-[#f5b21a] rounded-full flex items-center justify-center ltr:mr-1.5 ltr:lg:mr-2 rtl:ml-1.5 rtl:lg:ml-2 flex-shrink-0 group-hover:scale-110 transition-transform">
+                  <div className="w-7 h-7 bg-[#f5b21a] rounded-full flex items-center justify-center mr-1.5 lg:mr-2 flex-shrink-0 transition-transform">
                     <UserCircle size={16} strokeWidth={2.5} />
                   </div>
                   <div className="flex flex-col min-w-0">
-                    <span className="hidden lg:block text-[8px] text-gray-400 font-bold uppercase tracking-widest leading-none ltr:text-left rtl:text-right">{t("nav.welcomeBack")}</span>
-                    <span className="text-[11px] lg:text-[12px] text-black font-black uppercase tracking-tighter leading-snug mt-0.5 truncate max-w-[80px] lg:max-w-[140px] ltr:text-left rtl:text-right">
+                    <span className="hidden lg:block text-[8px] text-gray-400 font-bold uppercase tracking-widest leading-none">{t("nav.welcomeBack")}</span>
+                    <span className="text-[11px] lg:text-[12px] text-black font-black tracking-tighter leading-snug mt-0.5 truncate max-w-[80px] lg:max-w-[140px] font-bold">
                       {isSubAccount && subAccountName ? subAccountName : displayUser}
                     </span>
                   </div>
@@ -221,10 +230,10 @@ export default function Navbar() {
                 </div>
 
                 {isProfileOpen && (
-                  <div className="absolute ltr:right-0 rtl:left-0 mt-2 w-48 bg-white rounded-sm shadow-2xl border border-gray-200 py-1 z-[100]">
+                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-sm shadow-2xl border border-gray-200 py-1 z-[100]">
                     <Link
                       href={lp("/my-account")}
-                      className="block px-4 py-2.5 text-[12px] font-bold text-gray-800 hover:bg-gray-50 transition-colors ltr:text-left rtl:text-right"
+                      className="block px-4 py-2.5 text-[12px] font-bold text-gray-800 hover:bg-gray-50 transition-colors"
                       onClick={() => setIsProfileOpen(false)}
                     >
                       {t("nav.myAccount")}
@@ -232,7 +241,7 @@ export default function Navbar() {
                     {isSubAccount && (
                       <Link
                         href={lp("/my-account")}
-                        className="block px-4 py-2.5 text-[12px] font-bold text-red-600 hover:bg-red-50 transition-colors border-t border-gray-100 ltr:text-left rtl:text-right"
+                        className="block px-4 py-2.5 text-[12px] font-bold text-red-600 hover:bg-red-50 transition-colors border-t border-gray-100"
                         onClick={() => {
                           setIsProfileOpen(false);
                           localStorage.removeItem("subAccountName");
@@ -246,7 +255,7 @@ export default function Navbar() {
                     )}
                     <button
                       onClick={handleLogout}
-                      className="w-full ltr:text-left rtl:text-right px-4 py-2.5 text-[12px] font-bold text-gray-800 hover:bg-gray-50 transition-colors cursor-pointer border-t border-gray-100"
+                      className="w-full text-left px-4 py-2.5 text-[12px] font-bold text-gray-800 hover:bg-gray-50 transition-colors cursor-pointer border-t border-gray-100"
                     >
                       {t("nav.signOut")}
                     </button>
@@ -274,13 +283,13 @@ export default function Navbar() {
             {isAuthenticated && pathname !== "/login" && (
 
               <button
-                className="hidden sm:flex relative cursor-pointer hover:opacity-70 transition-opacity items-center justify-center"
+                className="hidden sm:flex relative cursor-pointer items-center justify-center"
                 onClick={() => setIsNotificationOpen(true)}
                 aria-label="Notifications"
               >
-                <Bell size={20} fill="black" stroke="black" strokeWidth={1} />
+                <Bell size={24} fill="black" stroke="black" strokeWidth={1} />
                 {unreadCount > 0 && (
-                  <span className="absolute -top-1 ltr:-right-1 rtl:-left-1 bg-[#f5af02] text-black text-[8px] font-black w-4 h-4 flex items-center justify-center rounded-full border border-white">
+                  <span className="absolute w-[26px] h-[26px] font-medium text-[12px] -top-[13px] -right-[14px] bg-[#f5af02] text-black font-black flex items-center justify-center rounded-full border border-white">
                     {unreadCount}
                   </span>
                 )}
@@ -291,12 +300,12 @@ export default function Navbar() {
             {isAuthenticated && pathname !== "/login" && (
               <button
                 onClick={() => setIsCartOpen(true)}
-                className="relative text-black hover:opacity-70 transition-opacity cursor-pointer"
+                className="relative text-black cursor-pointer pr-2 md:pr-0"
                 aria-label="Shopping Cart"
               >
-                <ShoppingCart size={20} strokeWidth={1.5} />
+                <ShoppingCart size={24} strokeWidth={1.5} />
                 {cartCount > 0 && (
-                  <span className="absolute -top-1.5 ltr:-right-2 rtl:-left-2 bg-[#f5af02] text-black text-[8px] font-black w-4 h-4 flex items-center justify-center rounded-full border border-white">
+                  <span className="absolute w-[22px] md:w-[26px] h-[22px] md:h-[26px] font-medium text-[10px] md:text-[12px] -top-[13px] -right-[2px] md:-right-[14px] bg-[#f5af02] text-black font-black flex items-center justify-center rounded-full border border-white">
                     {cartCount}
                   </span>
                 )}
@@ -318,8 +327,8 @@ export default function Navbar() {
       </header>
 
       {/* ── YELLOW NAV BAR — desktop only ── */}
-      <nav className="bg-[#f5b21a] border-b border-yellow-600/10 w-full hidden lg:block">
-        <div className="flex items-center justify-center h-9 max-w-[1280px] mx-auto px-2 lg:px-4">
+      <nav className="bg-[#f5b21a] w-full hidden lg:block">
+        <div className="flex items-center justify-center max-w-[1280px] mx-auto px-2 lg:px-4">
           {navLoading ? (
             <div className="flex items-center gap-6">
               {[1, 2, 3, 4, 5].map(i => (
@@ -327,32 +336,36 @@ export default function Navbar() {
               ))}
             </div>
           ) : (
-            navLinks.map((item) => (
-              <Link
-                key={item.href}
-                href={lp(item.href)}
-                className={`flex items-center h-full px-2.5 lg:px-7 text-[11px] lg:text-[12px] font-semibold uppercase tracking-wide lg:tracking-wider transition-all duration-200 whitespace-nowrap ${pathname === item.href || pathname?.startsWith(item.href + "/")
-                  ? "bg-black text-white"
-                  : "text-black hover:bg-black hover:text-white"
-                  }`}
-              >
-                {item.label}
-              </Link>
-            ))
+            navLinks.map((item) => {
+              const href = lp(item.href);
+              const isActive = pathname === href || pathname?.startsWith(href + "/");
+              return (
+                <Link
+                  key={item.href}
+                  href={href}
+                  className={`py-3 flex items-center h-full px-2.5 lg:px-7 text-[11px] lg:text-[16px] font-semibold capitalize transition-all duration-200 whitespace-nowrap ${isActive
+                    ? "bg-black text-white"
+                    : "text-black hover:bg-black hover:text-white"
+                    }`}
+                >
+                  {item.label}
+                </Link>
+              );
+            })
           )}
         </div>
       </nav>
 
       {/* ── MOBILE DRAWER ── */}
       {isMenuOpen && (
-        <div className="lg:hidden absolute top-[56px] sm:top-[64px] ltr:left-0 rtl:right-0 w-full bg-white shadow-2xl z-40 border-t border-gray-100 animate-in slide-in-from-top duration-200">
+        <div className="lg:hidden absolute top-[56px] sm:top-[64px] left-0 w-full bg-white shadow-2xl z-40 border-t border-gray-100 animate-in slide-in-from-top duration-200">
           <div className="flex flex-col py-2">
 
             {/* User info */}
             {isAuthenticated && pathname !== "/login" && (
               <div className="px-4 py-3 bg-gray-50 border-b border-gray-100 mb-1">
                 <div className="flex items-center gap-3">
-                  <div className="flex flex-col overflow-hidden ltr:text-left rtl:text-right">
+                  <div className="flex flex-col overflow-hidden">
                     <span className="text-[9px] text-gray-400 font-bold uppercase tracking-widest leading-none">{t("nav.loggedInAs")}</span>
                     <span className="text-[12px] text-black font-black uppercase truncate tracking-tight">
                       {isSubAccount && subAccountName ? subAccountName : displayUser}
@@ -363,24 +376,28 @@ export default function Navbar() {
             )}
 
             {/* Nav links */}
-            <div className="px-4 py-2 ltr:text-left rtl:text-right">
+            <div className="px-4 py-2">
               <span className="text-[9px] font-bold text-gray-400 uppercase tracking-[0.2em] block mb-2">{t("nav.navigation")}</span>
-              {navLinks.map((item) => (
-                <Link
-                  key={item.href}
-                  href={lp(item.href)}
-                  className={`py-2.5 text-[12px] font-bold uppercase tracking-wide flex items-center justify-between group ${pathname === item.href ? "text-[#f5b21a]" : "text-black hover:text-[#f5b21a]"
-                    }`}
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  {item.label}
-                  <span className="text-gray-300 group-hover:text-[#f5b21a] transition-colors text-[10px]">{locale === "ar" ? "←" : "→"}</span>
-                </Link>
-              ))}
+              {navLinks.map((item) => {
+                const href = lp(item.href);
+                const isActive = pathname === href || pathname?.startsWith(href + "/");
+                return (
+                  <Link
+                    key={item.href}
+                    href={href}
+                    className={`py-2.5 text-[12px] font-bold uppercase tracking-wide flex items-center justify-between group ${isActive ? "text-[#f5b21a]" : "text-black hover:text-[#f5b21a]"
+                      }`}
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    {item.label}
+                    <span className="text-gray-300 group-hover:text-[#f5b21a] transition-colors text-[10px]">→</span>
+                  </Link>
+                );
+              })}
             </div>
 
             {/* Quick actions */}
-            <div className="px-4 py-3 mt-1 border-t border-gray-100 ltr:text-left rtl:text-right">
+            <div className="px-4 py-3 mt-1 border-t border-gray-100">
               <span className="text-[9px] font-bold text-gray-400 uppercase tracking-[0.2em] block mb-2">{t("nav.quickActions")}</span>
 
               {isAuthenticated && pathname !== "/login" && (
