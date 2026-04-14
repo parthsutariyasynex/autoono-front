@@ -5,7 +5,7 @@ import { useState, useEffect, useCallback, createContext, useContext, type React
 
 // ─── Global cache (survives navigations, cleared only on full reload) ───────
 const cachedTranslations: Record<string, Record<string, string>> = {};
-let loadingPromises: Record<string, Promise<Record<string, string>>> = {};
+const loadingPromises: Record<string, Promise<Record<string, string>>> = {};
 
 /**
  * Fetch + cache translations for a locale. Deduplicates concurrent requests.

@@ -112,7 +112,7 @@ export async function middleware(request: NextRequest) {
 }
 
 /**
- * Combined authentication check
+ * Combined authentication check — verifies JWT token exists AND is not expired.
  */
 async function checkAuth(request: NextRequest): Promise<boolean> {
     try {
@@ -121,15 +121,22 @@ async function checkAuth(request: NextRequest): Promise<boolean> {
             secret: process.env.NEXTAUTH_SECRET || "yoursecret",
             secureCookie: process.env.NODE_ENV === "production",
         });
-        if (token?.accessToken && token?.error !== "MagentoTokenExpired") {
-            return true;
-        }
-    } catch { }
 
-    const authCookie = request.cookies.get("auth-token");
-    if (authCookie?.value && authCookie.value !== "null" && authCookie.value !== "undefined") {
+        // Must have accessToken and not be expired
+        if (!token?.accessToken || token?.error === "MagentoTokenExpired") {
+            return false;
+        }
+
+        // Check if Magento JWT token is expired
+        if (token.magentoTokenExp) {
+            const now = Math.floor(Date.now() / 1000);
+            if (now >= (token.magentoTokenExp as number)) {
+                return false;
+            }
+        }
+
         return true;
-    }
+    } catch { }
 
     return false;
 }

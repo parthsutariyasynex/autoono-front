@@ -51,9 +51,8 @@ export default function ProtectedLayout({ children }: ProtectedLayoutProps) {
           localStorage.setItem('token', token);
         }
       }
-    } else if (status === 'unauthenticated' && wasAuthenticated) {
-      // Only clear token if user WAS logged in before (actual logout).
-      // Skip if this is the initial load flash (loading → unauthenticated → authenticated).
+    } else if (status === 'unauthenticated') {
+      // Clear token for unauthenticated users on protected pages
       if (!isPublicPage) {
         dispatch({ type: 'LOGOUT' });
         if (typeof window !== 'undefined') {
@@ -69,6 +68,7 @@ export default function ProtectedLayout({ children }: ProtectedLayoutProps) {
   // Redirect unauthenticated users to login on protected pages
   useEffect(() => {
     if (status === 'unauthenticated' && !isPublicPage) {
+      localStorage.removeItem('token');
       const loginUrl = `/${locale}/login?callbackUrl=${encodeURIComponent(pathname)}`;
       window.location.href = loginUrl;
     }
@@ -87,15 +87,20 @@ export default function ProtectedLayout({ children }: ProtectedLayoutProps) {
     );
   }
 
+  // Don't render page content if unauthenticated on protected pages (redirecting to login)
+  const showContent = isPublicPage || status === 'authenticated' || isLoading;
+
   return (
     <div className="flex flex-col min-h-screen bg-white">
       <Navbar />
 
-      {/* 📏 Header Spacer - Fixed header means we need a spacer to prevent content overlap */}
-
       <main className="flex-1 flex flex-col w-full relative">
         <div className="flex-1 flex flex-col w-full min-h-0">
-          {children}
+          {showContent ? children : (
+            <div className="flex-1 flex items-center justify-center">
+              <div className="h-10 w-10 animate-spin rounded-full border-4 border-gray-100 border-t-[#f5a623]"></div>
+            </div>
+          )}
         </div>
 
         {!hideFooter && <Footer />}
