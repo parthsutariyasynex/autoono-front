@@ -39,15 +39,15 @@ const CartActions: React.FC<CartActionsProps> = ({ itemsCount, onClearCart, onUp
 
             <div className="flex items-center gap-4">
                 <div className="text-right">
-                    <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest block mb-0.5">
+                    <span className="text-[9px] font-black text-black uppercase tracking-widest block mb-0.5">
                         {t("cart.itemsInCart")}
                     </span>
                     <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest block leading-none">
 
                     </span>
                 </div>
-                <div className="w-10 h-10 bg-white border border-gray-100 rounded-lg flex items-center justify-center shadow-sm">
-                    <span className="text-lg font-black text-black">
+                <div className="w-8 h-8 bg-white border border-gray-100 rounded-lg flex items-center justify-center shadow-sm">
+                    <span className="text-sm font-black text-black">
                         {itemsCount}
                     </span>
                 </div>

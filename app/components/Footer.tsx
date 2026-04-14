@@ -3,6 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { Mail, Share2, Facebook, Instagram, Twitter, Linkedin } from "lucide-react";
+import { usePathname } from "next/navigation";
 import { useTranslation } from "@/hooks/useTranslation";
 
 /**
@@ -11,8 +12,11 @@ import { useTranslation } from "@/hooks/useTranslation";
  */
 const Footer: React.FC = () => {
     const { t } = useTranslation();
+    const pathname = usePathname();
+    const isProductsPage = pathname.includes("/products");
+
     return (
-        <footer className="bg-black text-white py-20 font-rubik">
+        <footer className={`bg-black text-white py-20 font-rubik ${isProductsPage ? "xl:pb-44" : ""}`}>
             <div className="max-w-[1440px] mx-auto px-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-16 md:gap-24 text-center pb-12 border-b border-gray-800/50">
 

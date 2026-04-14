@@ -156,43 +156,49 @@ export default function DashboardPage() {
             <Sidebar />
 
             {/* Right Content Area */}
-            <main className="flex-1 p-4 md:p-6 lg:p-8 bg-[#f9f9f9] min-h-0 font-['Rubik',sans-serif]" dir={isRtl ? "rtl" : "ltr"}>
-                <div className="max-w-[1240px] mx-auto">
+            <main className="flex-1 p-4 md:p-8 lg:p-10 bg-[#fcfcfc] min-h-0 font-rubik" dir={isRtl ? "rtl" : "ltr"}>
+                <div className="max-w-[1240px] mx-auto space-y-12">
 
                     {/* Sub-account Identity Banner */}
                     {isSubAccountSession && (
-                        <div className={`bg-[#e7f6e7] ${isRtl ? 'border-r-4' : 'border-l-4'} border-[#2d8a2d] text-[#1b5e20] p-3 md:p-4 mb-4 md:mb-8 ${isRtl ? 'rounded-l-md' : 'rounded-r-md'} flex items-center gap-3 animate-in fade-in slide-in-from-top duration-500 shadow-sm`} role="alert">
-                            <span className="text-[#2d8a2d] font-bold text-lg">&#10004;</span>
-                            <p className="text-[14px] font-medium tracking-tight">{t("dashboard.subAccountBanner")}</p>
+                        <div className={`bg-green-50/80 ${isRtl ? 'border-r-4' : 'border-l-4'} border-green-500 text-green-800 p-4 mb-8 ${isRtl ? 'rounded-l-lg' : 'rounded-r-lg'} flex items-center gap-3 animate-in fade-in slide-in-from-top duration-500 shadow-sm border border-gray-100`} role="alert">
+                            <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center text-white text-[10px] font-bold">&#10004;</div>
+                            <p className="text-[14px] font-bold tracking-tight uppercase">{t("dashboard.subAccountBanner")}</p>
                         </div>
                     )}
 
-                    <h1 className="text-[18px] md:text-[22px] font-black text-black mb-8 uppercase tracking-tight ltr:text-left rtl:text-right">
-                        {t("dashboard.title")}
-                    </h1>
+                    <div className="flex items-center gap-4 mb-2">
+                        <h1 className="text-2xl font-black text-black uppercase tracking-tight">
+                            {t("dashboard.title")}
+                        </h1>
+                        <div className="h-[2px] flex-1 bg-gradient-to-r from-yellow-400 to-transparent"></div>
+                    </div>
 
                     {/* COMPARE SECTION */}
-                    <section className="bg-white border border-gray-200 rounded-sm shadow-sm mb-12 overflow-hidden">
+                    <section className="bg-white border border-[#ebebeb] rounded-xl shadow-sm mb-12 overflow-hidden transition-all duration-300 hover:shadow-md">
                         {/* Header Section */}
-                        <div className="bg-[#f8f8f8] p-3 md:p-4 px-4 md:px-8 border-b border-gray-200 flex items-center gap-6">
-                            <span className="text-[13px] font-black uppercase text-black tracking-wider">{t("dashboard.compare")}</span>
-                            <input
-                                type="checkbox"
-                                checked={isCompare}
-                                onChange={(e) => {
-                                    setIsCompare(e.target.checked);
-                                    if (!e.target.checked) {
-                                        setSearchYear(new Date().getFullYear());
-                                    }
-                                }}
-                                className="w-[18px] h-[18px] accent-[#f4b400] cursor-pointer border-gray-300"
-                            />
+                        <div className="bg-gray-50/80 p-4 px-6 border-b border-[#ebebeb] flex items-center gap-4">
+                            <div className="flex items-center gap-3">
+                                <input
+                                    type="checkbox"
+                                    id="compare-toggle"
+                                    checked={isCompare}
+                                    onChange={(e) => {
+                                        setIsCompare(e.target.checked);
+                                        if (!e.target.checked) {
+                                            setSearchYear(new Date().getFullYear());
+                                        }
+                                    }}
+                                    className="w-[18px] h-[18px] accent-[#f5a623] cursor-pointer"
+                                />
+                                <label htmlFor="compare-toggle" className="text-[11px] font-black uppercase text-black tracking-widest cursor-pointer select-none">{t("dashboard.compare")}</label>
+                            </div>
                         </div>
 
                         {/* Body Section */}
-                        <div className="p-4 md:p-10 px-4 md:px-12 flex flex-col md:flex-row items-center justify-between gap-6 md:gap-10">
+                        <div className="p-8 px-8 md:px-12 flex flex-col md:flex-row items-center justify-between gap-6 md:gap-12">
                             {/* First Selector */}
-                            <div className="flex-1 w-full bg-[#f4b400] h-11 px-5 relative flex items-center shadow-sm rounded-sm group hover:brightness-105 transition-all">
+                            <div className="flex-1 w-full bg-white border border-[#ebebeb] rounded-lg shadow-sm hover:border-[#f5a623] transition-all">
                                 <PortalDropdown
                                     value={searchYear}
                                     onChange={(val) => {
@@ -200,16 +206,20 @@ export default function DashboardPage() {
                                         setIsCompare(true);
                                     }}
                                     options={availableYears.map(y => ({ label: String(y), value: String(y) }))}
-                                    buttonClassName="w-full h-full flex items-center justify-between gap-2 cursor-pointer bg-transparent outline-none ltr:text-left rtl:text-right font-black text-[12px] md:text-[14px] uppercase tracking-wide text-black"
+                                    buttonClassName="w-full h-11 px-5 flex items-center justify-between gap-2 cursor-pointer bg-transparent outline-none ltr:text-left rtl:text-right font-black text-[13px] uppercase tracking-wider text-black"
                                     className="w-full h-full"
                                 />
                             </div>
 
                             {/* Constant "vs." label */}
-                            <span className="text-[12px] md:text-[14px] font-bold text-black px-4 lowercase italic">{isRtl ? "مقابل" : "vs."}</span>
+                            <div className="flex items-center justify-center">
+                                <span className="bg-gray-100/80 px-4 py-1 rounded-full text-[11px] font-black text-black uppercase tracking-tighter italic border border-gray-200">
+                                    {isRtl ? "مقابل" : "vs."}
+                                </span>
+                            </div>
 
                             {/* Second Selector */}
-                            <div className="flex-1 w-full bg-[#f4b400] h-11 px-5 relative flex items-center shadow-sm rounded-sm group hover:brightness-105 transition-all">
+                            <div className="flex-1 w-full bg-white border border-[#ebebeb] rounded-lg shadow-sm hover:border-[#f5a623] transition-all">
                                 <PortalDropdown
                                     value={compareYear}
                                     onChange={(val) => {
@@ -217,7 +227,7 @@ export default function DashboardPage() {
                                         setIsCompare(true);
                                     }}
                                     options={availableYears.map(y => ({ label: String(y), value: String(y) }))}
-                                    buttonClassName="w-full h-full flex items-center justify-between gap-2 cursor-pointer bg-transparent outline-none ltr:text-left rtl:text-right font-black text-[12px] md:text-[14px] uppercase tracking-wide text-black"
+                                    buttonClassName="w-full h-11 px-5 flex items-center justify-between gap-2 cursor-pointer bg-transparent outline-none ltr:text-left rtl:text-right font-black text-[13px] uppercase tracking-wider text-black"
                                     className="w-full h-full"
                                 />
                             </div>
@@ -226,146 +236,144 @@ export default function DashboardPage() {
 
                     {/* Summary Sections - Hide when comparing */}
                     {!isCompare && (
-                        <>
+                        <div className="space-y-12 animate-in fade-in duration-700">
                             {/* TOTAL ORDER QTY SECTION */}
-                            <section className="mb-12">
-                                <h2 className="text-[18px] font-black text-black mb-4 md:mb-6 uppercase tracking-tight border-b-2 border-[#f4b400] inline-block pb-1">{t("m.total-order-qty")}</h2>
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mt-4">
+                            <section>
+                                <div className="flex items-center gap-4 mb-6">
+                                    <h2 className="text-lg font-black text-black uppercase tracking-tight">{t("m.total-order-qty")}</h2>
+                                    <div className="h-[2px] w-12 bg-yellow-400"></div>
+                                </div>
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                                     <QtyCard
                                         label={`${t("dashboard.year")} - ${searchYear}`}
                                         value={dashboardData?.yearly_summary?.[0]?.qty || "0"}
-                                        compareValue={isCompare ? (dashboardData?.compare_yearly?.[0]?.qty || "0") : undefined}
                                         isRtl={isRtl}
                                     />
                                     <QtyCard
                                         label={t("m.quarter")}
                                         value={dashboardData?.quarterly_summary?.[0]?.qty || "0"}
-                                        compareValue={isCompare ? (dashboardData?.compare_quarterly?.find((q: any) => q.year === compareYear && q.period === (dashboardData?.quarterly_summary?.[0]?.period || 1))?.qty || "0") : undefined}
                                         isRtl={isRtl}
                                     />
                                     <QtyCard
                                         label={t("m.months")}
                                         value={dashboardData?.monthly_summary?.[0]?.qty || "0"}
-                                        compareValue={isCompare ? (dashboardData?.compare_monthly?.find((m: any) => m.year === compareYear && m.period === (dashboardData?.monthly_summary?.[0]?.period || 1))?.qty || "0") : undefined}
                                         isRtl={isRtl}
                                     />
                                 </div>
                             </section>
 
                             {/* TOTAL ORDER VALUE SECTION */}
-                            <section className="mb-14">
-                                <h2 className="text-[18px] font-black text-black mb-4 md:mb-6 uppercase tracking-tight border-b-2 border-[#f4b400] inline-block pb-1">{t("m.total-order-value")}</h2>
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mt-4">
+                            <section>
+                                <div className="flex items-center gap-4 mb-6">
+                                    <h2 className="text-lg font-black text-black uppercase tracking-tight">{t("m.total-order-value")}</h2>
+                                    <div className="h-[2px] w-12 bg-yellow-400"></div>
+                                </div>
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                                     <ValueCard
                                         label={`${t("dashboard.year")} - ${searchYear}`}
                                         value={formatValue(dashboardData?.yearly_summary?.[0]?.amount)}
-                                        compareValue={isCompare ? formatValue(dashboardData?.compare_yearly?.[0]?.amount) : undefined}
                                         isRtl={isRtl}
                                     />
                                     <ValueCard
                                         label={t("m.quarter")}
                                         value={formatValue(dashboardData?.quarterly_summary?.[0]?.amount)}
-                                        compareValue={isCompare ? formatValue(dashboardData?.compare_quarterly?.find((q: any) => q.year === compareYear && q.period === (dashboardData?.quarterly_summary?.[0]?.period || 1))?.amount) : undefined}
                                         isRtl={isRtl}
                                     />
                                     <ValueCard
                                         label={t("m.months")}
                                         value={formatValue(dashboardData?.monthly_summary?.[0]?.amount)}
-                                        compareValue={isCompare ? formatValue(dashboardData?.compare_monthly?.find((m: any) => m.year === compareYear && m.period === (dashboardData?.monthly_summary?.[0]?.period || 1))?.amount) : undefined}
                                         isRtl={isRtl}
                                     />
                                 </div>
                             </section>
-                        </>
-                    )}
 
-                    {/* BOTTOM FILTERS - Hide when comparing */}
-                    {!isCompare && (
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10 mt-12 mb-16 px-1">
-                            {/* Product Group Filter */}
-                            <div className="flex-1">
-                                <h3 className="text-[13px] md:text-[15px] font-black text-black mb-3 md:mb-5 uppercase tracking-tight ltr:text-left rtl:text-right">{t("dashboard.productGroupLabel")}</h3>
-                                <div className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
-                                    <div className="bg-[#f4b400] h-12 px-5 flex items-center text-black relative">
-                                        <PortalDropdown
-                                            value={selectedProductGroup}
-                                            onChange={(val) => setSelectedProductGroup(val)}
-                                            options={
-                                                (!dashboardData?.product_groups || dashboardData.product_groups.length === 0)
-                                                    ? [{ label: t("common.noDataFound"), value: "" }]
-                                                    : dashboardData.product_groups.map((pg: any) => ({ label: translateData(pg.product_group), value: pg.product_group }))
-                                            }
-                                            placeholder={t("m.select")}
-                                            buttonClassName="w-full h-full flex items-center justify-between gap-2 cursor-pointer bg-transparent outline-none ltr:text-left rtl:text-right font-black text-[12px] md:text-[14px] uppercase tracking-wide text-black"
-                                            className="w-full h-full"
-                                        />
-                                    </div>
-                                    <div className="py-6 px-4 text-center">
-                                        <p className="text-[18px] md:text-[22px] font-bold text-black font-['Rubik']">
-                                            {dashboardData?.product_groups?.find((pg: any) => pg.product_group === selectedProductGroup)?.qty || "-"}
-                                        </p>
+                            {/* BOTTOM FILTERS */}
+                            <section className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-4">
+                                {/* Product Group Filter */}
+                                <div className="flex flex-col gap-4">
+                                    <h3 className="text-[13px] font-black text-black uppercase tracking-widest ltr:text-left rtl:text-right opacity-60">{t("dashboard.productGroupLabel")}</h3>
+                                    <div className="bg-white border border-[#ebebeb] rounded-xl shadow-sm overflow-hidden group hover:shadow-md transition-all">
+                                        <div className="bg-gray-50 border-b border-[#ebebeb] h-12 px-5 flex items-center relative">
+                                            <PortalDropdown
+                                                value={selectedProductGroup}
+                                                onChange={(val) => setSelectedProductGroup(val)}
+                                                options={
+                                                    (!dashboardData?.product_groups || dashboardData.product_groups.length === 0)
+                                                        ? [{ label: t("common.noDataFound"), value: "" }]
+                                                        : dashboardData.product_groups.map((pg: any) => ({ label: translateData(pg.product_group), value: pg.product_group }))
+                                                }
+                                                placeholder={t("m.select")}
+                                                buttonClassName="w-full h-full flex items-center justify-between gap-2 cursor-pointer bg-transparent outline-none ltr:text-left rtl:text-right font-black text-[12px] uppercase tracking-wider text-black"
+                                                className="w-full h-full"
+                                            />
+                                        </div>
+                                        <div className="py-8 px-6 text-center">
+                                            <p className="text-3xl font-black text-black font-rubik tracking-tight">
+                                                {dashboardData?.product_groups?.find((pg: any) => pg.product_group === selectedProductGroup)?.qty || "0"}
+                                            </p>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
 
-                            {/* Tyre Size Filter */}
-                            <div className="flex-1">
-                                <h3 className="text-[13px] md:text-[15px] font-black text-black mb-3 md:mb-5 uppercase tracking-tight ltr:text-left rtl:text-right">{t("dashboard.tyreSizeLabel")}</h3>
-                                <div className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
-                                    <div className="bg-[#f4b400] h-12 px-5 flex items-center text-black relative">
-                                        <PortalDropdown
-                                            value={selectedTyreSize}
-                                            onChange={(val) => setSelectedTyreSize(val)}
-                                            options={
-                                                (!dashboardData?.tyre_sizes || dashboardData.tyre_sizes.length === 0)
-                                                    ? [{ label: t("common.noDataFound"), value: "" }]
-                                                    : dashboardData.tyre_sizes.map((ts: any) => ({ label: translateData(ts.size_pattern), value: ts.size_pattern }))
-                                            }
-                                            placeholder={t("m.select")}
-                                            buttonClassName="w-full h-full flex items-center justify-between gap-2 cursor-pointer bg-transparent outline-none ltr:text-left rtl:text-right font-black text-[12px] md:text-[14px] uppercase tracking-wide text-black"
-                                            className="w-full h-full"
-                                        />
-                                    </div>
-                                    <div className="py-6 px-4 text-center">
-                                        <p className="text-[18px] md:text-[22px] font-bold text-black font-['Rubik']">
-                                            {dashboardData?.tyre_sizes?.find((ts: any) => ts.size_pattern === selectedTyreSize)?.qty || "-"}
-                                        </p>
+                                {/* Tyre Size Filter */}
+                                <div className="flex flex-col gap-4">
+                                    <h3 className="text-[13px] font-black text-black uppercase tracking-widest ltr:text-left rtl:text-right opacity-60">{t("dashboard.tyreSizeLabel")}</h3>
+                                    <div className="bg-white border border-[#ebebeb] rounded-xl shadow-sm overflow-hidden group hover:shadow-md transition-all">
+                                        <div className="bg-gray-50 border-b border-[#ebebeb] h-12 px-5 flex items-center relative">
+                                            <PortalDropdown
+                                                value={selectedTyreSize}
+                                                onChange={(val) => setSelectedTyreSize(val)}
+                                                options={
+                                                    (!dashboardData?.tyre_sizes || dashboardData.tyre_sizes.length === 0)
+                                                        ? [{ label: t("common.noDataFound"), value: "" }]
+                                                        : dashboardData.tyre_sizes.map((ts: any) => ({ label: translateData(ts.size_pattern), value: ts.size_pattern }))
+                                                }
+                                                placeholder={t("m.select")}
+                                                buttonClassName="w-full h-full flex items-center justify-between gap-2 cursor-pointer bg-transparent outline-none ltr:text-left rtl:text-right font-black text-[12px] uppercase tracking-wider text-black"
+                                                className="w-full h-full"
+                                            />
+                                        </div>
+                                        <div className="py-8 px-6 text-center">
+                                            <p className="text-3xl font-black text-black font-rubik tracking-tight">
+                                                {dashboardData?.tyre_sizes?.find((ts: any) => ts.size_pattern === selectedTyreSize)?.qty || "0"}
+                                            </p>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
+                            </section>
                         </div>
                     )}
 
                     {/* COMPARISON DETAILS SECTION (Chart & Table) */}
                     {isCompare && (
-                        <section className="bg-white border border-[#f4b400] rounded-sm shadow-sm p-0 mb-16 overflow-hidden animate-in fade-in slide-in-from-bottom duration-500">
-                            <div className="p-4 md:p-8 pb-2 md:pb-4">
-                                <h2 className="text-[16px] md:text-[20px] font-black text-black uppercase tracking-tight ltr:text-left rtl:text-right">
+                        <section className="bg-white border border-[#ebebeb] rounded-xl shadow-lg p-0 mb-16 overflow-hidden animate-in fade-in slide-in-from-bottom duration-500">
+                            <div className="p-6 md:p-10 border-b border-[#fcfcfc] bg-gray-50/50">
+                                <h2 className="text-lg md:text-xl font-black text-black uppercase tracking-tight ltr:text-left rtl:text-right">
                                     {isRtl ? `مقارنة ${searchYear} مع ${compareYear}` : `COMPARE ${searchYear} WITH ${compareYear}`}
                                 </h2>
                             </div>
 
                             {/* Tabs */}
-                            <div className="flex px-1 mt-4">
+                            <div className="flex px-4 pt-4 gap-2 bg-gray-50/50">
                                 <button
                                     onClick={() => setActiveTab('quarterly')}
-                                    className={`px-4 md:px-8 py-2 md:py-3 text-[11px] md:text-[13px] font-black uppercase tracking-wide cursor-pointer transition-all ${isRtl ? 'border-l border-white' : 'border-r border-white'}
-                                        ${activeTab === 'quarterly' ? 'bg-[#f4b400] text-black shadow-inner' : 'bg-[#e5e7eb] text-gray-600 hover:bg-[#d1d5db]'}`}
+                                    className={`px-6 md:px-10 py-3 md:py-4 text-[11px] font-black uppercase tracking-widest cursor-pointer transition-all rounded-t-lg
+                                        ${activeTab === 'quarterly' ? 'bg-white text-black border-x border-t border-[#ebebeb]' : 'bg-transparent text-gray-400 hover:text-gray-600'}`}
                                 >
                                     {t("dashboard.quarterlySalesData")}
                                 </button>
                                 <button
                                     onClick={() => setActiveTab('monthly')}
-                                    className={`px-4 md:px-8 py-2 md:py-3 text-[11px] md:text-[13px] font-black uppercase tracking-wide cursor-pointer transition-all
-                                        ${activeTab === 'monthly' ? 'bg-[#f4b400] text-black shadow-inner' : 'bg-[#e5e7eb] text-gray-600 hover:bg-[#d1d5db]'}`}
+                                    className={`px-6 md:px-10 py-3 md:py-4 text-[11px] font-black uppercase tracking-widest cursor-pointer transition-all rounded-t-lg
+                                        ${activeTab === 'monthly' ? 'bg-white text-black border-x border-t border-[#ebebeb]' : 'bg-transparent text-gray-400 hover:text-gray-600'}`}
                                 >
                                     {t("dashboard.monthlySalesData")}
                                 </button>
                             </div>
 
-                            <div className="p-8 pt-10" dir="ltr">
-                                {/* Chart Implementation - always LTR for proper rendering */}
-                                <div className="h-[250px] md:h-[400px] w-full mb-12">
+                            <div className="p-6 md:p-10">
+                                {/* Chart Implementation */}
+                                <div className="h-[250px] md:h-[450px] w-full mb-16 px-4">
                                     <ResponsiveContainer width="100%" height="100%">
                                         <BarChart
                                             data={activeTab === 'quarterly' ?
@@ -382,51 +390,47 @@ export default function DashboardPage() {
                                             }
                                             margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
                                         >
-                                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#eee" />
+                                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
                                             <XAxis
                                                 dataKey="name"
                                                 axisLine={false}
                                                 tickLine={false}
-                                                tick={{ fill: '#666', fontSize: 12, fontWeight: 700 }}
-                                                dy={10}
+                                                tick={{ fill: '#9ca3af', fontSize: 11, fontWeight: 900 }}
+                                                dy={15}
                                             />
                                             <YAxis
                                                 axisLine={false}
                                                 tickLine={false}
-                                                tick={{ fill: '#666', fontSize: 11 }}
+                                                tick={{ fill: '#9ca3af', fontSize: 10, fontWeight: 600 }}
                                             />
                                             <Tooltip
-                                                contentStyle={{ backgroundColor: '#fff', borderRadius: '4px', border: '1px solid #ddd', fontWeight: 700 }}
-                                                cursor={{ fill: '#f8f8f8' }}
+                                                contentStyle={{ backgroundColor: '#fff', borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)', fontWeight: 900, fontSize: '12px', textTransform: 'uppercase' }}
+                                                cursor={{ fill: '#f9fafb' }}
                                             />
                                             <Legend
                                                 verticalAlign="top"
-                                                align="center"
-                                                iconType="rect"
-                                                wrapperStyle={{ paddingBottom: '30px', fontSize: '13px', fontWeight: 900 }}
+                                                align="right"
+                                                iconType="circle"
+                                                wrapperStyle={{ paddingBottom: '40px', fontSize: '11px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em' }}
                                             />
-                                            <Bar dataKey={searchYear} fill="#f4b400" radius={[2, 2, 0, 0]} barSize={40} name={searchYear.toString()} />
-                                            <Bar dataKey={compareYear} fill="#000000" radius={[2, 2, 0, 0]} barSize={40} name={compareYear.toString()} />
+                                            <Bar dataKey={searchYear} fill="#f5a623" radius={[4, 4, 0, 0]} barSize={32} name={searchYear.toString()} />
+                                            <Bar dataKey={compareYear} fill="#111827" radius={[4, 4, 0, 0]} barSize={32} name={compareYear.toString()} />
                                         </BarChart>
                                     </ResponsiveContainer>
                                 </div>
 
                                 {/* Data Table */}
-                                <div className="overflow-x-auto border border-gray-100 rounded-sm" dir={isRtl ? "rtl" : "ltr"}>
-                                    <table className="w-full text-center border-collapse">
+                                <div className="overflow-x-auto border border-[#ebebeb] rounded-xl overflow-hidden shadow-sm">
+                                    <table className="w-full border-collapse">
                                         <thead>
-                                            <tr className="border-b border-gray-100">
-                                                <th className="bg-[#fff] py-3 md:py-4 px-3 md:px-6"></th>
-                                                <th className="bg-[#fff] py-3 md:py-4 px-3 md:px-6 text-[12px] md:text-[15px] font-black text-black uppercase ltr:border-l rtl:border-r border-gray-100">{searchYear}</th>
-                                                <th className="bg-[#fff] py-3 md:py-4 px-3 md:px-6 text-[12px] md:text-[15px] font-black text-black uppercase ltr:border-l rtl:border-r border-gray-100">{compareYear}</th>
-                                            </tr>
-                                            <tr className="bg-[#fff] border-b border-gray-100">
-                                                <th className="py-3 md:py-4 px-3 md:px-6 text-[12px] font-black text-black uppercase tracking-wider">{activeTab === 'quarterly' ? t("dashboard.quarter") : t("dashboard.month")}</th>
-                                                <th className="py-3 md:py-4 px-3 md:px-6 text-[12px] font-black text-black uppercase tracking-wider ltr:border-l rtl:border-r border-gray-100">{t("dashboard.qty")}</th>
-                                                <th className="py-3 md:py-4 px-3 md:px-6 text-[12px] font-black text-black uppercase tracking-wider ltr:border-l rtl:border-r border-gray-100">{t("dashboard.qty")}</th>
+                                            <tr className="bg-gray-50/80 border-b border-[#ebebeb] h-[55px]">
+                                                <th className="py-4 px-6 text-[11px] font-black text-black uppercase tracking-widest text-left">{activeTab === 'quarterly' ? t("dashboard.quarter") : t("dashboard.month")}</th>
+                                                <th className="py-4 px-6 text-[11px] font-black text-black uppercase tracking-widest text-center">{searchYear} QTY</th>
+                                                <th className="py-4 px-6 text-[11px] font-black text-black uppercase tracking-widest text-center">{compareYear} QTY</th>
+                                                <th className="py-4 px-6 text-[11px] font-black text-black uppercase tracking-widest text-right">{isRtl ? 'التغيير' : 'CHANGE'}</th>
                                             </tr>
                                         </thead>
-                                        <tbody>
+                                        <tbody className="divide-y divide-gray-50 bg-white">
                                             {(activeTab === 'quarterly' ? [1, 2, 3, 4] : [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]).map((p, idx) => {
                                                 const val1 = (activeTab === 'quarterly' ? dashboardData?.compare_quarterly : dashboardData?.compare_monthly)
                                                     ?.find((d: any) => d.year === searchYear && d.period === p)?.qty || 0;
@@ -437,11 +441,18 @@ export default function DashboardPage() {
                                                     ? (isRtl ? `ر${p}` : `Q${p}`)
                                                     : (isRtl ? monthNames[p - 1] : p.toString());
 
+                                                const change = val2 > 0 ? ((val1 - val2) / val2 * 100).toFixed(1) : (val1 > 0 ? "100" : "0");
+
                                                 return (
-                                                    <tr key={p} className={`${idx % 2 === 0 ? 'bg-[#f8f8f8]' : 'bg-[#fff]'} border-b border-gray-50 transition-colors hover:bg-[#fff7e6]`}>
-                                                        <td className="py-3 md:py-4 px-3 md:px-6 font-bold text-gray-800 text-[12px] md:text-[14px]">{label}</td>
-                                                        <td className="py-3 md:py-4 px-3 md:px-6 text-[12px] md:text-[14px] font-bold ltr:border-l rtl:border-r border-gray-100">{val1}</td>
-                                                        <td className="py-3 md:py-4 px-3 md:px-6 text-[12px] md:text-[14px] font-bold ltr:border-l rtl:border-r border-gray-100">{val2}</td>
+                                                    <tr key={p} className="hover:bg-yellow-50/10 transition-colors h-[60px]">
+                                                        <td className="py-4 px-6 font-black text-black text-[13px] uppercase">{label}</td>
+                                                        <td className="py-4 px-6 text-[14px] font-black text-gray-800 text-center">{val1}</td>
+                                                        <td className="py-4 px-6 text-[14px] font-bold text-gray-400 text-center">{val2}</td>
+                                                        <td className="py-4 px-6 text-right">
+                                                            <span className={`text-[11px] font-black px-2 py-1 rounded ${Number(change) >= 0 ? 'text-green-600 bg-green-50' : 'text-red-600 bg-red-50'}`}>
+                                                                {Number(change) >= 0 ? '+' : ''}{change}%
+                                                            </span>
+                                                        </td>
                                                     </tr>
                                                 );
                                             })}
@@ -460,43 +471,29 @@ export default function DashboardPage() {
 /**
  * Reusable Card Components
  */
-function QtyCard({ label, value, compareValue, isRtl }: { label: string; value: string; compareValue?: string; isRtl: boolean }) {
+function QtyCard({ label, value, isRtl }: { label: string; value: string; isRtl: boolean }) {
     return (
-        <div className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm hover:shadow-lg transition-all transform hover:-translate-y-1">
-            <div className="bg-[#f4b400] h-10 px-5 flex justify-between items-center text-black">
-                <span className="text-[11px] font-black uppercase tracking-wider">{label}</span>
-                <span className="text-[10px]">&#9660;</span>
+        <div className="bg-white border border-[#ebebeb] rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-all transform hover:-translate-y-1 group">
+            <div className="bg-gray-50 h-10 px-5 flex justify-between items-center text-black border-b border-[#ebebeb] group-hover:bg-yellow-50 transition-colors">
+                <span className="text-[10px] font-black uppercase tracking-widest text-gray-500 group-hover:text-yellow-700">{label}</span>
+                <div className="w-1.5 h-1.5 rounded-full bg-yellow-400"></div>
             </div>
-            <div className="py-6 px-4 text-center">
-                <div className="flex flex-col items-center justify-center">
-                    <p className="text-[26px] font-black text-black">{value}</p>
-                    {compareValue !== undefined && (
-                        <p className="text-[12px] font-bold text-gray-400 mt-1">
-                            {isRtl ? "مقابل" : "vs."} <span className="text-gray-600">{compareValue}</span>
-                        </p>
-                    )}
-                </div>
+            <div className="py-10 px-4 text-center">
+                <p className="text-4xl font-black text-black tracking-tighter">{value}</p>
             </div>
         </div>
     );
 }
 
-function ValueCard({ label, value, compareValue, isRtl }: { label: string; value: string; compareValue?: string; isRtl: boolean }) {
+function ValueCard({ label, value, isRtl }: { label: string; value: string; isRtl: boolean }) {
     return (
-        <div className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm hover:shadow-lg transition-all transform hover:-translate-y-1">
-            <div className="bg-[#f4b400] h-10 px-5 flex justify-between items-center text-black">
-                <span className="text-[11px] font-black uppercase tracking-wider">{label}</span>
-                <span className="text-[10px]">&#9660;</span>
+        <div className="bg-white border border-[#ebebeb] rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-all transform hover:-translate-y-1 group">
+            <div className="bg-gray-50 h-10 px-5 flex justify-between items-center text-black border-b border-[#ebebeb] group-hover:bg-yellow-50 transition-colors">
+                <span className="text-[10px] font-black uppercase tracking-widest text-gray-500 group-hover:text-yellow-700">{label}</span>
+                <div className="w-1.5 h-1.5 rounded-full bg-yellow-400"></div>
             </div>
-            <div className="py-6 px-4 text-center">
-                <div className="flex flex-col items-center justify-center">
-                    <p className="text-[20px] font-bold text-black tracking-tight">{value}</p>
-                    {compareValue !== undefined && (
-                        <p className="text-[12px] font-bold text-gray-400 mt-1">
-                            {isRtl ? "مقابل" : "vs."} <span className="text-gray-600">{compareValue}</span>
-                        </p>
-                    )}
-                </div>
+            <div className="py-10 px-4 text-center">
+                <p className="text-2xl font-black text-black tracking-tight">{value} <span className="text-[11px] font-black text-gray-400 uppercase ml-1">SAR</span></p>
             </div>
         </div>
     );

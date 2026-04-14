@@ -211,7 +211,7 @@ const CartPage: React.FC = () => {
                     </div>
 
                     {/* Right Column (Summary): lg:col-span-4 or 3 */}
-                    <div className="lg:col-span-4 xl:col-span-3 sticky top-[140px] z-10 w-full">
+                    <div className="lg:col-span-4 xl:col-span-3 z-10 w-full">
                         <CartSummary
                             subtotal={cart.subtotal}
                             taxAmount={cart.tax_amount}

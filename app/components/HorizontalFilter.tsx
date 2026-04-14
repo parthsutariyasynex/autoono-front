@@ -257,20 +257,28 @@ const HorizontalFilter: React.FC<HorizontalFilterProps> = ({ onSearch, initialVa
             .filter(opt => opt.label && opt.label !== "undefined" && opt.label !== "None");
     };
 
+    const NONE_OPTION: Option = { value: "None", label: "None" };
+
     const fetchList = async (
         endpoint: string,
         setter: (list: Option[]) => void,
         loadingSetter: (v: boolean) => void,
-        type: string
+        type: string,
+        addNoneFallback: boolean = false
     ) => {
         if (!endpoint) return;
         loadingSetter(true);
         try {
             const data = await api.get(endpoint);
-            setter(parseOptions(data, type));
+            const options = parseOptions(data, type);
+            if (options.length === 0 && addNoneFallback) {
+                setter([NONE_OPTION]);
+            } else {
+                setter(options);
+            }
         } catch (err) {
             console.error(`[HorizontalFilter] ${endpoint} error:`, err);
-            setter([]);
+            setter(addNoneFallback ? [NONE_OPTION] : []);
         } finally {
             loadingSetter(false);
         }
@@ -283,11 +291,11 @@ const HorizontalFilter: React.FC<HorizontalFilterProps> = ({ onSearch, initialVa
         fetchList("/tyre-size/rim", setRimList, setLoadingRim, "Rims");
     }, []);
 
-    // 2. Cascade Height
+    // 2. Cascade Height — add "None" fallback if API returns empty
     useEffect(() => {
         if (!hasInitialized.current) return;
         if (width) {
-            fetchList(`/tyre-size/height?width=${width}`, setHeightList, setLoadingHeight, "Height");
+            fetchList(`/tyre-size/height?width=${width}`, setHeightList, setLoadingHeight, "Height", true);
             setHeight("");
             setRim("");
         } else {
@@ -297,28 +305,33 @@ const HorizontalFilter: React.FC<HorizontalFilterProps> = ({ onSearch, initialVa
         onSearch(width, "", "");
     }, [width]);
 
-    // 3. Cascade Rim
+    // 3. Cascade Rim — if height is "None", fetch rim by width only
     useEffect(() => {
         if (!hasInitialized.current) return;
-        if (width && height) {
+        if (width && height === "None") {
+            // Height is "None" → fetch rims using width only
+            fetchList(`/tyre-size/rim?width=${width}`, setRimList, setLoadingRim, "Rim");
+        } else if (width && height) {
             fetchList(`/tyre-size/rim?width=${width}&height=${height}`, setRimList, setLoadingRim, "Rim");
+        } else if (width) {
+            fetchList(`/tyre-size/rim?width=${width}`, setRimList, setLoadingRim, "Rims by width");
         } else {
             fetchList("/tyre-size/rim", setRimList, setLoadingRim, "All Rims");
         }
         if (width && height) setRim("");
-        onSearch(width, height, "");
+        onSearch(width, height === "None" ? "" : height, "");
     }, [width, height]);
 
-    // 4. Rim
+    // 4. Rim selected
     useEffect(() => {
         if (hasInitialized.current && rim) {
-            onSearch(width, height, rim);
+            onSearch(width, height === "None" ? "" : height, rim);
         }
     }, [rim]);
 
     useEffect(() => { hasInitialized.current = true; }, []);
 
-    const handleSearchClick = () => onSearch(width, height, rim);
+    const handleSearchClick = () => onSearch(width, height === "None" ? "" : height, rim);
 
     const handleReset = () => {
         setWidth("");
@@ -344,7 +357,7 @@ const HorizontalFilter: React.FC<HorizontalFilterProps> = ({ onSearch, initialVa
                     <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{t("m.height")}</label>
                     <div className="h-[48px]">
                         {loadingHeight ? <Skeleton className="w-full h-full" /> : (
-                            <SearchableDropdown label="Height" placeholder={t("m.height")} options={heightList} value={height} onChange={setHeight} loading={loadingHeight} emptyMessage="No heights available" direction="down" />
+                            <SearchableDropdown label="Height" placeholder={t("m.height")} options={heightList} value={height} onChange={setHeight} loading={loadingHeight} emptyMessage={t("filter.noHeights")} direction="down" />
                         )}
                     </div>
                 </div>
@@ -352,7 +365,7 @@ const HorizontalFilter: React.FC<HorizontalFilterProps> = ({ onSearch, initialVa
                     <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{t("m.rim")}</label>
                     <div className="h-[48px]">
                         {loadingRim ? <Skeleton className="w-full h-full" /> : (
-                            <SearchableDropdown label="Rim" placeholder={t("m.rim")} options={rimList} value={rim} onChange={setRim} loading={loadingRim} emptyMessage="No rims available" direction="down" />
+                            <SearchableDropdown label="Rim" placeholder={t("m.rim")} options={rimList} value={rim} onChange={setRim} loading={loadingRim} emptyMessage={t("filter.noRims")} direction="down" />
                         )}
                     </div>
                 </div>
@@ -361,7 +374,7 @@ const HorizontalFilter: React.FC<HorizontalFilterProps> = ({ onSearch, initialVa
                         onClick={handleSearchClick}
                         className="flex-1 h-[48px] bg-[#f5a623] hover:bg-black hover:text-white rounded-lg text-black font-[900] italic uppercase text-[13px] tracking-tight active:scale-95 cursor-pointer flex items-center justify-center gap-2 shadow-sm transition-all"
                     >
-                        <Search className="w-4 h-4" /> Search
+                        <Search className="w-4 h-4" /> {t("m.search")}
                     </button>
                     {(width || height || rim) && (
                         <button
@@ -393,13 +406,13 @@ const HorizontalFilter: React.FC<HorizontalFilterProps> = ({ onSearch, initialVa
 
             <div className="flex-1 min-w-[80px] max-w-[200px] h-[40px] md:h-[45px]">
                 {loadingHeight ? <Skeleton className="w-full h-full" /> : (
-                    <SearchableDropdown label="Height" placeholder={t("m.height")} options={heightList} value={height} onChange={setHeight} loading={loadingHeight} emptyMessage="No heights available" direction="up" />
+                    <SearchableDropdown label="Height" placeholder={t("m.height")} options={heightList} value={height} onChange={setHeight} loading={loadingHeight} emptyMessage={t("filter.noHeights")} direction="up" />
                 )}
             </div>
 
             <div className="flex-1 min-w-[80px] max-w-[200px] h-[40px] md:h-[45px]">
                 {loadingRim ? <Skeleton className="w-full h-full" /> : (
-                    <SearchableDropdown label="Rim" placeholder={t("m.rim")} options={rimList} value={rim} onChange={setRim} loading={loadingRim} emptyMessage="No rims available" direction="up" />
+                    <SearchableDropdown label="Rim" placeholder={t("m.rim")} options={rimList} value={rim} onChange={setRim} loading={loadingRim} emptyMessage={t("filter.noRims")} direction="up" />
                 )}
             </div>
 

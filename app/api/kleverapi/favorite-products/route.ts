@@ -21,13 +21,25 @@ export async function GET(request: Request) {
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': authHeader,
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
                 'platform': 'web',
             },
             cache: 'no-store',
         });
 
-        const data = await response.json();
-        return NextResponse.json(data, { status: response.status });
+        // Handle case where Magento returns an error or non-JSON response
+        const contentType = response.headers.get("content-type");
+        if (contentType && contentType.includes("application/json")) {
+            const data = await response.json();
+            return NextResponse.json(data, { status: response.status });
+        } else {
+            const errText = await response.text();
+            console.error(`[API ROUTE ERROR] Non-JSON response from Magento (${response.status}):`, errText.substring(0, 200));
+            return NextResponse.json(
+                { message: `Magento Error ${response.status}: ${errText.substring(0, 100)}` },
+                { status: response.status || 500 }
+            );
+        }
 
     } catch (error: any) {
         console.error('[API ROUTE ERROR] Favorite Products GET Catch:', error);
@@ -55,14 +67,26 @@ export async function POST(request: Request) {
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': authHeader,
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
                 'platform': 'web',
             },
             body: JSON.stringify(body),
             cache: 'no-store',
         });
 
-        const data = await response.json();
-        return NextResponse.json(data, { status: response.status });
+        // Handle case where Magento returns an error or non-JSON response
+        const contentType = response.headers.get("content-type");
+        if (contentType && contentType.includes("application/json")) {
+            const data = await response.json();
+            return NextResponse.json(data, { status: response.status });
+        } else {
+            const errText = await response.text();
+            console.error(`[API ROUTE ERROR] Non-JSON response from Magento POST (${response.status}):`, errText.substring(0, 200));
+            return NextResponse.json(
+                { message: `Magento Error ${response.status}: ${errText.substring(0, 100)}` },
+                { status: response.status || 500 }
+            );
+        }
 
     } catch (error: any) {
         console.error('[API ROUTE ERROR] Favorite Products POST Catch:', error);

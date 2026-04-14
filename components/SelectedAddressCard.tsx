@@ -13,15 +13,15 @@ interface SelectedAddressCardProps {
 const SelectedAddressCard: React.FC<SelectedAddressCardProps> = ({ address, onEdit }) => {
     const { t } = useTranslation();
     return (
-        <div className="relative flex items-center justify-between w-full p-6 bg-[#F8F9FA] border-2 border-[#00A651] rounded-sm transition-all duration-300">
+        <div className="relative flex items-center justify-between w-full p-4 bg-[#F8F9FA] border-2 border-[#00A651] rounded-sm transition-all duration-300">
             {/* Green Square Box with Check Icon at Top-Right */}
-            <div className="absolute top-0 right-0 bg-[#00A651] w-8 h-8 flex items-center justify-center">
-                <Check className="text-white w-5 h-5" strokeWidth={3} />
+            <div className="absolute top-0 right-0 bg-[#00A651] w-6 h-6 flex items-center justify-center">
+                <Check className="text-white w-4 h-4" strokeWidth={3} />
             </div>
 
             {/* Left side: Address Text */}
-            <div className="flex-1 pr-6">
-                <p className="text-[14px] text-[#333] leading-relaxed font-medium">
+            <div className="flex-1 pr-4">
+                <p className="text-[12px] text-[#333] leading-relaxed font-medium">
                     <span className="font-bold text-black">{address.firstname} {address.lastname}</span>{" "}
                     {address.street} {address.city}, {address.postcode}{" "}
                     {address.country_id === 'SA' ? t("data.Saudi Arabia") : address.country_id} {address.telephone}
@@ -38,7 +38,7 @@ const SelectedAddressCard: React.FC<SelectedAddressCardProps> = ({ address, onEd
                     e.stopPropagation();
                     onEdit();
                 }}
-                className="bg-[#F5B21B] text-black text-[12px] font-black px-6 py-3 uppercase tracking-widest hover:bg-black hover:text-white transition-all duration-300 flex-shrink-0"
+                className="bg-[#F5B21B] text-black text-[10px] font-black px-6 py-2 uppercase tracking-widest hover:bg-black hover:text-white transition-all duration-300 flex-shrink-0"
             >
                 {t("addressBook.editAddress")}
             </button>

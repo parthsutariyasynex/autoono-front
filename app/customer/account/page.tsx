@@ -111,122 +111,114 @@ export default function MyAccountPage() {
         <>
 
 
+            return (
             <div className="flex-1 flex flex-col lg:flex-row min-h-0">
                 <Sidebar />
 
-                {/* Right Content */}
-                <main className="flex-1 p-4 md:p-8 bg-[#fcfcfc] min-h-0">
-                    <div className="max-w-[1200px]">
+                {/* Right Content Area */}
+                <main className="flex-1 p-4 md:p-8 lg:p-10 bg-[#fcfcfc] min-h-0 font-rubik">
+                    <div className="max-w-[1240px] mx-auto space-y-12">
 
-                        <h1 className="text-xl md:text-2xl font-light text-gray-800 mb-4 md:mb-6 uppercase tracking-[0.6px]">
-                            My Account
-                        </h1>
+                        <div className="flex items-center gap-4 mb-2">
+                            <h1 className="text-2xl font-black text-black uppercase tracking-tight">
+                                {t("nav.accountDashboard")}
+                            </h1>
+                            <div className="h-[2px] flex-1 bg-gradient-to-r from-yellow-400 to-transparent"></div>
+                        </div>
 
-                        <div className="space-y-6 md:space-y-8">
-                            {/* TOP ROW: CONTACT & COMPANY INFORMATION */}
-                            <section>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-                                    {/* Contact Information */}
-                                    <div className={cardBase}>
-                                        <div className={sectionHeader}>
-                                            Contact Information
+                        <div className="space-y-10">
+                            {/* CONTACT & COMPANY INFORMATION */}
+                            <section className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                {/* Contact Information */}
+                                <div className="bg-white border border-[#ebebeb] rounded-xl shadow-sm overflow-hidden transition-all duration-300 hover:shadow-md">
+                                    <div className="bg-gray-50/80 px-6 py-4 border-b border-[#ebebeb] flex justify-between items-center h-[60px]">
+                                        <span className="text-black font-black tracking-widest uppercase text-[11px]">Contact Information</span>
+                                    </div>
+                                    <div className="p-8 text-[13px] text-gray-700 space-y-4 font-medium leading-relaxed">
+                                        <div className="flex items-center gap-4 group">
+                                            <span className="w-1.5 h-1.5 rounded-full bg-yellow-400"></span>
+                                            <p className="flex-1">Name: <span className="font-black text-black">{(customer as any).firstname} {(customer as any).lastname}</span></p>
                                         </div>
-                                        <div className="p-4 md:p-6 text-[13px] text-gray-700 space-y-2.5 font-medium leading-relaxed">
-                                            <p>Name: {(customer as any).firstname} {(customer as any).lastname}</p>
-                                            <p>Email: {(customer as any).email}</p>
-                                            <p>Mobile: {getAttr("mobile") !== "N/A" ? getAttr("mobile") : getAttr("mobile_number")}</p>
+                                        <div className="flex items-center gap-4 group">
+                                            <span className="w-1.5 h-1.5 rounded-full bg-yellow-400"></span>
+                                            <p className="flex-1">Email: <span className="font-black text-black">{(customer as any).email}</span></p>
+                                        </div>
+                                        <div className="flex items-center gap-4 group">
+                                            <span className="w-1.5 h-1.5 rounded-full bg-yellow-400"></span>
+                                            <p className="flex-1">Mobile: <span className="font-black text-black">{getAttr("mobile") !== "N/A" ? getAttr("mobile") : getAttr("mobile_number")}</span></p>
+                                        </div>
 
-                                            <div className="flex flex-col sm:flex-row gap-3 pt-4 md:pt-6">
-                                                <Link href={lp("/customer/account/edit")} className="bg-[#F5B21B] hover:bg-black hover:text-white text-black text-[11px] md:text-[12px] font-bold px-6 md:px-8 py-2 md:py-2.5 uppercase transition-all rounded-sm shadow-sm tracking-wider text-center">
-                                                    Edit
-                                                </Link>
-                                                <Link href={lp("/customer/account/edit?change=password")} className="bg-[#F5B21B] hover:bg-black hover:text-white text-black text-[11px] md:text-[12px] font-bold px-6 md:px-8 py-2 md:py-2.5 uppercase transition-all rounded-sm shadow-sm tracking-wider whitespace-nowrap text-center">
-                                                    Change Password
-                                                </Link>
-                                            </div>
+                                        <div className="flex flex-col sm:flex-row gap-8 pt-8">
+                                            <Link href={lp("/customer/account/edit")} className="text-[#f5a623] text-[11px] font-black uppercase tracking-widest hover:text-black transition-colors flex items-center gap-2 group">
+                                                Edit Information
+                                                <span className="transform group-hover:translate-x-1 transition-transform">→</span>
+                                            </Link>
+                                            <Link href={lp("/customer/account/edit?change=password")} className="text-[#f5a623] text-[11px] font-black uppercase tracking-widest hover:text-black transition-colors flex items-center gap-2 group">
+                                                Change Password
+                                                <span className="transform group-hover:translate-x-1 transition-transform">→</span>
+                                            </Link>
                                         </div>
                                     </div>
+                                </div>
 
-                                    {/* Company Information */}
-                                    <div className={cardBase}>
-                                        <div className={sectionHeader}>
-                                            Company Information
+                                {/* Company Information */}
+                                <div className="bg-white border border-[#ebebeb] rounded-xl shadow-sm overflow-hidden transition-all duration-300 hover:shadow-md">
+                                    <div className="bg-gray-50/80 px-6 py-4 border-b border-[#ebebeb] flex justify-between items-center h-[60px]">
+                                        <span className="text-black font-black tracking-widest uppercase text-[11px]">Company Information</span>
+                                    </div>
+                                    <div className="p-8 text-[13px] text-gray-700 space-y-4 font-medium leading-relaxed">
+                                        <div className="flex items-center gap-4 group">
+                                            <span className="w-1.5 h-1.5 rounded-full bg-yellow-400"></span>
+                                            <p className="flex-1">Company: <span className="font-black text-black">{getAttr("company_name") || addresses?.[0]?.company || "—"}</span></p>
                                         </div>
-                                        <div className="p-4 md:p-6 text-[13px] text-gray-700 space-y-2.5 font-medium leading-relaxed">
-                                            <p>Company Name: {getAttr("company_name") || addresses?.[0]?.company || "N/A"}</p>
-                                            <p>Company Contact: {getAttr("company_contact_name")}</p>
-                                            <p>Company Email: {getAttr("company_email")}</p>
-                                            <p>Customer Code: {getAttr("customer_code")}</p>
+                                        <div className="flex items-center gap-4 group">
+                                            <span className="w-1.5 h-1.5 rounded-full bg-yellow-400"></span>
+                                            <p className="flex-1">Contact: <span className="font-black text-black">{getAttr("company_contact_name") || "—"}</span></p>
+                                        </div>
+                                        <div className="flex items-center gap-4 group">
+                                            <span className="w-1.5 h-1.5 rounded-full bg-yellow-400"></span>
+                                            <p className="flex-1">Email: <span className="font-black text-black">{getAttr("company_email") || "—"}</span></p>
+                                        </div>
+                                        <div className="flex items-center gap-4 group">
+                                            <span className="w-1.5 h-1.5 rounded-full bg-yellow-400"></span>
+                                            <p className="flex-1">Customer Code: <span className="font-black text-black">{getAttr("customer_code")}</span></p>
                                         </div>
                                     </div>
                                 </div>
                             </section>
 
                             {/* BUSINESS OVERVIEW & SALES DATA */}
-                            <section>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-                                    <div className={cardBase}>
-                                        <div className={sectionHeader + " flex justify-between items-center"}>
-                                            <span>Business Overview</span>
-                                            <button
-                                                onClick={() => setIsEditModalOpen(true)}
-                                                className="bg-[#F5B21B] hover:bg-black hover:text-white text-black text-[10px] font-bold px-4 py-1.5 uppercase transition-all rounded-sm shadow-sm tracking-widest"
-                                            >
-                                                Edit
-                                            </button>
-                                        </div>
-                                        <div className="p-4 md:p-6 text-[13px] md:text-[14px] text-gray-700 space-y-2 font-medium leading-relaxed">
-                                            <p>Company Size: {getOverviewAttr("total_employees")} employees, {getOverviewAttr("trucks")} Trucks, {getOverviewAttr("annual_revenue")} annual revenue</p>
-                                            <p>Business Model: {getOverviewAttr("business_model")}</p>
-                                            <p>Products/Services Offered: {getOverviewAttr("products_offered")}</p>
-                                        </div>
+                            <section className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                <div className="bg-white border border-[#ebebeb] rounded-xl shadow-sm overflow-hidden transition-all duration-300 hover:shadow-md">
+                                    <div className="bg-gray-50/80 px-6 py-4 border-b border-[#ebebeb] flex justify-between items-center h-[60px]">
+                                        <span className="text-black font-black tracking-widest uppercase text-[11px]">Business Overview</span>
+                                        <button
+                                            onClick={() => setIsEditModalOpen(true)}
+                                            className="bg-white border border-[#ebebeb] hover:border-[#f5a623] hover:text-[#f5a623] text-black text-[9px] font-black px-4 py-1.5 uppercase transition-all rounded-lg shadow-sm tracking-widest active:scale-95"
+                                        >
+                                            Edit
+                                        </button>
                                     </div>
-
-                                    <div className={cardBase}>
-                                        <div className={sectionHeader}>
-                                            Sales Data (Qty)
-                                        </div>
-                                        <div className="p-4 md:p-6 text-[13px] text-gray-700 space-y-2.5 font-medium leading-relaxed">
-                                            <p>Total Sales Qty: {getAttr("total_sales_qty") !== "N/A" ? getAttr("total_sales_qty") : "0"}</p>
-                                            <p>Order Frequency: {getAttr("order_frequency") !== "N/A" ? getAttr("order_frequency") : "0"} orders/month</p>
-                                        </div>
+                                    <div className="p-8 text-[13px] text-gray-700 space-y-4 font-medium leading-relaxed">
+                                        <p className="italic text-gray-500 mb-2">Detailed business statistics and organizational size.</p>
+                                        <p>Company Size: <span className="font-black text-black">{getOverviewAttr("total_employees")} employees</span>, <span className="font-black text-black">{getOverviewAttr("trucks")} Trucks</span></p>
+                                        <p>Annual Revenue: <span className="font-black text-black">{getOverviewAttr("annual_revenue")}</span></p>
+                                        <p>Business Model: <span className="font-black text-black">{getOverviewAttr("business_model")}</span></p>
                                     </div>
                                 </div>
-                            </section>
 
-                            {/* TARGETS & BEHAVIOR */}
-                            <section>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-                                    <div className={cardBase}>
-                                        <div className={sectionHeader + " flex justify-between items-center"}>
-                                            <span>Targets and Achievements ({new Date().getFullYear()})</span>
-                                        </div>
-                                        <div className="p-4 md:p-6 text-[13px] text-gray-700 space-y-2.5 font-medium leading-relaxed">
-                                            {targets ? (
-                                                <>
-                                                    <p>Sales Targets: {targets.sales_targets || "N/A"}</p>
-                                                    <p>Achievements: {targets.achievements || "N/A"}</p>
-                                                    <p>Incentive: SAR {targets.incentive || "0.00"}</p>
-                                                    {targets.remarks && <p>Remarks: {targets.remarks}</p>}
-                                                </>
-                                            ) : (
-                                                <>
-                                                    <p>Sales Targets: {getAttr("sales_targets")}</p>
-                                                    <p>Achievements: {getAttr("achievements")}</p>
-                                                    <p>Incentive: SAR {getAttr("incentive") !== "N/A" ? getAttr("incentive") : "0.00"}</p>
-                                                </>
-                                            )}
-                                        </div>
+                                <div className="bg-white border border-[#ebebeb] rounded-xl shadow-sm overflow-hidden transition-all duration-300 hover:shadow-md">
+                                    <div className="bg-gray-50/80 px-6 py-4 border-b border-[#ebebeb] flex justify-between items-center h-[60px]">
+                                        <span className="text-black font-black tracking-widest uppercase text-[11px]">Sales Performance</span>
                                     </div>
-
-                                    <div className={cardBase}>
-                                        <div className={sectionHeader}>
-                                            Customer Behavior
+                                    <div className="p-8 text-[13px] text-gray-700 space-y-4 font-medium leading-relaxed">
+                                        <div className="flex items-center justify-between">
+                                            <span className="text-gray-500 uppercase text-[11px] font-black tracking-widest">Total Sales Qty</span>
+                                            <span className="text-2xl font-black text-black">{getAttr("total_sales_qty") !== "N/A" ? getAttr("total_sales_qty") : "0"}</span>
                                         </div>
-                                        <div className="p-4 md:p-6 text-[13px] text-gray-700 space-y-2.5 font-medium leading-relaxed">
-                                            <p>Payment History (DSO): {getAttr("payment_history")}</p>
-                                            <p>Credit Limit: SAR {getAttr("total_credit_limit")}</p>
-                                            <p>Credit Period: {getAttr("credit_period")} days</p>
+                                        <div className="flex items-center justify-between pt-2">
+                                            <span className="text-gray-500 uppercase text-[11px] font-black tracking-widest">Order Frequency</span>
+                                            <span className="text-lg font-black text-black">{getAttr("order_frequency") !== "N/A" ? getAttr("order_frequency") : "0"} <span className="text-[10px] text-gray-400">mo</span></span>
                                         </div>
                                     </div>
                                 </div>
@@ -234,41 +226,47 @@ export default function MyAccountPage() {
 
                             {/* ADDRESS BOOK */}
                             <section>
-                                <div className={cardBase}>
-                                    <div className={sectionHeader + " flex justify-between items-center"}>
-                                        <span>Address Book</span>
-                                        <Link href={lp("/customer/address-book")} className="text-[11px] font-bold text-[#F5B21B] hover:text-black transition-colors uppercase tracking-widest">
-                                            Manage Addresses
+                                <div className="bg-white border border-[#ebebeb] rounded-xl shadow-sm overflow-hidden transition-all duration-300 hover:shadow-md">
+                                    <div className="bg-gray-50/80 px-6 py-4 border-b border-[#ebebeb] flex justify-between items-center h-[60px]">
+                                        <span className="text-black font-black tracking-widest uppercase text-[11px]">Address Book</span>
+                                        <Link href={lp("/customer/address-book")} className="bg-white border border-[#ebebeb] hover:border-[#f5a623] hover:text-[#f5a623] text-black text-[9px] font-black px-4 py-1.5 uppercase transition-all rounded-lg shadow-sm tracking-widest active:scale-95">
+                                            Manage
                                         </Link>
                                     </div>
-                                    <div className="p-4 md:p-6">
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10">
+                                    <div className="p-8">
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
                                             <div>
-                                                <h4 className="text-[13px] font-black text-black mb-4 uppercase tracking-wider border-b border-gray-100 pb-2">Default Billing Address</h4>
+                                                <h4 className="text-[11px] font-black text-gray-400 mb-6 uppercase tracking-[0.2em] flex items-center gap-2">
+                                                    <div className="w-8 h-px bg-gray-200"></div>
+                                                    Default Billing
+                                                </h4>
                                                 {defaultBilling ? (
-                                                    <div className="text-[13px] text-gray-600 leading-relaxed space-y-1">
-                                                        <p className="font-bold text-gray-900">{(customer as any).firstname} {(customer as any).lastname}</p>
+                                                    <div className="text-[13px] text-gray-700 leading-relaxed font-medium space-y-1">
+                                                        <p className="font-black text-black text-sm mb-2">{(customer as any).firstname} {(customer as any).lastname}</p>
                                                         {defaultBilling.street?.map((s: string, i: number) => <p key={i}>{s}</p>)}
                                                         <p>{defaultBilling.city}, {defaultBilling.postcode}</p>
-                                                        <p>{defaultBilling.country_id}</p>
-                                                        <p className="pt-2">T: {defaultBilling.telephone}</p>
+                                                        <p className="uppercase text-[11px] text-gray-400">{defaultBilling.country_id}</p>
+                                                        <p className="pt-4 text-gray-500 font-mono text-xs">T: {defaultBilling.telephone}</p>
                                                     </div>
                                                 ) : (
-                                                    <p className="text-[13px] text-gray-500 italic">No default billing address set.</p>
+                                                    <p className="text-[13px] text-gray-400 italic">No default billing address set.</p>
                                                 )}
                                             </div>
                                             <div>
-                                                <h4 className="text-[13px] font-black text-black mb-4 uppercase tracking-wider border-b border-gray-100 pb-2">Default Shipping Address</h4>
+                                                <h4 className="text-[11px] font-black text-gray-400 mb-6 uppercase tracking-[0.2em] flex items-center gap-2">
+                                                    <div className="w-8 h-px bg-gray-200"></div>
+                                                    Default Shipping
+                                                </h4>
                                                 {defaultShipping ? (
-                                                    <div className="text-[13px] text-gray-600 leading-relaxed space-y-1">
-                                                        <p className="font-bold text-gray-900">{(customer as any).firstname} {(customer as any).lastname}</p>
+                                                    <div className="text-[13px] text-gray-700 leading-relaxed font-medium space-y-1">
+                                                        <p className="font-black text-black text-sm mb-2">{(customer as any).firstname} {(customer as any).lastname}</p>
                                                         {defaultShipping.street?.map((s: string, i: number) => <p key={i}>{s}</p>)}
                                                         <p>{defaultShipping.city}, {defaultShipping.postcode}</p>
-                                                        <p>{defaultShipping.country_id}</p>
-                                                        <p className="pt-2">T: {defaultShipping.telephone}</p>
+                                                        <p className="uppercase text-[11px] text-gray-400">{defaultShipping.country_id}</p>
+                                                        <p className="pt-4 text-gray-500 font-mono text-xs">T: {defaultShipping.telephone}</p>
                                                     </div>
                                                 ) : (
-                                                    <p className="text-[13px] text-gray-500 italic">No default shipping address set.</p>
+                                                    <p className="text-[13px] text-gray-400 italic">No default shipping address set.</p>
                                                 )}
                                             </div>
                                         </div>

@@ -217,8 +217,17 @@ export default function ProductsPage() {
         console.log("[PRODUCTS DEBUG] Response keys:", Object.keys(data), "products:", Array.isArray(data.products) ? data.products.length : "not array", "items:", Array.isArray(data.items) ? data.items.length : "not array", "total_count:", data.total_count);
         const productArray = Array.isArray(data.products) ? data.products : (Array.isArray(data.items) ? data.items : []);
         const total = typeof data.total_count === "number" ? data.total_count : productArray.length;
+
+        // Map items to ensure final_price and original_price are consistent
+        const mappedProducts = productArray.map((p: any) => {
+          const finalPrice = Number(p.final_price || p.special_price || p.price || 0);
+          const potentialOldPrice = Number(p.price || p.regular_price || p.original_price || p.old_price || 0);
+          const originalPrice = potentialOldPrice > finalPrice ? potentialOldPrice : 0;
+          return { ...p, final_price: finalPrice, original_price: originalPrice };
+        });
+
         if (abortController.signal.aborted) return;
-        setProducts(productArray);
+        setProducts(mappedProducts);
         setTotalCount(total);
         if (data.filters) setApiFilters(data.filters);
       } catch (err: unknown) {
@@ -367,9 +376,22 @@ export default function ProductsPage() {
         {/* Bottom: price left + actions right */}
         <div className="flex items-center justify-between border-t border-gray-100 pt-2 gap-2">
           <div className="flex items-center gap-2 min-w-0">
-            <span className="text-[13px] font-black text-black rubik-sans truncate">
-              <Price amount={product?.final_price || 0} />
-            </span>
+            <div className="flex flex-col">
+              {product.original_price && product.original_price > product.final_price ? (
+                <>
+                  <span className="text-[10px] font-bold text-gray-400">
+                    <Price amount={product.original_price} className="font-bold line-through" />
+                  </span>
+                  <span className="text-[13px] font-black text-black rubik-sans truncate">
+                    <Price amount={product.final_price} />
+                  </span>
+                </>
+              ) : (
+                <span className="text-[13px] font-black text-black rubik-sans truncate">
+                  <Price amount={product?.final_price || 0} />
+                </span>
+              )}
+            </div>
           </div>
           <div className="flex items-center gap-1 flex-shrink-0">
             {!isOutOfStock ? (
@@ -628,7 +650,24 @@ export default function ProductsPage() {
                         </td>
                         <td className="px-2 md:px-4 text-center">{product.offer ? <span className="text-red-600 font-bold text-[10px] uppercase tracking-tight block max-w-[150px] mx-auto">{product.offer}</span> : <span className="text-gray-200">—</span>}</td>
                         <td className="px-2 md:px-4 text-center">{getStockBadge(product)}</td>
-                        <td className="px-2 md:px-4 text-center whitespace-nowrap"><span className="text-[12px] font-black text-black tracking-tight rubik-sans"><Price amount={product?.final_price || 0} /></span></td>
+                        <td className="px-2 md:px-4 text-center whitespace-nowrap">
+                          <div className="flex flex-col items-center justify-center">
+                            {product.original_price && product.original_price > product.final_price ? (
+                              <>
+                                <span className="text-[10px] font-bold text-gray-400 mb-0.5">
+                                  <Price amount={product.original_price} className="font-bold line-through" />
+                                </span>
+                                <span className="text-[12px] font-black text-black tracking-tight rubik-sans">
+                                  <Price amount={product.final_price} />
+                                </span>
+                              </>
+                            ) : (
+                              <span className="text-[12px] font-black text-black tracking-tight rubik-sans">
+                                <Price amount={product?.final_price || 0} />
+                              </span>
+                            )}
+                          </div>
+                        </td>
                         <td className="px-1 text-center align-middle">
                           <div className="inline-grid grid-cols-3 gap-1 items-center">
                             {/* Col 1: Qty */}

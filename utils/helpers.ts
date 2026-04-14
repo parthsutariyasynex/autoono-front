@@ -61,7 +61,8 @@ export function formatPrice(price: number | string | null | undefined, locale: s
   if (isNaN(numericPrice)) return `${SYMBOL} 0.00`;
 
   // Use Arabic-Indic numerals for AR locale, standard for EN
-  const numberLocale = locale === "ar" ? "ar-SA" : "en-US";
+  // We use u-nu-arab to explicitly force Arabic digits in some systems.
+  const numberLocale = locale === "ar" ? "ar-SA-u-nu-arab" : "en-US";
 
   const formattedNumber = new Intl.NumberFormat(numberLocale, {
     minimumFractionDigits: 2,

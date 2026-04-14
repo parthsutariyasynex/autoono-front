@@ -14,7 +14,7 @@ import AddToCartPopup from "./AddToCartPopup";
 
 import { api } from "@/lib/api/api-client";
 import { useTranslation } from "@/hooks/useTranslation";
-import Pagination from "@/components/Pagination";
+import Pagination, { PageSizeSelect } from "@/components/Pagination";
 import { useCart } from "@/modules/cart/context/CartContext";
 import { useSession } from "next-auth/react";
 import PortalDropdown from "@/components/PortalDropdown";
@@ -32,6 +32,7 @@ interface Product {
     stock_status: string;
     price?: number;
     final_price: number;
+    original_price?: number;
     offer?: string;
     brand?: string;
     favorite_id?: number | string;
@@ -49,7 +50,7 @@ function TableColGroup() {
     );
 }
 
-export default function FavouriteProducts() {
+export default function FavouriteProducts({ title }: { title?: React.ReactNode }) {
     const router = useRouter();
     const { t } = useTranslation();
     const { data: session } = useSession();
@@ -232,27 +233,28 @@ export default function FavouriteProducts() {
     }
 
     const totalPages = Math.ceil(totalCount / pageSize);
-    const pages = Array.from({ length: totalPages }, (_, i) => i + 1);
 
     return (
         <div className="w-full font-rubik">
 
-            {/* Top Bar - Styled same as products page header */}
-            <div className="px-5 py-4 bg-gray-50 border border-gray-200 rounded-xl mb-6 flex flex-col md:flex-row items-center justify-between gap-4">
-                <div className="text-[10px] font-black text-gray-400 uppercase tracking-widest">
-                    {t("favorites.items")} <span className="text-gray-900">{startItem} - {endItem}</span> {t("favorites.of")} <span className="text-gray-900">{totalCount}</span> {t("favorites.total")}
-                </div>
-                <div className="flex items-center gap-1.5 md:gap-2 flex-wrap justify-center">
-                    {pages.map((p) => (
-                        <button key={p} onClick={() => setCurrentPage(p)} className={`w-8 h-8 md:w-9 md:h-9 flex items-center justify-center text-[11px] font-black rounded-lg border transition-all cursor-pointer ${currentPage === p ? "bg-[#f5a623] border-[#f5a623] text-black shadow-sm" : "bg-white border-gray-200 text-gray-400 hover:border-[#f5a623]"}`}>{p}</button>
-                    ))}
-                    {currentPage < totalPages && (
-                        <button onClick={() => setCurrentPage(currentPage + 1)} className="h-8 md:h-9 px-3 md:px-4 flex items-center justify-center text-[10px] bg-white border border-gray-200 text-black font-black rounded-lg uppercase cursor-pointer shadow-sm active:scale-95 transition-all">{t("common.next")}</button>
+            <div className="flex items-center gap-4 mb-8">
+                <div className="flex-1">
+                    {typeof title === 'string' ? (
+                        <h1 className="text-xl font-black text-black uppercase tracking-tight">
+                            {title}
+                        </h1>
+                    ) : title || (
+                        <h1 className="text-xl font-black text-black uppercase tracking-tight">
+                            {t("nav.favouriteProducts")}
+                        </h1>
                     )}
                 </div>
-                <div className="flex items-center gap-3">
-                    <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{t("favorites.show")}</span>
-                    <PortalDropdown value={String(pageSize)} onChange={(val) => { setPageSize(Number(val)); setCurrentPage(1); }} options={[{ label: "10", value: "10" }, { label: "20", value: "20" }, { label: "50", value: "50" }]} minWidth={70} buttonClassName="h-8 px-2 bg-white border border-gray-200 rounded-lg text-[11px] font-black" />
+                <div className="h-[2px] flex-1 bg-gradient-to-r from-yellow-400 to-transparent"></div>
+                <div className="flex-shrink-0">
+                    <PageSizeSelect
+                        value={pageSize}
+                        onChange={(val: number) => { setPageSize(val); setCurrentPage(1); }}
+                    />
                 </div>
             </div>
 
@@ -290,7 +292,22 @@ export default function FavouriteProducts() {
                                 </div>
                             </div>
                             <div className="flex items-center justify-between border-t border-gray-100 pt-2.5 mt-1 gap-2">
-                                <span className="text-[13px] font-black text-black rubik-sans"><Price amount={product.final_price} /></span>
+                                <div className="flex flex-col">
+                                    {product.original_price && product.original_price > product.final_price ? (
+                                        <>
+                                            <span className="text-[10px] font-bold text-gray-400">
+                                                <Price amount={product.original_price} className="font-bold line-through" />
+                                            </span>
+                                            <span className="text-[13px] font-black text-black rubik-sans">
+                                                <Price amount={product.final_price} />
+                                            </span>
+                                        </>
+                                    ) : (
+                                        <span className="text-[13px] font-black text-black rubik-sans">
+                                            <Price amount={product.final_price} />
+                                        </span>
+                                    )}
+                                </div>
                                 <div className="flex items-center gap-1 flex-shrink-0">
                                     {!isOutOfStock ? (
                                         <button onClick={() => onAddToCart(product)} disabled={addingToCart === product.sku} className={`h-9 px-2.5 rounded-lg flex items-center gap-1.5 text-[11px] font-black uppercase shadow-sm active:scale-95 cursor-pointer flex-shrink-0 bg-[#f5a623] text-black`}>
@@ -311,19 +328,20 @@ export default function FavouriteProducts() {
                 })}
             </div>
 
-            {/* Desktop Table */}
-            <div className="hidden xl:flex flex-col bg-white rounded-none md:rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+            <div className="hidden xl:flex flex-col bg-white rounded-xl shadow-sm border border-[#ebebeb] overflow-hidden transition-all duration-300 hover:shadow-md">
                 <div className="flex-1 overflow-x-auto">
-                    <table className="w-full border-collapse table-fixed min-w-[900px]">
-                        <TableColGroup />
+                    <table className="w-full border-collapse table-fixed min-w-[950px]">
+                        <colgroup><col className="w-[10%]" /><col className="w-[12%]" /><col className="w-[15%]" /><col className="w-[6%]" /><col className="w-[10%]" /><col className="w-[6%]" /><col className="w-[4%]" /><col className="w-[11%]" /><col className="w-[13%]" /><col className="w-[13%]" /></colgroup>
                         <thead className="sticky top-0 z-20">
-                            <tr className="bg-gray-50 border-b-2 border-gray-200">
+                            <tr className="bg-gray-50/80 text-black text-[11px] font-black uppercase tracking-widest h-[60px] border-b border-[#ebebeb]">
                                 {TABLE_HEADER_KEYS.map(key => (
-                                    <th key={key} className="px-2 md:px-4 py-2 md:py-3 text-[11px] font-black text-black uppercase tracking-widest text-center">{key === 'm.size' ? (
-                                        <div className="flex items-center justify-center">
-                                            {t(key)} <Info className="w-4 h-4 text-gray-400 ml-1 cursor-pointer" />
-                                        </div>
-                                    ) : t(key)}</th>
+                                    <th key={key} className="px-2 md:px-4 text-center">
+                                        {key === 'm.size' ? (
+                                            <div className="flex items-center justify-center whitespace-nowrap">
+                                                {t(key)} <Info className="w-3.5 h-3.5 text-gray-300 ml-1.5 cursor-pointer hover:text-gray-500" />
+                                            </div>
+                                        ) : t(key)}
+                                    </th>
                                 ))}
                             </tr>
                         </thead>
@@ -343,22 +361,22 @@ export default function FavouriteProducts() {
                                     const stockLabel = isOutOfStock ? t("stock.not_available") : isLimited ? t("stock.limited") : t("stock.available");
 
                                     return (
-                                        <tr key={product.product_id} className={`hover:bg-gray-50/50 transition-colors group ${ROW_HEIGHT}`}>
-                                            <td className="px-2 md:px-4 text-[12px] font-normal text-gray-700 text-center">{t(`data.${brandName}`) !== `data.${brandName}` ? t(`data.${brandName}`) : brandName}</td>
+                                        <tr key={product.product_id} className={`hover:bg-yellow-50/20 transition-colors group ${ROW_HEIGHT}`}>
+                                            <td className="px-2 md:px-4 text-[12px] font-bold text-gray-900 text-center">{t(`data.${brandName}`) !== `data.${brandName}` ? t(`data.${brandName}`) : brandName}</td>
                                             <td className="px-2 md:px-4 text-center whitespace-nowrap">
                                                 <div className="flex items-center justify-center gap-1.5">
-                                                    <span className="text-[12px] font-normal text-gray-900 tracking-tight">{product.tyre_size}</span>
+                                                    <span className="text-[12px] font-bold text-gray-900 tracking-tight">{product.tyre_size}</span>
                                                     <div
                                                         onClick={() => handleShowProductDetail(product)}
-                                                        className={`w-4 h-4 bg-gray-900 rounded-full flex items-center justify-center text-[9px] font-black text-white cursor-pointer hover:bg-yellow-400 hover:text-black transition-all shadow-sm flex-shrink-0`}
+                                                        className={`w-3.5 h-3.5 bg-gray-900 rounded-full flex items-center justify-center text-[8px] font-black text-white cursor-pointer hover:bg-[#f5a623] hover:text-black transition-all shadow-sm flex-shrink-0`}
                                                     >
                                                         i
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td className="px-2 md:px-4 text-[12px] font-normal text-gray-600 text-center">{product.pattern || "—"}</td>
-                                            <td className="px-2 md:px-4 text-[12px] font-normal text-gray-500 text-center font-mono">{product.year || "—"}</td>
-                                            <td className="px-2 md:px-4 text-[12px] font-normal text-gray-600 text-center">{product.origin ? (t(`data.${product.origin}`) !== `data.${product.origin}` ? t(`data.${product.origin}`) : product.origin) : "—"}</td>
+                                            <td className="px-2 md:px-4 text-[12px] font-medium text-gray-700 text-center">{product.pattern || "—"}</td>
+                                            <td className="px-2 md:px-4 text-[12px] font-medium text-gray-500 text-center font-mono">{product.year || "—"}</td>
+                                            <td className="px-2 md:px-4 text-[12px] font-medium text-gray-600 text-center">{product.origin ? (t(`data.${product.origin}`) !== `data.${product.origin}` ? t(`data.${product.origin}`) : product.origin) : "—"}</td>
                                             <td className="px-2 md:px-4 text-center">
                                                 <div className="w-10 h-10 mx-auto">
                                                     {product.image_url ? (
@@ -393,45 +411,45 @@ export default function FavouriteProducts() {
                                                     <span className="text-gray-200">—</span>
                                                 )}
                                             </td>
-                                            <td className="px-2 md:px-4 text-center">
-                                                <div className="flex flex-col items-center justify-center text-center gap-1">
-                                                    <span className={`w-4 h-4 rounded-full border border-gray-100 shadow-sm ${stockColor}`}></span>
-                                                    <span className="text-[10px] font-black text-gray-700 uppercase leading-none">{stockLabel}</span>
+                                            <td className="px-3 py-4 text-center">
+                                                <div className="flex flex-col items-center justify-center text-center gap-1.5">
+                                                    <span className={`w-3.5 h-3.5 rounded-full border border-white shadow-sm ${stockColor}`}></span>
+                                                    <span className="text-[10px] font-extrabold text-gray-700 uppercase leading-none tracking-tighter">{stockLabel}</span>
                                                 </div>
                                             </td>
-                                            <td className="px-2 md:px-4 text-center whitespace-nowrap">
-                                                <div className="flex flex-col items-center justify-center min-w-[80px]">
-                                                    {(product as any).original_price > 0 && (product as any).original_price > product.final_price ? (
+                                            <td className="px-3 py-4 text-center whitespace-nowrap">
+                                                <div className="flex flex-col items-center justify-center">
+                                                    {product.original_price && product.original_price > product.final_price ? (
                                                         <>
-                                                            <span className="text-[10px] font-bold text-gray-400 line-through mb-0.5">
-                                                                <Price amount={(product as any).original_price} />
+                                                            <span className="text-[10px] font-bold text-gray-400 mb-0.5">
+                                                                <Price amount={product.original_price} className="font-bold line-through" />
                                                             </span>
-                                                            <span className="text-[12px] font-black text-black tracking-tight leading-none price currency-riyal">
+                                                            <span className="text-[13px] font-extrabold text-black tracking-tight leading-none">
                                                                 <Price amount={product.final_price} />
                                                             </span>
                                                         </>
                                                     ) : (
-                                                        <span className="text-[12px] font-black text-black tracking-tight leading-none price currency-riyal">
+                                                        <span className="text-[13px] font-extrabold text-black tracking-tight leading-none">
                                                             <Price amount={product.final_price} />
                                                         </span>
                                                     )}
                                                 </div>
                                             </td>
-                                            <td className="px-1 text-center align-middle">
-                                                <div className="inline-grid grid-cols-3 gap-1 items-center">
+                                            <td className="px-2 text-center align-middle">
+                                                <div className="flex items-center justify-center gap-1.5">
                                                     {/* Col 1: Qty */}
                                                     {!isOutOfStock ? (
-                                                        <div className="w-8 h-8 border-2 border-gray-100 rounded-md flex items-center justify-center text-[11px] font-black text-gray-900 bg-white shadow-sm overflow-hidden">
+                                                        <div className="w-9 h-8 border border-gray-200 rounded-md flex items-center justify-center text-[11px] font-bold text-gray-900 bg-white shadow-sm overflow-hidden">
                                                             <input
                                                                 type="number"
                                                                 min="1"
                                                                 value={quantities[product.product_id] || 1}
                                                                 onChange={(e) => handleQtyChange(product.product_id, e.target.value)}
-                                                                className="w-full bg-transparent text-center text-[11px] font-bold outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                                                className="w-full bg-transparent text-center text-[12px] font-bold outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none p-0"
                                                             />
                                                         </div>
                                                     ) : (
-                                                        <div className="w-8 h-8" />
+                                                        <div className="w-9 h-8" />
                                                     )}
 
                                                     {/* Col 2: Cart or Enquiry */}
@@ -439,7 +457,7 @@ export default function FavouriteProducts() {
                                                         <button
                                                             onClick={() => onAddToCart(product)}
                                                             disabled={addingToCart === product.sku}
-                                                            className="w-8 h-8 bg-yellow-400 hover:bg-yellow-500 text-black rounded-md flex items-center justify-center shadow-md active:scale-95 transition-all disabled:opacity-50"
+                                                            className="w-8 h-8 bg-[#f5a623] hover:bg-[#e0951d] text-black rounded-md flex items-center justify-center shadow-sm active:scale-95 transition-all disabled:opacity-50"
                                                             title={t("m.add-to-cart")}
                                                         >
                                                             {addingToCart === product.sku ? (
@@ -450,31 +468,24 @@ export default function FavouriteProducts() {
                                                         </button>
                                                     ) : (
                                                         <button
-                                                            onClick={() => {
-                                                                setInquiryProduct(product);
-                                                                setIsInquiryModalOpen(true);
-                                                            }}
-                                                            className="w-8 h-8 bg-yellow-400 hover:bg-yellow-500 text-black rounded-md flex items-center justify-center shadow-md active:scale-95"
-                                                            title={t("m.make-an-inquiry")}
+                                                            onClick={() => { setInquiryProduct(product); setIsInquiryModalOpen(true); }}
+                                                            className="w-8 h-8 bg-[#f5a623] hover:bg-[#e0951d] text-black rounded-md flex items-center justify-center shadow-sm active:scale-95 transition-all"
                                                         >
                                                             <Info size={15} strokeWidth={2.5} />
                                                         </button>
                                                     )}
 
-                                                    {/* Col 3: Remove */}
+                                                    {/* Col 3: Delete */}
                                                     <button
                                                         onClick={() => handleRemove(product)}
                                                         disabled={removing === product.product_id}
-                                                        className={`w-8 h-8 rounded-md flex items-center justify-center shadow-md border active:scale-95 transition-all ${removing === product.product_id
-                                                            ? "bg-gray-100 text-gray-400 border-gray-100 cursor-not-allowed"
-                                                            : "bg-white text-gray-400 border-gray-200 hover:bg-red-50 hover:text-red-500 hover:border-red-200"
-                                                            }`}
+                                                        className={`w-8 h-8 rounded-md flex items-center justify-center active:scale-95 cursor-pointer border transition-colors ${removing === product.product_id ? "bg-gray-100 text-gray-400 border-gray-100" : "bg-white text-gray-400 border-gray-200 hover:text-red-500 hover:border-red-100"}`}
                                                         title={t("m.remove-from-wishlist")}
                                                     >
                                                         {removing === product.product_id ? (
                                                             <div className="w-3.5 h-3.5 border-2 border-gray-300 border-t-red-500 rounded-full animate-spin"></div>
                                                         ) : (
-                                                            <Trash2 size={15} strokeWidth={2.5} />
+                                                            <Trash2 size={16} strokeWidth={2.5} />
                                                         )}
                                                     </button>
                                                 </div>
@@ -488,32 +499,35 @@ export default function FavouriteProducts() {
                 </div>
             </div>
 
-            {/* Bottom Pagination fallback if needed, but the design specifies top bar.
-                Usually it's good to have it at the bottom too for long tables. */}
-            {totalCount > pageSize && (
-                <div className="mt-8 flex justify-center">
-                    <Pagination
-                        currentPage={currentPage}
-                        totalPages={Math.ceil(totalCount / pageSize)}
-                        totalItems={totalCount}
-                        pageSize={pageSize}
-                        onPageChange={setCurrentPage}
-                    />
-                </div>
-            )}
+            {/* Bottom Pagination */}
+            {
+                totalCount > pageSize && (
+                    <div className="mt-0 w-full">
+                        <Pagination
+                            currentPage={currentPage}
+                            totalPages={Math.ceil(totalCount / pageSize)}
+                            totalItems={totalCount}
+                            pageSize={pageSize}
+                            onPageChange={setCurrentPage}
+                        />
+                    </div>
+                )
+            }
             {/* Inquiry Modal */}
-            {inquiryProduct && (
-                <ProductEnquiryModal
-                    isOpen={isInquiryModalOpen}
-                    onClose={() => {
-                        setIsInquiryModalOpen(false);
-                        setInquiryProduct(null);
-                    }}
-                    productSku={inquiryProduct.sku}
-                    productName={inquiryProduct.name}
-                    productPrice={inquiryProduct.final_price}
-                />
-            )}
+            {
+                inquiryProduct && (
+                    <ProductEnquiryModal
+                        isOpen={isInquiryModalOpen}
+                        onClose={() => {
+                            setIsInquiryModalOpen(false);
+                            setInquiryProduct(null);
+                        }}
+                        productSku={inquiryProduct?.sku || ""}
+                        productName={inquiryProduct?.name || ""}
+                        productPrice={inquiryProduct?.final_price || 0}
+                    />
+                )
+            }
 
             {/* Product Details Modal */}
             <ProductDialog

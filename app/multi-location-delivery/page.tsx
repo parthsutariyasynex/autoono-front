@@ -57,8 +57,14 @@ const MultiLocationDeliveryPage: React.FC = () => {
             cart.items.forEach(item => {
                 initial[item.item_id] = {};
                 addresses.forEach(addr => {
-                    initial[item.item_id][addr.id] = 0;
+                    // Default to 1 for the default shipping address, 0 for others
+                    initial[item.item_id][addr.id] = addr.isDefault ? 1 : 0;
                 });
+
+                // If no default address is found, set the first one to 1 just in case
+                if (Object.values(initial[item.item_id]).every(v => v === 0) && addresses.length > 0) {
+                    initial[item.item_id][addresses[0].id] = 1;
+                }
             });
             setAssignments(initial);
             setIsInitialized(true);
@@ -66,7 +72,22 @@ const MultiLocationDeliveryPage: React.FC = () => {
     }, [cart, addresses, isInitialized]);
 
     const handleQtyChange = (itemId: number, addressId: string, value: string) => {
-        const cleanedValue = value.replace(/[^0-9]/g, "");
+        const prevVal = assignments[itemId]?.[addressId] ?? 0;
+
+        // Remove non-numeric characters
+        let cleanedValue = value.replace(/[^0-9]/g, "");
+
+        // Logic to replace 0: if previous was 0 and we have a new digit, take the new digit
+        if (prevVal === 0 && cleanedValue.length > 0) {
+            // If the user typed something and it was 0, we want to replace the 0
+            // E.g. "01" -> "1", "10" -> "1"
+            if (cleanedValue.length > 1) {
+                // Find the character that isn't the original '0'
+                // Or more simply: if it has '0', strip it once
+                cleanedValue = cleanedValue.replace("0", "");
+            }
+        }
+
         const numVal = parseInt(cleanedValue) || 0;
 
         setAssignments(prev => ({
@@ -76,6 +97,26 @@ const MultiLocationDeliveryPage: React.FC = () => {
                 [addressId]: numVal
             }
         }));
+    };
+
+    const handleAddressSelect = (itemId: number, addressId: string) => {
+        setAssignments(prev => {
+            const currentItemAssignments = prev[itemId] || {};
+            const newAssignments: Record<string, number> = {};
+
+            // Set all to 0 first
+            addresses.forEach(addr => {
+                newAssignments[addr.id] = 0;
+            });
+
+            // Set selected one to 1
+            newAssignments[addressId] = 1;
+
+            return {
+                ...prev,
+                [itemId]: newAssignments
+            };
+        });
     };
 
     const validation = useMemo(() => {
@@ -212,15 +253,15 @@ const MultiLocationDeliveryPage: React.FC = () => {
                                 <tr>
                                     <th
                                         rowSpan={2}
-                                        className="py-3 md:py-5 px-3 md:px-6 text-left text-[11px] sm:text-[12px] md:text-[14px] font-black uppercase text-black border-r border-b border-gray-300 w-[160px] md:w-[240px] bg-white align-middle"
+                                        className="py-3 md:py-4 px-3 md:px-5 text-left text-[11px] sm:text-[12px] md:text-[13px] font-black uppercase text-black border-r border-b border-gray-300 w-[160px] md:w-[220px] bg-white align-middle"
                                     >
                                         {t("multi.product")}
                                     </th>
-                                    <th className="py-3 md:py-5 px-2 md:px-4 text-center text-[11px] sm:text-[12px] md:text-[14px] font-black uppercase text-black border-r border-b border-gray-300 w-[80px] md:w-[120px] bg-white">
+                                    <th className="py-3 md:py-4 px-2 md:px-4 text-center text-[11px] sm:text-[12px] md:text-[13px] font-black uppercase text-black border-r border-b border-gray-300 w-[80px] md:w-[110px] bg-white">
                                         {t("multi.cartQty")}
                                     </th>
                                     <th
-                                        className="py-3 md:py-5 px-2 md:px-4 text-center text-[11px] sm:text-[12px] md:text-[14px] font-black uppercase text-black border-b border-gray-300 bg-white"
+                                        className="py-3 md:py-4 px-2 md:px-4 text-center text-[11px] sm:text-[12px] md:text-[13px] font-black uppercase text-black border-b border-gray-300 bg-white"
                                         colSpan={addresses.length + 1}
                                     >
                                         {t("multi.assignQty")}
@@ -248,14 +289,14 @@ const MultiLocationDeliveryPage: React.FC = () => {
                                     return (
                                         <tr key={item.item_id} className="border-b border-gray-300 last:border-b-0">
                                             {/* Column 1: Product Information */}
-                                            <td className="py-4 md:py-10 px-3 md:px-6 border-r border-gray-300 align-middle">
+                                            <td className="py-3 md:py-6 px-3 md:px-5 border-r border-gray-300 align-middle">
                                                 <span className="text-[12px] md:text-[14px] font-bold text-black leading-tight max-w-[200px] uppercase block">
                                                     {item.name}
                                                 </span>
                                             </td>
 
                                             {/* Column 2: Cart Qty Box */}
-                                            <td className="py-4 md:py-10 px-2 md:px-4 border-r border-gray-300 align-middle">
+                                            <td className="py-3 md:py-6 px-2 md:px-4 border-r border-gray-300 align-middle">
                                                 <div className="flex flex-col items-center">
                                                     <span className="text-[10px] md:text-[11px] font-bold text-black mb-1.5 md:mb-2 uppercase tracking-tighter">{t("multi.qty")}</span>
                                                     <div className="w-[40px] md:w-[50px] h-[34px] md:h-[38px] flex items-center justify-center border border-gray-300 text-gray-400 font-bold bg-white text-[13px] md:text-[14px]">
@@ -271,16 +312,30 @@ const MultiLocationDeliveryPage: React.FC = () => {
                                                 return (
                                                     <td
                                                         key={addr.id}
-                                                        className="py-4 md:py-10 px-2 md:px-4 border-r border-gray-300 align-middle"
+                                                        className={`py-3 md:py-6 px-2 md:px-4 border-r border-gray-300 align-middle cursor-pointer transition-colors ${currentVal > 0 ? 'bg-yellow-50/10' : 'hover:bg-gray-50'}`}
+                                                        onClick={() => handleAddressSelect(item.item_id, addr.id)}
                                                     >
                                                         <div className="flex flex-col items-center">
                                                             <span className="text-[10px] md:text-[11px] font-bold text-black mb-1.5 md:mb-2 uppercase tracking-tighter">{cityLabel}</span>
                                                             <input
                                                                 type="text"
                                                                 inputMode="numeric"
-                                                                value={currentVal}
+                                                                value={currentVal === 0 ? "0" : currentVal}
                                                                 onChange={(e) => handleQtyChange(item.item_id, addr.id, e.target.value)}
-                                                                className="w-[40px] md:w-[50px] h-[34px] md:h-[38px] text-center text-[13px] md:text-[14px] font-bold border border-black rounded-none outline-none focus:ring-1 focus:ring-black transition-all"
+                                                                onFocus={(e) => {
+                                                                    if (currentVal === 0) {
+                                                                        // Instead of clearing, we can select the text so typing replaces it
+                                                                        e.target.select();
+                                                                    }
+                                                                }}
+                                                                onBlur={(e) => {
+                                                                    if (e.target.value === "" || isNaN(parseInt(e.target.value))) {
+                                                                        handleQtyChange(item.item_id, addr.id, "0");
+                                                                    }
+                                                                }}
+                                                                onClick={(e) => e.stopPropagation()}
+                                                                className={`w-[40px] md:w-[50px] h-[34px] md:h-[38px] text-center text-[13px] md:text-[14px] font-bold border transition-all rounded-none outline-none focus:ring-1 focus:ring-black
+                                                                    ${currentVal > 0 ? 'border-black bg-white' : 'border-gray-300 bg-gray-50'}`}
                                                             />
                                                         </div>
                                                     </td>
@@ -288,7 +343,7 @@ const MultiLocationDeliveryPage: React.FC = () => {
                                             })}
 
                                             {/* Validation Row Message */}
-                                            <td className="py-4 md:py-10 px-2 md:px-4 align-middle bg-white">
+                                            <td className="py-3 md:py-6 px-2 md:px-4 align-middle bg-white">
                                                 {!isItemValid && (
                                                     <div className="text-[#ff0000] text-[11px] font-bold leading-[1.3] text-center whitespace-pre-line uppercase tracking-tight">
                                                         {t("multi.qtyMismatch")}

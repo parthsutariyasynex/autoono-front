@@ -31,15 +31,6 @@ export default function PortalDropdown({
 
     useEffect(() => { setMounted(true); }, []);
 
-    // Auto-close on scroll to prevent "floating" dropdowns
-    useEffect(() => {
-        if (isOpen) {
-            const handleScroll = () => setIsOpen(false);
-            window.addEventListener('scroll', handleScroll, { passive: true });
-            return () => window.removeEventListener('scroll', handleScroll);
-        }
-    }, [isOpen]);
-
     const updatePos = useCallback(() => {
         if (!triggerRef.current) return;
         const rect = triggerRef.current.getBoundingClientRect();
@@ -52,6 +43,25 @@ export default function PortalDropdown({
             openUp,
         });
     }, [minWidth]);
+
+    // Auto-close on scroll or resize to prevent "floating" dropdowns
+    useEffect(() => {
+        const handleClose = () => setIsOpen(false);
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === "Escape") setIsOpen(false);
+        };
+
+        if (isOpen) {
+            window.addEventListener("keydown", handleKeyDown);
+            window.addEventListener('scroll', handleClose, { passive: true });
+            window.addEventListener('resize', handleClose);
+            return () => {
+                window.removeEventListener("keydown", handleKeyDown);
+                window.removeEventListener('scroll', handleClose);
+                window.removeEventListener('resize', handleClose);
+            };
+        }
+    }, [isOpen]);
 
     const handleToggle = useCallback(() => {
         if (!isOpen) updatePos();
@@ -66,7 +76,7 @@ export default function PortalDropdown({
                 ref={triggerRef}
                 type="button"
                 onClick={handleToggle}
-                className={`flex items-center justify-between gap-2 cursor-pointer transition-all ${buttonClassName || "bg-white border border-gray-200 rounded-md px-3 py-2 text-[13px] font-bold text-black hover:border-gray-300 shadow-sm"} ${isOpen ? "border-[#f5a623]" : ""}`}
+                className={`flex items-center justify-between gap-2 cursor-pointer transition-all ${buttonClassName || "bg-white border border-gray-200 rounded-md px-3 py-2 text-[13px] font-bold text-black hover:border-gray-300 shadow-sm"} ${isOpen ? "border-[#f5a623] z-[9999]" : ""}`}
                 style={{ minWidth }}
             >
                 <span className="truncate">{selected ? selected.label : placeholder}</span>

@@ -18,42 +18,8 @@ export default function PriceIconObserver() {
             '.offer-price',
             '.single-tyre-price',
             '.cart-price',
-            // Generic targeting for SAR text in any element if necessary
-            // Note: Too broad targeting can be slow, but let's stick to standard selectors
         ];
 
-        function replaceSARWithIcon() {
-            targetSelectors.forEach(selector => {
-                document.querySelectorAll(selector).forEach(el => {
-                    // Skip if we already injected the icon span to avoid recursive loops
-                    if (el.querySelector('.currency-riyal')) return;
-
-                    const originalHTML = el.innerHTML;
-                    let newHTML = originalHTML;
-
-                    // Support multiple patterns (English and Arabic)
-                    const patterns = [
-                        { regex: /SAR/g, replacement: `<span class="currency-riyal">${riyalIcon}</span>` },
-                        { regex: /SR/g, replacement: `<span class="currency-riyal">${riyalIcon}</span>` },
-                        { regex: /\u200F?\u0631\.\u0633\.?\u200F?/g, replacement: `<span class="currency-riyal">${riyalIcon}</span>` }
-                    ];
-
-                    let changed = false;
-                    patterns.forEach(({ regex, replacement }) => {
-                        if (regex.test(newHTML)) {
-                            newHTML = newHTML.replace(regex, replacement);
-                            changed = true;
-                        }
-                    });
-
-                    if (changed) {
-                        el.innerHTML = newHTML;
-                    }
-                });
-            });
-        }
-
-        // MutationObserver ensures this works even on AJAX-loaded content
         const observer = new MutationObserver((mutations) => {
             let shouldRun = false;
             for (const mutation of mutations) {
@@ -64,6 +30,51 @@ export default function PriceIconObserver() {
             }
             if (shouldRun) replaceSARWithIcon();
         });
+
+        // Helper to convert Western digits to Arabic-Indic digits
+        const toArabicDigits = (str: string) => str.replace(/\d/g, d => "٠١٢٣٤٥٦٧٨٩"[Number(d)]);
+
+        function replaceSARWithIcon() {
+            const isAr = window.location.pathname.startsWith("/ar");
+
+            targetSelectors.forEach(selector => {
+                document.querySelectorAll(selector).forEach(el => {
+                    // Skip if we already injected the icon span to avoid recursive loops
+                    if (el.querySelector('.currency-riyal')) return;
+
+                    let newHTML = el.innerHTML;
+                    let changed = false;
+
+                    // Support multiple patterns (English and Arabic)
+                    const patterns = [
+                        { regex: /SAR/g, replacement: `<span class="currency-riyal">${riyalIcon}</span>` },
+                        { regex: /SR/g, replacement: `<span class="currency-riyal">${riyalIcon}</span>` },
+                        { regex: /\u200F?\u0631\.\u0633\.?\u200F?/g, replacement: `<span class="currency-riyal">${riyalIcon}</span>` }
+                    ];
+
+                    patterns.forEach(({ regex, replacement }) => {
+                        if (regex.test(newHTML)) {
+                            newHTML = newHTML.replace(regex, replacement);
+                            changed = true;
+                        }
+                    });
+
+                    if (changed) {
+                        // If Arabic locale, also convert numbers to Arabic-Indic digits
+                        if (isAr) {
+                            newHTML = toArabicDigits(newHTML);
+                        }
+
+                        el.innerHTML = newHTML;
+                        // Force LTR and alignment on the element to ensure "Symbol Value" order
+                        if (el instanceof HTMLElement) {
+                            el.dir = "ltr";
+                            el.classList.add("inline-flex", "items-center", "gap-1");
+                        }
+                    }
+                });
+            });
+        }
 
         observer.observe(document.body, { childList: true, subtree: true });
 

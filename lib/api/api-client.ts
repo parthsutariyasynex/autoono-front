@@ -123,6 +123,7 @@ async function apiClient(
 
         throw new Error(data?.message || `API Error ${response.status}: ${response.statusText}`);
     } catch (error: any) {
+        console.error(`[api-client] Fetch Error at ${endpoint}:`, error);
         return Promise.reject(error.message || error);
     }
 }

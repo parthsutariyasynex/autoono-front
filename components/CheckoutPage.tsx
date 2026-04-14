@@ -40,15 +40,18 @@ import Price from "@/app/components/Price";
 // --- Sub-components ---
 
 const SectionHeader = ({ title, step }: { title: string; step?: number }) => (
-    <div className="bg-gray-50 px-4 sm:px-6 py-3 sm:py-4 border-b border-[#ebebeb] flex items-center gap-2 sm:gap-3">
-        {step && (
-            <span className="w-5 h-5 rounded-full bg-black text-white text-[9px] font-black flex items-center justify-center">
-                {step}
-            </span>
-        )}
-        <h3 className="text-[11px] font-black text-black uppercase tracking-widest">
-            {title}
-        </h3>
+    <div className="bg-gray-50/80 px-4 py-3 border-b border-[#ebebeb] flex items-center justify-between h-[50px]">
+        <div className="flex items-center gap-2.5">
+            {step && (
+                <span className="w-5 h-5 rounded-full bg-black text-white text-[9px] font-black flex items-center justify-center shadow-sm">
+                    {step}
+                </span>
+            )}
+            <h3 className="text-[10px] font-black text-black uppercase tracking-[0.15em]">
+                {title}
+            </h3>
+        </div>
+        <div className="h-px flex-1 bg-gradient-to-r from-transparent via-[#ebebeb] to-transparent mx-4 hidden sm:block"></div>
     </div>
 );
 
@@ -681,13 +684,16 @@ const CheckoutPageUI: React.FC = () => {
             <main className="flex-1 w-full px-4 md:px-6 lg:px-8 py-4 md:py-6 lg:py-10 pt-2 md:pt-4">
                 {/* Header Section */}
                 <div className="flex flex-col items-center justify-center text-center gap-4 mb-12 relative">
-                    <Link href={lp("/cart")} className="absolute left-0 top-1/2 -translate-y-1/2 flex items-center gap-2 text-gray-400 hover:text-black transition-colors text-[10px] font-black uppercase tracking-widest">
-                        <ArrowLeft size={14} strokeWidth={3} /> {t("m.back-to-shopping-cart")}
+                    <Link href={lp("/cart")} className="lg:absolute left-0 top-1/2 lg:-translate-y-1/2 flex items-center gap-2 text-black hover:text-yellow-500 transition-all text-[10px] font-black uppercase tracking-[0.2em] group mb-4 lg:mb-0">
+                        <div className="w-8 h-8 rounded-full border border-black flex items-center justify-center group-hover:border-yellow-500 transition-all">
+                            <ArrowLeft size={14} strokeWidth={3} className="group-hover:-translate-x-1 transition-transform" />
+                        </div>
+                        <span className="hidden sm:inline">{t("m.back-to-shopping-cart")}</span>
                     </Link>
 
                     <div className="flex flex-col items-center gap-4">
-                        <h1 className="text-[22px] sm:text-[28px] md:text-[32px] font-black text-black uppercase tracking-tight">Checkout</h1>
-                        <div className="h-2 w-24 sm:w-28 md:w-32 bg-yellow-400 rounded-full shadow-sm"></div>
+                        <h1 className="text-[20px] sm:text-[24px] md:text-[26px] font-black text-black uppercase tracking-tight">Checkout</h1>
+                        <div className="h-[2px] w-full max-w-[400px] bg-gradient-to-r from-transparent via-yellow-400 to-transparent"></div>
                     </div>
                 </div>
 
@@ -696,8 +702,7 @@ const CheckoutPageUI: React.FC = () => {
                     {/* ═══════════ Left Column ═══════════ */}
                     <div className="lg:col-span-8 space-y-6">
 
-                        {/* 1. Shipping Address */}
-                        <div className="bg-white border border-gray-200 shadow-sm rounded-sm">
+                        <div className="bg-white border border-[#ebebeb] shadow-sm rounded-xl overflow-hidden transition-all duration-300 hover:shadow-md">
                             <SectionHeader title={t("checkout.shippingAddress")} step={1} />
                             <div className="p-4">
                                 {/* Search */}
@@ -705,7 +710,7 @@ const CheckoutPageUI: React.FC = () => {
                                     <input
                                         type="text"
                                         placeholder={t("m.search")}
-                                        className="w-full px-4 py-3 bg-gray-50 border border-[#ebebeb] rounded-md outline-none text-xs font-bold transition-all placeholder:text-gray-300 focus:bg-white focus:border-yellow-400 shadow-sm"
+                                        className="w-full px-4 py-2.5 bg-gray-50/50 border border-[#ebebeb] rounded-xl outline-none text-[12px] font-medium transition-all placeholder:text-gray-400 focus:bg-white focus:border-yellow-400 shadow-sm focus:ring-4 focus:ring-yellow-400/10"
                                         value={searchQuery}
                                         onChange={(e) => setSearchQuery(e.target.value)}
                                     />
@@ -725,20 +730,19 @@ const CheckoutPageUI: React.FC = () => {
                                         ) : (
                                             <div
                                                 key={addr.id}
-                                                className="relative flex items-start gap-4 cursor-pointer group p-5 border border-gray-100 bg-gray-50/30 hover:border-gray-300 hover:bg-white transition-all duration-300 rounded-sm"
+                                                className="relative flex items-start gap-3 cursor-pointer group p-4 border border-[#ebebeb] bg-white hover:bg-yellow-50/20 transition-all duration-300 rounded-xl hover:shadow-sm"
                                                 onClick={() => handleAddressSelect(addr.id)}
                                             >
                                                 {/* Selection Indicator */}
                                                 <div className="relative flex-shrink-0 mt-1">
-                                                    <div className="w-6 h-6 rounded-full border-2 border-gray-300 group-hover:border-gray-400 flex items-center justify-center transition-all duration-300">
+                                                    <div className="w-5 h-5 rounded-full border-2 border-gray-300 group-hover:border-gray-400 flex items-center justify-center transition-all duration-300">
                                                     </div>
                                                 </div>
 
                                                 {/* Details */}
                                                 <div className="flex-1 min-w-0">
-
-                                                    <div className="text-[13px] text-gray-600 leading-relaxed mb-4">
-                                                        <p className="font-medium text-[13px] sm:text-[14px] text-black">
+                                                    <div className="text-[12px] text-gray-600 leading-relaxed mb-3">
+                                                        <p className="font-medium text-[12px] sm:text-[13px] text-black">
                                                             <span className="font-black">{addr.firstname} {addr.lastname}</span>{" "}
                                                             {addr.street} {addr.city}, {addr.postcode}{" "}
                                                             {addr.country_id === 'SA' ? t("data.Saudi Arabia") : addr.country_id} {addr.telephone}
@@ -751,7 +755,7 @@ const CheckoutPageUI: React.FC = () => {
 
                                                     <div className="flex gap-3 pt-2">
                                                         <button
-                                                            className="text-[10px] font-black uppercase tracking-[0.2em] px-5 py-2.5 transition-all duration-300 border bg-white text-black border-gray-200 hover:bg-black hover:text-white hover:border-black"
+                                                            className="text-[9px] font-black uppercase tracking-[0.15em] px-6 py-2 transition-all duration-300 border bg-black text-white border-black hover:bg-yellow-400 hover:text-black hover:border-yellow-400 rounded-lg active:scale-95 shadow-sm"
                                                             onClick={(e) => {
                                                                 e.stopPropagation();
                                                                 handleAddressSelect(addr.id);
@@ -760,7 +764,7 @@ const CheckoutPageUI: React.FC = () => {
                                                             {t("m.ship-here")}
                                                         </button>
                                                         <button
-                                                            className="text-[10px] font-black uppercase tracking-[0.2em] px-5 py-2.5 bg-white text-gray-400 border border-gray-100 hover:bg-gray-50 hover:text-black hover:border-gray-300 transition-all duration-300"
+                                                            className="text-[9px] font-black uppercase tracking-[0.15em] px-6 py-2 bg-white text-gray-500 border border-[#ebebeb] hover:bg-gray-50 hover:text-black hover:border-gray-300 transition-all duration-300 rounded-lg active:scale-95"
                                                             onClick={(e) => {
                                                                 e.stopPropagation();
                                                                 router.push(lp(`/customer/address-book/edit/${addr.id}?redirect=/checkout`));
@@ -784,14 +788,14 @@ const CheckoutPageUI: React.FC = () => {
                         </div>
 
                         {/* 2. Customer PO Number */}
-                        <div className="bg-white border border-gray-200 shadow-sm rounded-sm overflow-hidden">
+                        <div className="bg-white border border-[#ebebeb] shadow-sm rounded-xl overflow-hidden transition-all duration-300 hover:shadow-md">
                             <SectionHeader title={t("m.po-number")} step={2} />
                             <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
-                                <div className="space-y-2">
-                                    <label className="text-[11px] font-black text-gray-400 uppercase tracking-widest">{t("m.po-number")}</label>
+                                <div className="space-y-1.5">
+                                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{t("m.po-number")}</label>
                                     <input
                                         type="text"
-                                        className="w-full px-4 py-3 bg-gray-50 border border-gray-200 outline-none text-[14px] font-medium transition-all placeholder:text-gray-300 focus:bg-white focus:border-black"
+                                        className="w-full px-4 py-2.5 bg-gray-50/50 border border-[#ebebeb] rounded-xl outline-none text-[13px] font-medium transition-all placeholder:text-gray-400 focus:bg-white focus:border-yellow-400 focus:ring-4 focus:ring-yellow-400/10 shadow-sm"
                                         value={poNumber}
                                         onChange={(e) => setPoNumber(e.target.value)}
                                         onBlur={handlePoNumberBlur}
@@ -819,17 +823,13 @@ const CheckoutPageUI: React.FC = () => {
                                         <div className="p-4 bg-white space-y-4">
                                             {/* Drop Area */}
                                             <div
-                                                className={`w-full py-8 border-2 border-dashed flex flex-col items-center justify-center cursor-pointer transition-all duration-300 ${isUploading
-                                                    ? "border-gray-100 opacity-50 cursor-wait"
-                                                    : dragActive
-                                                        ? "border-black bg-gray-50"
-                                                        : "border-gray-400 bg-white"
-                                                    }`}
-                                                onClick={() => !isUploading && poUploadRef.current?.click()}
+                                                className={`relative group p-8 border-2 border-dashed rounded-xl transition-all duration-300 flex flex-col items-center justify-center gap-4 cursor-pointer
+                                                    ${dragActive ? "border-yellow-400 bg-yellow-50/30 scale-[1.01]" : "border-[#ebebeb] bg-gray-50/30 hover:bg-white hover:border-gray-300"}`}
                                                 onDragEnter={handleDrag}
                                                 onDragLeave={handleDrag}
                                                 onDragOver={handleDrag}
                                                 onDrop={handleDrop}
+                                                onClick={() => poUploadRef.current?.click()}
                                             >
                                                 <p className="text-[18px] text-black font-medium mb-4">{t("m.drop-files-here")}</p>
                                                 <p className="text-[14px] text-black">
@@ -847,20 +847,17 @@ const CheckoutPageUI: React.FC = () => {
 
                                             {/* Files List - Image Style */}
                                             <div className="flex flex-wrap gap-x-4 gap-y-3">
-                                                {uploadedPOs.map((file, idx) => (
-                                                    <div key={idx} className="flex items-stretch border border-dashed border-black rounded-sm overflow-hidden">
-                                                        <div className="px-3 py-2 text-[14px] text-black font-medium flex items-center">
-                                                            {file?.fileName && file.fileName.length > 30
-                                                                ? file.fileName.substring(0, 20) + '...'
-                                                                : file?.fileName || "Unknown File"}
+                                                {uploadedPOs.map((po, idx) => (
+                                                    <div key={idx} className="flex border border-[#ebebeb] rounded-xl overflow-hidden group shadow-sm bg-white">
+                                                        <div className="px-6 py-3 flex-1 flex items-center min-w-0">
+                                                            <span className="text-[13px] font-black text-black truncate ltr:mr-2 rtl:ml-2">
+                                                                {po.fileName}
+                                                            </span>
                                                         </div>
                                                         <button
-                                                            onClick={(e) => {
-                                                                e.stopPropagation();
-                                                                handleDeletePo(file.fileName);
-                                                            }}
+                                                            onClick={() => handleDeletePo(po.fileName)}
+                                                            className="bg-red-50 text-red-600 px-6 py-3 text-[11px] font-black uppercase tracking-widest transition-all hover:bg-red-600 hover:text-white border-l border-[#ebebeb] active:scale-95"
                                                             disabled={isUploading}
-                                                            className="bg-[#D12E3D] text-white px-3 py-2 text-[14px] font-bold hover:bg-black transition-colors"
                                                         >
                                                             {t("m.remove")}
                                                         </button>
@@ -874,13 +871,13 @@ const CheckoutPageUI: React.FC = () => {
                         </div>
 
                         {/* 3. Order Comment */}
-                        <div className="bg-white border border-gray-200 shadow-sm rounded-sm overflow-hidden">
+                        <div className="bg-white border border-gray-200 shadow-sm rounded-xl overflow-hidden">
                             <SectionHeader title={t("m.order-comment")} step={3} />
-                            <div className="p-6">
-                                <div className="space-y-2">
-                                    <label className="text-[11px] font-black text-gray-400 uppercase tracking-widest">{t("checkout.additionalInformation")}</label>
+                            <div className="p-4 sm:p-5">
+                                <div className="space-y-1.5">
+                                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{t("checkout.additionalInformation")}</label>
                                     <textarea
-                                        className="w-full px-4 py-3 bg-gray-50 border border-gray-200 outline-none text-[14px] font-medium transition-all placeholder:text-gray-300 focus:bg-white focus:border-black min-h-[100px] resize-none"
+                                        className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl outline-none text-[13px] font-medium transition-all placeholder:text-gray-300 focus:bg-white focus:border-black min-h-[80px] resize-none"
                                         value={comment}
                                         onChange={(e) => setComment(e.target.value)}
                                         onBlur={handleCommentBlur}
@@ -890,13 +887,8 @@ const CheckoutPageUI: React.FC = () => {
                             </div>
                         </div>
 
-                        {/* 4. Shipping Methods */}
-                        <div className="bg-white border border-gray-200 shadow-sm rounded-sm overflow-hidden">
-                            <div className="bg-[#F2F2F2] px-6 py-4 border-b border-gray-200" id="step-3">
-                                <h3 className="text-[14px] font-black text-[#333] uppercase tracking-wider">
-                                    {t("checkout.shippingMethod")}
-                                </h3>
-                            </div>
+                        <div className="bg-white border border-[#ebebeb] shadow-sm rounded-xl overflow-hidden" id="step-3">
+                            <SectionHeader title={t("checkout.shippingMethod")} step={4} />
                             <div className="p-6">
                                 <div className="space-y-6">
                                     {/* Delivery Option */}
@@ -909,7 +901,7 @@ const CheckoutPageUI: React.FC = () => {
                                                 <div className="w-2.5 h-2.5 bg-black rounded-full" />
                                             )}
                                         </div>
-                                        <span className={`text-[15px] font-bold transition-colors ${shippingType === "delivery" ? "text-black" : "text-[#555]"}`}>
+                                        <span className={`text-[13px] font-bold transition-colors ${shippingType === "delivery" ? "text-black" : "text-[#555]"}`}>
                                             {t("m.delivery")}
                                         </span>
                                     </div>
@@ -927,7 +919,7 @@ const CheckoutPageUI: React.FC = () => {
                                                     <div className="w-2.5 h-2.5 bg-black rounded-full" />
                                                 )}
                                             </div>
-                                            <span className={`text-[15px] font-bold transition-colors ${shippingType === "pickup" ? "text-black" : "text-[#555]"}`}>
+                                            <span className={`text-[13px] font-bold transition-colors ${shippingType === "pickup" ? "text-black" : "text-[#555]"}`}>
                                                 {t("m.pickup-from-warehouse")}
                                             </span>
                                         </div>
@@ -936,7 +928,7 @@ const CheckoutPageUI: React.FC = () => {
                                             <div className="ml-9 space-y-4">
                                                 <div className="flex flex-col items-start gap-4">
                                                     <button
-                                                        className="bg-[#F5B21B] text-black px-8 py-3 text-[12px] font-black uppercase tracking-widest hover:bg-black hover:text-white transition-all active:scale-95 border border-transparent shadow-sm"
+                                                        className="bg-[#F5B21B] text-black px-6 py-2.5 text-[11px] font-black uppercase tracking-widest hover:bg-black hover:text-white transition-all active:scale-95 border border-transparent shadow-sm"
                                                         onClick={() => {
                                                             setIsWarehouseModalOpen(true);
                                                             setIsPickupFormOpen(!isPickupFormOpen);
@@ -1142,19 +1134,13 @@ const CheckoutPageUI: React.FC = () => {
                             </div>
                         </div>
 
-                        {/* 4. Payment Method */}
-                        <div className="bg-white border border-gray-200 shadow-sm rounded-sm overflow-hidden">
-                            {/* Header exactly as per image */}
-                            <div className="bg-[#f2f2f2] px-6 py-4 border-b border-gray-200">
-                                <h3 className="text-[14px] font-black text-black uppercase tracking-wider">
-                                    {t("checkout.paymentMethod")}
-                                </h3>
-                            </div>
+                        <div className="bg-white border border-[#ebebeb] shadow-sm rounded-xl overflow-hidden">
+                            <SectionHeader title={t("checkout.paymentMethod")} step={5} />
 
-                            <div className="p-6">
-                                <p className="text-[16px] font-bold text-black mb-6">{t("m.credit-account")}</p>
+                            <div className="p-5">
+                                <p className="text-[14px] font-bold text-black mb-4">{t("m.credit-account")}</p>
 
-                                <div className="border border-gray-100 rounded-sm overflow-hidden">
+                                <div className="border border-gray-100 rounded-xl overflow-hidden">
                                     {/* Collapsible Header */}
                                     <div
                                         className="bg-[#f8f8f8] px-5 py-4 flex items-center justify-between border-b border-gray-100 cursor-pointer group hover:bg-[#f2f2f2] transition-colors"
@@ -1172,7 +1158,7 @@ const CheckoutPageUI: React.FC = () => {
                                         <div className="p-6 bg-white animate-in slide-in-from-top-2 duration-300">
                                             {/* Dropzone with border and info as per image */}
                                             <div
-                                                className={`w-full py-10 border-2 border-dashed border-gray-300 bg-gray-50/50 flex flex-col items-center justify-center cursor-pointer transition-all duration-300 hover:border-black hover:bg-white rounded-sm mb-6 ${dragActive ? "border-black bg-white" : ""}`}
+                                                className={`w-full py-10 border-2 border-dashed border-gray-300 bg-gray-50/50 flex flex-col items-center justify-center cursor-pointer transition-all duration-300 hover:border-black hover:bg-white rounded-xl mb-6 ${dragActive ? "border-black bg-white" : ""}`}
                                                 onClick={() => paymentCommitmentRef.current?.click()}
                                                 onDragOver={(e) => { e.preventDefault(); setDragActive(true); }}
                                                 onDragLeave={() => setDragActive(false)}
@@ -1203,15 +1189,15 @@ const CheckoutPageUI: React.FC = () => {
                                             {/* File List */}
                                             {paymentCommitmentFile && (
                                                 <div className="flex items-center">
-                                                    <div className="flex border border-dashed border-black rounded-sm overflow-hidden group shadow-sm">
-                                                        <div className="px-4 py-2 bg-white flex items-center min-w-[300px]">
-                                                            <span className="text-[13px] font-bold text-black truncate max-w-[280px]">
+                                                    <div className="flex border border-[#ebebeb] rounded-xl overflow-hidden group shadow-sm bg-white">
+                                                        <div className="px-6 py-3 flex-1 flex items-center min-w-0">
+                                                            <span className="text-[13px] font-black text-black truncate ltr:mr-2 rtl:ml-2">
                                                                 {paymentCommitmentFile.name}
                                                             </span>
                                                         </div>
                                                         <button
                                                             onClick={removePaymentCommitment}
-                                                            className="bg-[#d93a40] text-white px-5 py-2 text-[12px] font-bold uppercase transition-colors hover:bg-black"
+                                                            className="bg-red-50 text-red-600 px-6 py-3 text-[11px] font-black uppercase tracking-widest transition-all hover:bg-red-600 hover:text-white border-l border-[#ebebeb] active:scale-95"
                                                         >
                                                             {t("m.remove")}
                                                         </button>
@@ -1227,7 +1213,7 @@ const CheckoutPageUI: React.FC = () => {
 
                     {/* ═══════════ Right Column (Order Summary) ═══════════ */}
                     <div className="lg:col-span-4 space-y-6">
-                        <div className="bg-white border border-gray-200 shadow-sm rounded-sm sticky top-24 overflow-hidden">
+                        <div className="bg-white border border-[#ebebeb] shadow-lg rounded-xl sticky top-24 overflow-hidden transition-all duration-300">
                             {/* Header exactly as per image */}
                             <div className="bg-gray-50 px-4 sm:px-6 py-3 sm:py-4 flex items-center gap-2 sm:gap-3 border-b border-[#ebebeb]">
                                 <div className="w-5 h-5 rounded-full bg-black flex items-center justify-center">
@@ -1241,10 +1227,10 @@ const CheckoutPageUI: React.FC = () => {
                             <div className="p-0">
                                 {/* Collapsible Item Count Header */}
                                 <div
-                                    className="px-6 py-4 flex items-center justify-between border-b border-gray-100 cursor-pointer hover:bg-gray-50 transition-colors"
+                                    className="px-5 py-3 flex items-center justify-between border-b border-gray-100 cursor-pointer hover:bg-gray-50 transition-colors"
                                     onClick={() => setIsItemsListOpen(!isItemsListOpen)}
                                 >
-                                    <span className="text-[15px] font-black text-black">
+                                    <span className="text-[13px] font-black text-black">
                                         {cart?.items_count || 0} {t("cart.itemsInCart")}
                                     </span>
                                     <ChevronDown
@@ -1261,18 +1247,18 @@ const CheckoutPageUI: React.FC = () => {
                                     <div className="space-y-3 sm:space-y-4 md:space-y-6 p-4 sm:p-6">
                                         {cart?.items?.map((item) => (
                                             <div key={item.item_id} className="flex gap-4 items-start pb-6 border-b border-gray-50 last:border-0 last:pb-0">
-                                                <div className="w-16 sm:w-20 h-16 sm:h-20 flex-shrink-0 border border-gray-100 rounded-sm overflow-hidden">
+                                                <div className="w-16 sm:w-20 h-16 sm:h-20 flex-shrink-0 border border-[#ebebeb] rounded-xl overflow-hidden bg-gray-50 p-2">
                                                     <img
                                                         src={item.image_url || "/images/tyre-sample.png"}
                                                         alt={item.name}
                                                         className="w-full h-full object-contain"
                                                     />
                                                 </div>
-                                                <div className="flex-1 min-w-0 pt-1">
-                                                    <h4 className="text-[14px] font-bold text-black leading-tight mb-2">
+                                                <div className="flex-1 min-w-0 pt-0.5">
+                                                    <h4 className="text-[13px] font-bold text-black leading-tight mb-1.5">
                                                         {item.name}
                                                     </h4>
-                                                    <div className="flex items-center gap-1 mb-2 text-[14px]">
+                                                    <div className="flex items-center gap-1 mb-1.5 text-[13px]">
                                                         <span className="font-bold text-black">{t("m.qty")} :</span>
                                                         <input
                                                             type="number"
@@ -1282,10 +1268,10 @@ const CheckoutPageUI: React.FC = () => {
                                                                 const val = parseInt(e.target.value);
                                                                 if (val > 0) updateCartItem(item.item_id, val);
                                                             }}
-                                                            className="w-12 h-8 border border-gray-300 text-center text-[13px] font-bold focus:outline-none focus:border-black ml-1"
+                                                            className="w-10 h-7 border border-[#ebebeb] rounded-lg text-center text-[12px] font-black focus:outline-none focus:border-yellow-400 ml-1 bg-gray-50/50"
                                                         />
                                                     </div>
-                                                    <div className="text-[15px] font-black text-black price currency-riyal">
+                                                    <div className="text-[13px] font-black text-black price currency-riyal">
                                                         <Price amount={item.row_total} />
                                                     </div>
 
@@ -1296,30 +1282,27 @@ const CheckoutPageUI: React.FC = () => {
                                 </div>
 
                                 {/* Totals Section */}
-                                <div className="p-4 sm:p-6 space-y-3 sm:space-y-4">
-                                    <div className="flex justify-between items-center text-[15px]">
+                                <div className="p-4 sm:p-5 space-y-2.5 sm:space-y-3">
+                                    <div className="flex justify-between items-center text-[14px]">
                                         <span className="text-black font-medium">{t("cart.subtotal")}</span>
                                         <span className="font-black text-black price currency-riyal">
                                             <Price amount={displayTotals.subtotal} />
                                         </span>
-
                                     </div>
 
-                                    <div className="flex justify-between items-center text-[15px]">
+                                    <div className="flex justify-between items-center text-[14px]">
                                         <span className="text-black font-medium">{t("m.tax")}</span>
                                         <span className="font-black text-black price currency-riyal">
                                             <Price amount={displayTotals.tax_amount} />
                                         </span>
-
                                     </div>
 
-                                    <div className="pt-4 border-t border-gray-200">
+                                    <div className="pt-3 border-t border-gray-200">
                                         <div className="flex justify-between items-center">
-                                            <span className="text-[18px] font-black text-black">{t("common.grandTotal")}</span>
-                                            <span className="text-[20px] font-black text-black price currency-riyal">
+                                            <span className="text-[16px] font-black text-black">{t("common.grandTotal")}</span>
+                                            <span className="text-[18px] font-black text-black price currency-riyal">
                                                 <Price amount={displayTotals.grand_total} />
                                             </span>
-
                                         </div>
                                     </div>
                                 </div>
@@ -1338,13 +1321,12 @@ const CheckoutPageUI: React.FC = () => {
                                 </div>
 
                                 {/* Place Order Button */}
-                                <div className="px-6 pb-6">
+                                <div className="px-5 pb-6">
                                     <button
                                         onClick={handlePlaceOrder}
-                                        // disabled={isPlacingOrder || isTotalsLoading}
-                                        className={`w-full py-3 sm:py-4 md:py-5 text-sm font-black uppercase tracking-widest transition-all duration-300 flex items-center justify-center gap-3 rounded-md shadow-md border ${isPlacingOrder
+                                        className={`w-full py-4 text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-300 flex items-center justify-center gap-2.5 rounded-xl shadow-lg ${isPlacingOrder
                                             ? "bg-gray-100 text-gray-400 cursor-not-allowed border-[#ebebeb]"
-                                            : "bg-yellow-400 text-black hover:bg-yellow-500 border-yellow-500 active:scale-[0.98]"
+                                            : "bg-yellow-400 text-black hover:bg-black hover:text-white border-yellow-400 hover:border-black active:scale-[0.98]"
                                             }`}
                                     >
                                         {isPlacingOrder ? (
@@ -1353,7 +1335,10 @@ const CheckoutPageUI: React.FC = () => {
                                                 {t("common.loading")}
                                             </>
                                         ) : (
-                                            t("common.placeOrder")
+                                            <>
+                                                {t("common.placeOrder")}
+                                                <span className="text-lg opacity-50 select-none">→</span>
+                                            </>
                                         )}
                                     </button>
                                 </div>

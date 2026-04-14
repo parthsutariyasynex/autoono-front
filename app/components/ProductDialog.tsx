@@ -23,24 +23,31 @@ export default function ProductDialog({ product, isOpen, onClose }: ProductDialo
     return null;
   };
 
+  const translateValue = (val: any) => {
+    if (val === undefined || val === null || val === "") return "-";
+    const key = `data.${val}`;
+    const translated = t(key);
+    return translated !== key ? translated : val;
+  };
+
   const details = [
     { label: t("productDialog.itemCode"), value: getAttr("item_code") || p.sku || p.id },
-    { label: t("productDialog.brand"), value: getAttr("brand") || p.manufacturer || (p.name ? p.name.split(' ')[0] : "N/A") },
+    { label: t("productDialog.brand"), value: translateValue(getAttr("brand") || p.manufacturer || (p.name ? p.name.split(' ')[0] : "")) },
     { label: t("productDialog.size"), value: getAttr("tyre_size") || p.size },
-    { label: t("productDialog.pattern"), value: p.pattern },
+    { label: t("productDialog.pattern"), value: getAttr("pattern") || p.pattern },
     { label: t("productDialog.year"), value: getAttr("year") || p.model_year },
-    { label: t("productDialog.origin"), value: getAttr("origin") || p.country_of_manufacture },
+    { label: t("productDialog.origin"), value: translateValue(getAttr("origin") || p.country_of_manufacture) },
     {
       label: t("productDialog.productGroup"),
-      value: getAttr("product_group") || getAttr("category_name") || getAttr("types") || getAttr("type")
+      value: translateValue(getAttr("product_group") || getAttr("category_name") || getAttr("types") || getAttr("type") || p.product_group)
     },
     {
       label: t("productDialog.tyreType"),
-      value: getAttr("tyre_type") || getAttr("types") || getAttr("type_of_tyre") || getAttr("construction_type")
+      value: translateValue(getAttr("tyre_type") || getAttr("types") || getAttr("type_of_tyre") || getAttr("construction_type") || p.tyre_type)
     },
     {
       label: t("productDialog.oemMarking"),
-      value: getAttr("oem_marking") || getAttr("marking") || getAttr("oem")
+      value: translateValue(getAttr("oem_marking") || getAttr("marking") || getAttr("oem") || p.oem_marking)
     },
   ];
 
@@ -49,8 +56,8 @@ export default function ProductDialog({ product, isOpen, onClose }: ProductDialo
       <div className="flex flex-col h-full bg-white" dir={isRtl ? "rtl" : "ltr"}>
         {/* Yellow Header */}
         <div className="bg-[#FFB82B] px-4 md:px-8 py-4 md:py-6 flex items-center justify-center relative flex-shrink-0">
-          <h2 className="text-[14px] md:text-[17px] font-black text-black text-center uppercase tracking-tight">
-            {p.pattern || p.name || t("productDialog.product")} {p.tyre_size ? `- ${p.tyre_size}` : ""}
+          <h2 className="text-[14px] md:text-[17px] font-black text-black text-center tracking-tight">
+            {p.tyre_size || ""} {p.pattern || p.name ? ` - ${p.pattern || p.name}` : ""}
           </h2>
         </div>
 
