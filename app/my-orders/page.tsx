@@ -19,8 +19,7 @@ function formatOrderDate(dateStr: string): string {
     try {
         const d = new Date(dateStr);
         if (isNaN(d.getTime())) return dateStr;
-        const isArabic = typeof window !== "undefined" && window.location.pathname.startsWith("/ar");
-        return new Intl.DateTimeFormat(isArabic ? "ar-SA" : "en-US", {
+        return new Intl.DateTimeFormat("en-US", {
             year: "2-digit", month: "numeric", day: "numeric"
         }).format(d);
     } catch {

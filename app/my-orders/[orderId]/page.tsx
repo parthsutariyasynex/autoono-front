@@ -275,7 +275,7 @@ export default function OrderDetailsPage() {
     const formatDate = (dateString: string) => {
         if (!dateString) return "-";
         const dateObj = new Date(dateString);
-        return dateObj.toLocaleDateString(locale === "ar" ? "ar-SA" : "en-US", {
+        return dateObj.toLocaleDateString("en-US", {
             year: "numeric",
             month: "long",
             day: "numeric",

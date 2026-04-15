@@ -187,7 +187,7 @@ export default function MyForecastPage() {
             file.date || file.upload_date || file.updated_at ||
             file.creation_time || file.createdDate;
 
-        const locale = isRtl ? 'ar-SA' : 'en-US';
+        const locale = 'en-US';
         const options: Intl.DateTimeFormatOptions = { month: 'long', day: 'numeric', year: 'numeric' };
 
         if (rawDate) {

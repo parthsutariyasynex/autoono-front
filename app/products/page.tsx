@@ -471,7 +471,7 @@ export default function ProductsPage() {
         <Drawer isOpen={isMobileFilterOpen} onClose={() => setIsMobileFilterOpen(false)}>
           <div className="flex flex-col h-full">
             <div className="bg-[#f5b21a] px-5 py-4 flex items-center justify-between flex-shrink-0">
-              <h2 className="text-[14px] font-black text-black uppercase tracking-tight">Filter Options</h2>
+              <h2 className="text-[14px] font-black text-black uppercase tracking-tight">{t("m.filter-options")}</h2>
               {Object.keys(selectedFilters).length > 0 && (
                 <button onClick={() => { clearAllFilters(); setIsMobileFilterOpen(false); }} className="text-[11px] font-bold text-black/70 uppercase underline">{t("m.clear-all")}</button>
               )}
@@ -484,7 +484,7 @@ export default function ProductsPage() {
             </div>
             <div className="p-4 border-t border-gray-100 flex-shrink-0">
               <button onClick={() => setIsMobileFilterOpen(false)} className="w-full h-[44px] bg-black text-white font-black uppercase text-[12px] tracking-widest rounded-lg active:scale-95 cursor-pointer">
-                Apply Filters
+                {t("m.apply-filters")}
               </button>
             </div>
           </div>
@@ -509,7 +509,7 @@ export default function ProductsPage() {
             {/* Controls: 2 cols on mobile, 4 cols on tablet */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
               <button onClick={() => router.push(lp("/favorites"))} className="h-[44px] bg-white border border-gray-200 rounded-xl flex items-center justify-center gap-2 text-[11px] font-bold uppercase tracking-wider shadow-sm active:scale-95 cursor-pointer">
-                <Star className="w-4 h-4 fill-black text-black" /> Favourites
+                <Star className="w-4 h-4 fill-black text-black" /> {t("m.favourite-products")}
               </button>
               <button onClick={() => setIsMobileSearchOpen(true)} className="h-[44px] bg-[#f5b21a] rounded-xl flex items-center justify-center gap-2 text-[11px] font-bold uppercase tracking-wider shadow-sm active:scale-95 cursor-pointer">
                 <Search className="w-4 h-4" /> {t("m.search")}
@@ -531,7 +531,7 @@ export default function ProductsPage() {
                     {item.label} <button onClick={() => removeSpecificFilter(code, item.value)} className="text-gray-400"><X size={12} /></button>
                   </div>
                 )))}
-                <button onClick={clearAllFilters} className="text-[10px] font-black text-red-500 uppercase whitespace-nowrap flex-shrink-0 px-2">Clear</button>
+                <button onClick={clearAllFilters} className="text-[10px] font-black text-red-500 uppercase whitespace-nowrap flex-shrink-0 px-2">{t("m.clear-all")}</button>
               </div>
             )}
           </div>
@@ -575,7 +575,7 @@ export default function ProductsPage() {
           <div className="xl:hidden">{renderPagination(true)}</div>
 
           {/* ── DESKTOP CONTROLS + TABLE ── */}
-          <div className="hidden xl:flex flex-col bg-white rounded-none md:rounded-r-2xl shadow-sm border border-gray-200 border-l-0 overflow-hidden">
+          <div className="hidden xl:flex flex-col bg-white rounded-none md:rounded-r-2xl shadow-sm border border-gray-200 border-l-0 overflow-hidden pb-24">
             {/* Desktop header */}
             <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center gap-4 min-h-[60px]">
               <div className="flex items-center gap-4">

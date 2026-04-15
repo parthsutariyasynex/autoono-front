@@ -40,14 +40,13 @@ export default function NotificationDrawer({ isOpen, onClose }: NotificationDraw
         return result;
     };
 
-    // Format date for locale
+    // Format date — always English
     const formatNotificationDate = (dateStr: string): string => {
         if (!dateStr) return "";
-        if (!isRtl) return dateStr;
         try {
             const d = new Date(dateStr);
             if (isNaN(d.getTime())) return dateStr;
-            return new Intl.DateTimeFormat("ar-SA", {
+            return new Intl.DateTimeFormat("en-US", {
                 year: "numeric", month: "short", day: "2-digit",
                 hour: "2-digit", minute: "2-digit"
             }).format(d);

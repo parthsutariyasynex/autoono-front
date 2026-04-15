@@ -50,7 +50,7 @@ function formatDate(dateStr: string, locale: string): string {
     try {
         const date = new Date(dateStr);
         if (isNaN(date.getTime())) return dateStr;
-        return new Intl.DateTimeFormat(locale === "ar" ? "ar-SA" : "en-US", {
+        return new Intl.DateTimeFormat("en-US", {
             year: "numeric", month: "short", day: "numeric",
             hour: "2-digit", minute: "2-digit", hour12: true,
         }).format(date);

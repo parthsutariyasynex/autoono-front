@@ -196,10 +196,6 @@ export default function OrderAttachmentsPage() {
         try {
             const d = new Date(dateStr);
             if (isNaN(d.getTime())) return dateStr;
-            const isAr = typeof window !== "undefined" && window.location.pathname.startsWith("/ar");
-            if (isAr) {
-                return new Intl.DateTimeFormat("ar-SA", { year: "numeric", month: "2-digit", day: "2-digit" }).format(d);
-            }
             const day = String(d.getDate()).padStart(2, '0');
             const month = String(d.getMonth() + 1).padStart(2, '0');
             const year = d.getFullYear();
