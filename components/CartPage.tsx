@@ -223,23 +223,6 @@ const CartPage: React.FC = () => {
                 </div>
             </div>
 
-            {/* Mobile Checkout Button — sticky within content, above footer */}
-            <div className="lg:hidden sticky bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-3 z-[50] shadow-[0_-4px_20px_rgba(0,0,0,0.08)]">
-                <div className="flex items-center justify-between gap-4">
-                    <div className="flex flex-col min-w-0">
-                        <span className="text-gray-400 text-[9px] font-bold uppercase tracking-widest">{t("cart.totalToPay")}</span>
-                        <span className="text-[17px] font-black text-gray-900 tracking-tight">
-                            {cart.currency_code} {cart.grand_total.toLocaleString('en-US')}
-                        </span>
-                    </div>
-                    <button
-                        onClick={() => router.push(lp("/checkout"))}
-                        className="bg-[#f4b21b] text-black h-12 px-6 rounded-lg font-bold uppercase tracking-wider text-[11px] shadow-md active:scale-95 transition-all flex-shrink-0 whitespace-nowrap"
-                    >
-                        {t("cart.proceedCheckout")} »
-                    </button>
-                </div>
-            </div>
 
             <style jsx global>{`
                 .custom-scrollbar::-webkit-scrollbar {
