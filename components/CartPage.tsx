@@ -140,7 +140,7 @@ const CartPage: React.FC = () => {
     }
 
     return (
-        <div className="min-h-screen bg-[#FDFDFD] pb-40 lg:pb-20">
+        <div className="min-h-screen bg-[#FDFDFD] pb-24 lg:pb-10">
             {/* Main Content Container */}
             <div className="max-w-[1440px] mx-auto px-4 md:px-12 pt-8 md:pt-14">
 
@@ -167,7 +167,7 @@ const CartPage: React.FC = () => {
                             </div>
 
                             {/* Scrollable Items Container */}
-                            <div className="flex-1 overflow-y-auto custom-scrollbar pr-2 space-y-4 pb-32">
+                            <div className="flex-1 custom-scrollbar pr-2 space-y-4 pb-4">
                                 {cart.items.map((item) => (
                                     <CartItem
                                         key={item.item_id}
@@ -179,8 +179,8 @@ const CartPage: React.FC = () => {
                                 ))}
                             </div>
 
-                            {/* Actions Bar (Sticky Bottom) */}
-                            <div className="lg:sticky lg:bottom-0 z-20 -mt-24 pt-12 pb-2 bg-gradient-to-t from-white via-white/100 to-transparent">
+                            {/* Actions Bar */}
+                            <div className="mt-6">
                                 <div className="space-y-4">
                                     <CartActions
                                         itemsCount={cart.items_count}
@@ -223,22 +223,22 @@ const CartPage: React.FC = () => {
                 </div>
             </div>
 
-            {/* Mobile Fixed Checkout Button Overlay */}
-            <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 p-5 z-[60] shadow-[0_-20px_40px_rgba(0,0,0,0.08)]">
-                <div className="flex items-center justify-between mb-4 px-2">
-                    <div className="flex flex-col">
-                        <span className="text-gray-400 text-[10px] font-black uppercase tracking-widest">{t("cart.totalToPay")}</span>
+            {/* Mobile Fixed Checkout Button — single row: total left, button right */}
+            <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-3 z-[60] shadow-[0_-4px_20px_rgba(0,0,0,0.08)]">
+                <div className="flex items-center justify-between gap-4">
+                    <div className="flex flex-col min-w-0">
+                        <span className="text-gray-400 text-[9px] font-bold uppercase tracking-widest">{t("cart.totalToPay")}</span>
+                        <span className="text-[17px] font-black text-gray-900 tracking-tight">
+                            {cart.currency_code} {cart.grand_total.toLocaleString()}
+                        </span>
                     </div>
-                    <span className="text-2xl font-black text-gray-900 tracking-tighter">
-                        {cart.currency_code} {cart.grand_total.toLocaleString()}
-                    </span>
+                    <button
+                        onClick={() => router.push(lp("/checkout"))}
+                        className="bg-[#f4b21b] text-black h-12 px-6 rounded-lg font-bold uppercase tracking-wider text-[11px] shadow-md active:scale-95 transition-all flex-shrink-0 whitespace-nowrap"
+                    >
+                        {t("cart.checkoutNow")}
+                    </button>
                 </div>
-                <button
-                    onClick={() => router.push(lp("/checkout"))}
-                    className="w-full bg-yellow-400 text-black py-5 rounded-2xl font-black uppercase tracking-[0.2em] text-xs shadow-xl shadow-yellow-400/30 active:scale-95 transition-all"
-                >
-                    {t("cart.checkoutNow")}
-                </button>
             </div>
 
             <style jsx global>{`

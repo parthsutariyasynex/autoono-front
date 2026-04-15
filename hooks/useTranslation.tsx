@@ -15,7 +15,7 @@ function loadTranslations(locale: string): Promise<Record<string, string>> {
     return Promise.resolve(cachedTranslations[locale]);
   }
   if (!loadingPromises[locale]) {
-    loadingPromises[locale] = fetch(`/locales/${locale}.json`)
+    loadingPromises[locale] = fetch(`/locales/${locale}.json?v=${Date.now()}`)
       .then((res) => {
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         return res.json();

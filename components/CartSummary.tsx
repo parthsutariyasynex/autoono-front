@@ -20,7 +20,7 @@ const CartSummary: React.FC<CartSummaryProps> = ({ subtotal, taxAmount, taxLabel
     const { t } = useTranslation();
 
     return (
-        <div className="sticky top-28 self-start bg-white border border-gray-100 rounded-sm shadow-[0_10px_40px_rgba(0,0,0,0.05)] overflow-hidden">
+        <div className="lg:sticky lg:top-28 self-start bg-white border border-gray-100 rounded-sm shadow-[0_10px_40px_rgba(0,0,0,0.05)] overflow-hidden">
             {/* Header */}
             <div className="bg-[#fcfcfc] px-6 py-4 border-b border-gray-100">
                 <h2 className="text-[11px] font-bold text-gray-900 uppercase tracking-[0.2em]">
@@ -28,7 +28,7 @@ const CartSummary: React.FC<CartSummaryProps> = ({ subtotal, taxAmount, taxLabel
                 </h2>
             </div>
 
-            <div className="p-6 md:p-8 space-y-7">
+            <div className="p-4 md:p-6 lg:p-8 space-y-7">
                 {/* Price Breakdown */}
                 <div className="space-y-3.5">
                     <div className="flex justify-between items-center">
@@ -51,12 +51,12 @@ const CartSummary: React.FC<CartSummaryProps> = ({ subtotal, taxAmount, taxLabel
                 {/* Total Section */}
                 <div className="pt-5 border-t border-gray-100">
                     <div className="flex justify-between items-center">
-                        <span className="text-black font-bold text-sm uppercase tracking-tight">{t("common.grandTotal")}</span>
+                        <span className="text-black font-bold text-[10px] uppercase tracking-tight">{t("common.grandTotal")}</span>
                         <div className="text-right">
                             <Price
                                 amount={grandTotal}
-                                symbolClassName="text-sm mr-1 font-bold text-gray-900"
-                                className="font-bold text-black text-lg tracking-tight"
+                                symbolClassName="text-xs mr-1 font-bold text-gray-900"
+                                className="font-bold text-black text-[12px] tracking-tight"
                             />
                         </div>
                     </div>

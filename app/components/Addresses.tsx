@@ -204,7 +204,7 @@ export default function Addresses() {
 
         <div className="bg-white border border-[#ebebeb] rounded-xl shadow-sm overflow-hidden transition-all duration-300 hover:shadow-md">
           <div className="overflow-x-auto">
-            <table className="w-full border-collapse">
+            <table className="w-full border-collapse min-w-[650px]">
               <thead>
                 <tr className="bg-gray-50/80 border-b border-[#ebebeb] text-black text-[11px] font-black uppercase tracking-widest h-[60px]">
                   <th className="px-6 py-4 ltr:text-left rtl:text-right">{t("addressBook.firstName")}</th>

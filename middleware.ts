@@ -12,7 +12,7 @@ function isValidLocale(value: string): value is Locale {
 }
 
 // ─── Route config ───────────────────────────────────────────────────────────
-const PUBLIC_ROUTES = ["/login", "/register", "/forgot-password", "/about", "/locations", "/guides", "/catalogue"];
+const PUBLIC_ROUTES = ["/login", "/register", "/forgot-password", "/about", "/locations", "/guides", "/catalogue", "/privacy-policy", "/return-exchange-policy", "/terms-conditions"];
 const SKIP_PATHS = ["/api", "/_next", "/favicon.ico", "/logo", "/images", "/locales"];
 
 export async function middleware(request: NextRequest) {

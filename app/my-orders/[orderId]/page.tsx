@@ -499,8 +499,8 @@ export default function OrderDetailsPage() {
                                 </div>
 
                                 <div className="flex justify-between items-center text-black pt-4 border-t border-gray-200">
-                                    <span className="font-black uppercase tracking-tighter flex-1 text-end me-10 text-[18px]">{t("orderDetails.grandTotal")}</span>
-                                    <span className="font-black w-[110px] text-end text-[18px]">
+                                    <span className="font-black uppercase tracking-tighter flex-1 text-end me-10 text-[15px]">{t("orderDetails.grandTotal")}</span>
+                                    <span className="font-black w-[110px] text-end text-[15px]">
 
                                         {formatCurrency(order.grand_total)}
                                     </span>

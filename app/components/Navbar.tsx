@@ -205,8 +205,8 @@ export default function Navbar() {
           {/* RIGHT: Actions */}
           <div className="flex items-center gap-2 sm:gap-3 md:gap-5 flex-shrink-0 z-10">
 
-            {/* Language Switcher */}
-            <div className="hidden sm:block">
+            {/* Language Switcher — desktop only (mobile has it in drawer) */}
+            <div className="hidden lg:block">
               <LanguageSwitcher />
             </div>
 
@@ -269,7 +269,7 @@ export default function Navbar() {
             {isAuthenticated && pathname !== "/login" && (
               <button
                 onClick={() => setIsSearchOpen(true)}
-                className="hidden sm:flex relative cursor-pointer hover:opacity-70 transition-opacity items-center justify-center -mb-1 focus:outline-none"
+                className="hidden lg:flex relative cursor-pointer hover:opacity-70 transition-opacity items-center justify-center -mb-1 focus:outline-none"
                 aria-label="Search"
               >
                 <Search size={22} stroke="black" strokeWidth={1.5} />
@@ -283,7 +283,7 @@ export default function Navbar() {
             {isAuthenticated && pathname !== "/login" && (
 
               <button
-                className="hidden sm:flex relative cursor-pointer items-center justify-center"
+                className="hidden lg:flex relative cursor-pointer items-center justify-center"
                 onClick={() => setIsNotificationOpen(true)}
                 aria-label="Notifications"
               >
@@ -305,7 +305,7 @@ export default function Navbar() {
               >
                 <ShoppingCart size={24} strokeWidth={1.5} />
                 {cartCount > 0 && (
-                  <span className="absolute w-[22px] md:w-[26px] h-[22px] md:h-[26px] font-medium text-[10px] md:text-[12px] -top-[13px] -right-[2px] md:-right-[14px] bg-[#f5af02] text-black font-black flex items-center justify-center rounded-full border border-white">
+                  <span className="absolute w-[20px] h-[20px] lg:w-[26px] lg:h-[26px] font-medium text-[9px] lg:text-[12px] -top-[10px] -right-[6px] lg:-right-[14px] bg-[#f5af02] text-black font-black flex items-center justify-center rounded-full border border-white">
                     {cartCount}
                   </span>
                 )}
