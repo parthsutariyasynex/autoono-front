@@ -105,13 +105,13 @@ export default function NotificationsPage() {
         <>
 
 
-            <div className="w-full px-3 md:px-8 lg:px-12 py-4 md:py-10">
-                <div className="flex flex-col lg:flex-row gap-4 md:gap-6 lg:gap-10">
+            <div className="w-full py-4 md:py-10">
+                <div className="flex flex-col lg:flex-row gap-0">
                     {/* SIDEBAR */}
                     <Sidebar />
 
                     {/* MAIN CONTENT */}
-                    <main className="flex-1 min-w-0">
+                    <main className="flex-1 min-w-0 px-4 md:px-6 lg:px-8">
                         <h1 className="text-[20px] md:text-[26px] font-black text-black mb-6 md:mb-10 uppercase tracking-wide">
                             {t('notifications.title')}
                         </h1>
