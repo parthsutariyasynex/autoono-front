@@ -43,16 +43,16 @@ const Footer: React.FC = () => {
                         </div>
                         <h3 className="text-[22px] font-bold mb-6 tracking-tight">{t("footer.socialConnect")}</h3>
                         <div className="flex items-center gap-4">
-                            <Link href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-white text-black rounded-full flex items-center justify-center hover:bg-[#f5a623] hover:text-white transition-all transform hover:scale-110">
+                            <Link href="https://www.facebook.com/BridgestoneKSA/" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-white text-black rounded-full flex items-center justify-center hover:bg-[#f5a623] hover:text-white transition-all transform hover:scale-110">
                                 <Facebook size={18} fill="currentColor" />
                             </Link>
-                            <Link href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-white text-black rounded-full flex items-center justify-center hover:bg-[#f5a623] hover:text-white transition-all transform hover:scale-110">
+                            <Link href="https://www.instagram.com/bridgestone_ksa/" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-white text-black rounded-full flex items-center justify-center hover:bg-[#f5a623] hover:text-white transition-all transform hover:scale-110">
                                 <Instagram size={18} />
                             </Link>
-                            <Link href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-white text-black rounded-full flex items-center justify-center hover:bg-[#f5a623] hover:text-white transition-all transform hover:scale-110">
+                            <Link href="https://twitter.com/bridgestone_KSA" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-white text-black rounded-full flex items-center justify-center hover:bg-[#f5a623] hover:text-white transition-all transform hover:scale-110">
                                 <Twitter size={18} fill="currentColor" />
                             </Link>
-                            <Link href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-white text-black rounded-full flex items-center justify-center hover:bg-[#f5a623] hover:text-white transition-all transform hover:scale-110">
+                            <Link href="https://www.linkedin.com/company/altalayi" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-white text-black rounded-full flex items-center justify-center hover:bg-[#f5a623] hover:text-white transition-all transform hover:scale-110">
                                 <Linkedin size={18} fill="currentColor" />
                             </Link>
                         </div>

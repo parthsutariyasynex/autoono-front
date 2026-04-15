@@ -33,7 +33,7 @@ const CartSummary: React.FC<CartSummaryProps> = ({ subtotal, taxAmount, taxLabel
                 <div className="space-y-3.5">
                     <div className="flex justify-between items-center">
                         <span className="text-black font-medium text-[10px] uppercase tracking-wider">{t("cart.subtotal")}</span>
-                        <span className="font-semibold text-gray-900 text-[13px]">
+                        <span className="font-semibold text-gray-900 text-[12px]">
                             <Price amount={subtotal} />
                         </span>
                     </div>
@@ -42,7 +42,7 @@ const CartSummary: React.FC<CartSummaryProps> = ({ subtotal, taxAmount, taxLabel
                         <span className="text-black font-medium text-[10px] uppercase tracking-wider">
                             {taxLabel || t("m.tax")}
                         </span>
-                        <span className="font-semibold text-gray-900 text-[13px]">
+                        <span className="font-semibold text-gray-900 text-[12px]">
                             <Price amount={taxAmount} />
                         </span>
                     </div>
@@ -51,12 +51,12 @@ const CartSummary: React.FC<CartSummaryProps> = ({ subtotal, taxAmount, taxLabel
                 {/* Total Section */}
                 <div className="pt-5 border-t border-gray-100">
                     <div className="flex justify-between items-center">
-                        <span className="text-black font-bold text-[10px] uppercase tracking-tight">{t("common.grandTotal")}</span>
+                        <span className="text-black font-bold text-[13px] uppercase tracking-tight">{t("common.grandTotal")}</span>
                         <div className="text-right">
                             <Price
                                 amount={grandTotal}
                                 symbolClassName="text-xs mr-1 font-bold text-gray-900"
-                                className="font-bold text-black text-[12px] tracking-tight"
+                                className="font-bold text-black text-[14px] tracking-tight"
                             />
                         </div>
                     </div>
