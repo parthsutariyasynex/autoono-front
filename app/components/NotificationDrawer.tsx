@@ -65,34 +65,6 @@ export default function NotificationDrawer({ isOpen, onClose }: NotificationDraw
         if (!notification.is_read) {
             await markAsRead(notification.notification_id);
         }
-        onClose();
-
-        if (notification.url) {
-            const url = notification.url;
-
-            // Map Magento URLs to frontend routes
-            // /sales/order/view/order_id/123 → /my-orders/123
-            const orderMatch = url.match(/\/sales\/order\/view\/order_id\/(\d+)/);
-            if (orderMatch) {
-                router.push(lp(`/my-orders/${orderMatch[1]}`));
-                return;
-            }
-
-            // /customer/account → /my-account
-            if (url.includes("/customer/account")) {
-                router.push(lp("/my-account"));
-                return;
-            }
-
-            // If URL starts with / but has no locale prefix, add it
-            if (url.startsWith("/") && !url.startsWith("/en/") && !url.startsWith("/ar/")) {
-                router.push(lp(url));
-                return;
-            }
-
-            // Default: navigate to notifications page
-            router.push(lp("/customer/notifications"));
-        }
     };
 
     return (

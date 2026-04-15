@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback, useRef, memo, useMemo } from "react";
 import Link from "next/link";
-import { ChevronDown, ChevronLeft, Filter, X, FileText } from "lucide-react";
+import { ChevronDown, ChevronLeft, ChevronRight, Filter, X, FileText } from "lucide-react";
 import { useLocalePath } from "@/hooks/useLocalePath";
 import { useTranslation } from "@/hooks/useTranslation";
 
@@ -151,7 +151,7 @@ function SidebarFilter({
 }) {
     const [filterGroups, setFilterGroups] = useState<FilterGroupData[]>([]);
     const lp = useLocalePath();
-    const { t } = useTranslation();
+    const { t, isRtl } = useTranslation();
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
     const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({});
@@ -293,21 +293,28 @@ function SidebarFilter({
 
     return (
         <aside
-            className={`flex-shrink-0 flex flex-col sticky top-[108px] h-fit z-30 transition-all duration-300 ease-in-out border-r border-gray-200 bg-white overflow-hidden ${isCollapsed ? 'w-[50px]' : 'w-[300px]'}`}
+            className={`flex-shrink-0 flex flex-col sticky top-[108px] h-fit z-30 transition-all duration-300 ease-in-out bg-white overflow-hidden ${isCollapsed ? 'w-[50px]' : 'w-[300px] border-r border-gray-200'}`}
         >
-            <div className={`flex flex-col w-[300px] h-full transition-transform duration-300 ease-in-out ${isCollapsed ? "-translate-x-[250px]" : "translate-x-0"}`}>
-                {/* Header */}
-                <div className="flex border-b border-gray-200 h-[60px] flex-shrink-0 bg-white shadow-sm shrink-0">
-                    <div className={`flex-1 px-6 flex items-center overflow-hidden transition-opacity duration-300 ${isCollapsed ? 'opacity-0' : 'opacity-100'}`}>
+            {/* Header — title + arrow inline */}
+            <div className="flex items-center w-full h-[60px] border-b border-gray-200 bg-white shadow-sm flex-shrink-0">
+                {!isCollapsed && (
+                    <div className="flex-1 px-6 flex items-center overflow-hidden min-w-0">
                         <h2 className="font-bold text-gray-900 text-[16px] whitespace-nowrap">{t("m.filter-options")}</h2>
                     </div>
-                    <div
-                        onClick={() => setIsCollapsed(!isCollapsed)}
-                        className={`w-[50px] flex items-center justify-center bg-gray-50 border-l border-gray-200 cursor-pointer shrink-0 transition-all duration-300 hover:bg-gray-100`}
-                    >
-                        <ChevronLeft className={`w-[18px] h-[18px] transition-transform duration-300 ${isCollapsed ? "rotate-180" : "rotate-0"}`} />
-                    </div>
+                )}
+                <div
+                    onClick={() => setIsCollapsed(!isCollapsed)}
+                    className="w-[50px] min-w-[50px] h-full flex items-center justify-center bg-gray-50 cursor-pointer hover:bg-gray-100 transition-all duration-300"
+                >
+                    {isCollapsed
+                        ? <ChevronRight className="w-[18px] h-[18px]" />
+                        : <ChevronLeft className="w-[18px] h-[18px]" />
+                    }
                 </div>
+            </div>
+
+            {/* Content panel */}
+            <div className={`flex flex-col flex-1 transition-opacity duration-300 overflow-hidden ${isCollapsed ? 'opacity-0 h-0' : 'opacity-100'}`}>
 
                 {/* Content area: stabilized width */}
                 <div className={`flex-1 flex flex-col bg-white transition-opacity duration-300 ${isCollapsed ? 'opacity-0' : 'opacity-100'}`}>

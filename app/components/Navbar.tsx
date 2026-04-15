@@ -46,7 +46,7 @@ const FALLBACK_NAV_KEYS: { key: string; href: string }[] = [
 export default function Navbar() {
   const { data: session, status } = useSession();
   const pathname = usePathname();
-  const { t } = useTranslation();
+  const { t, isRtl } = useTranslation();
   const locale = useLocale();
   const lp = useLocalePath();
   const isAuthenticated = status === "authenticated";
@@ -230,10 +230,10 @@ export default function Navbar() {
                 </div>
 
                 {isProfileOpen && (
-                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-sm shadow-2xl border border-gray-200 py-1 z-[100]">
+                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-sm shadow-2xl border border-gray-200 py-1 z-[100]" dir={isRtl ? "rtl" : "ltr"}>
                     <Link
                       href={lp("/my-account")}
-                      className="block px-4 py-2.5 text-[12px] font-bold text-gray-800 hover:bg-gray-50 transition-colors"
+                      className="block px-4 py-2.5 text-[12px] font-bold text-gray-800 hover:bg-gray-50 transition-colors ltr:text-left rtl:text-right"
                       onClick={() => setIsProfileOpen(false)}
                     >
                       {t("nav.myAccount")}
@@ -241,7 +241,7 @@ export default function Navbar() {
                     {isSubAccount && (
                       <Link
                         href={lp("/my-account")}
-                        className="block px-4 py-2.5 text-[12px] font-bold text-red-600 hover:bg-red-50 transition-colors border-t border-gray-100"
+                        className="block px-4 py-2.5 text-[12px] font-bold text-red-600 hover:bg-red-50 transition-colors border-t border-gray-100 ltr:text-left rtl:text-right"
                         onClick={() => {
                           setIsProfileOpen(false);
                           localStorage.removeItem("subAccountName");
@@ -255,7 +255,7 @@ export default function Navbar() {
                     )}
                     <button
                       onClick={handleLogout}
-                      className="w-full text-left px-4 py-2.5 text-[12px] font-bold text-gray-800 hover:bg-gray-50 transition-colors cursor-pointer border-t border-gray-100"
+                      className="w-full ltr:text-left rtl:text-right px-4 py-2.5 text-[12px] font-bold text-gray-800 hover:bg-gray-50 transition-colors cursor-pointer border-t border-gray-100"
                     >
                       {t("nav.signOut")}
                     </button>

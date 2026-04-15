@@ -145,7 +145,7 @@ const Pagination: React.FC<PaginationProps> = ({
             </div>
 
             {/* Pagination Controls */}
-            <div className={`flex items-center gap-1.5 md:gap-2 flex-wrap justify-center order-1 md:order-2 ${isRtl ? 'flex-row-reverse' : ''}`}>
+            <div className="flex items-center gap-1.5 md:gap-2 flex-wrap justify-center order-1 md:order-2">
                 {currentPage > 1 && (
                     <button
                         onClick={() => onPageChange(currentPage - 1)}

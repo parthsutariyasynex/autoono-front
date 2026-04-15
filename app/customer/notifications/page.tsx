@@ -61,7 +61,7 @@ function formatDate(dateStr: string, locale: string): string {
 
 export default function NotificationsPage() {
     const router = useRouter();
-    const { t } = useTranslation();
+    const { t, isRtl } = useTranslation();
     const lp = useLocalePath();
     const locale = useLocale();
     const { status } = useSession();
@@ -91,9 +91,6 @@ export default function NotificationsPage() {
     const handleNotificationClick = async (item: any) => {
         if (!item.is_read) {
             await markAsRead(item.notification_id);
-        }
-        if (item.url) {
-            router.push(item.url);
         }
     };
 
@@ -234,7 +231,7 @@ export default function NotificationsPage() {
                                             onClick={() => setCurrentPage(currentPage - 1)}
                                             className="w-10 h-10 flex items-center justify-center text-[#666666] hover:text-black hover:bg-white/50 rounded-full transition-all border border-transparent hover:border-[#cccccc]"
                                         >
-                                            <ChevronLeft size={20} />
+                                            {isRtl ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
                                         </button>
                                     )}
                                     <div className="flex gap-2">
@@ -256,7 +253,7 @@ export default function NotificationsPage() {
                                             onClick={() => setCurrentPage(currentPage + 1)}
                                             className="w-10 h-10 flex items-center justify-center text-[#666666] hover:text-black hover:bg-white/50 rounded-full transition-all border border-transparent hover:border-[#cccccc]"
                                         >
-                                            <ChevronRight size={20} />
+                                            {isRtl ? <ChevronLeft size={20} /> : <ChevronRight size={20} />}
                                         </button>
                                     )}
                                 </div>
