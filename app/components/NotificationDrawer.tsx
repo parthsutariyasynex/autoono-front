@@ -68,7 +68,7 @@ export default function NotificationDrawer({ isOpen, onClose }: NotificationDraw
         onClose();
 
         if (notification.url) {
-            let url = notification.url;
+            const url = notification.url;
 
             // Map Magento URLs to frontend routes
             // /sales/order/view/order_id/123 → /my-orders/123
