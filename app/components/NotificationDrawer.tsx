@@ -67,6 +67,14 @@ export default function NotificationDrawer({ isOpen, onClose }: NotificationDraw
         }
     };
 
+    // Extract numeric order ID from URL like "/sales/order/view/order_id/28707"
+    const getOrderLink = (item: any): string | null => {
+        const url = item.url || "";
+        const urlMatch = url.match(/order_id\/(\d+)/);
+        if (urlMatch) return lp(`/my-orders/${urlMatch[1]}`);
+        return null;
+    };
+
     return (
         <Drawer
             isOpen={isOpen}
@@ -99,9 +107,12 @@ export default function NotificationDrawer({ isOpen, onClose }: NotificationDraw
                                 >
                                     {/* Header Row: Title & Remove */}
                                     <div className="flex justify-between items-start gap-4">
-                                        <h3 className={`text-[15px] leading-snug pr-6 transition-colors group-hover:text-[#f5b21a] ${!item.is_read ? "font-black text-black" : "font-bold text-gray-700"
-                                            }`}>
-                                            {translateNotification(item.title)}
+                                        <h3 className={`text-[15px] leading-snug ltr:pr-6 rtl:pl-6 ${!item.is_read ? "font-black text-black" : "font-bold text-gray-700"}`}>
+                                            {getOrderLink(item) ? (
+                                                <Link href={getOrderLink(item)!} onClick={onClose} className="hover:text-[#f5b21a] transition-colors hover:underline underline-offset-2">
+                                                    {translateNotification(item.title)}
+                                                </Link>
+                                            ) : translateNotification(item.title)}
                                         </h3>
                                         <button
                                             onClick={(e) => {

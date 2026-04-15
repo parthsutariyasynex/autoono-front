@@ -94,6 +94,15 @@ export default function NotificationsPage() {
         }
     };
 
+    // Extract numeric order ID from URL like "/sales/order/view/order_id/28707"
+    // The API needs numeric entity_id, not increment_id like "BT00028707"
+    const getOrderLink = (item: any): string | null => {
+        const url = item.url || "";
+        const urlMatch = url.match(/order_id\/(\d+)/);
+        if (urlMatch) return lp(`/my-orders/${urlMatch[1]}`);
+        return null;
+    };
+
     const handleLogout = async () => {
         await signOut({ callbackUrl: lp("/login") });
     };
@@ -148,7 +157,11 @@ export default function NotificationsPage() {
                                                         {formatDate(item.date_added_formatted, locale)}
                                                     </td>
                                                     <td className={`px-6 py-6 text-[14px] text-center border-r border-[#ebebeb] align-middle ${!item.is_read ? "font-bold text-black" : "font-normal text-[#666666]"}`}>
-                                                        {translateNotificationText(item.title, locale)}
+                                                        {getOrderLink(item) ? (
+                                                            <Link href={getOrderLink(item)!} className="hover:text-[#f5af02] transition-colors cursor-pointer underline-offset-2 hover:underline">
+                                                                {translateNotificationText(item.title, locale)}
+                                                            </Link>
+                                                        ) : translateNotificationText(item.title, locale)}
                                                     </td>
                                                     <td className={`px-6 py-6 text-[14px] text-center border-r border-[#ebebeb] leading-relaxed align-middle ${!item.is_read ? "font-medium text-black" : "text-[#666666]"}`}>
                                                         {translateNotificationText(item.description, locale)}
@@ -192,7 +205,13 @@ export default function NotificationsPage() {
                                             <div className="flex items-start justify-between gap-2 mb-2">
                                                 <div className="flex items-center gap-2">
                                                     {!item.is_read && <div className="w-2 h-2 bg-[#f5af02] rounded-full flex-shrink-0 mt-1"></div>}
-                                                    <span className={`text-[13px] ${!item.is_read ? "font-bold text-black" : "font-normal text-[#666666]"}`}>{translateNotificationText(item.title, locale)}</span>
+                                                    {getOrderLink(item) ? (
+                                                        <Link href={getOrderLink(item)!} className={`text-[13px] hover:text-[#f5af02] transition-colors hover:underline ${!item.is_read ? "font-bold text-black" : "font-normal text-[#666666]"}`}>
+                                                            {translateNotificationText(item.title, locale)}
+                                                        </Link>
+                                                    ) : (
+                                                        <span className={`text-[13px] ${!item.is_read ? "font-bold text-black" : "font-normal text-[#666666]"}`}>{translateNotificationText(item.title, locale)}</span>
+                                                    )}
                                                 </div>
                                                 <span className="text-[11px] text-gray-400 flex-shrink-0">{formatDate(item.date_added_formatted, locale)}</span>
                                             </div>
