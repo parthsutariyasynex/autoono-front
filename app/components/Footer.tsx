@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Mail, Share2, Facebook, Instagram, Twitter, Linkedin } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { useTranslation } from "@/hooks/useTranslation";
+import { useLocalePath } from "@/hooks/useLocalePath";
 
 /**
  * Global Site Footer
@@ -12,6 +13,7 @@ import { useTranslation } from "@/hooks/useTranslation";
  */
 const Footer: React.FC = () => {
     const { t } = useTranslation();
+    const lp = useLocalePath();
     const pathname = usePathname();
     const isProductsPage = pathname.includes("/products");
 
@@ -41,16 +43,16 @@ const Footer: React.FC = () => {
                         </div>
                         <h3 className="text-[22px] font-bold mb-6 tracking-tight">{t("footer.socialConnect")}</h3>
                         <div className="flex items-center gap-4">
-                            <Link href="#" className="w-10 h-10 bg-white text-black rounded-full flex items-center justify-center hover:bg-[#f5a623] hover:text-white transition-all transform hover:scale-110">
+                            <Link href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-white text-black rounded-full flex items-center justify-center hover:bg-[#f5a623] hover:text-white transition-all transform hover:scale-110">
                                 <Facebook size={18} fill="currentColor" />
                             </Link>
-                            <Link href="#" className="w-10 h-10 bg-white text-black rounded-full flex items-center justify-center hover:bg-[#f5a623] hover:text-white transition-all transform hover:scale-110">
+                            <Link href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-white text-black rounded-full flex items-center justify-center hover:bg-[#f5a623] hover:text-white transition-all transform hover:scale-110">
                                 <Instagram size={18} />
                             </Link>
-                            <Link href="#" className="w-10 h-10 bg-white text-black rounded-full flex items-center justify-center hover:bg-[#f5a623] hover:text-white transition-all transform hover:scale-110">
+                            <Link href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-white text-black rounded-full flex items-center justify-center hover:bg-[#f5a623] hover:text-white transition-all transform hover:scale-110">
                                 <Twitter size={18} fill="currentColor" />
                             </Link>
-                            <Link href="#" className="w-10 h-10 bg-white text-black rounded-full flex items-center justify-center hover:bg-[#f5a623] hover:text-white transition-all transform hover:scale-110">
+                            <Link href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-white text-black rounded-full flex items-center justify-center hover:bg-[#f5a623] hover:text-white transition-all transform hover:scale-110">
                                 <Linkedin size={18} fill="currentColor" />
                             </Link>
                         </div>
@@ -62,9 +64,9 @@ const Footer: React.FC = () => {
                     <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-4 text-[13px] font-medium text-center">
                         <p className="text-gray-500">{t("footer.copyright")}</p>
                         <div className="flex flex-wrap items-center justify-center gap-x-10 gap-y-2">
-                            <Link href="#" className="text-white hover:text-[#f5a623] transition-colors">{t("footer.privacyPolicy")}</Link>
-                            <Link href="#" className="text-white hover:text-[#f5a623] transition-colors">{t("footer.returnExchangePolicy")}</Link>
-                            <Link href="#" className="text-white hover:text-[#f5a623] transition-colors">{t("footer.termsConditions")}</Link>
+                            <Link href={lp("/privacy-policy")} className="text-white hover:text-[#f5a623] transition-colors">{t("footer.privacyPolicy")}</Link>
+                            <Link href={lp("/return-exchange-policy")} className="text-white hover:text-[#f5a623] transition-colors">{t("footer.returnExchangePolicy")}</Link>
+                            <Link href={lp("/terms-conditions")} className="text-white hover:text-[#f5a623] transition-colors">{t("footer.termsConditions")}</Link>
                         </div>
                     </div>
                 </div>

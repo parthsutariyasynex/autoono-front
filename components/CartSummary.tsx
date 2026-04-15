@@ -77,8 +77,8 @@ const CartSummary: React.FC<CartSummaryProps> = ({ subtotal, taxAmount, taxLabel
                     </div>
                 </div>
 
-                {/* Checkout Button */}
-                <div className="pt-2">
+                {/* Checkout Button — hidden on mobile (mobile uses fixed bottom overlay in CartPage) */}
+                <div className="pt-2 hidden lg:block">
                     <button
                         onClick={() => router.push(lp("/checkout"))}
                         className="w-full py-4.5 bg-[#f5b21a] text-black text-[12px] font-bold uppercase tracking-[0.2em] hover:bg-black hover:text-white active:scale-[0.98] transition-all duration-300 shadow-md rounded flex items-center justify-center gap-2"

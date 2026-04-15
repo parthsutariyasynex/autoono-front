@@ -35,12 +35,12 @@ interface NavLink {
 }
 
 const FALLBACK_NAV_KEYS: { key: string; href: string }[] = [
-  { key: "allTyres", href: "/products" },
-  { key: "quickOrder", href: "/quick-order" },
-  { key: "aboutUs", href: "/about" },
-  { key: "branchLocations", href: "/locations" },
-  { key: "userGuides", href: "/guides" },
-  { key: "productCatalogue", href: "/catalogue" },
+  { key: "nav.allTyres", href: "/products" },
+  { key: "nav.quickOrder", href: "/quick-order" },
+  { key: "nav.aboutUs", href: "/about" },
+  { key: "nav.branchLocations", href: "/locations" },
+  { key: "nav.userGuides", href: "/guides" },
+  { key: "nav.productCatalogue", href: "/catalogue" },
 ];
 
 export default function Navbar() {
@@ -176,7 +176,7 @@ export default function Navbar() {
   }, [locale]);
 
   return (
-    <div className={`main-header w-full ${isScrolled ? 'fixed fadeInDown' : 'relative'} top-0 left-0 right-0 z-[60] flex flex-col transition-all duration-300 ease-in-out`} style={{ paddingRight: "var(--scrollbar-width)" }}>
+    <div className={`main-header w-full ${isScrolled ? 'fixed fadeInDown' : 'relative'} top-0 left-0 right-0 z-[60] flex flex-col transition-all duration-300 ease-in-out`} style={{ paddingRight: isScrolled ? "var(--scrollbar-width)" : "0px" }}>
 
       {/* ── HEADER ── */}
       <header className="bg-white border-b border-gray-100 shadow-[0_1px_4px_rgba(0,0,0,0.06)]">
@@ -215,12 +215,12 @@ export default function Navbar() {
               <div className="relative hidden lg:block" ref={dropdownRef}>
                 <div
                   onClick={() => setIsProfileOpen(!isProfileOpen)}
-                  className="flex items-center bg-white border border-gray-100 rounded-full pl-1 pr-2 lg:pr-4 py-1 shadow-[0_2px_8px_-3px_rgba(0,0,0,0.12)] hover:shadow-md transition-shadow group cursor-pointer"
+                  className="flex items-center gap-1.5 lg:gap-2 bg-white border border-gray-100 rounded-full px-1.5 lg:px-3 py-1 shadow-[0_2px_8px_-3px_rgba(0,0,0,0.12)] hover:shadow-md transition-shadow group cursor-pointer"
                 >
-                  <div className="w-7 h-7 bg-[#f5b21a] rounded-full flex items-center justify-center mr-1.5 lg:mr-2 flex-shrink-0 transition-transform">
+                  <div className="w-7 h-7 bg-[#f5b21a] rounded-full flex items-center justify-center flex-shrink-0 transition-transform">
                     <UserCircle size={16} strokeWidth={2.5} />
                   </div>
-                  <div className="flex flex-col min-w-0">
+                  <div className="flex flex-col min-w-0 pr-1 rtl:pr-0 rtl:pl-1">
                     <span className="hidden lg:block text-[8px] text-gray-400 font-bold uppercase tracking-widest leading-none">{t("nav.welcomeBack")}</span>
                     <span className="text-[11px] lg:text-[12px] text-black font-black tracking-tighter leading-snug mt-0.5 truncate max-w-[80px] lg:max-w-[140px] font-bold">
                       {isSubAccount && subAccountName ? subAccountName : displayUser}

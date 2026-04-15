@@ -14,7 +14,7 @@ import { useLocalePath } from "@/hooks/useLocalePath";
 
 const COUNTRY_CODES = [
   { code: "+966", country: "Saudi Arabia", arCountry: "المملكة العربية السعودية", iso: "sa", flagClass: "iti__flag iti__sa" },
-  { code: "+91", country: "India", arCountry: "الهند", iso: "in", flagClass: "iti__flag iti__in" },
+  { code: "+91", country: "India", arCountry: "भारत", iso: "in", flagClass: "iti__flag iti__in" },
   { code: "+971", country: "United Arab Emirates", arCountry: "الإمارات العربية المتحدة", iso: "ae", flagClass: "iti__flag iti__ae" },
 ];
 
@@ -198,7 +198,7 @@ function LoginPageContent() {
   };
 
   return (
-    <div className="min-h-[calc(100vh-108px)] bg-[#f4f4f4] flex flex-col font-rubik">
+    <div className="flex-1 w-full h-full bg-[#f4f4f4] flex flex-col font-rubik">
       <main className="flex-1 flex justify-center items-start pt-8 md:pt-16 pb-12 px-4 md:px-0">
         <div className="w-full max-w-[440px] bg-white rounded-[3px] shadow-[0_10px_40px_rgba(0,0,0,0.08)] border border-gray-100 overflow-hidden">
           <div className="px-4 sm:px-6 md:px-8 pt-5 sm:pt-7 pb-4 sm:pb-5">
@@ -293,18 +293,18 @@ function LoginPageContent() {
                       />
 
                       {showDropdown && (
-                        <div className="absolute top-full left-0 w-full bg-white border border-gray-100 shadow-[0_15px_60px_-15px_rgba(0,0,0,0.15)] z-[100] rounded-sm mt-1">
+                        <div className="absolute top-full left-0 w-full min-w-max bg-white border border-gray-100 shadow-[0_15px_60px_-15px_rgba(0,0,0,0.15)] z-[100] rounded-sm mt-1 max-h-60 overflow-y-auto">
                           {COUNTRY_CODES.map((item) => (
                             <div
                               key={item.code}
                               onClick={() => { setCountryCode(item.code); setShowDropdown(false); }}
-                              className="px-4 py-3.5 hover:bg-gray-50 cursor-pointer flex items-center justify-between group border-b last:border-0 border-gray-50"
+                              className="px-4 py-2 hover:bg-gray-50 cursor-pointer flex items-center justify-between gap-4 group border-b last:border-0 border-gray-50"
                             >
                               <div className="flex items-center gap-3">
                                 <span className={`${item.flagClass}`}></span>
-                                <span className="text-xs font-black" style={{ color: '#e02b27' }}>{item.code}</span>
+                                <span className="text-[14px]" style={{ color: '#e02b27' }}>{item.country} ({item.arCountry})</span>
                               </div>
-                              <span className="text-[10px] text-gray-500 uppercase font-bold tracking-wider">{item.country} / {item.arCountry}</span>
+                              <span className="text-[14px] text-gray-500">{item.code}</span>
                             </div>
                           ))}
                         </div>

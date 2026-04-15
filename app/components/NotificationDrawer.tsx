@@ -27,8 +27,34 @@ export default function NotificationDrawer({ isOpen, onClose }: NotificationDraw
     } = useNotifications();
 
     const router = useRouter();
-    const { t } = useTranslation();
+    const { t, isRtl } = useTranslation();
     const lp = useLocalePath();
+
+    // Translate notification text patterns from API (English → Arabic)
+    const translateNotification = (text: string): string => {
+        if (!text || !isRtl) return text;
+        // "New Order# BT00028707" → "طلب جديد# BT00028707"
+        let result = text.replace(/New Order#\s*/i, `${t("notifications.newOrder")} `);
+        // "placed successfully" → "تم تقديمه بنجاح"
+        result = result.replace(/placed successfully/i, t("notifications.orderPlaced"));
+        return result;
+    };
+
+    // Format date for locale
+    const formatNotificationDate = (dateStr: string): string => {
+        if (!dateStr) return "";
+        if (!isRtl) return dateStr;
+        try {
+            const d = new Date(dateStr);
+            if (isNaN(d.getTime())) return dateStr;
+            return new Intl.DateTimeFormat("ar-SA", {
+                year: "numeric", month: "short", day: "2-digit",
+                hour: "2-digit", minute: "2-digit"
+            }).format(d);
+        } catch {
+            return dateStr;
+        }
+    };
 
     useEffect(() => {
         if (isOpen) {
@@ -52,7 +78,7 @@ export default function NotificationDrawer({ isOpen, onClose }: NotificationDraw
             onClose={onClose}
             title={`${t("nav.notifications")} (${unreadCount})`}
         >
-            <div className="flex flex-col h-full bg-white">
+            <div className="flex flex-col h-full bg-white" dir={isRtl ? "rtl" : "ltr"}>
                 {/* Notifications List */}
                 <div className="flex-1 overflow-y-auto custom-scrollbar">
                     {isLoading && notifications.length === 0 ? (
@@ -66,7 +92,7 @@ export default function NotificationDrawer({ isOpen, onClose }: NotificationDraw
                                 <BellIcon />
                             </div>
                             <p className="text-[16px] font-black text-gray-900 uppercase tracking-tight">{t("notifications.empty")}</p>
-                            <p className="text-xs text-gray-400 mt-2 font-medium tracking-widest uppercase">Everything is up to date</p>
+                            <p className="text-xs text-gray-400 mt-2 font-medium tracking-widest uppercase">{t("notifications.upToDate")}</p>
                         </div>
                     ) : (
                         <div className="divide-y divide-gray-100 pb-24">
@@ -81,7 +107,7 @@ export default function NotificationDrawer({ isOpen, onClose }: NotificationDraw
                                     <div className="flex justify-between items-start gap-4">
                                         <h3 className={`text-[15px] leading-snug pr-6 transition-colors group-hover:text-[#f5b21a] ${!item.is_read ? "font-black text-black" : "font-bold text-gray-700"
                                             }`}>
-                                            {item.title}
+                                            {translateNotification(item.title)}
                                         </h3>
                                         <button
                                             onClick={(e) => {
@@ -103,13 +129,13 @@ export default function NotificationDrawer({ isOpen, onClose }: NotificationDraw
                                     {/* Message */}
                                     <p className={`text-[13px] leading-relaxed mt-1 ${!item.is_read ? "text-black/80 font-medium" : "text-gray-500"
                                         }`}>
-                                        {item.description}
+                                        {translateNotification(item.description)}
                                     </p>
 
                                     {/* Footer: Date & Mark as Read */}
                                     <div className="flex justify-between items-center mt-3">
                                         <p className="text-[11px] text-gray-400 font-black uppercase tracking-widest">
-                                            {item.date_added_formatted}
+                                            {isRtl ? formatNotificationDate(item.date_added || item.date_added_formatted) : item.date_added_formatted}
                                         </p>
 
                                         {!item.is_read && (

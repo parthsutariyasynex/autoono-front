@@ -48,13 +48,22 @@ export function TranslationProvider({ children }: { children: ReactNode }) {
     cachedTranslations[locale] || {}
   );
   const [ready, setReady] = useState(hasCached);
+  const [loadedLocale, setLoadedLocale] = useState(hasCached ? locale : "");
 
   useEffect(() => {
+    // If locale changed, reset ready state to block rendering until new translations load
+    if (locale !== loadedLocale) {
+      if (!cachedTranslations[locale]) {
+        setReady(false);
+      }
+    }
+
     let cancelled = false;
 
     loadTranslations(locale).then((data) => {
       if (!cancelled) {
         setTranslations(data);
+        setLoadedLocale(locale);
         setReady(true);
       }
     });

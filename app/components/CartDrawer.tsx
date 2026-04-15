@@ -65,7 +65,7 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                             <span className="text-[11px] font-black text-gray-400 uppercase tracking-widest leading-none">
                                 {t("cart.subtotal")}
                             </span>
-                            <span className="text-[17px] font-black text-[#003d7e] price currency-riyal">
+                            <span className="text-[17px] font-black text-black price currency-riyal">
                                 <Price amount={cart?.subtotal || 0} />
                             </span>
                         </div>
@@ -114,7 +114,7 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                                                 <h3 className="text-sm font-black text-gray-900 leading-snug line-clamp-2 uppercase tracking-tight">
                                                     {item.name}
                                                 </h3>
-                                                <p className="text-[16px] font-black text-[#003d7e] mt-1.5 price currency-riyal">
+                                                <p className="text-[16px] font-black text-black mt-1.5 price currency-riyal">
                                                     <Price amount={item.price} />
                                                 </p>
                                             </div>
@@ -186,7 +186,7 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
 
                     <div className="p-8 pb-6">
                         <p className="text-gray-900 text-[15px] font-medium leading-relaxed mt-2">
-                            Are you sure you would like to remove this item from the shopping cart?
+                            {t("cart.confirmRemove")}
                         </p>
                     </div>
 
@@ -195,14 +195,14 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                             onClick={() => setConfirmId(null)}
                             className="px-8 py-2.5 bg-black text-white font-black uppercase tracking-widest text-[12px] hover:bg-gray-900 transition-all rounded-sm min-w-[120px]"
                         >
-                            CANCEL
+                            {t("common.cancel")}
                         </button>
                         <button
                             onClick={handleConfirmDelete}
                             disabled={isRemoving}
                             className="px-10 py-2.5 bg-[#fdb913] text-black font-black uppercase tracking-widest text-[12px] hover:bg-[#e5a811] transition-all rounded-sm min-w-[100px] flex items-center justify-center gap-2"
                         >
-                            {isRemoving ? <div className="w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin" /> : "OK"}
+                            {isRemoving ? <div className="w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin" /> : t("common.ok")}
                         </button>
                     </div>
                 </div>
