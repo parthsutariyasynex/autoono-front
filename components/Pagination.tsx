@@ -104,7 +104,7 @@ const Pagination: React.FC<PaginationProps> = ({
     onPageChange,
     onPageSizeChange,
 }) => {
-    const { t } = useTranslation();
+    const { t, isRtl } = useTranslation();
     const startItem = (currentPage - 1) * pageSize + 1;
     const endItem = Math.min(currentPage * pageSize, totalItems);
 
@@ -145,13 +145,13 @@ const Pagination: React.FC<PaginationProps> = ({
             </div>
 
             {/* Pagination Controls */}
-            <div className="flex items-center gap-1.5 md:gap-2 flex-wrap justify-center order-1 md:order-2">
+            <div className={`flex items-center gap-1.5 md:gap-2 flex-wrap justify-center order-1 md:order-2 ${isRtl ? 'flex-row-reverse' : ''}`}>
                 {currentPage > 1 && (
                     <button
                         onClick={() => onPageChange(currentPage - 1)}
-                        className="h-9 md:h-10 px-3 md:px-5 flex items-center justify-center text-[11px] md:text-[13px] bg-white border border-gray-200 text-black font-extrabold rounded-full hover:bg-gray-50 hover:border-[#f5a623] hover:text-[#f5a623] transition-all duration-200 uppercase cursor-pointer shadow-sm"
+                        className="h-9 md:h-10 w-9 md:w-10 flex items-center justify-center bg-white border border-gray-200 text-black font-extrabold rounded-full hover:bg-gray-50 hover:border-[#f5a623] hover:text-[#f5a623] transition-all duration-200 cursor-pointer shadow-sm"
                     >
-                        {t("common.previous")}
+                        {isRtl ? "›" : "‹"}
                     </button>
                 )}
 
@@ -175,9 +175,9 @@ const Pagination: React.FC<PaginationProps> = ({
                 {currentPage < totalPages && (
                     <button
                         onClick={() => onPageChange(currentPage + 1)}
-                        className="h-9 md:h-10 px-3 md:px-5 flex items-center justify-center text-[11px] md:text-[13px] bg-white border border-gray-200 text-black font-extrabold rounded-full hover:bg-gray-50 hover:border-[#f5a623] hover:text-[#f5a623] transition-all duration-200 uppercase cursor-pointer shadow-sm"
+                        className="h-9 md:h-10 w-9 md:w-10 flex items-center justify-center bg-white border border-gray-200 text-black font-extrabold rounded-full hover:bg-gray-50 hover:border-[#f5a623] hover:text-[#f5a623] transition-all duration-200 cursor-pointer shadow-sm"
                     >
-                        {t("common.next")}
+                        {isRtl ? "‹" : "›"}
                     </button>
                 )}
             </div>

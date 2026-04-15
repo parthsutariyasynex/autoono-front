@@ -90,7 +90,7 @@ function MobileCardShimmer() {
 
 export default function ProductsPage() {
   const router = useRouter();
-  const { t } = useTranslation();
+  const { t, isRtl } = useTranslation();
   const lp = useLocalePath();
   const locale = useLocale();
   const [searchParams, setSearchParamsState] = useState<URLSearchParams | null>(null);
@@ -439,11 +439,11 @@ export default function ProductsPage() {
           {compact ? `${displayCount} ${t("m.products")}` : <>{t("m.found")} <span className="text-gray-900">{displayCount}</span> {t("m.products")}</>}
         </span>
         <div className="flex items-center gap-1 md:gap-1.5">
-          <button disabled={currentPage === 1} onClick={() => setCurrentPage(p => p - 1)} className={`border border-gray-200 rounded-lg md:rounded-xl bg-white disabled:opacity-30 ${compact ? 'p-1.5' : 'p-2'}`}><ChevronLeft size={compact ? 14 : 16} /></button>
+          <button disabled={currentPage === 1} onClick={() => setCurrentPage(p => p - 1)} className={`border border-gray-200 rounded-lg md:rounded-xl bg-white disabled:opacity-30 ${compact ? 'p-1.5' : 'p-2'}`}>{isRtl ? <ChevronRight size={compact ? 14 : 16} /> : <ChevronLeft size={compact ? 14 : 16} />}</button>
           {Array.from({ length: Math.min(5, totalPages || 1) }).map((_, i) => (
             <button key={i} onClick={() => setCurrentPage(i + 1)} className={`rounded-lg md:rounded-xl font-black ${compact ? 'w-8 h-8 text-[11px]' : 'w-9 h-9 text-xs'} ${currentPage === i + 1 ? "bg-[#f5b21a] text-black" : "bg-white text-gray-400 border border-gray-200"}`}>{i + 1}</button>
           ))}
-          <button disabled={currentPage === totalPages} onClick={() => setCurrentPage(p => p + 1)} className={`border border-gray-200 rounded-lg md:rounded-xl bg-white disabled:opacity-30 ${compact ? 'p-1.5' : 'p-2'}`}><ChevronRight size={compact ? 14 : 16} /></button>
+          <button disabled={currentPage === totalPages} onClick={() => setCurrentPage(p => p + 1)} className={`border border-gray-200 rounded-lg md:rounded-xl bg-white disabled:opacity-30 ${compact ? 'p-1.5' : 'p-2'}`}>{isRtl ? <ChevronLeft size={compact ? 14 : 16} /> : <ChevronRight size={compact ? 14 : 16} />}</button>
         </div>
       </div>
     );
