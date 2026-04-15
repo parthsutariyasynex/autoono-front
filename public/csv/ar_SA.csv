@@ -16390,7 +16390,7 @@ formElements/*[name(.)=../../@formElement]/settings/title,module,Magento_Ui
 "Copyright © 2025 Altalayi.com. All rights reserved.","جميع الحقوق محفوظة © 2025 Altalayi.com."
 "Dear","العزيز"
 "Please contact BTire admin or sales developer to add new address.","الرجاء التواصل مع مسؤولين بي تاير او مطور المبيعات لي اضافة عنوان جديد"
-"Product Catalogue","دليل المنتجات"
+"nav.productCatalogue","دليل المنتجات"
 "TBR Range Catalog","وج مجموعة TBR"
 "Check Pending","التحقق من الانتظار"
 "Order Check","فحص الطلب"

@@ -1324,7 +1324,7 @@ const CheckoutPageUI: React.FC = () => {
                                 <div className="px-5 pb-6">
                                     <button
                                         onClick={handlePlaceOrder}
-                                        className={`w-full py-4 text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-300 flex items-center justify-center gap-2.5 rounded-xl shadow-lg ${isPlacingOrder
+                                        className={`w-full py-4 text-[14px] font-black uppercase tracking-[0.2em] transition-all duration-300 flex items-center justify-center gap-2.5 rounded-xl shadow-lg ${isPlacingOrder
                                             ? "bg-gray-100 text-gray-400 cursor-not-allowed border-[#ebebeb]"
                                             : "bg-yellow-400 text-black hover:bg-black hover:text-white border-yellow-400 hover:border-black active:scale-[0.98]"
                                             }`}

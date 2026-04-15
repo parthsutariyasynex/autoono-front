@@ -8,7 +8,7 @@ import ContactForm from "./components/ContactForm";
 import styles from "./locations.module.css";
 
 export default function BranchLocationsPage() {
-    const { t } = useTranslation();
+    const { t, isRtl } = useTranslation();
     return (
         <div className="min-h-screen bg-white font-sans text-black overflow-x-hidden">
 
@@ -17,7 +17,7 @@ export default function BranchLocationsPage() {
             <MapSection />
 
             {/* Main Content Area */}
-            <main className="max-w-[1280px] mx-auto px-4 sm:px-6 py-8 sm:py-12 md:py-20 lg:py-24">
+            <main className="max-w-[1280px] mx-auto px-4 sm:px-6 py-8 sm:py-12 md:py-20 lg:py-24" dir={isRtl ? "rtl" : "ltr"}>
 
                 {/* Contact Heading Section */}
                 <div className={`text-center mb-16 md:mb-24 ${styles.fadeIn}`}>

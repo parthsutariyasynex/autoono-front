@@ -3,6 +3,7 @@
 import React from "react";
 import { MapPin } from "lucide-react";
 import styles from "../locations.module.css";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface RegionCardProps {
     title: string;
@@ -11,8 +12,9 @@ interface RegionCardProps {
 }
 
 const RegionCard: React.FC<RegionCardProps> = ({ title, address, mapLink }) => {
+    const { t, isRtl } = useTranslation();
     return (
-        <div className={`border border-gray-100 bg-[#fbfbfb] p-6 sm:p-8 md:p-10 flex flex-col justify-between transition-all duration-300 min-h-[320px] group ${styles.fadeIn} ${styles.shadow_premium}`}>
+        <div className={`border border-gray-100 bg-[#fbfbfb] p-6 sm:p-8 md:p-10 flex flex-col justify-between transition-all duration-300 min-h-[320px] group ${styles.fadeIn} ${styles.shadow_premium}`} dir={isRtl ? "rtl" : "ltr"}>
             <div>
                 <h2 className="text-[19px] font-black mb-6 text-black uppercase tracking-tight border-b-2 border-[#f5a623]/20 pb-2 w-fit">{title}</h2>
                 <div className="text-[15px] leading-[1.7] text-gray-800 space-y-2 mb-8 whitespace-pre-line font-medium opacity-90">
@@ -28,7 +30,7 @@ const RegionCard: React.FC<RegionCardProps> = ({ title, address, mapLink }) => {
                 <div className="bg-black text-white p-2.5 rounded-full group-hover:bg-[#f5a623] group-hover:text-black transition-all shadow-md group-hover:rotate-[15deg] transform">
                     <MapPin className="w-4 h-4" />
                 </div>
-                <span className="border-b-2 border-transparent group-hover:border-[#f5a623] transition-all tracking-tight uppercase">Google Map Location</span>
+                <span className="border-b-2 border-transparent group-hover:border-[#f5a623] transition-all tracking-tight uppercase">{t("locations.googleMap")}</span>
             </a>
         </div>
     );
