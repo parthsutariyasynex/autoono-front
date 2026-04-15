@@ -139,8 +139,7 @@ export default function NotificationsPage() {
                                             notifications.map((item, index) => (
                                                 <tr
                                                     key={`${item.notification_id || index}-${index}`}
-                                                    onClick={() => handleNotificationClick(item)}
-                                                    className={`border-b border-[#ebebeb] last:border-0 transition-colors cursor-pointer ${!item.is_read ? "bg-[#fcf8ec]" : "bg-white"}`}
+                                                    className={`border-b border-[#ebebeb] last:border-0 transition-colors ${!item.is_read ? "bg-[#fcf8ec]" : "bg-white"}`}
                                                 >
                                                     <td className="px-6 py-6 text-[14px] text-[#333333] text-center border-r border-[#ebebeb] align-middle relative">
                                                         {!item.is_read && (
@@ -148,7 +147,7 @@ export default function NotificationsPage() {
                                                         )}
                                                         {formatDate(item.date_added_formatted, locale)}
                                                     </td>
-                                                    <td className={`px-6 py-6 text-[14px] text-center border-r border-[#ebebeb] hover:text-[#f5af02] transition-colors align-middle ${!item.is_read ? "font-bold text-black" : "font-normal text-[#666666]"}`}>
+                                                    <td className={`px-6 py-6 text-[14px] text-center border-r border-[#ebebeb] align-middle ${!item.is_read ? "font-bold text-black" : "font-normal text-[#666666]"}`}>
                                                         {translateNotificationText(item.title, locale)}
                                                     </td>
                                                     <td className={`px-6 py-6 text-[14px] text-center border-r border-[#ebebeb] leading-relaxed align-middle ${!item.is_read ? "font-medium text-black" : "text-[#666666]"}`}>
@@ -158,7 +157,7 @@ export default function NotificationsPage() {
                                                         <div className="flex items-center justify-center gap-2 whitespace-nowrap text-[#333333]">
                                                             {!item.is_read && (
                                                                 <>
-                                                                    <button onClick={(e) => { e.stopPropagation(); markAsRead(item.notification_id); }} className="hover:text-[#f5af02] cursor-pointer transition-colors font-bold">{t('m.mark-as-read')}</button>
+                                                                    <button onClick={(e) => { e.stopPropagation(); markAsRead(item.notification_id); }} className="hover:text-[#f5af02] transition-colors font-bold">{t('m.mark-as-read')}</button>
                                                                     <span className="text-[#cccccc]">|</span>
                                                                 </>
                                                             )}
@@ -188,8 +187,7 @@ export default function NotificationsPage() {
                                     notifications.map((item, index) => (
                                         <div
                                             key={`mobile-${item.notification_id || index}-${index}`}
-                                            onClick={() => handleNotificationClick(item)}
-                                            className={`p-4 border-b border-[#ebebeb] last:border-0 cursor-pointer transition-colors ${!item.is_read ? "bg-[#fcf8ec]" : "bg-white"}`}
+                                            className={`p-4 border-b border-[#ebebeb] last:border-0 transition-colors ${!item.is_read ? "bg-[#fcf8ec]" : "bg-white"}`}
                                         >
                                             <div className="flex items-start justify-between gap-2 mb-2">
                                                 <div className="flex items-center gap-2">

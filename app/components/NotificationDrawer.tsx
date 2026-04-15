@@ -94,9 +94,8 @@ export default function NotificationDrawer({ isOpen, onClose }: NotificationDraw
                             {notifications.map((item, index) => (
                                 <div
                                     key={`${item.notification_id || index}-${index}`}
-                                    className={`p-6 flex flex-col gap-1 transition-all relative cursor-pointer border-l-4 ${!item.is_read ? "bg-[#fcf8ec] border-[#f5b21a]" : "bg-white border-transparent hover:bg-gray-50/50"
+                                    className={`p-6 flex flex-col gap-1 transition-all relative border-l-4 ${!item.is_read ? "bg-[#fcf8ec] border-[#f5b21a]" : "bg-white border-transparent"
                                         }`}
-                                    onClick={() => handleNotificationClick(item)}
                                 >
                                     {/* Header Row: Title & Remove */}
                                     <div className="flex justify-between items-start gap-4">
