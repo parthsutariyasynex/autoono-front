@@ -239,8 +239,8 @@ export default function Addresses() {
 
                 {filteredAddresses.slice((currentPage - 1) * pageSize, currentPage * pageSize).map((address: any, idx: number) => (
                   <tr key={address.id} className="hover:bg-yellow-50/20 transition-colors text-[13px] group h-[70px]">
-                    <td className="px-6 py-4 font-black text-black uppercase ltr:text-left rtl:text-right group-hover:text-yellow-700 transition-colors">{address.firstname}</td>
-                    <td className="px-6 py-4 font-black text-black uppercase ltr:text-left rtl:text-right group-hover:text-yellow-700 transition-colors">{address.lastname}</td>
+                    <td className="px-6 py-4 font-black text-black uppercase ltr:text-left rtl:text-right">{address.firstname}</td>
+                    <td className="px-6 py-4 font-black text-black uppercase ltr:text-left rtl:text-right">{address.lastname}</td>
                     <td className="px-6 py-4 text-gray-500 font-medium ltr:text-left rtl:text-right">{Array.isArray(address.street) ? address.street.join(", ") : address.street || "-"}</td>
                     <td className="px-6 py-4 uppercase font-bold text-gray-800 ltr:text-left rtl:text-right">{address.city}</td>
                     <td className="px-6 py-4 font-bold text-gray-700 ltr:text-left rtl:text-right group-hover:text-black transition-colors"><span dir="ltr">{address.postcode}</span></td>
