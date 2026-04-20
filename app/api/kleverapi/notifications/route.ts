@@ -1,36 +1,60 @@
 import { NextResponse } from "next/server";
-import { getBaseUrl } from "@/lib/api/magento-url";
+import { getBaseUrl, getGlobalBaseUrl } from "@/lib/api/magento-url";
+import { getRequestToken } from "@/lib/api/auth-helper";
 
 // BASE_URL is now obtained per-request via getBaseUrl(req)
 
-export async function GET(req: Request) {
+export async function GET(req: any) {
     try {
         const BASE_URL = getBaseUrl(req);
         const { searchParams } = new URL(req.url);
         const pageSize = searchParams.get("pageSize") || "15";
         const currentPage = searchParams.get("currentPage") || "1";
 
-        const authHeader = req.headers.get("Authorization") || req.headers.get("authorization");
+        const token = await getRequestToken(req);
 
-        if (!authHeader || !authHeader.startsWith("Bearer ") || authHeader.includes("null") || authHeader.includes("undefined")) {
-            console.error("[Notifications Proxy] Missing or invalid token format:", authHeader);
-            return NextResponse.json({ message: "Unauthorized: Missing or invalid customer token" }, { status: 401 });
+        if (!token) {
+            console.warn("[Notifications Proxy] No token found");
+            return NextResponse.json({ message: "Unauthorized: Missing customer token" }, { status: 401 });
         }
 
         const url = `${BASE_URL}/notifications?pageSize=${pageSize}&currentPage=${currentPage}`;
         console.log("[Notifications Proxy] Fetching from Magento:", url);
 
-        const response = await fetch(url, {
+        let response = await fetch(url, {
             method: "GET",
             headers: {
-                "Authorization": authHeader,
+                "Authorization": `Bearer ${token}`,
                 "Content-Type": "application/json",
                 "platform": "web",
             },
             cache: "no-store",
         });
 
-        const data = await response.json();
+        let data = await response.json();
+
+        // --- FALLBACK STRATEGY ---
+        if (response.status === 404) {
+            const globalBase = getGlobalBaseUrl(req);
+            const globalUrl = `${globalBase}/notifications?pageSize=${pageSize}&currentPage=${currentPage}`;
+            if (globalUrl !== url) {
+                console.log(`[Notifications Proxy] Not found at ${url}. Retrying global URL: ${globalUrl}`);
+                const fallbackResponse = await fetch(globalUrl, {
+                    method: "GET",
+                    headers: {
+                        "Authorization": `Bearer ${token}`,
+                        "Content-Type": "application/json",
+                        "platform": "web",
+                    },
+                    cache: "no-store",
+                });
+                if (fallbackResponse.ok) {
+                    data = await fallbackResponse.json();
+                    response = fallbackResponse;
+                }
+            }
+        }
+
         console.log("[Notifications Proxy] Magento Response Status:", response.status);
 
         if (!response.ok) {

@@ -1,14 +1,16 @@
 import { NextResponse } from 'next/server';
-import { getBaseUrl } from '@/lib/api/magento-url';
+import { getBaseUrl, getGlobalBaseUrl } from '@/lib/api/magento-url';
+import { getRequestToken } from '@/lib/api/auth-helper';
 
 // BASE_URL is now obtained per-request via getBaseUrl(request)
 
 export async function GET(request: Request) {
     try {
         const BASE_URL = getBaseUrl(request);
-        const authHeader = request.headers.get('Authorization');
+        const token = await getRequestToken(request);
 
-        if (!authHeader) {
+        if (!token) {
+            console.warn('[API ROUTE] Addresses: No token found');
             return NextResponse.json(
                 { message: 'Authentication required. Authorization header is missing.' },
                 { status: 401 }
@@ -16,23 +18,44 @@ export async function GET(request: Request) {
         }
 
         const magentoUrl = `${BASE_URL}/addresses`;
-
         console.log(`[API ROUTE] Fetching Customer Addresses from: ${magentoUrl}`);
 
         const response = await fetch(magentoUrl, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': authHeader,
+                'Authorization': `Bearer ${token}`,
                 'platform': 'web',
             },
             cache: 'no-store',
         });
 
-        const data = await response.json();
+        let data = await response.json();
+
+        // --- FALLBACK STRATEGY ---
+        if (response.status === 404 || (data && data.message && data.message.toLowerCase().includes('not found'))) {
+            const globalBase = getGlobalBaseUrl(request);
+            const globalUrl = `${globalBase}/addresses`;
+            if (globalUrl !== magentoUrl) {
+                console.log(`[API ROUTE] Addresses not found at ${magentoUrl}. Retrying global: ${globalUrl}`);
+                const fallbackResponse = await fetch(globalUrl, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                        'platform': 'web',
+                    },
+                    cache: 'no-store',
+                });
+                if (fallbackResponse.ok) {
+                    data = await fallbackResponse.json();
+                    return NextResponse.json(data);
+                }
+            }
+        }
 
         if (!response.ok) {
-            console.error(`[API ROUTE ERROR] Magento returned ${response.status}:`, data);
+            console.error(`[API ROUTE ERROR] Addresses Magento returned ${response.status}:`, JSON.stringify(data).substring(0, 500));
         }
 
         return NextResponse.json(data, { status: response.status });
