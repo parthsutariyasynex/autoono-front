@@ -131,12 +131,29 @@ const MultiShippingReviewPage: React.FC = () => {
     // Set payment method once paymentMethods loads (may arrive after initial effect)
     useEffect(() => {
         if (paymentMethod || paymentMethods.length === 0) return;
+
+        // Methods the backend rejects for multishipping (can_use_for_multishipping=false).
+        // A stale localStorage value set before the user switched flows can otherwise carry
+        // an incompatible code through and fail place-order with "This payment method can't
+        // be used for shipping to multiple addresses."
+        const multishippingUnsafe = new Set(['creditaccount', 'credit_account', 'mageworx_ordereditor']);
+        const pickSafe = () =>
+            paymentMethods.find(m => ['banktransfer', 'checkmo', 'purchaseorder'].includes(m.code)) ||
+            paymentMethods.find(m => !multishippingUnsafe.has(m.code)) ||
+            paymentMethods[0];
+
         const savedPaymentCode = localStorage.getItem('multi_shipping_payment_method');
-        if (savedPaymentCode) {
+        if (savedPaymentCode && !multishippingUnsafe.has(savedPaymentCode)) {
             const pMethod = paymentMethods.find(m => m.code === savedPaymentCode);
-            setPaymentMethod(pMethod || paymentMethods[0]);
+            setPaymentMethod(pMethod || pickSafe());
         } else {
-            setPaymentMethod(paymentMethods[0]);
+            if (savedPaymentCode && multishippingUnsafe.has(savedPaymentCode)) {
+                // Clear the bad value so subsequent renders don't keep picking it up
+                localStorage.removeItem('multi_shipping_payment_method');
+            }
+            const safe = pickSafe();
+            setPaymentMethod(safe);
+            if (safe) localStorage.setItem('multi_shipping_payment_method', safe.code);
         }
     }, [paymentMethods, paymentMethod]);
 
@@ -163,17 +180,74 @@ const MultiShippingReviewPage: React.FC = () => {
         try {
             setIsPlacingOrder(true);
 
+            // Re-initialize multishipping session on the backend before placing the order.
+            // The backend clears the multishipping flag after a failed place-order attempt
+            // and after periods of inactivity, so we must re-run start + assign + shipping
+            // methods + billing address or the backend returns "Multishipping not started".
+            await startMultiShipping();
+
+            const savedAssignments = localStorage.getItem('multi_shipping_assignments');
+            if (savedAssignments) {
+                const assignments = JSON.parse(savedAssignments);
+                const apiAssignments: Array<{ quote_item_id: number; customer_address_id: string; qty: number }> = [];
+                Object.entries(assignments).forEach(([itemId, addrMap]: [string, any]) => {
+                    Object.entries(addrMap).forEach(([addrId, qty]: [string, any]) => {
+                        if (qty > 0) apiAssignments.push({ quote_item_id: Number(itemId), customer_address_id: addrId, qty });
+                    });
+                });
+                if (apiAssignments.length > 0) await assignMultiShipping(apiAssignments);
+            }
+
+            // Re-set shipping methods per quote-address from the fresh backend response
+            const resolvedMethodsByAddressId: Record<string, string> = {};
+            try {
+                const methodsData = await fetchMultiShippingMethods();
+                const methodsToSet: Record<string, string> = {};
+                const findAndSet = (obj: any) => {
+                    if (!obj) return;
+                    if (Array.isArray(obj)) { obj.forEach((item: any) => findAndSet(item)); return; }
+                    if (typeof obj === 'object') {
+                        const qid = obj.quote_address_id ?? obj.quoteAddressId ?? obj.address_id ?? obj.id;
+                        const custAddrId = obj.customer_address_id ?? obj.customerAddressId;
+                        if (qid && typeof qid === 'number') {
+                            const methods = obj.methods || obj.available_shipping_methods || obj.shipping_methods || obj.rates || [];
+                            if (Array.isArray(methods) && methods.length > 0) {
+                                const m = methods[0];
+                                const code = m.code || `${m.carrier_code || m.carrierCode || "freeshipping"}_${m.method_code || m.methodCode || "freeshipping"}`;
+                                methodsToSet[String(qid)] = code;
+                                if (custAddrId) resolvedMethodsByAddressId[String(custAddrId)] = code;
+                            }
+                        }
+                        Object.entries(obj).forEach(([, val]) => {
+                            if (typeof val === 'object') findAndSet(val);
+                        });
+                    }
+                };
+                findAndSet(methodsData);
+                if (Object.keys(methodsToSet).length > 0) await setMultiShippingMethods(methodsToSet);
+            } catch (shippingErr) {
+                console.warn("Review page: re-setting shipping methods failed, proceeding:", shippingErr);
+            }
+
+            // Re-set billing address + payment method on the backend session
+            await setMultiShippingBillingAddress(String(billingAddress.id), paymentMethod.code);
+
+            // Build payload using methods the backend actually offered (keyed by customer address id).
+            // Fall back to the value saved from billing page if the fresh fetch didn't surface one.
             const savedMethodsForPayload: Record<string, string> = JSON.parse(localStorage.getItem('multi_shipping_methods') || '{}');
             const shippingInformation = groups.map(group => ({
                 address_id: String(group.address.id),
-                shipping_method: savedMethodsForPayload[group.address.id] || "flatrate_flatrate",
+                shipping_method:
+                    resolvedMethodsByAddressId[String(group.address.id)] ||
+                    savedMethodsForPayload[group.address.id] ||
+                    "freeshipping_freeshipping",
                 po_number: groupData[group.address.id]?.poNumber || "",
                 order_comment: groupData[group.address.id]?.comment || ""
             }));
 
             const payload = {
                 billing_address_id: String(billingAddress.id),
-                payment_method: paymentMethod.code || "checkmo",
+                payment_method: paymentMethod.code,
                 general_comment: generalComment || "",
                 shipping_information: shippingInformation
             };
@@ -229,7 +303,7 @@ const MultiShippingReviewPage: React.FC = () => {
     if (isLoading || isCartLoading || isCheckoutLoading) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-white">
-                <div className="w-10 h-10 border-4 border-gray-100 border-t-[#f5b21a] rounded-full animate-spin" />
+                <div className="w-10 h-10 border-4 border-gray-100 border-t-primary rounded-full animate-spin" />
             </div>
         );
     }
@@ -456,7 +530,7 @@ const MultiShippingReviewPage: React.FC = () => {
                     <button
                         onClick={handlePlaceOrder}
                         disabled={isPlacingOrder}
-                        className="w-full sm:w-auto bg-[#f5b21a] text-black px-10 md:px-16 py-3.5 md:py-4 text-[11px] font-black uppercase tracking-[0.15em] hover:bg-black hover:text-white transition-all shadow-sm flex items-center justify-center gap-2"
+                        className="w-full sm:w-auto bg-primary text-black px-10 md:px-16 py-3.5 md:py-4 text-[11px] font-black uppercase tracking-[0.15em] hover:bg-black hover:text-white transition-all shadow-sm flex items-center justify-center gap-2"
                     >
                         {isPlacingOrder && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
                         {t("multi.placeOrder")}

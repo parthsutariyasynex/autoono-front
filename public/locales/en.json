@@ -106,6 +106,11 @@
   "filter.newArrivals": "New Arrivals",
   "filter.noHeights": "No heights available",
   "filter.noRims": "No rims available",
+  "filter.parts_category": "Parts Category",
+  "filter.partsCategory": "Parts Category",
+  "filter.oil_type": "Oil Type",
+  "filter.grade": "Grade",
+  "filter.liters": "Liters",
   "login.signInWithEmail": "If you have an account, sign in with your email address.",
   "login.signInWithMobile": "If you have an account, sign in with your mobile number.",
   "login.mobileNumberLabel": "Mobile Number",
@@ -279,6 +284,7 @@
   "orders.action": "Action",
   "orders.viewOrder": "View Order",
   "orders.reorder": "Reorder",
+  "orders.makePayment": "Make Payment",
   "orders.noRecords": "We couldn't find any records.",
   "orders.orderTotal": "Order Total",
   "orderDetails.printOrder": "PRINT ORDER",
@@ -9553,5 +9559,8 @@
   "terms.productDescText": "B.Tire and its associates attempt to be as accurate as possible. However, B.Tire does not warrant that product description or other content of this site is accurate, complete, reliable, current, or error-free. Some errors may occur during the process of providing the products or the description and prices information of the products on the Website. In case the request and invoice for certain product and price was incorrect or the information was wrong for the receipt of an error in recording the correct price or description of product in this case either to continue with you to illustrate the error or cancel your order.",
   "terms.disclaimerTitle": "Disclaimer of Warranties and Limitation of Liability",
   "terms.disclaimerText": "THIS SITE IS PROVIDED BY B.Tire ON AN \"AS IS\" AND \"AS AVAILABLE\" BASIS. B.Tire MAKES NO REPRESENTATIONS OR WARRANTIES OF ANY KIND, EXPRESS OR IMPLIED, AS TO THE OPERATION OF THIS SITE OR THE INFORMATION, CONTENT, MATERIALS, OR PRODUCTS INCLUDED ON THIS SITE. YOU EXPRESSLY AGREE THAT YOUR USE OF THIS SITE IS AT YOUR SOLE RISK. TO THE FULL EXTENT PERMISSIBLE BY APPLICABLE LAW, B.Tire DISCLAIMS ALL WARRANTIES, EXPRESS OR IMPLIED, INCLUDING, BUT NOT LIMITED TO, IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE. B.Tire DOES NOT WARRANT THAT THIS SITE, ITS SERVERS, OR E-MAIL SENT FROM B.Tire ARE FREE OF VIRUSES OR OTHER HARMFUL COMPONENTS. B.Tire WILL NOT BE LIABLE FOR ANY DAMAGES OF ANY KIND ARISING FROM THE USE OF THIS SITE, INCLUDING, BUT NOT LIMITED TO DIRECT, INDIRECT, INCIDENTAL, PUNITIVE, AND CONSEQUENTIAL DAMAGES.",
-  "terms.saudiLaw": "This terms and conditions is subject to the applicable laws and rules of Saudi Arabia."
+  "terms.saudiLaw": "This terms and conditions is subject to the applicable laws and rules of Saudi Arabia.",
+  "nav.allLubricants": "All Lubricants",
+  "orderDetails.cancelOrder": "Cancel Order",
+  "orderDetails.confirmCancel": "Are you sure you want to cancel this order?"
 }

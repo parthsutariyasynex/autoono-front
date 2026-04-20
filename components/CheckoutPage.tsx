@@ -243,13 +243,14 @@ const CheckoutPageUI: React.FC = () => {
         }
     }, [addresses, selectedAddressId, setShippingAddress]);
 
-    // Auto-select first available payment method if current one is invalid
+    // Auto-select a payment method when the list loads.
+    // Match the live site which defaults to Credit Account for single-shipping checkout.
     useEffect(() => {
         if (paymentMethods.length > 0) {
             const isValid = paymentMethods.some(m => m.code === paymentMethod);
             if (!isValid) {
-                const creditMethod = paymentMethods.find(m => m.code === 'checkmo');
-                setPaymentMethod(creditMethod ? creditMethod.code : paymentMethods[0].code);
+                const credit = paymentMethods.find(m => m.code === 'creditaccount' || m.code === 'credit_account');
+                setPaymentMethod(credit ? credit.code : paymentMethods[0].code);
             }
         }
     }, [paymentMethods, paymentMethod]);
@@ -641,7 +642,7 @@ const CheckoutPageUI: React.FC = () => {
         return (
             <div className="min-h-screen flex items-center justify-center bg-[#f9f9f9]">
                 <div className="flex flex-col items-center gap-4">
-                    <div className="w-12 h-12 border-4 border-gray-200 border-t-[#F5B21B] rounded-full animate-spin" />
+                    <div className="w-12 h-12 border-4 border-gray-200 border-t-[#4E81C2] rounded-full animate-spin" />
                     <p className="text-[11px] font-black text-gray-400 uppercase tracking-widest italic">Preparing Checkout...</p>
                 </div>
             </div>
@@ -651,7 +652,7 @@ const CheckoutPageUI: React.FC = () => {
     if (isCartLoading) {
         return (
             <div className="min-h-screen bg-white flex flex-col items-center justify-center">
-                <Loader2 size={48} className="text-[#F5B21B] animate-spin mb-4" />
+                <Loader2 size={48} className="text-[#4E81C2] animate-spin mb-4" />
                 <p className="text-[12px] font-black uppercase tracking-widest text-gray-500">Loading your cart...</p>
             </div>
         );
@@ -664,7 +665,7 @@ const CheckoutPageUI: React.FC = () => {
                     <ShoppingBag size={64} className="mx-auto text-gray-200 mb-6" />
                     <h1 className="text-2xl font-black text-black uppercase tracking-widest mb-4">{t("cart.empty")}</h1>
                     <p className="text-gray-500 mb-8 max-w-md mx-auto">{t("common.loading")}</p>
-                    <Link href={lp("/products")} className="inline-flex items-center gap-2 bg-[#F5B21B] text-black font-black px-8 py-4 text-[12px] uppercase tracking-widest hover:bg-black hover:text-white transition-all">
+                    <Link href={lp("/products")} className="inline-flex items-center gap-2 bg-[#4E81C2] text-black font-black px-8 py-4 text-[12px] uppercase tracking-widest hover:bg-black hover:text-white transition-all">
                         {t("m.products")}
                     </Link>
                 </div>
@@ -684,8 +685,8 @@ const CheckoutPageUI: React.FC = () => {
             <main className="flex-1 w-full px-4 md:px-6 lg:px-8 py-4 md:py-6 lg:py-10 pt-2 md:pt-4">
                 {/* Header Section */}
                 <div className="flex flex-col items-center justify-center text-center gap-4 mb-12 relative">
-                    <Link href={lp("/cart")} className="lg:absolute left-0 top-1/2 lg:-translate-y-1/2 flex items-center gap-2 text-black hover:text-yellow-500 transition-all text-[10px] font-black uppercase tracking-[0.2em] group mb-4 lg:mb-0">
-                        <div className="w-8 h-8 rounded-full border border-black flex items-center justify-center group-hover:border-yellow-500 transition-all">
+                    <Link href={lp("/cart")} className="lg:absolute left-0 top-1/2 lg:-translate-y-1/2 flex items-center gap-2 text-black hover:text-primary transition-all text-[10px] font-black uppercase tracking-[0.2em] group mb-4 lg:mb-0">
+                        <div className="w-8 h-8 rounded-full border border-black flex items-center justify-center group-hover:border-primary transition-all">
                             <ArrowLeft size={14} strokeWidth={3} className="group-hover:-translate-x-1 transition-transform" />
                         </div>
                         <span className="hidden sm:inline">{t("m.back-to-shopping-cart")}</span>
@@ -693,7 +694,7 @@ const CheckoutPageUI: React.FC = () => {
 
                     <div className="flex flex-col items-center gap-4">
                         <h1 className="text-[20px] sm:text-[24px] md:text-[26px] font-black text-black uppercase tracking-tight">Checkout</h1>
-                        <div className="h-[2px] w-full max-w-[400px] bg-gradient-to-r from-transparent via-yellow-400 to-transparent"></div>
+                        <div className="h-[2px] w-full max-w-[400px] bg-gradient-to-r from-transparent via-primary to-transparent"></div>
                     </div>
                 </div>
 
@@ -710,7 +711,7 @@ const CheckoutPageUI: React.FC = () => {
                                     <input
                                         type="text"
                                         placeholder={t("m.search")}
-                                        className="w-full px-4 py-2.5 bg-gray-50/50 border border-[#ebebeb] rounded-xl outline-none text-[12px] font-medium transition-all placeholder:text-gray-400 focus:bg-white focus:border-yellow-400 shadow-sm focus:ring-4 focus:ring-yellow-400/10"
+                                        className="w-full px-4 py-2.5 bg-gray-50/50 border border-[#ebebeb] rounded-xl outline-none text-[12px] font-medium transition-all placeholder:text-gray-400 focus:bg-white focus:border-primary shadow-sm focus:ring-4 focus:ring-primary/10"
                                         value={searchQuery}
                                         onChange={(e) => setSearchQuery(e.target.value)}
                                     />
@@ -730,7 +731,7 @@ const CheckoutPageUI: React.FC = () => {
                                         ) : (
                                             <div
                                                 key={addr.id}
-                                                className="relative flex items-start gap-3 cursor-pointer group p-4 border border-[#ebebeb] bg-white hover:bg-yellow-50/20 transition-all duration-300 rounded-xl hover:shadow-sm"
+                                                className="relative flex items-start gap-3 cursor-pointer group p-4 border border-[#ebebeb] bg-white hover:bg-primary/20 transition-all duration-300 rounded-xl hover:shadow-sm"
                                                 onClick={() => handleAddressSelect(addr.id)}
                                             >
                                                 {/* Selection Indicator */}
@@ -755,7 +756,7 @@ const CheckoutPageUI: React.FC = () => {
 
                                                     <div className="flex gap-3 pt-2">
                                                         <button
-                                                            className="text-[9px] font-black uppercase tracking-[0.15em] px-6 py-2 transition-all duration-300 border bg-black text-white border-black hover:bg-yellow-400 hover:text-black hover:border-yellow-400 rounded-lg active:scale-95 shadow-sm"
+                                                            className="text-[9px] font-black uppercase tracking-[0.15em] px-6 py-2 transition-all duration-300 border bg-black text-white border-black hover:bg-primary hover:text-black hover:border-primary rounded-lg active:scale-95 shadow-sm"
                                                             onClick={(e) => {
                                                                 e.stopPropagation();
                                                                 handleAddressSelect(addr.id);
@@ -795,7 +796,7 @@ const CheckoutPageUI: React.FC = () => {
                                     <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{t("m.po-number")}</label>
                                     <input
                                         type="text"
-                                        className="w-full px-4 py-2.5 bg-gray-50/50 border border-[#ebebeb] rounded-xl outline-none text-[13px] font-medium transition-all placeholder:text-gray-400 focus:bg-white focus:border-yellow-400 focus:ring-4 focus:ring-yellow-400/10 shadow-sm"
+                                        className="w-full px-4 py-2.5 bg-gray-50/50 border border-[#ebebeb] rounded-xl outline-none text-[13px] font-medium transition-all placeholder:text-gray-400 focus:bg-white focus:border-primary focus:ring-4 focus:ring-primary/10 shadow-sm"
                                         value={poNumber}
                                         onChange={(e) => setPoNumber(e.target.value)}
                                         onBlur={handlePoNumberBlur}
@@ -824,7 +825,7 @@ const CheckoutPageUI: React.FC = () => {
                                             {/* Drop Area */}
                                             <div
                                                 className={`relative group p-8 border-2 border-dashed rounded-xl transition-all duration-300 flex flex-col items-center justify-center gap-4 cursor-pointer
-                                                    ${dragActive ? "border-yellow-400 bg-yellow-50/30 scale-[1.01]" : "border-[#ebebeb] bg-gray-50/30 hover:bg-white hover:border-gray-300"}`}
+                                                    ${dragActive ? "border-primary bg-primary/30 scale-[1.01]" : "border-[#ebebeb] bg-gray-50/30 hover:bg-white hover:border-gray-300"}`}
                                                 onDragEnter={handleDrag}
                                                 onDragLeave={handleDrag}
                                                 onDragOver={handleDrag}
@@ -928,7 +929,7 @@ const CheckoutPageUI: React.FC = () => {
                                             <div className="ml-9 space-y-4">
                                                 <div className="flex flex-col items-start gap-4">
                                                     <button
-                                                        className="bg-[#F5B21B] text-black px-6 py-2.5 text-[11px] font-black uppercase tracking-widest hover:bg-black hover:text-white transition-all active:scale-95 border border-transparent shadow-sm"
+                                                        className="bg-[#4E81C2] text-black px-6 py-2.5 text-[11px] font-black uppercase tracking-widest hover:bg-black hover:text-white transition-all active:scale-95 border border-transparent shadow-sm"
                                                         onClick={() => {
                                                             setIsWarehouseModalOpen(true);
                                                             setIsPickupFormOpen(!isPickupFormOpen);
@@ -1070,7 +1071,7 @@ const CheckoutPageUI: React.FC = () => {
                                                                             <button
                                                                                 type="button"
                                                                                 onClick={() => setIsTimeDropdownOpen((prev) => !prev)}
-                                                                                className={`w-full h-10 px-4 py-2 bg-white border outline-none text-[13px] font-medium transition-all cursor-pointer hover:border-gray-400 focus:border-black flex items-center justify-between ${isTimeDropdownOpen ? "border-[#f5a623]" : "border-gray-300"}`}
+                                                                                className={`w-full h-10 px-4 py-2 bg-white border outline-none text-[13px] font-medium transition-all cursor-pointer hover:border-gray-400 focus:border-black flex items-center justify-between ${isTimeDropdownOpen ? "border-primary" : "border-gray-300"}`}
                                                                             >
                                                                                 <span className={pickupTime ? "text-black" : "text-gray-400"}>
                                                                                     {pickupTime
@@ -1097,7 +1098,7 @@ const CheckoutPageUI: React.FC = () => {
                                                                                                 setPickupTime("");
                                                                                                 setIsTimeDropdownOpen(false);
                                                                                             }}
-                                                                                            className={`px-4 py-2 text-[13px] font-medium cursor-pointer transition-colors ${pickupTime === "" ? "bg-[#f5a623] text-white" : "hover:bg-gray-100 text-gray-400"}`}
+                                                                                            className={`px-4 py-2 text-[13px] font-medium cursor-pointer transition-colors ${pickupTime === "" ? "bg-primary text-white" : "hover:bg-gray-100 text-gray-400"}`}
                                                                                         >
                                                                                             Select Time
                                                                                         </li>
@@ -1110,7 +1111,7 @@ const CheckoutPageUI: React.FC = () => {
                                                                                                         setIsTimeDropdownOpen(false);
                                                                                                     }
                                                                                                 }}
-                                                                                                className={`px-4 py-2 text-[13px] font-medium transition-colors ${!slot.enabled ? "opacity-40 cursor-not-allowed text-gray-400" : "cursor-pointer"} ${pickupTime === slot.time ? "bg-[#f5a623] text-white" : slot.enabled ? "hover:bg-gray-100" : ""}`}
+                                                                                                className={`px-4 py-2 text-[13px] font-medium transition-colors ${!slot.enabled ? "opacity-40 cursor-not-allowed text-gray-400" : "cursor-pointer"} ${pickupTime === slot.time ? "bg-primary text-white" : slot.enabled ? "hover:bg-gray-100" : ""}`}
                                                                                             >
                                                                                                 {slot.label}
                                                                                             </li>
@@ -1138,74 +1139,105 @@ const CheckoutPageUI: React.FC = () => {
                             <SectionHeader title={t("checkout.paymentMethod")} step={5} />
 
                             <div className="p-5">
-                                <p className="text-[14px] font-bold text-black mb-4">{t("m.credit-account")}</p>
+                                <div className="space-y-4">
+                                    {paymentMethods.map((method) => {
+                                        const isSelected = paymentMethod === method.code;
+                                        const needsUpload = method.code === 'banktransfer';
+                                        return (
+                                            <div key={method.code}>
+                                                <label className="flex items-center gap-3 cursor-pointer py-1 group">
+                                                    <span className="relative flex items-center justify-center">
+                                                        <input
+                                                            type="radio"
+                                                            name="payment_method"
+                                                            value={method.code}
+                                                            checked={isSelected}
+                                                            onChange={() => setPaymentMethod(method.code)}
+                                                            className="appearance-none w-4 h-4 border-2 border-gray-300 rounded-full checked:border-black focus:outline-none transition-all"
+                                                        />
+                                                        {isSelected && (
+                                                            <span className="absolute w-2 h-2 bg-black rounded-full" />
+                                                        )}
+                                                    </span>
+                                                    <span className="text-[14px] font-bold text-black">
+                                                        {t(`payment_method.${method.code}`) !== `payment_method.${method.code}`
+                                                            ? t(`payment_method.${method.code}`)
+                                                            : method.title}
+                                                    </span>
+                                                </label>
 
-                                <div className="border border-gray-100 rounded-xl overflow-hidden">
-                                    {/* Collapsible Header */}
-                                    <div
-                                        className="bg-[#f8f8f8] px-5 py-4 flex items-center justify-between border-b border-gray-100 cursor-pointer group hover:bg-[#f2f2f2] transition-colors"
-                                        onClick={() => setIsPaymentCommitmentOpen(!isPaymentCommitmentOpen)}
-                                    >
-                                        <span className="text-[14px] font-bold text-black">{t("m.upload-file")}</span>
-                                        <ChevronDown
-                                            size={20}
-                                            className={`text-gray-500 transition-transform duration-300 ${isPaymentCommitmentOpen ? "rotate-180" : ""}`}
-                                        />
-                                    </div>
-
-                                    {/* Collapsible Content */}
-                                    {isPaymentCommitmentOpen && (
-                                        <div className="p-6 bg-white animate-in slide-in-from-top-2 duration-300">
-                                            {/* Dropzone with border and info as per image */}
-                                            <div
-                                                className={`w-full py-10 border-2 border-dashed border-gray-300 bg-gray-50/50 flex flex-col items-center justify-center cursor-pointer transition-all duration-300 hover:border-black hover:bg-white rounded-xl mb-6 ${dragActive ? "border-black bg-white" : ""}`}
-                                                onClick={() => paymentCommitmentRef.current?.click()}
-                                                onDragOver={(e) => { e.preventDefault(); setDragActive(true); }}
-                                                onDragLeave={() => setDragActive(false)}
-                                                onDrop={(e) => {
-                                                    e.preventDefault();
-                                                    setDragActive(false);
-                                                    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-                                                        setPaymentCommitmentFile(e.dataTransfer.files[0]);
-                                                        toast.success(t("common.success"));
-                                                    }
-                                                }}
-                                            >
-                                                <div className="text-center px-6">
-                                                    <p className="text-[20px] text-black font-bold mb-3 tracking-tight">{t("m.drop-files-here")}</p>
-                                                    <p className="text-[14px] text-black/80 font-medium">
-                                                        {t("m.allowed-file-types")} : jpg,jpeg,png,zip,rar,docx,doc,pdf,xls,xlsx,csv,msg
-                                                    </p>
-                                                </div>
-                                                <input
-                                                    type="file"
-                                                    className="hidden"
-                                                    ref={paymentCommitmentRef}
-                                                    onChange={handlePaymentCommitmentChange}
-                                                    accept=".jpg,.jpeg,.png,.zip,.rar,.docx,.doc,.pdf,.xls,.xlsx,.csv,.msg"
-                                                />
-                                            </div>
-
-                                            {/* File List */}
-                                            {paymentCommitmentFile && (
-                                                <div className="flex items-center">
-                                                    <div className="flex border border-[#ebebeb] rounded-xl overflow-hidden group shadow-sm bg-white">
-                                                        <div className="px-6 py-3 flex-1 flex items-center min-w-0">
-                                                            <span className="text-[13px] font-black text-black truncate ltr:mr-2 rtl:ml-2">
-                                                                {paymentCommitmentFile.name}
-                                                            </span>
-                                                        </div>
-                                                        <button
-                                                            onClick={removePaymentCommitment}
-                                                            className="bg-red-50 text-red-600 px-6 py-3 text-[11px] font-black uppercase tracking-widest transition-all hover:bg-red-600 hover:text-white border-l border-[#ebebeb] active:scale-95"
+                                                {isSelected && needsUpload && (
+                                                    <div className="mt-3 border border-gray-100 rounded-xl overflow-hidden">
+                                                        <div
+                                                            className="bg-[#f8f8f8] px-5 py-4 flex items-center justify-between border-b border-gray-100 cursor-pointer group hover:bg-[#f2f2f2] transition-colors"
+                                                            onClick={() => setIsPaymentCommitmentOpen(!isPaymentCommitmentOpen)}
                                                         >
-                                                            {t("m.remove")}
-                                                        </button>
+                                                            <span className="text-[14px] font-bold text-black">
+                                                                {t("m.payment-commitment-upload") !== "m.payment-commitment-upload"
+                                                                    ? t("m.payment-commitment-upload")
+                                                                    : "Payment Commitment Upload"}
+                                                            </span>
+                                                            <ChevronDown
+                                                                size={20}
+                                                                className={`text-gray-500 transition-transform duration-300 ${isPaymentCommitmentOpen ? "rotate-180" : ""}`}
+                                                            />
+                                                        </div>
+
+                                                        {isPaymentCommitmentOpen && (
+                                                            <div className="p-6 bg-white animate-in slide-in-from-top-2 duration-300">
+                                                                <div
+                                                                    className={`w-full py-10 border-2 border-dashed border-gray-300 bg-gray-50/50 flex flex-col items-center justify-center cursor-pointer transition-all duration-300 hover:border-black hover:bg-white rounded-xl mb-6 ${dragActive ? "border-black bg-white" : ""}`}
+                                                                    onClick={() => paymentCommitmentRef.current?.click()}
+                                                                    onDragOver={(e) => { e.preventDefault(); setDragActive(true); }}
+                                                                    onDragLeave={() => setDragActive(false)}
+                                                                    onDrop={(e) => {
+                                                                        e.preventDefault();
+                                                                        setDragActive(false);
+                                                                        if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+                                                                            setPaymentCommitmentFile(e.dataTransfer.files[0]);
+                                                                            toast.success(t("common.success"));
+                                                                        }
+                                                                    }}
+                                                                >
+                                                                    <div className="text-center px-6">
+                                                                        <p className="text-[20px] text-black font-bold mb-3 tracking-tight">{t("m.drop-files-here")}</p>
+                                                                        <p className="text-[14px] text-black/80 font-medium">
+                                                                            {t("m.allowed-file-types")} : jpg,jpeg,png,zip,rar,docx,doc,pdf,xls,xlsx,csv,msg
+                                                                        </p>
+                                                                    </div>
+                                                                    <input
+                                                                        type="file"
+                                                                        className="hidden"
+                                                                        ref={paymentCommitmentRef}
+                                                                        onChange={handlePaymentCommitmentChange}
+                                                                        accept=".jpg,.jpeg,.png,.zip,.rar,.docx,.doc,.pdf,.xls,.xlsx,.csv,.msg"
+                                                                    />
+                                                                </div>
+
+                                                                {paymentCommitmentFile && (
+                                                                    <div className="flex items-center">
+                                                                        <div className="flex border border-[#ebebeb] rounded-xl overflow-hidden group shadow-sm bg-white">
+                                                                            <div className="px-6 py-3 flex-1 flex items-center min-w-0">
+                                                                                <span className="text-[13px] font-black text-black truncate ltr:mr-2 rtl:ml-2">
+                                                                                    {paymentCommitmentFile.name}
+                                                                                </span>
+                                                                            </div>
+                                                                            <button
+                                                                                onClick={removePaymentCommitment}
+                                                                                className="bg-red-50 text-red-600 px-6 py-3 text-[11px] font-black uppercase tracking-widest transition-all hover:bg-red-600 hover:text-white border-l border-[#ebebeb] active:scale-95"
+                                                                            >
+                                                                                {t("m.remove")}
+                                                                            </button>
+                                                                        </div>
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                        )}
                                                     </div>
-                                                </div>
-                                            )}
-                                        </div>
-                                    )}
+                                                )}
+                                            </div>
+                                        );
+                                    })}
                                 </div>
                             </div>
                         </div>
@@ -1268,7 +1300,7 @@ const CheckoutPageUI: React.FC = () => {
                                                                 const val = parseInt(e.target.value);
                                                                 if (val > 0) updateCartItem(item.item_id, val);
                                                             }}
-                                                            className="w-10 h-7 border border-[#ebebeb] rounded-lg text-center text-[12px] font-black focus:outline-none focus:border-yellow-400 ml-1 bg-gray-50/50"
+                                                            className="w-10 h-7 border border-[#ebebeb] rounded-lg text-center text-[12px] font-black focus:outline-none focus:border-primary ml-1 bg-gray-50/50"
                                                         />
                                                     </div>
                                                     <div className="text-[13px] font-black text-black price currency-riyal">
@@ -1326,7 +1358,7 @@ const CheckoutPageUI: React.FC = () => {
                                         onClick={handlePlaceOrder}
                                         className={`w-full py-4 text-[14px] font-black uppercase tracking-[0.2em] transition-all duration-300 flex items-center justify-center gap-2.5 rounded-xl shadow-lg ${isPlacingOrder
                                             ? "bg-gray-100 text-gray-400 cursor-not-allowed border-[#ebebeb]"
-                                            : "bg-yellow-400 text-black hover:bg-black hover:text-white border-yellow-400 hover:border-black active:scale-[0.98]"
+                                            : "bg-primary text-black hover:bg-black hover:text-white border-primary hover:border-black active:scale-[0.98]"
                                             }`}
                                     >
                                         {isPlacingOrder ? (
@@ -1356,7 +1388,7 @@ const CheckoutPageUI: React.FC = () => {
                         <div className="bg-black py-4 px-6 flex justify-end items-center">
                             <button
                                 onClick={() => setIsWarehouseModalOpen(false)}
-                                className="text-white hover:text-[#F5B21B] transition-colors"
+                                className="text-white hover:text-[#4E81C2] transition-colors"
                             >
                                 <Plus size={24} className="rotate-45" />
                             </button>
@@ -1392,7 +1424,7 @@ const CheckoutPageUI: React.FC = () => {
                                 ))
                             ) : (
                                 <div className="text-center py-12">
-                                    <Loader2 className="animate-spin mx-auto text-[#F5B21B] mb-4" size={32} />
+                                    <Loader2 className="animate-spin mx-auto text-[#4E81C2] mb-4" size={32} />
                                     <p className="text-gray-500 font-bold uppercase tracking-widest text-[12px]">Fetching Pickup Locations...</p>
                                 </div>
                             )}
@@ -1401,7 +1433,7 @@ const CheckoutPageUI: React.FC = () => {
                         {/* Modal Footer */}
                         <div className="p-6 border-t border-gray-100 flex justify-end gap-3 bg-white">
                             <button
-                                className={`px-10 py-3 text-[13px] font-black uppercase tracking-widest transition-all ${tempSelectedWarehouse ? "bg-[#F5B21B] text-black hover:bg-black hover:text-white shadow-md" : "bg-gray-100 text-gray-400 cursor-not-allowed"}`}
+                                className={`px-10 py-3 text-[13px] font-black uppercase tracking-widest transition-all ${tempSelectedWarehouse ? "bg-[#4E81C2] text-black hover:bg-black hover:text-white shadow-md" : "bg-gray-100 text-gray-400 cursor-not-allowed"}`}
                                 onClick={() => {
                                     if (tempSelectedWarehouse) {
                                         setSelectedWarehouse(tempSelectedWarehouse.name);

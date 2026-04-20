@@ -22,7 +22,7 @@ export default function LoginPage() {
   return (
     <Suspense fallback={
       <div className="flex-1 bg-[#f4f4f4] flex items-center justify-center">
-        <div className="h-10 w-10 animate-spin rounded-full border-4 border-gray-200 border-t-[#f5a623]"></div>
+        <div className="h-10 w-10 animate-spin rounded-full border-4 border-gray-200 border-t-primary"></div>
       </div>
     }>
       <LoginPageContent />
@@ -213,14 +213,14 @@ function LoginPageContent() {
             <div className="flex w-full rounded-[3px] overflow-hidden border border-gray-200">
               <button
                 type="button"
-                className={`flex-1 py-[14px] text-[13px] font-black uppercase tracking-wider transition-all cursor-pointer ${mode === 'otp' ? 'bg-black text-white' : 'bg-white text-gray-900 hover:bg-gray-50'}`}
+                className={`flex-1 py-[14px] text-[13px] font-black uppercase tracking-wider transition-all cursor-pointer ${mode === 'otp' ? 'bg-primary text-black' : 'bg-white text-gray-900 hover:bg-gray-50'}`}
                 onClick={() => { setMode("otp"); setOtpSent(false); setErrors({}); window.history.replaceState(null, "", lp("/login?mode=otp")); }}
               >
                 {t("login.modeOtp")}
               </button>
               <button
                 type="button"
-                className={`flex-1 py-[14px] text-[13px] font-black uppercase tracking-wider transition-all cursor-pointer border-l border-gray-100 ${mode === 'password' ? 'bg-black text-white' : 'bg-white text-gray-900 hover:bg-gray-50'}`}
+                className={`flex-1 py-[14px] text-[13px] font-black uppercase tracking-wider transition-all cursor-pointer border-l border-gray-100 ${mode === 'password' ? 'bg-primary text-black' : 'bg-white text-gray-900 hover:bg-gray-50'}`}
                 onClick={() => { setMode("password"); setOtpSent(false); setErrors({}); window.history.replaceState(null, "", lp("/login?mode=password")); }}
               >
                 {t("login.modePassword")}
@@ -274,13 +274,23 @@ function LoginPageContent() {
                     <label className="block text-[11px] font-black text-gray-900 uppercase tracking-widest">
                       {t("login.mobileNumberLabel")} <span className="text-red-600 font-bold">*</span>
                     </label>
-                    <div className={`flex h-[48px] bg-white border transition-all ${errors.mobile ? 'border-red-500' : 'border-gray-300 focus-within:border-gray-600'}`}>
+                    <div
+                      className={`flex h-[48px] bg-white border transition-all ${errors.mobile ? 'border-red-500' : 'border-gray-300 focus-within:border-gray-600'}`}
+                    >
                       <div
-                        className="px-4 flex items-center gap-2 border-r border-gray-100 cursor-pointer min-w-[110px] sm:min-w-[120px] hover:bg-gray-50 transition-colors"
+                        className="px-4 flex items-center gap-2 border-r border-gray-100 rtl:border-r-0 rtl:border-l rtl:border-gray-100 cursor-pointer min-w-[110px] sm:min-w-[120px] hover:bg-gray-50 transition-colors"
                         onClick={() => setShowDropdown(!showDropdown)}
                       >
                         <span className={`${selectedCountry?.flagClass}`}></span>
-                        <span className="font-black text-xs" style={{ color: '#e02b27' }}>{selectedCountry?.code}</span>
+                        {/* Only the country code span is LTR so "+966" renders with the plus on the left.
+                            The rest of the field inherits the page direction (RTL on /ar). */}
+                        <span
+                          dir="ltr"
+                          className="font-black text-xs"
+                          style={{ color: '#e02b27' }}
+                        >
+                          {selectedCountry?.code}
+                        </span>
                         <span className="text-[9px] text-gray-400">▼</span>
                       </div>
                       <input
@@ -338,7 +348,7 @@ function LoginPageContent() {
                   type={mode === 'otp' && !otpSent ? 'button' : 'submit'}
                   disabled={loading || reduxLoading}
                   onClick={mode === 'otp' && !otpSent ? handleSendOtp : undefined}
-                  className="w-full h-10 sm:h-[46px] bg-[#f5b21a] hover:bg-[#e0a218] text-black font-black uppercase transition-all disabled:opacity-50 cursor-pointer active:scale-[0.98] tracking-widest text-[11px] sm:text-[12px] rounded-sm"
+                  className="w-full h-10 sm:h-[46px] bg-primary hover:bg-[#3A6BA8] text-black font-black uppercase transition-all disabled:opacity-50 cursor-pointer active:scale-[0.98] tracking-widest text-[11px] sm:text-[12px] rounded-sm"
                 >
                   {mode === 'otp' && !otpSent ? t("forgotPassword.sendOtp") : (loading || reduxLoading ? t("login.pleaseWait") : t("login.signIn"))}
                 </button>

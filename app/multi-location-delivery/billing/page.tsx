@@ -50,10 +50,13 @@ const MultiShippingBillingPage: React.FC = () => {
 
     useEffect(() => {
         if (paymentMethods.length > 0 && !selectedPaymentCode) {
-            // Check if "Credit Account" is available (user screenshot shows it)
-            // or just select first one
-            const creditMethod = paymentMethods.find(m => m.code === 'credit_account' || m.code === 'creditaccount');
-            setSelectedPaymentCode(creditMethod ? creditMethod.code : paymentMethods[0].code);
+            // Multishipping requires a payment method with can_use_for_multishipping=true.
+            // banktransfer is the one the backend currently accepts for this flow; prefer it,
+            // then fall back to the first available method.
+            const multishippingSafe = paymentMethods.find(
+                m => m.code === 'banktransfer' || m.code === 'checkmo' || m.code === 'purchaseorder'
+            );
+            setSelectedPaymentCode(multishippingSafe ? multishippingSafe.code : paymentMethods[0].code);
         }
     }, [paymentMethods, selectedPaymentCode]);
 
@@ -130,7 +133,7 @@ const MultiShippingBillingPage: React.FC = () => {
     if (isCheckoutLoading && addresses.length === 0) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-white">
-                <div className="w-10 h-10 border-4 border-gray-100 border-t-[#f5b21a] rounded-full animate-spin" />
+                <div className="w-10 h-10 border-4 border-gray-100 border-t-primary rounded-full animate-spin" />
             </div>
         );
     }
@@ -194,13 +197,13 @@ const MultiShippingBillingPage: React.FC = () => {
                                                         disabled={isSubmitting}
                                                         checked={selectedPaymentCode === method.code}
                                                         onChange={() => setSelectedPaymentCode(method.code)}
-                                                        className="appearance-none w-4 h-4 border-2 border-gray-300 rounded-full checked:border-[#f5b21a] focus:outline-none transition-all"
+                                                        className="appearance-none w-4 h-4 border-2 border-gray-300 rounded-full checked:border-primary focus:outline-none transition-all"
                                                     />
                                                     {selectedPaymentCode === method.code && (
-                                                        <div className="absolute w-2 h-2 bg-[#f5b21a] rounded-full" />
+                                                        <div className="absolute w-2 h-2 bg-primary rounded-full" />
                                                     )}
                                                 </div>
-                                                <span className="text-[13px] md:text-[14px] font-black text-black uppercase tracking-tight group-hover:text-[#f5b21a] transition-colors mt-0.5">
+                                                <span className="text-[13px] md:text-[14px] font-black text-black uppercase tracking-tight group-hover:text-primary transition-colors mt-0.5">
                                                     {t(`payment_method.${method.code}`) !== `payment_method.${method.code}`
                                                         ? t(`payment_method.${method.code}`)
                                                         : method.title}
@@ -210,8 +213,8 @@ const MultiShippingBillingPage: React.FC = () => {
                                 ) : (
                                     <div className="flex items-center gap-3">
                                         <div className="relative flex items-center justify-center">
-                                            <div className="w-4 h-4 border-2 border-[#f5b21a] rounded-full" />
-                                            <div className="absolute w-2 h-2 bg-[#f5b21a] rounded-full" />
+                                            <div className="w-4 h-4 border-2 border-primary rounded-full" />
+                                            <div className="absolute w-2 h-2 bg-primary rounded-full" />
                                         </div>
                                         <span className="text-[13px] md:text-[14px] font-black text-black uppercase tracking-tight mt-0.5">
                                             {t("multi.creditAccount")}
@@ -236,7 +239,7 @@ const MultiShippingBillingPage: React.FC = () => {
                     <button
                         onClick={handleGoToReview}
                         disabled={isSubmitting || !selectedAddressId || !selectedPaymentCode}
-                        className="w-full sm:w-auto justify-center bg-[#f5b21a] text-black px-8 md:px-12 py-3.5 md:py-4 text-[11px] font-black uppercase tracking-[0.15em] hover:bg-black hover:text-white transition-all shadow-sm flex items-center gap-2 disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed"
+                        className="w-full sm:w-auto justify-center bg-primary text-black px-8 md:px-12 py-3.5 md:py-4 text-[11px] font-black uppercase tracking-[0.15em] hover:bg-black hover:text-white transition-all shadow-sm flex items-center gap-2 disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed"
                     >
                         {isSubmitting && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
                         {t("multi.goToReview")}

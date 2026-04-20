@@ -8,22 +8,28 @@ import {
 } from "@/lib/i18n/client";
 import { defaultLocale, localeNames } from "@/lib/i18n/config";
 
+import { useRouter, usePathname } from "next/navigation";
+
 /**
  * Language Switcher Component
  *
  * Uses useState + useEffect to avoid hydration mismatch:
  * - Server render: defaults to "en" (matches SSR)
  * - Client mount: reads actual locale from window.location.pathname
+ * - Resyncs on every pathname change so other navigation sources
+ *   (e.g. warehouse dropdown switching /en ↔ /ar) update the highlight too.
  */
 export default function LanguageSwitcher() {
+    const router = useRouter();
+    const pathname = usePathname();
     // Start with default locale to match server render (prevents hydration mismatch)
     const [currentLocale, setCurrentLocale] = useState<Locale>(defaultLocale);
 
-    // After hydration, read the real locale from the browser URL
+    // After hydration AND on every client-side navigation, read the locale from the URL
     useEffect(() => {
         const locale = window.location.pathname.startsWith("/ar") ? "ar" : "en";
         setCurrentLocale(locale);
-    }, []);
+    }, [pathname]);
 
     const handleSwitch = (newLocale: Locale) => {
         if (newLocale === currentLocale) return;
@@ -34,11 +40,12 @@ export default function LanguageSwitcher() {
         // 2. Notify DirectionSync + data-fetching components instantly
         window.dispatchEvent(new CustomEvent("locale-changed", { detail: newLocale }));
 
-        // 3. Full page navigation — ensures middleware runs, cookies are set,
-        //    and all server/client state is fresh
+        // 3. Dynamic navigation — ensures seamless transition
         const currentPath = window.location.pathname;
         const stripped = currentPath.replace(/^\/(en|ar)/, "") || "/";
-        window.location.href = `/${newLocale}${stripped === "/" ? "" : stripped}${window.location.search}`;
+        const targetUrl = `/${newLocale}${stripped === "/" ? "" : stripped}${window.location.search || ""}`;
+
+        router.push(targetUrl);
     };
 
     return (
@@ -50,7 +57,7 @@ export default function LanguageSwitcher() {
                     className={`
             px-3 py-1.5 text-xs font-semibold rounded-full transition-all duration-200
             ${currentLocale === locale
-                            ? "bg-[#f5a623] text-white shadow-sm"
+                            ? "bg-primary text-white shadow-sm"
                             : "text-gray-600 hover:text-gray-900 hover:bg-gray-200"
                         }
           `}

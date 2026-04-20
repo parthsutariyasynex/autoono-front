@@ -2,7 +2,7 @@
 import { useTranslation } from "@/hooks/useTranslation";
 import { useLocalePath } from "@/hooks/useLocalePath";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { redirectToLogin } from "@/utils/helpers";
 import Price from "@/app/components/Price";
 import { useSession } from "next-auth/react";
@@ -10,6 +10,8 @@ import { useRouter, useParams } from "next/navigation";
 import Sidebar from "@/components/Sidebar";
 import { toast } from "react-hot-toast";
 import { useCart } from "@/modules/cart/context/CartContext";
+import MakePaymentModal from "@/components/MakePaymentModal";
+import EditPaymentModal from "@/components/EditPaymentModal";
 
 export default function OrderDetailsPage() {
     const { data: session, status: authStatus } = useSession();
@@ -28,6 +30,114 @@ export default function OrderDetailsPage() {
     const [attachmentsError, setAttachmentsError] = useState<string | null>(null);
     const [isPrinting, setIsPrinting] = useState(false);
     const [openingAttachmentId, setOpeningAttachmentId] = useState<string | null>(null);
+    const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [selectedPayment, setSelectedPayment] = useState<any>(null);
+
+    const [paymentHistory, setPaymentHistory] = useState<any[]>([]);
+
+    const totalPaid = useMemo(() => {
+        return paymentHistory.reduce((sum: number, p: any) => {
+            const amount = parseFloat(p.paid_payment || p.paidAmount || "0");
+            return sum + (isNaN(amount) ? 0 : amount);
+        }, 0);
+    }, [paymentHistory]);
+
+    const dueAmount = useMemo(() => {
+        const total = order?.grand_total || order?.grandTotal || 0;
+        if (!total) return 0;
+        return Math.max(0, total - totalPaid);
+    }, [order, totalPaid]);
+
+    const isPaid = useMemo(() => {
+        if (!order) return false;
+        // Check API flags
+        const statusStr = (order.status || "").toLowerCase();
+        const payStatusStr = (order.payment_status || "").toLowerCase();
+        const isPaidFlag = order.is_paid === true || order.is_paid === 1 || order.is_paid === "1" || order.is_paid === "true";
+
+        return statusStr === 'complete' ||
+            isPaidFlag ||
+            payStatusStr === 'paid' ||
+            payStatusStr === 'full paid' ||
+            dueAmount <= 0.05; // Precision threshold
+    }, [order, dueAmount]);
+
+    const handleSavePayment = () => {
+        fetchPaymentHistory();
+        // Also refresh order details to update status/paid flags
+        fetchOrderDetails();
+    };
+
+    const handleDownloadReceipt = async (payment: any) => {
+        const token = (session as any)?.accessToken;
+        if (!token) {
+            toast.error("Please login to download receipt");
+            return;
+        }
+
+        const paymentId = payment?.id ?? payment?.payment_id ?? payment?.history_id;
+        if (!paymentId) {
+            toast.error("Missing payment id — cannot download receipt");
+            return;
+        }
+
+        const toastId = toast.loading("Downloading receipt...");
+
+        try {
+            // Hits the Next.js proxy at /api/kleverapi/payment-history/[id]/download
+            // which forwards to: https://<magento>/rest/{locale}/V1/kleverapi/payment-history/{id}/download
+            // x-locale is sent so the PDF comes back in the user's current language.
+            const response = await fetch(`/api/kleverapi/payment-history/${paymentId}/download`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    "x-locale": locale,
+                },
+            });
+
+            if (!response.ok) {
+                // Backend returned JSON error instead of PDF — surface its message
+                let errMsg = `Failed to download receipt (${response.status})`;
+                try {
+                    const errBody = await response.json();
+                    if (errBody?.message) errMsg = errBody.message;
+                } catch { /* response wasn't JSON */ }
+                throw new Error(errMsg);
+            }
+
+            const contentType = response.headers.get("content-type") || "";
+            if (!contentType.includes("pdf") && !contentType.includes("octet-stream")) {
+                // Got something other than a PDF — likely a JSON error masquerading as 200
+                const text = await response.text();
+                throw new Error(text.slice(0, 200) || "Backend did not return a PDF");
+            }
+
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.href = url;
+
+            // Try to extract filename from Content-Disposition header
+            const disposition = response.headers.get("Content-Disposition");
+            let filename = `receipt_${payment.receipt_no || payment.invoice_no || paymentId}.pdf`;
+            if (disposition && disposition.includes("filename=")) {
+                const filenameMatch = disposition.match(/filename="?([^";\n]+)"?/);
+                if (filenameMatch && filenameMatch[1]) {
+                    filename = filenameMatch[1];
+                }
+            }
+
+            link.setAttribute("download", filename);
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            window.URL.revokeObjectURL(url);
+
+            toast.success("Receipt downloaded!", { id: toastId });
+        } catch (error: any) {
+            toast.error(error.message || "Failed to download receipt", { id: toastId });
+        }
+    };
 
     // Auth Guard
     useEffect(() => {
@@ -59,12 +169,68 @@ export default function OrderDetailsPage() {
 
             const data = await response.json();
             setOrder(data);
+            // Fetch history after order details are loaded to ensure we have context
+            fetchPaymentHistory();
         } catch (err: any) {
             setError(err.message || "Something went wrong while fetching order details");
         } finally {
             setIsLoading(false);
         }
-    }, [session, orderId]);
+    }, [session, orderId, locale]);
+
+    const fetchPaymentHistory = useCallback(async () => {
+        const token = (session as any)?.accessToken;
+        if (!token || !orderId) return;
+
+        try {
+            const response = await fetch(`/api/kleverapi/payment-history?orderId=${orderId}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    "x-locale": locale,
+                },
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                // Map the API data to our table structure if needed
+                // Assuming data is an array of payment objects
+                if (Array.isArray(data) && data.length > 0) {
+                    setPaymentHistory(data);
+                } else if (data && typeof data === 'object') {
+                    const items = data.items || data.data || [];
+                    if (items.length > 0) {
+                        setPaymentHistory(items);
+                    }
+                }
+            }
+        } catch (err) {
+            console.error("Failed to fetch payment history:", err);
+        }
+    }, [session, orderId, locale]);
+
+    const fetchSinglePayment = useCallback(async (paymentId: number | string) => {
+        const token = (session as any)?.accessToken;
+        if (!token) return;
+
+        try {
+            const response = await fetch(`/api/kleverapi/payment-history/${paymentId}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    "x-locale": locale,
+                },
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                setSelectedPayment(data);
+                setIsEditModalOpen(true);
+            } else {
+                toast.error("Failed to fetch payment details");
+            }
+        } catch (err) {
+            console.error("Error fetching single payment:", err);
+        }
+    }, [session, locale]);
 
     const fetchAttachments = useCallback(async () => {
         const token = (session as any)?.accessToken;
@@ -181,6 +347,44 @@ export default function OrderDetailsPage() {
             toast.error(err.message || "Something went wrong while printing", { id: toastId });
         } finally {
             setIsPrinting(false);
+        }
+    };
+
+    const [isCancelling, setIsCancelling] = useState(false);
+
+    const handleCancelOrder = async () => {
+        const token = (session as any)?.accessToken;
+        if (!token) {
+            toast.error("You must be logged in to cancel.");
+            return;
+        }
+        if (!confirm(t("orderDetails.confirmCancel") !== "orderDetails.confirmCancel"
+            ? t("orderDetails.confirmCancel")
+            : "Are you sure you want to cancel this order?")) {
+            return;
+        }
+
+        setIsCancelling(true);
+        const toastId = toast.loading("Cancelling order...");
+        try {
+            const targetOrderId = order?.entity_id || orderId;
+            const res = await fetch(`/api/kleverapi/order/${targetOrderId}/cancel`, {
+                method: "POST",
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    "x-locale": locale,
+                },
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.message || "Failed to cancel order");
+
+            toast.success("Order cancelled", { id: toastId });
+            // Reflect the new status locally so the UI updates immediately
+            setOrder((prev: any) => prev ? { ...prev, status: "canceled" } : prev);
+        } catch (err: any) {
+            toast.error(err.message || "Something went wrong", { id: toastId });
+        } finally {
+            setIsCancelling(false);
         }
     };
 
@@ -309,7 +513,7 @@ export default function OrderDetailsPage() {
                 <div className="flex flex-col lg:flex-row flex-1 w-full">
                     <Sidebar />
                     <main className="flex-1 w-full flex items-center justify-center p-4 md:p-8">
-                        <div className="animate-spin rounded-full h-12 w-12 border-b-4 border-yellow-400"></div>
+                        <div className="animate-spin rounded-full h-12 w-12 border-b-4 border-primary"></div>
                     </main>
                 </div>
             </div>
@@ -355,22 +559,23 @@ export default function OrderDetailsPage() {
                 {/* Right Content */}
                 <main className="flex-1 w-full px-4 md:px-6 lg:px-8 py-10 min-w-0 text-xs">
                     {/* Header Section */}
-                    <div className="flex flex-col mb-10">
-                        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 md:mb-10 border-b-2 border-yellow-400 pb-2 gap-2 sm:gap-0">
-                            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4">
-                                <h1 className="text-[20px] md:text-[26px] font-black text-black uppercase tracking-tight">
+                    <div className="flex flex-col mb-10 no-print">
+                        <div className="flex flex-col border-b border-gray-100 pb-6">
+                            <div className="flex items-center gap-3 md:gap-5 mb-1.5 flex-wrap">
+                                <h1 className="text-[22px] md:text-[28px] font-[900] text-black uppercase tracking-tight leading-none">
                                     {t("orderDetails.orderHash")} {order.increment_id}
                                 </h1>
 
-                                <span className={`inline-flex px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${order.status?.toLowerCase().includes('pending') ? 'bg-yellow-100 text-yellow-700' :
-                                    order.status?.toLowerCase().includes('complete') ? 'bg-green-100 text-green-700' :
-                                        order.status?.toLowerCase().includes('cancel') ? 'bg-red-100 text-red-700' :
-                                            'bg-gray-100 text-gray-700'
+                                <span className={`inline-flex px-4 py-1.5 border rounded-sm text-[10px] md:text-[11px] font-bold uppercase tracking-widest bg-white ${order.status?.toLowerCase().includes('pending') ? 'border-[#d1d1d1] text-black' :
+                                    order.status?.toLowerCase().includes('complete') ? 'border-green-300 text-green-700 bg-green-50' :
+                                        order.status?.toLowerCase().includes('cancel') ? 'border-red-300 text-red-700 bg-red-50' :
+                                            'border-gray-300 text-gray-700 bg-white'
                                     }`}>
                                     {formatStatus(order.status)}
                                 </span>
                             </div>
-                            <div className="text-gray-500 font-bold uppercase tracking-widest text-[11px]">
+
+                            <div className="text-[#333] text-[15px] md:text-[17px] font-normal leading-none">
                                 {formatDate(order.created_at)}
                             </div>
                         </div>
@@ -378,11 +583,48 @@ export default function OrderDetailsPage() {
                         <div className="flex flex-col sm:flex-row justify-start items-stretch sm:items-center gap-3 w-full">
                             <button
                                 onClick={handleReorder}
-                                className="bg-yellow-400 hover:bg-yellow-500 text-black font-black py-2.5 px-6 md:px-8 rounded-md text-[11px] uppercase tracking-widest transition-all shadow-sm active:scale-95 border border-yellow-500 w-full sm:w-auto"
+                                className="bg-primary hover:bg-primary text-black font-black py-2.5 px-6 md:px-8 rounded-md text-[12px] uppercase tracking-widest transition-all shadow-sm active:scale-95 border border-primary w-full sm:w-auto"
                             >
                                 {t("orderDetails.reorder")}
 
                             </button>
+
+                            {/* Make Payment — only when the order is not yet paid */}
+                            {/* {!isPaid && (
+                                <button
+                                    onClick={() => setIsPaymentModalOpen(true)}
+                                    className="bg-[#1D70B8] hover:bg-[#155a96] text-white font-black py-2.5 px-6 md:px-8 rounded-md text-[11px] uppercase tracking-widest transition-all shadow-sm active:scale-95 border border-[#1D70B8] w-full sm:w-auto"
+                                >
+                                    {t("orders.makePayment")}
+                                </button>
+                            )} */}
+
+                            {/* Cancel Order — replaces the old "View Payment" slot.
+                                Only visible while the order is in a cancellable status. */}
+                            {(() => {
+                                const s = String(order?.status || "").toLowerCase();
+                                const cancellable = ["pending", "processing", "approval_pending", "holded"].includes(s);
+                                if (!cancellable) return null;
+                                return (
+                                    <button
+                                        onClick={handleCancelOrder}
+                                        disabled={isCancelling}
+                                        className={`bg-red-600 hover:bg-red-700 text-white font-black py-2.5 px-6 md:px-8 rounded-md text-[12px] uppercase tracking-widest transition-all shadow-sm active:scale-95 border border-red-600 flex items-center justify-center gap-2 no-print w-full sm:w-auto ${isCancelling ? 'opacity-70 cursor-not-allowed' : ''}`}
+                                    >
+                                        {isCancelling ? (
+                                            <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                                        ) : (
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                                                <line x1="18" y1="6" x2="6" y2="18"></line>
+                                                <line x1="6" y1="6" x2="18" y2="18"></line>
+                                            </svg>
+                                        )}
+                                        {t("orderDetails.cancelOrder") !== "orderDetails.cancelOrder"
+                                            ? t("orderDetails.cancelOrder")
+                                            : "Cancel Order"}
+                                    </button>
+                                );
+                            })()}
                             <button
                                 onClick={handlePrintOrder}
                                 disabled={isPrinting}
@@ -426,7 +668,7 @@ export default function OrderDetailsPage() {
                                 </thead>
                                 <tbody className="divide-y divide-[#ebebeb]">
                                     {order.items?.map((item: any, idx: number) => (
-                                        <tr key={item.item_id || item.id} className={`text-xs hover:bg-yellow-50/30 transition-colors ${idx % 2 !== 0 ? 'bg-gray-50' : 'bg-white'}`}>
+                                        <tr key={item.item_id || item.id} className={`text-xs hover:bg-primary/30 transition-colors ${idx % 2 !== 0 ? 'bg-gray-50' : 'bg-white'}`}>
                                             <td className="px-3 md:px-6 py-3 md:py-5 text-black font-bold">
                                                 {item.name}
                                             </td>
@@ -520,7 +762,7 @@ export default function OrderDetailsPage() {
 
                     {/* Order Information Section */}
                     <div className="mb-10">
-                        <div className="border-b-2 border-yellow-400 inline-block pb-1 mb-10">
+                        <div className="border-b-2 border-primary inline-block pb-1 mb-10">
                             <h2 className="text-[16px] md:text-[18px] font-black text-black uppercase tracking-tight">
                                 {t("orderDetails.orderInfo")}
 
@@ -614,7 +856,7 @@ export default function OrderDetailsPage() {
 
                     {/* Order Attachments Section */}
                     <div className="mb-12">
-                        <div className="border-b-2 border-yellow-400 inline-block pb-1 mb-10">
+                        <div className="border-b-2 border-primary inline-block pb-1 mb-10">
                             <h2 className="text-[16px] md:text-[18px] font-black text-black uppercase tracking-tight">
                                 {t("orderDetails.orderAttachments")}
 
@@ -628,7 +870,7 @@ export default function OrderDetailsPage() {
                             </div>
                         ) : isAttachmentsLoading ? (
                             <div className="bg-white rounded-md border border-[#ebebeb] p-20 flex justify-center items-center shadow-sm">
-                                <div className="animate-spin rounded-full h-10 w-10 border-b-4 border-yellow-400"></div>
+                                <div className="animate-spin rounded-full h-10 w-10 border-b-4 border-primary"></div>
                             </div>
                         ) : attachments.length > 0 ? (
                             <div className="bg-white border border-[#ebebeb] rounded-md overflow-hidden shadow-sm">
@@ -664,15 +906,15 @@ export default function OrderDetailsPage() {
                                                 const isOpening = openingAttachmentId === String(currentAttachmentId);
 
                                                 return (
-                                                    <tr key={currentAttachmentId} className={`hover:bg-yellow-50/30 transition-colors ${idx % 2 !== 0 ? 'bg-gray-50' : 'bg-white'}`}>
+                                                    <tr key={currentAttachmentId} className={`hover:bg-primary/30 transition-colors ${idx % 2 !== 0 ? 'bg-gray-50' : 'bg-white'}`}>
                                                         <td className="px-3 md:px-6 py-3 md:py-5 text-left">
                                                             <button
                                                                 onClick={() => handleOpenAttachment(attachment)}
                                                                 disabled={isOpening}
-                                                                className="text-yellow-600 hover:text-black font-black break-all text-left cursor-pointer inline-flex items-center gap-2 disabled:opacity-60 disabled:cursor-wait underline underline-offset-4"
+                                                                className="text-primary hover:text-black font-black break-all text-left cursor-pointer inline-flex items-center gap-2 disabled:opacity-60 disabled:cursor-wait underline underline-offset-4"
                                                             >
                                                                 {isOpening && (
-                                                                    <span className="animate-spin rounded-full h-4 w-4 border-2 border-yellow-500 border-t-transparent flex-shrink-0"></span>
+                                                                    <span className="animate-spin rounded-full h-4 w-4 border-2 border-primary border-t-transparent flex-shrink-0"></span>
                                                                 )}
                                                                 {attachment.file_name || "-"}
                                                             </button>
@@ -705,6 +947,120 @@ export default function OrderDetailsPage() {
                             </div>
                         )}
                     </div>
+
+                    {/* Payment History Section */}
+                    <div className="mb-12" id="payment-history-section">
+                        <div className="flex items-center justify-between border-b border-gray-100 pb-2 mb-8">
+                            <div className="border-b-2 border-primary inline-block pb-1">
+                                <h2 className="text-[16px] md:text-[18px] font-black text-black uppercase tracking-tight">
+                                    {t("m.payment-historydso") || "Payment History"}
+                                </h2>
+                            </div>
+                            {isPaid ? (
+                                <div className="text-green-600 font-bold text-[11px] uppercase tracking-widest flex items-center gap-1">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                                        <polyline points="20 6 9 17 4 12"></polyline>
+                                    </svg>
+                                    Payment Completed
+                                </div>
+                            ) : (
+                                <button
+                                    onClick={() => setIsPaymentModalOpen(true)}
+                                    className="bg-[#1D70B8] hover:bg-[#155a96] text-white px-5 py-2 rounded-sm font-bold text-[12px] transition-all shadow-sm active:scale-95"
+                                >
+                                    {t("orders.makePayment")}
+                                </button>
+                            )}
+                        </div>
+
+                        <div className="bg-white border border-[#ebebeb] rounded-md overflow-hidden shadow-sm">
+                            <div className="overflow-x-auto">
+                                <table className="w-full text-xs border-collapse">
+                                    <thead className="bg-gray-50 border-b border-[#ebebeb]">
+                                        <tr className="h-[50px]">
+                                            <th className="px-3 md:px-4 py-3 md:py-4 font-black text-black text-center tracking-widest uppercase">Receipt No</th>
+                                            <th className="px-3 md:px-4 py-3 md:py-4 font-black text-black text-center tracking-widest uppercase">Payment Date</th>
+                                            <th className="px-3 md:px-4 py-3 md:py-4 font-black text-black text-center tracking-widest uppercase">Payment Method</th>
+                                            <th className="px-3 md:px-4 py-3 md:py-4 font-black text-black text-center tracking-widest uppercase">Invoice Amount</th>
+                                            <th className="px-3 md:px-4 py-3 md:py-4 font-black text-black text-center tracking-widest uppercase">Paid Amount</th>
+                                            <th className="px-3 md:px-4 py-3 md:py-4 font-black text-black text-center tracking-widest uppercase">Due Amount</th>
+                                            <th className="px-3 md:px-4 py-3 md:py-4 font-black text-black text-center tracking-widest uppercase">Status</th>
+                                            <th className="px-3 md:px-4 py-3 md:py-4 font-black text-black text-center tracking-widest uppercase">Proof</th>
+                                            <th className="px-3 md:px-4 py-3 md:py-4 font-black text-black text-center tracking-widest uppercase">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-[#ebebeb] text-center">
+                                        {paymentHistory.map((payment: any, index: number) => (
+                                            <tr key={payment.id || payment.receipt_no || index} className="hover:bg-gray-50 bg-white">
+                                                <td className="px-3 md:px-4 py-4 text-gray-700 font-medium">{payment.receipt_no}</td>
+                                                <td className="px-3 md:px-4 py-4 text-gray-700 font-medium">
+                                                    {payment.payment_date ? new Date(payment.payment_date).toLocaleDateString("en-GB").replace(/\//g, "-") : "-"}
+                                                </td>
+                                                <td className="px-3 md:px-4 py-4 text-gray-700 font-medium">{payment.payment_method}</td>
+                                                <td className="px-3 md:px-4 py-4 text-gray-700 font-bold">
+                                                    {formatCurrency(payment.invoice_amount || order.grand_total || 575)}
+                                                </td>
+                                                <td className="px-3 md:px-4 py-4 text-gray-700 font-bold">
+                                                    {formatCurrency(payment.paid_payment)}
+                                                </td>
+                                                <td className="px-3 md:px-4 py-4 text-gray-700 font-bold text-red-500">
+                                                    {formatCurrency(payment.due_payment)}
+                                                </td>
+                                                <td className="px-3 md:px-4 py-4">
+                                                    <span className={`inline-flex px-3 py-1 rounded-sm text-[10px] font-black uppercase tracking-tight border ${payment.payment_status === "Full Paid"
+                                                        ? "bg-[#E7F6EC] text-[#038E42] border-[#D1EBD9]"
+                                                        : "bg-[#FFF4E5] text-[#FA8C16] border-[#FFE7BA]"
+                                                        }`}>
+                                                        {payment.payment_status}
+                                                    </span>
+                                                </td>
+                                                <td className="px-3 md:px-4 py-4 text-gray-400 font-medium">-</td>
+                                                <td className="px-3 md:px-4 py-4">
+                                                    <div className="flex items-center justify-center gap-2">
+                                                        <button
+                                                            onClick={() => fetchSinglePayment(payment.id)}
+                                                            className="bg-[#EFA73F] text-white px-3 py-1.5 rounded-sm font-bold text-[10px] uppercase tracking-wide hover:bg-[#d69638] transition-colors shadow-sm"
+                                                        >
+                                                            Edit
+                                                        </button>
+                                                        <span className="text-gray-300 font-light">|</span>
+                                                        <button
+                                                            onClick={() => handleDownloadReceipt(payment)}
+                                                            className="bg-[#1D70B8] text-white px-3 py-1.5 rounded-sm font-bold text-[10px] uppercase tracking-wide hover:bg-[#155a96] transition-colors shadow-sm"
+                                                        >
+                                                            Download
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <MakePaymentModal
+                        isOpen={isPaymentModalOpen}
+                        onClose={() => setIsPaymentModalOpen(false)}
+                        order={{
+                            ...order,
+                            grandTotal: order.grand_total,
+                            increment_id: order.increment_id
+                        }}
+                        customerName={`${order.customer_firstname || ""} ${order.customer_lastname || ""}`.trim() || session?.user?.name || "Customer"}
+                        onSave={handleSavePayment}
+                        receivablePayment={dueAmount}
+                    />
+
+                    <EditPaymentModal
+                        isOpen={isEditModalOpen}
+                        onClose={() => setIsEditModalOpen(false)}
+                        payment={selectedPayment}
+                        order={order}
+                        customerName={`${order.customer_firstname || ""} ${order.customer_lastname || ""}`.trim() || session?.user?.name || "Customer"}
+                        onSave={handleSavePayment}
+                    />
                 </main>
             </div>
 
@@ -718,7 +1074,7 @@ export default function OrderDetailsPage() {
                         <p>{t("data.Saudi Arabia")}</p>
                         <p>{t("orderDetails.trn")}: </p>
                         <p>{t("orderDetails.phone")}: {shippingAddress?.telephone || "-"}</p>
-                        <p>{t("orderDetails.website")}: https://altalayi-demo.btire.com/</p>
+                        <p>{t("orderDetails.website")}: https://autoono-demo.btire.com/</p>
 
                     </div>
                     <div className="order-title-box">
@@ -726,7 +1082,7 @@ export default function OrderDetailsPage() {
 
                     </div>
                     <div className="order-meta">
-                        <img src="/logo/atcl-bridgestone-logo-v1.jpg" alt="Logo" className="print-logo" />
+                        <img src="/logo/auttono-logo.jpg" alt="Logo" className="print-logo" />
                         <div className="meta-row">
                             <span className="label">{t("orderDetails.orderHash")}</span>
 

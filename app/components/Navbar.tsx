@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "@/store/store";
 import { useState, useRef, useEffect } from "react";
@@ -14,6 +14,7 @@ import {
   X,
   LogOut,
   Search,
+  ChevronDown,
 } from "lucide-react";
 
 import CartDrawer from "./CartDrawer";
@@ -32,7 +33,21 @@ interface NavLink {
   label: string;
   href: string;
   code?: string;
+  magentoUrl?: string;
+  categoryId?: string | null;
+  children?: { label: string; href: string }[];
 }
+
+const TARGET_CATEGORY_CODES = new Set(["all_lubricants", "all_tyres"]);
+
+function isWarehouseCategory(item: { label?: string; code?: string }): boolean {
+  if (item.code && TARGET_CATEGORY_CODES.has(item.code)) return true;
+  const l = (item.label || "").toLowerCase();
+  return l.includes("lubricants") || l.includes("tyre");
+}
+
+// Warehouse item shape — populated dynamically from /api/kleverapi/source-permission/stores
+interface WarehouseItem { label: string; code: string; }
 
 const FALLBACK_NAV_KEYS: { key: string; href: string }[] = [
   { key: "nav.allTyres", href: "/products" },
@@ -43,9 +58,25 @@ const FALLBACK_NAV_KEYS: { key: string; href: string }[] = [
   { key: "nav.productCatalogue", href: "/catalogue" },
 ];
 
+// Map the Magento menu `code` (stable across locales) to the local translation key.
+// Use this to translate labels ourselves when the API returns them in the wrong
+// language — e.g. when the Arabic store view isn't translated in the admin.
+const CODE_TO_TRANSLATION_KEY: Record<string, string> = {
+  all_tyres: "nav.allTyres",
+  all_lubricants: "nav.allLubricants",
+  quick_order: "nav.quickOrder",
+  about_us: "nav.aboutUs",
+  branch_locations: "nav.branchLocations",
+  user_guides: "nav.userGuides",
+  product_catalogue: "nav.productCatalogue",
+};
+
 export default function Navbar() {
   const { data: session, status } = useSession();
   const pathname = usePathname();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const currentStore = searchParams?.get("store") || "";
   const { t, isRtl } = useTranslation();
   const locale = useLocale();
   const lp = useLocalePath();
@@ -53,6 +84,7 @@ export default function Navbar() {
   const { cart, refetchCart } = useCart();
   const [navLinks, setNavLinks] = useState<NavLink[]>(FALLBACK_NAV_KEYS.map(n => ({ label: t(n.key), href: n.href })));
   const [navLoading, setNavLoading] = useState(true);
+  const [warehouseItems, setWarehouseItems] = useState<WarehouseItem[]>([]);
 
   const { data: customerData } = useSelector((state: RootState) => state.customer);
   const dispatch = useDispatch();
@@ -156,13 +188,19 @@ export default function Navbar() {
         if (cancelled) return;
 
         if (Array.isArray(data) && data.length > 0) {
+          // Store the RAW API label here. The actual displayed text is resolved at
+          // render time via `resolveLabel(item)` so a locale change (e.g. /en ↔ /ar)
+          // re-renders labels instantly without waiting for a new menu fetch.
           setNavLinks(data.map((item: any) => ({
             label: item.label,
             href: item.href,
             code: item.code,
+            magentoUrl: item.magentoUrl,
+            categoryId: item.categoryId ?? null,
+            children: item.children && item.children.length > 0 ? item.children : undefined,
           })));
         } else {
-          setNavLinks(FALLBACK_NAV_KEYS.map(n => ({ label: t(n.key), href: n.href })));
+          setNavLinks(FALLBACK_NAV_KEYS.map(n => ({ label: t(n.key), href: n.href, code: n.key })));
         }
       } catch {
         setNavLinks(FALLBACK_NAV_KEYS.map(n => ({ label: t(n.key), href: n.href })));
@@ -174,6 +212,101 @@ export default function Navbar() {
     fetchMenu();
     return () => { cancelled = true; };
   }, [locale]);
+
+  // Fetch warehouse list for the "All Lubricants"/"All Tyres" dropdown.
+  // Matches the live Magento site — enabled/disabled by admin via source-permission.
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+    if (!token) return;
+
+    let cancelled = false;
+    (async () => {
+      try {
+        const fetchLocale = window.location.pathname.startsWith("/ar") ? "ar" : "en";
+        const res = await fetch("/api/kleverapi/source-permission", {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+            "x-locale": fetchLocale,
+          },
+        });
+        if (!res.ok) throw new Error("source-permission fetch failed");
+        const data = await res.json();
+        if (cancelled) return;
+        if (process.env.NODE_ENV !== "production") {
+          console.log("[Navbar] source-permission raw response:", data);
+        }
+        // Magento returns { has_restrictions, permitted_stores, total_count, permitted_store_ids }
+        const raw: any[] = Array.isArray(data?.permitted_stores)
+          ? data.permitted_stores
+          : (Array.isArray(data) ? data : []);
+
+        // Magento returns one entry per store view; group by `group_name` so we show one
+        // dropdown item per warehouse (matching how the live site renders the list).
+        const groups = new Map<string, any[]>();
+        for (const s of raw) {
+          if (s?.is_active === false) continue;
+          const g = String(s.group_name ?? s.website_name ?? s.store_name ?? "");
+          if (!g) continue;
+          if (!groups.has(g)) groups.set(g, []);
+          groups.get(g)!.push(s);
+        }
+
+        // For each group, always prefer `ar` (user's rule — Warehouse must use code "ar").
+        // Fall back to `default` or the first entry if `ar` isn't in the group.
+        const mapped: WarehouseItem[] = Array.from(groups.entries()).map(([groupName, stores]) => {
+          const preferred = stores.find((s) => String(s.store_code).toLowerCase() === "ar")
+            ?? stores.find((s) => String(s.store_code).toLowerCase() === "default")
+            ?? stores[0];
+          return {
+            label: groupName,
+            code: String(preferred.store_code ?? ""),
+          };
+        }).filter((w) => !!w.code && !!w.label);
+
+        setWarehouseItems(mapped);
+      } catch (err) {
+        if (process.env.NODE_ENV !== "production") {
+          console.warn("[Navbar] source-permission/stores fetch failed:", err);
+        }
+        if (!cancelled) setWarehouseItems([]);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [isAuthenticated, locale]);
+
+  // Resolve the display label for a menu item using the current locale's translations
+  // if the item has a known `code`, else fall back to whatever the API returned.
+  // This runs at render time, so switching /en ↔ /ar re-renders labels instantly.
+  const resolveLabel = (item: { code?: string; label?: string }): string => {
+    const knownKey = item.code ? CODE_TO_TRANSLATION_KEY[item.code] : undefined;
+    if (knownKey) {
+      const translated = t(knownKey);
+      if (translated && translated !== knownKey) return translated;
+    }
+    return item.label || "";
+  };
+
+  const handleStoreSelect = (storeName: string, storeCode: string, itemHref: string, categoryId?: string | null) => {
+    // Rule: ONLY the warehouse whose store code is "ar" switches the app to Arabic.
+    // Every other warehouse forces the app back to English — even if the user is
+    // currently on /ar, picking a non-ar warehouse should take them to /en.
+    const code = String(storeCode || "").toLowerCase();
+    const targetLocale = code === "ar" ? "ar" : "en";
+
+    const normalizedItemHref = itemHref.startsWith("/") ? itemHref : `/${itemHref}`;
+    const basePath = `/${targetLocale}${normalizedItemHref}`;
+
+    const params = new URLSearchParams();
+    if (categoryId) params.set("category", categoryId);
+    if (storeCode) params.set("store", storeCode);
+
+    const qs = params.toString();
+    const targetUrl = qs ? `${basePath}?${qs}` : basePath;
+
+    router.push(targetUrl);
+  };
 
   return (
     <div className={`main-header w-full ${isScrolled ? 'fixed fadeInDown' : 'relative'} top-0 left-0 right-0 z-[60] flex flex-col transition-all duration-300 ease-in-out`} style={{ paddingRight: isScrolled ? "var(--scrollbar-width)" : "0px" }}>
@@ -195,7 +328,7 @@ export default function Navbar() {
           <div className="flex-1 flex items-center justify-center min-w-0 px-2 lg:px-0 lg:absolute lg:inset-0 lg:pointer-events-none">
             <Link href={lp("/")} className="flex-shrink-0 lg:pointer-events-auto">
               <img
-                src="/logo/atcl-bridgestone-logo-v1.jpg"
+                src="/logo/auttono-logo.jpg"
                 alt="AL TALAYI KSA"
                 className="h-[24px] sm:h-[32px] lg:h-[42px] xl:h-[50px] w-auto object-contain"
               />
@@ -217,7 +350,7 @@ export default function Navbar() {
                   onClick={() => setIsProfileOpen(!isProfileOpen)}
                   className="flex items-center gap-1.5 lg:gap-2 bg-white border border-gray-100 rounded-full px-1.5 lg:px-3 py-1 shadow-[0_2px_8px_-3px_rgba(0,0,0,0.12)] hover:shadow-md transition-shadow group cursor-pointer"
                 >
-                  <div className="w-7 h-7 bg-[#f5b21a] rounded-full flex items-center justify-center flex-shrink-0 transition-transform">
+                  <div className="w-7 h-7 bg-primary rounded-full flex items-center justify-center flex-shrink-0 transition-transform">
                     <UserCircle size={16} strokeWidth={2.5} />
                   </div>
                   <div className="flex flex-col min-w-0 pr-1 rtl:pr-0 rtl:pl-1">
@@ -289,7 +422,7 @@ export default function Navbar() {
               >
                 <Bell size={24} fill="black" stroke="black" strokeWidth={1} />
                 {unreadCount > 0 && (
-                  <span className="absolute w-[26px] h-[26px] font-medium text-[12px] -top-[13px] -right-[14px] bg-[#f5af02] text-black font-black flex items-center justify-center rounded-full border border-white">
+                  <span className="absolute w-[26px] h-[26px] font-medium text-[12px] -top-[13px] -right-[14px] bg-[#4E81C2] text-black font-black flex items-center justify-center rounded-full border border-white">
                     {unreadCount}
                   </span>
                 )}
@@ -305,7 +438,7 @@ export default function Navbar() {
               >
                 <ShoppingCart size={24} strokeWidth={1.5} />
                 {cartCount > 0 && (
-                  <span className="absolute w-[20px] h-[20px] lg:w-[26px] lg:h-[26px] font-medium text-[9px] lg:text-[12px] -top-[10px] -right-[6px] lg:-right-[14px] bg-[#f5af02] text-black font-black flex items-center justify-center rounded-full border border-white">
+                  <span className="absolute w-[20px] h-[20px] lg:w-[26px] lg:h-[26px] font-medium text-[9px] lg:text-[12px] -top-[10px] -right-[6px] lg:-right-[14px] bg-[#4E81C2] text-black font-black flex items-center justify-center rounded-full border border-white">
                     {cartCount}
                   </span>
                 )}
@@ -327,29 +460,70 @@ export default function Navbar() {
       </header>
 
       {/* ── YELLOW NAV BAR — desktop only ── */}
-      <nav className="bg-[#f5b21a] w-full hidden lg:block">
+      <nav className="bg-primary w-full hidden lg:block">
         <div className="flex items-center justify-center max-w-[1280px] mx-auto px-2 lg:px-4">
           {navLoading ? (
             <div className="flex items-center gap-6">
               {[1, 2, 3, 4, 5].map(i => (
-                <div key={i} className="h-3 w-20 bg-yellow-500/40 rounded animate-pulse" />
+                <div key={i} className="h-3 w-20 bg-primary/40 rounded animate-pulse" />
               ))}
             </div>
           ) : (
             navLinks.map((item) => {
-              const href = lp(item.href);
-              const isActive = pathname === href || pathname?.startsWith(href + "/");
+              const isWarehouse = isWarehouseCategory(item);
+              // For warehouse-aware categories, defaults should be English.
+              const baseHref = isWarehouse ? `/en${item.href}` : lp(item.href);
+              const href = isWarehouse && item.categoryId
+                ? `${baseHref}?category=${encodeURIComponent(item.categoryId)}`
+                : baseHref;
+
+              const isActive = pathname === baseHref || pathname?.startsWith(baseHref + "/");
+              const children = isWarehouse ? undefined : item.children;
+              const hasChildren = (isWarehouse && warehouseItems.length > 0) || !!(children && children.length > 0);
+
               return (
-                <Link
-                  key={item.href}
-                  href={href}
-                  className={`py-3 flex items-center h-full px-2.5 lg:px-7 text-[11px] lg:text-[16px] font-semibold capitalize transition-all duration-200 whitespace-nowrap ${isActive
-                    ? "bg-black text-white"
-                    : "text-black hover:bg-black hover:text-white"
-                    }`}
-                >
-                  {item.label}
-                </Link>
+                <div key={item.href} className="relative group h-full">
+                  <Link
+                    href={href}
+                    className={`py-3 flex items-center h-full px-2.5 lg:px-7 text-[11px] lg:text-[16px] font-black capitalize transition-all duration-200 whitespace-nowrap ${isActive
+                      ? "bg-black text-white"
+                      : "text-black group-hover:bg-black group-hover:text-white"
+                      }`}
+                  >
+                    {resolveLabel(item)}
+                  </Link>
+
+                  {/* Warehouse dropdown — matches reference image */}
+                  {hasChildren && (
+                    <div className="absolute top-full left-0 w-56 bg-white shadow-[0_8px_24px_rgba(0,0,0,0.08)] opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-150 z-[100]">
+                      <div className="flex flex-col py-1">
+                        {isWarehouse
+                          ? warehouseItems.map((w) => {
+                            const isSelected = pathname?.startsWith(lp(item.href)) && currentStore === w.code;
+                            return (
+                              <button
+                                key={w.code}
+                                type="button"
+                                onClick={() => handleStoreSelect(w.label, w.code, item.href, item.categoryId)}
+                                className={`text-start px-6 py-2.5 text-[14px] font-semibold transition-colors cursor-pointer ${isSelected ? "bg-primary/10 text-primary" : "text-gray-800 hover:bg-gray-50"}`}
+                              >
+                                {w.label}
+                              </button>
+                            );
+                          })
+                          : children?.map((child, idx) => (
+                            <Link
+                              key={idx}
+                              href={lp(child.href)}
+                              className="px-6 py-2.5 text-[14px] font-semibold text-gray-800 hover:bg-gray-50 transition-colors"
+                            >
+                              {child.label}
+                            </Link>
+                          ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
               );
             })
           )}
@@ -379,19 +553,45 @@ export default function Navbar() {
             <div className="px-4 py-2">
               <span className="text-[9px] font-bold text-gray-400 uppercase tracking-[0.2em] block mb-2">{t("nav.navigation")}</span>
               {navLinks.map((item) => {
-                const href = lp(item.href);
-                const isActive = pathname === href || pathname?.startsWith(href + "/");
+                const isWarehouse = isWarehouseCategory(item);
+                const baseHref = isWarehouse ? `/en${item.href}` : lp(item.href);
+                const href = isWarehouse && item.categoryId
+                  ? `${baseHref}?category=${encodeURIComponent(item.categoryId)}`
+                  : baseHref;
+
+                const isActive = pathname === baseHref || pathname?.startsWith(baseHref + "/");
                 return (
-                  <Link
-                    key={item.href}
-                    href={href}
-                    className={`py-2.5 text-[12px] font-bold uppercase tracking-wide flex items-center justify-between group ${isActive ? "text-[#f5b21a]" : "text-black hover:text-[#f5b21a]"
-                      }`}
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    {item.label}
-                    <span className="text-gray-300 group-hover:text-[#f5b21a] transition-colors text-[10px]">→</span>
-                  </Link>
+                  <div key={item.href}>
+                    <Link
+                      href={href}
+                      className={`py-2.5 text-[12px] font-bold uppercase tracking-wide flex items-center justify-between group ${isActive ? "text-primary" : "text-black hover:text-primary"
+                        }`}
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      {resolveLabel(item)}
+                      <span className="text-gray-300 group-hover:text-primary transition-colors text-[10px]">→</span>
+                    </Link>
+                    {isWarehouse && warehouseItems.length > 0 && (
+                      <div className="pl-3 border-l-2 border-gray-100 ml-1 mb-1">
+                        {warehouseItems.map((w) => {
+                          const isSelected = pathname?.startsWith(lp(item.href)) && currentStore === w.code;
+                          return (
+                            <button
+                              key={w.code}
+                              type="button"
+                              onClick={() => {
+                                handleStoreSelect(w.label, w.code, item.href, item.categoryId);
+                                setIsMenuOpen(false);
+                              }}
+                              className={`block w-full text-start py-2 text-[11px] font-semibold cursor-pointer ${isSelected ? "text-primary" : "text-gray-600 hover:text-primary"}`}
+                            >
+                              {w.label}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
                 );
               })}
             </div>

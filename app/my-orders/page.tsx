@@ -13,6 +13,7 @@ import OrdersTable, { Order } from "@/components/OrdersTable";
 import Pagination from "@/components/Pagination";
 import { useCart } from "@/modules/cart/context/CartContext";
 import { toast } from "react-hot-toast";
+import MakePaymentModal from "@/components/MakePaymentModal";
 
 function formatOrderDate(dateStr: string): string {
     if (!dateStr) return "";
@@ -33,7 +34,7 @@ function formatOrderStatus(status: string): string {
     return status.replace(/_/g, " ").replace(/\b\w/g, (c: string) => c.toUpperCase());
 }
 
-function mapOrder(item: any): Order {
+function mapOrder(item: any, paidByOrderId?: Map<string, number>): Order {
     const id = item.increment_id || "";
     const sapOrderNumber = item.sap_order_number || "";
     const date = formatOrderDate(item.created_at);
@@ -48,6 +49,28 @@ function mapOrder(item: any): Order {
     }
 
     const status = formatOrderStatus(item.status || "");
+    const status_lower = (item.status || "").toLowerCase();
+    const payment_status_lower = String(item.payment_status || "").toLowerCase().trim();
+
+    const grandTotalNum = Number(item.grand_total ?? 0);
+
+    // Look up the sum of payments recorded against this order from the payment-history map.
+    // The orders list endpoint doesn't expose payment progress, so we cross-reference here.
+    const orderIdKey = String(item.order_id ?? item.entity_id ?? item.increment_id ?? "");
+    const paidFromHistory = paidByOrderId?.get(orderIdKey) ?? 0;
+
+    const is_paid =
+        // Explicit boolean flags from the order record
+        item.is_paid === true ||
+        item.is_paid === 1 ||
+        item.is_paid === "1" ||
+        // Status-based (works for stores where status flips to complete/closed when paid)
+        status_lower === "complete" ||
+        status_lower === "closed" ||
+        // payment_status text variations
+        ["paid", "full paid", "fully paid", "complete", "completed"].includes(payment_status_lower) ||
+        // Derived from payment-history: total recorded payments cover the grand total
+        (grandTotalNum > 0 && paidFromHistory >= grandTotalNum);
 
     return {
         id,
@@ -58,12 +81,13 @@ function mapOrder(item: any): Order {
         status,
         increment_id: item.increment_id || "",
         entity_id: (item.entity_id || item.order_id || item.increment_id || "").toString(),
+        is_paid,
     };
 }
 
 export default function MyOrdersPage() {
     return (
-        <Suspense fallback={<div className="flex-1 flex items-center justify-center"><div className="h-10 w-10 animate-spin rounded-full border-4 border-gray-200 border-t-[#f5a623]"></div></div>}>
+        <Suspense fallback={<div className="flex-1 flex items-center justify-center"><div className="h-10 w-10 animate-spin rounded-full border-4 border-gray-200 border-t-primary"></div></div>}>
             <MyOrdersPageContent />
         </Suspense>
     );
@@ -84,6 +108,8 @@ function MyOrdersPageContent() {
     const [error, setError] = useState<string | null>(null);
     const [isExporting, setIsExporting] = useState(false);
     const [hasFetched, setHasFetched] = useState(false);
+    const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+    const [selectedOrderForPayment, setSelectedOrderForPayment] = useState<Order | null>(null);
 
     // Filter states - derived from URL
     const searchInput = searchParams.get("orderNumber") || "All";
@@ -159,16 +185,52 @@ function MyOrdersPageContent() {
             }
             if (company && company !== "All") params.append("companyCode", company);
 
-            const res = await fetch(`/api/kleverapi/my-orders?${params.toString()}`, {
-                headers: { Authorization: `Bearer ${token}`, "x-locale": window.location.pathname.startsWith("/ar") ? "ar" : "en" },
-                cache: "no-store",
-            });
+            const headers = {
+                Authorization: `Bearer ${token}`,
+                "x-locale": window.location.pathname.startsWith("/ar") ? "ar" : "en",
+            };
 
-            const data = await res.json();
-            if (!res.ok) throw new Error(data.message || "Failed to fetch orders");
+            // Fetch orders + payment history in parallel.
+            // The orders list doesn't include payment progress, so we cross-reference
+            // with /payment-history to determine which orders are fully paid.
+            const [ordersRes, historyRes] = await Promise.all([
+                fetch(`/api/kleverapi/my-orders?${params.toString()}`, { headers, cache: "no-store" }),
+                fetch(`/api/kleverapi/payment-history`, { headers, cache: "no-store" }),
+            ]);
+
+            const data = await ordersRes.json();
+            if (!ordersRes.ok) throw new Error(data.message || "Failed to fetch orders");
+
+            // Build a map of order_id (or increment_id) → total paid amount.
+            // Defensive against unknown response shape and field names.
+            const paidByOrderId = new Map<string, number>();
+            if (historyRes.ok) {
+                const historyData = await historyRes.json();
+                const records: any[] = Array.isArray(historyData)
+                    ? historyData
+                    : (Array.isArray(historyData?.items) ? historyData.items
+                        : Array.isArray(historyData?.payments) ? historyData.payments
+                            : Array.isArray(historyData?.data) ? historyData.data : []);
+                for (const rec of records) {
+                    const oid = String(
+                        rec.order_id ?? rec.orderId ?? rec.entity_id ?? rec.increment_id ?? ""
+                    );
+                    if (!oid) continue;
+                    const amt = Number(
+                        rec.paid_payment ?? rec.paid_amount ?? rec.amount ?? rec.payment_amount ?? 0
+                    );
+                    if (!Number.isFinite(amt)) continue;
+                    paidByOrderId.set(oid, (paidByOrderId.get(oid) ?? 0) + amt);
+                }
+                if (typeof window !== "undefined") {
+                    console.log("[payment-history] aggregated paid by order:", Object.fromEntries(paidByOrderId));
+                }
+            } else if (typeof window !== "undefined") {
+                console.warn("[payment-history] fetch failed, status:", historyRes.status);
+            }
 
             const items: any[] = data.items || [];
-            setOrders(items.map(mapOrder));
+            setOrders(items.map((it) => mapOrder(it, paidByOrderId)));
             setTotalItems(data.total_count || items.length);
         } catch (err: any) {
             setError(err.message || t("orders.exportFailed"));
@@ -245,6 +307,11 @@ function MyOrdersPageContent() {
 
     const handleViewOrder = (entityId: string) => {
         router.push(lp(`/my-orders/${entityId}`));
+    };
+
+    const handleMakePayment = (order: Order) => {
+        setSelectedOrderForPayment(order);
+        setIsPaymentModalOpen(true);
     };
 
     const handleReorder = async (order: Order) => {
@@ -329,7 +396,7 @@ function MyOrdersPageContent() {
     if (authStatus === "loading") {
         return (
             <div className="min-h-screen flex items-center justify-center bg-white">
-                <div className="animate-spin rounded-full h-10 w-10 border-4 border-gray-200 border-t-[#f5a623]"></div>
+                <div className="animate-spin rounded-full h-10 w-10 border-4 border-gray-200 border-t-primary"></div>
             </div>
         );
     }
@@ -347,7 +414,7 @@ function MyOrdersPageContent() {
                         <button
                             onClick={handleExportOrders}
                             disabled={isExporting}
-                            className={`w-full md:w-auto justify-center flex items-center gap-2 border-2 border-[#f5a623] text-black text-[12px] font-bold px-5 py-2 uppercase tracking-wide hover:bg-[#f5a623] transition-colors ${isExporting ? 'opacity-70 cursor-not-allowed' : ''}`}
+                            className={`w-full md:w-auto justify-center flex items-center gap-2 border-2 border-primary text-black text-[12px] font-bold px-5 py-2 uppercase tracking-wide hover:bg-primary transition-colors ${isExporting ? 'opacity-70 cursor-not-allowed' : ''}`}
                         >
                             {isExporting ? (
                                 <>
@@ -408,6 +475,7 @@ function MyOrdersPageContent() {
                                 orders={orders}
                                 onViewOrder={handleViewOrder}
                                 onReorder={handleReorder}
+                                onMakePayment={handleMakePayment}
                             />
                             {totalItems > 0 && (
                                 <Pagination
@@ -421,6 +489,28 @@ function MyOrdersPageContent() {
                             )}
                         </div>
                     )}
+
+                    <MakePaymentModal
+                        isOpen={isPaymentModalOpen}
+                        onClose={() => setIsPaymentModalOpen(false)}
+                        order={selectedOrderForPayment}
+                        customerName={session?.user?.name || "Nikhil Patel"}
+                        onSave={() => {
+                            // Optimistic update: flip the just-paid order to is_paid=true
+                            // so "Make Payment" hides immediately. Then refetch to get
+                            // the canonical state from the backend.
+                            const justPaidId = selectedOrderForPayment?.entity_id;
+                            if (justPaidId) {
+                                setOrders((prev) =>
+                                    prev.map((o) =>
+                                        o.entity_id === justPaidId ? { ...o, is_paid: true } : o
+                                    )
+                                );
+                            }
+                            fetchOrders(searchInput, statusInput, currentPage, pageSize, companyInput);
+                            fetchAllOrdersForCounts();
+                        }}
+                    />
                 </main>
             </div>
         </div>

@@ -33,6 +33,13 @@ export function LocaleProvider({
         if (urlLocale !== locale) {
             setLocale(urlLocale);
         }
+        // Keep <html dir> and <html lang> in sync with the URL locale — the root
+        // layout only sets these on initial render, so SPA navigation across /en ↔ /ar
+        // would otherwise leave RTL/LTR direction stale.
+        if (typeof document !== "undefined") {
+            document.documentElement.lang = urlLocale;
+            document.documentElement.dir = urlLocale === "ar" ? "rtl" : "ltr";
+        }
     }, [pathname]);
 
     // Listen for language switch events (from LanguageSwitcher)

@@ -266,8 +266,9 @@ export function useCheckout(options: UseCheckoutOptions = {}) {
             }
             // Fallback
             setPaymentMethods([
-                { code: "cashondelivery", title: "Cash on Delivery" },
-                { code: "online_payment", title: "Online Payment" },
+                { code: "creditaccount", title: "Credit Account" },
+                { code: "banktransfer", title: "Bank Transfer Payment" },
+                { code: "mageworx_ordereditor", title: "MageWorx Payment method" },
             ]);
         } catch (err) {
             // Silently handle "empty cart" errors during background fetch
@@ -277,8 +278,9 @@ export function useCheckout(options: UseCheckoutOptions = {}) {
                 console.error("Fetch Payment Methods Error:", err);
             }
             setPaymentMethods([
-                { code: "cashondelivery", title: "Cash on Delivery" },
-                { code: "online_payment", title: "Online Payment" },
+                { code: "creditaccount", title: "Credit Account" },
+                { code: "banktransfer", title: "Bank Transfer Payment" },
+                { code: "mageworx_ordereditor", title: "MageWorx Payment method" },
             ]);
         }
     }, []);
@@ -299,7 +301,8 @@ export function useCheckout(options: UseCheckoutOptions = {}) {
             if (res.status === 401) {
                 console.warn("[useCheckout] 401 Unauthorized for pickup stores");
                 const { signOut } = await import("next-auth/react");
-                signOut({ callbackUrl: "/login" });
+                const locale = typeof window !== "undefined" && window.location.pathname.startsWith("/ar") ? "ar" : "en";
+                signOut({ callbackUrl: `${window.location.origin}/${locale}/login` });
                 return;
             }
 
