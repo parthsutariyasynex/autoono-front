@@ -2,7 +2,7 @@
 import { useTranslation } from "@/hooks/useTranslation";
 import { useLocalePath } from "@/hooks/useLocalePath";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import toast from "react-hot-toast";
@@ -11,16 +11,12 @@ import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { forgotPassword } from "@/store/actions/authActions";
 import { RootState } from "@/store/store";
 
-const COUNTRY_CODES = [
-  { code: "+966", country: "Saudi Arabia", iso: "sa", flagClass: "iti__flag iti__sa" },
-  { code: "+91", country: "India", iso: "in", flagClass: "iti__flag iti__in" },
-  { code: "+971", country: "United Arab Emirates", iso: "ae", flagClass: "iti__flag iti__ae" },
-];
+import CountryDropdown from "@/app/components/CountryDropdown";
 
 export default function ForgotPasswordPage() {
   const router = useRouter();
-    const { t } = useTranslation();
-    const lp = useLocalePath();
+  const { t } = useTranslation();
+  const lp = useLocalePath();
   const dispatch = useAppDispatch();
   const { loading: reduxLoading } = useAppSelector((state: RootState) => state.auth);
 
@@ -41,9 +37,10 @@ export default function ForgotPasswordPage() {
   // UI State
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
-  const [showDropdown, setShowDropdown] = useState(false);
-
-  const selectedCountry = COUNTRY_CODES.find((c) => c.code === countryCode);
+  useEffect(() => {
+    document.body.classList.add('scrollbar-hide');
+    return () => document.body.classList.remove('scrollbar-hide');
+  }, []);
 
   const validate = () => {
     const newErrors: { [key: string]: string } = {};
@@ -231,7 +228,18 @@ export default function ForgotPasswordPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#f4f4f4] flex flex-col">
+    <div className="min-h-screen bg-[#f4f4f4] flex flex-col scrollbar-hide">
+      <style dangerouslySetInnerHTML={{
+        __html: `
+        html, body {
+          overflow: hidden !important;
+          scrollbar-width: none !important;
+          -ms-overflow-style: none !important;
+        }
+        html::-webkit-scrollbar, body::-webkit-scrollbar {
+          display: none !important;
+        }
+      ` }} />
 
 
       <div className="flex-1 flex items-center justify-center p-4 md:p-10">
@@ -246,18 +254,17 @@ export default function ForgotPasswordPage() {
             </div>
 
             {step === 'input' && (
-              <div className="flex rounded-[5px] overflow-hidden border border-gray-100">
-
+              <div className="flex w-full rounded-[3px] overflow-hidden border border-gray-200">
                 <button
                   type="button"
-                  className={`flex-1 py-3.5 text-xs font-semibold uppercase tracking-wider transition-all cursor-pointer ${resetMode === 'mobile' ? 'bg-black text-white' : 'bg-neutral-100 text-black hover:bg-neutral-200'}`}
+                  className={`flex-1 py-[14px] text-body font-semibold uppercase tracking-wider transition-all cursor-pointer ${resetMode === 'mobile' ? 'bg-primary text-black' : 'bg-white text-black hover:bg-gray-50'}`}
                   onClick={() => { setResetMode("mobile"); setErrors({}); }}
                 >
                   {t("login.modeOtp")}
                 </button>
                 <button
                   type="button"
-                  className={`flex-1 py-3.5 text-xs font-semibold uppercase tracking-wider transition-all cursor-pointer ${resetMode === 'email' ? 'bg-black text-white' : 'bg-neutral-100 text-black hover:bg-neutral-200'}`}
+                  className={`flex-1 py-[14px] text-body font-semibold uppercase tracking-wider transition-all cursor-pointer border-l border-gray-100 ${resetMode === 'email' ? 'bg-primary text-black' : 'bg-white text-black hover:bg-gray-50'}`}
                   onClick={() => { setResetMode("email"); setErrors({}); }}
                 >
                   {t("login.modePassword")}
@@ -302,39 +309,22 @@ export default function ForgotPasswordPage() {
                         <span className="text-black text-xs font-semibold uppercase tracking-tight">{t("forgotPassword.mobileNumber")}</span>
                         <span className="text-red-600 text-xl font-semibold leading-none mt-1">*</span>
                       </div>
-                      <div className={`flex h-10 sm:h-11 bg-white rounded-[1px] outline outline-1 transition-all overflow-visible ${errors.mobile ? 'outline-red-500' : 'outline-neutral-200 focus-within:outline-black focus-within:outline-2'}`}>
-                        <div
-                          className="bg-[#f5f5f5] px-3 flex items-center gap-2 border-r border-neutral-200 cursor-pointer min-w-[75px] sm:min-w-[100px] hover:bg-neutral-200 transition-colors"
-                          onClick={() => setShowDropdown(!showDropdown)}
-                        >
-                          <span className={`${selectedCountry?.flagClass} scale-110`}></span>
-                          <span className="text-[#e02b27] font-bold text-xs">{selectedCountry?.code}</span>
-                          <span className="text-[8px] text-black/60">▼</span>
-                        </div>
+                      <div
+                        className={`flex flex-row items-center h-10 sm:h-11 bg-white rounded-[1px] outline outline-1 transition-all overflow-visible ${errors.mobile ? 'outline-red-500' : 'outline-neutral-200 focus-within:outline-black focus-within:outline-2'}`}
+                      >
+                        <CountryDropdown
+                          selectedCountryCode={countryCode}
+                          onSelect={(code) => setCountryCode(code)}
+                        />
                         <input
                           id="mobile-input"
                           type="tel"
+                          dir="ltr"
                           placeholder={t("login.mobilePlaceholder")}
                           value={mobileNumber}
                           onChange={(e) => { setMobileNumber(e.target.value.replace(/\D/g, "")); if (errors.mobile) setErrors({ ...errors, mobile: '' }); }}
-                          className="flex-1 px-3 text-sm outline-none cursor-text"
+                          className="flex-1 px-3 text-sm outline-none cursor-text font-semibold placeholder:font-normal ltr:text-left rtl:text-right"
                         />
-
-                        {showDropdown && (
-                          <div className="absolute top-full mt-1 left-0 w-full bg-white border border-neutral-300 shadow-2xl z-[9999] rounded-[2px] overflow-hidden">
-                            {COUNTRY_CODES.map((item) => (
-                              <div
-                                key={item.code}
-                                onClick={() => { setCountryCode(item.code); setShowDropdown(false); }}
-                                className="p-3.5 hover:bg-neutral-100 cursor-pointer flex items-center gap-3 border-b last:border-0 border-neutral-100 transition-colors"
-                              >
-                                <span className={item.flagClass}></span>
-                                <span className="text-xs font-bold text-black">{item.code}</span>
-                                <span className="text-caption text-black/50 italic">{item.country}</span>
-                              </div>
-                            ))}
-                          </div>
-                        )}
                       </div>
                       {errors.mobile && <span className="text-red-500 text-label font-medium leading-none">{errors.mobile}</span>}
                     </div>
@@ -361,7 +351,7 @@ export default function ForgotPasswordPage() {
                   <button
                     type="button"
                     onClick={handleSendMobileOtp}
-                    className="text-amber-600 text-label font-semibold text-right mt-1 hover:underline cursor-pointer"
+                    className="text-primary text-label font-semibold text-right mt-1 hover:underline cursor-pointer"
                   >
                     {t("forgotPassword.resendCode")}
                   </button>
@@ -410,7 +400,7 @@ export default function ForgotPasswordPage() {
                   id="submit-button"
                   type="submit"
                   disabled={loading || reduxLoading}
-                  className="w-full h-12 bg-amber-400 hover:bg-primaryHover rounded-[3px] flex justify-center items-center transition-all disabled:opacity-50 shadow-sm active:scale-[0.98] cursor-pointer"
+                  className="w-full h-12 bg-primary hover:bg-primaryHover rounded-[3px] flex justify-center items-center transition-all disabled:opacity-50 shadow-sm active:scale-[0.98] cursor-pointer"
                 >
                   <div className="text-center text-black text-body font-bold uppercase tracking-wider cursor-pointer">
                     {loading || reduxLoading ? t("forgotPassword.sending") : (

@@ -32,7 +32,7 @@ export default function ChangePasswordPage() {
     dispatch(changePassword({ currentPassword, newPassword }, (err: any) => {
       if (!err) {
         toast.success(t("changePassword.success"));
-        router.push(lp("/customer/account"));
+        router.push(lp("/my-account"));
       } else {
         toast.error(err || t("changePassword.failed"));
       }
@@ -80,7 +80,7 @@ export default function ChangePasswordPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-amber-400 text-black font-bold py-3 rounded-[3px] shadow-sm hover:bg-primaryHover transition-all uppercase text-xs tracking-wider cursor-pointer active:scale-95 disabled:opacity-50"
+              className="w-full bg-primary text-black font-bold py-3 rounded-[3px] shadow-sm hover:bg-primaryHover transition-all uppercase text-xs tracking-wider cursor-pointer active:scale-95 disabled:opacity-50"
             >
               {loading ? t("changePassword.saving") : t("changePassword.save")}
             </button>

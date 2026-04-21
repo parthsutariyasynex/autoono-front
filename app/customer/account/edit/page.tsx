@@ -40,6 +40,11 @@ function EditAccountPageContent() {
     const [changeEmail, setChangeEmail] = useState(false);
     const [changePassword, setChangePassword] = useState(false);
 
+    // Password-change form fields
+    const [currentPassword, setCurrentPassword] = useState("");
+    const [newPassword, setNewPassword] = useState("");
+    const [confirmNewPassword, setConfirmNewPassword] = useState("");
+
     useEffect(() => {
         if (status === "unauthenticated") {
             redirectToLogin(router);
@@ -70,30 +75,49 @@ function EditAccountPageContent() {
             return;
         }
 
+        // Password-change validation (only when the section is enabled)
+        if (changePassword) {
+            if (!currentPassword || !newPassword || !confirmNewPassword) {
+                toast.error(t("changePassword.required") !== "changePassword.required"
+                    ? t("changePassword.required")
+                    : "All password fields are required");
+                return;
+            }
+            if (newPassword !== confirmNewPassword) {
+                toast.error(t("changePassword.mismatch"));
+                return;
+            }
+        }
+
         setIsSaving(true);
         const toastId = toast.loading("Saving changes...");
 
         try {
-            // 1. Update Profile (Name/Email)
-            const profilePayload: any = {
-                customer: {
-                    ...customer,
-                    firstname: firstName,
-                    lastname: lastName,
-                }
-            };
+            // Change Password flow — hits the working endpoint:
+            //   POST /api/kleverapi/change-password
+            //   → proxies to Magento /rest/{locale}/V1/kleverapi/change-password
+            if (changePassword) {
+                await api.post("/kleverapi/change-password", {
+                    currentPassword,
+                    newPassword,
+                });
+                // Clear sensitive fields after a successful change
+                setCurrentPassword("");
+                setNewPassword("");
+                setConfirmNewPassword("");
+            }
 
-            // Only send these if they were checked and fields would be provided (logic can be expanded)
-            if (changeEmail) profilePayload.customer.email = email;
-
-            await api.post("/kleverapi/my-account", profilePayload);
-
-            toast.success("Account information updated successfully", { id: toastId });
+            toast.success(
+                changePassword
+                    ? (t("changePassword.success") || "Password changed successfully")
+                    : "Account information updated successfully",
+                { id: toastId }
+            );
             dispatch(fetchCustomerInfo());
-            router.push(lp("/customer/account"));
+            router.push(lp("/my-account"));
         } catch (error: any) {
             console.error("Save Error:", error);
-            toast.error(error.message || "Failed to update account", { id: toastId });
+            toast.error(error.message || "Failed to save changes", { id: toastId });
         } finally {
             setIsSaving(false);
         }
@@ -238,6 +262,9 @@ function EditAccountPageContent() {
                                             type="password"
                                             className={inputClass}
                                             placeholder={t("changePassword.currentPassword")}
+                                            value={currentPassword}
+                                            onChange={(e) => setCurrentPassword(e.target.value)}
+                                            autoComplete="current-password"
                                         />
                                     </div>
 
@@ -249,9 +276,12 @@ function EditAccountPageContent() {
                                             type="password"
                                             className={inputClass}
                                             placeholder={t("changePassword.newPassword")}
+                                            value={newPassword}
+                                            onChange={(e) => setNewPassword(e.target.value)}
+                                            autoComplete="new-password"
                                         />
                                         <div className="bg-[#f4f4f4] px-4 py-2 text-body-sm font-bold text-black/70 border border-gray-100 italic">
-                                            Password Strength: No Password
+                                            Password Strength: {newPassword.length === 0 ? "No Password" : newPassword.length < 8 ? "Weak" : newPassword.length < 12 ? "Medium" : "Strong"}
                                         </div>
                                     </div>
 
@@ -263,7 +293,15 @@ function EditAccountPageContent() {
                                             type="password"
                                             className={inputClass}
                                             placeholder={t("changePassword.confirmNewPassword")}
+                                            value={confirmNewPassword}
+                                            onChange={(e) => setConfirmNewPassword(e.target.value)}
+                                            autoComplete="new-password"
                                         />
+                                        {confirmNewPassword.length > 0 && newPassword !== confirmNewPassword && (
+                                            <p className="text-red-500 text-label font-semibold">
+                                                {t("changePassword.mismatch")}
+                                            </p>
+                                        )}
                                     </div>
                                 </div>
                             </div>

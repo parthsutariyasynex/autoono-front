@@ -4,12 +4,9 @@ import { useLayoutEffect } from "react";
 
 /**
  * Reusable hook to lock body scroll when a component (like a modal) is mounted.
- *
- * Layout shift prevention is handled by `scrollbar-gutter: stable` on <html>
- * (see app/globals.css). That reserves scrollbar space permanently, so when
- * `overflow: hidden` is applied here the page width does not change and no
- * padding-right compensation is needed. For browsers that lack
- * `scrollbar-gutter` support we fall back to the classic padding-right trick.
+ * Prevents layout shift on pages that currently have a scrollbar by adding
+ * compensating padding-right equal to scrollbar width. Short pages with no
+ * scrollbar compute scrollbarWidth=0 and get no padding (so no visual change).
  *
  * @param lock - boolean to determine if scroll should be locked
  */
@@ -20,15 +17,7 @@ export function useLockBodyScroll(lock: boolean = true) {
         const originalStyle = window.getComputedStyle(document.body).overflow;
         const originalPaddingRight = window.getComputedStyle(document.body).paddingRight;
 
-        const supportsScrollbarGutter =
-            typeof CSS !== "undefined" && CSS.supports("scrollbar-gutter", "stable");
-
-        // Only compute + apply padding compensation when scrollbar-gutter isn't
-        // available (older browsers). With scrollbar-gutter: stable, the space
-        // stays reserved and adding padding would double-pad and shift content.
-        const scrollbarWidth = supportsScrollbarGutter
-            ? 0
-            : window.innerWidth - document.documentElement.clientWidth;
+        const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
 
         document.body.style.overflow = "hidden";
         if (scrollbarWidth > 0) {

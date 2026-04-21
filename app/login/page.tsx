@@ -12,11 +12,7 @@ import { RootState } from "@/store/store";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useLocalePath } from "@/hooks/useLocalePath";
 
-const COUNTRY_CODES = [
-  { code: "+966", country: "Saudi Arabia", arCountry: "المملكة العربية السعودية", iso: "sa", flagClass: "iti__flag iti__sa" },
-  { code: "+91", country: "India", arCountry: "भारत", iso: "in", flagClass: "iti__flag iti__in" },
-  { code: "+971", country: "United Arab Emirates", arCountry: "الإمارات العربية المتحدة", iso: "ae", flagClass: "iti__flag iti__ae" },
-];
+import CountryDropdown from "@/app/components/CountryDropdown";
 
 export default function LoginPage() {
   return (
@@ -60,8 +56,12 @@ function LoginPageContent() {
   const [mobileNumber, setMobileNumber] = useState("");
   const [otpSent, setOtpSent] = useState(false);
   const [otp, setOtp] = useState("");
-  const [showDropdown, setShowDropdown] = useState(false);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
+
+  useEffect(() => {
+    document.body.classList.add('scrollbar-hide');
+    return () => document.body.classList.remove('scrollbar-hide');
+  }, []);
 
   useEffect(() => {
     const qp = searchParams.get("mode");
@@ -69,8 +69,6 @@ function LoginPageContent() {
       setMode(qp);
     }
   }, [searchParams]);
-
-  const selectedCountry = COUNTRY_CODES.find((c) => c.code === countryCode);
 
   const validate = () => {
     const newErrors: { [key: string]: string } = {};
@@ -109,6 +107,8 @@ function LoginPageContent() {
 
     setLoading(true);
 
+    const locale = window.location.pathname.startsWith('/ar') ? 'ar' : 'en';
+
     if (mode === "password") {
       try {
         const magentoRes = await fetch("/api/kleverapi/login", {
@@ -130,7 +130,7 @@ function LoginPageContent() {
         const res = await signIn("credentials", {
           email,
           password,
-          locale: window.location.pathname.startsWith('/ar') ? 'ar' : 'en',
+          locale,
           redirect: false,
         });
 
@@ -141,14 +141,13 @@ function LoginPageContent() {
             await new Promise(r => setTimeout(r, 200));
           }
           toast.success(t("login.loginSuccess"));
-          const locale = window.location.pathname.startsWith('/ar') ? 'ar' : 'en';
           const callbackUrl = searchParams.get("callbackUrl") || `/${locale}/products`;
           window.location.href = callbackUrl;
         } else {
           localStorage.removeItem("token");
           toast.error(t("login.loginFailed"));
         }
-      } catch {
+      } catch (err: any) {
         toast.error(t("login.loginFailed"));
       } finally {
         setLoading(false);
@@ -171,7 +170,7 @@ function LoginPageContent() {
           mobile: mobileNumber,
           otp: otp,
           countryCode: countryCode,
-          locale: window.location.pathname.startsWith('/ar') ? 'ar' : 'en',
+          locale,
           redirect: false,
         });
 
@@ -182,7 +181,6 @@ function LoginPageContent() {
             await new Promise(r => setTimeout(r, 200));
           }
           toast.success(t("login.loginSuccess"));
-          const locale = window.location.pathname.startsWith('/ar') ? 'ar' : 'en';
           const callbackUrl = searchParams.get("callbackUrl") || `/${locale}/products`;
           window.location.href = callbackUrl;
         } else {
@@ -198,7 +196,18 @@ function LoginPageContent() {
   };
 
   return (
-    <div className="flex-1 w-full h-full bg-[#f4f4f4] flex flex-col">
+    <div className="flex-1 w-full h-full bg-[#f4f4f4] flex flex-col scrollbar-hide">
+      <style dangerouslySetInnerHTML={{
+        __html: `
+        html, body {
+          overflow: hidden !important;
+          scrollbar-width: none !important;
+          -ms-overflow-style: none !important;
+        }
+        html::-webkit-scrollbar, body::-webkit-scrollbar {
+          display: none !important;
+        }
+      ` }} />
       <main className="flex-1 flex justify-center items-start pt-8 md:pt-16 pb-12 px-4 md:px-0">
         <div className="w-full max-w-[440px] bg-white rounded-[3px] shadow-[0_10px_40px_rgba(0,0,0,0.08)] border border-gray-100 overflow-hidden">
           <div className="px-4 sm:px-6 md:px-8 pt-5 sm:pt-7 pb-4 sm:pb-5">
@@ -234,7 +243,7 @@ function LoginPageContent() {
             </p>
 
             <form onSubmit={handleSubmit} className="flex flex-col gap-3 sm:gap-[14px]" noValidate>
-              {mode === 'password' && (
+              {mode === 'password' ? (
                 <>
                   <div className="flex flex-col gap-[5px]">
                     <label className="block text-body font-semibold text-black uppercase tracking-widest cursor-pointer">
@@ -246,9 +255,9 @@ function LoginPageContent() {
                       placeholder={t("login.emailPlaceholder")}
                       value={email}
                       onChange={(e) => { setEmail(e.target.value); if (errors.email) setErrors({ ...errors, email: '' }); }}
-                      className={`w-full h-[48px] bg-white px-3 text-body border transition-all outline-none cursor-text ${errors.email ? 'border-red-500' : 'border-gray-300 focus:border-gray-600'}`}
+                      className={`w-full h-[48px] bg-white px-3 text-body border transition-all outline-none cursor-text font-semibold placeholder:font-normal ${errors.email ? 'border-red-500' : 'border-gray-300 focus:border-gray-600'}`}
                     />
-                    {errors.email && <span className="text-red-500 text-label font-semibold">{errors.email}</span>}
+                    {errors.email && <span className="text-red-500 text-label font-semibold text-[13px]">{errors.email}</span>}
                   </div>
 
                   <div className="flex flex-col gap-[5px]">
@@ -261,66 +270,35 @@ function LoginPageContent() {
                       placeholder={t("login.passwordPlaceholder")}
                       value={password}
                       onChange={(e) => { setPassword(e.target.value); if (errors.password) setErrors({ ...errors, password: '' }); }}
-                      className={`w-full h-[48px] bg-white px-3 text-body border transition-all outline-none cursor-text ${errors.password ? 'border-red-500' : 'border-gray-300 focus:border-gray-600'}`}
+                      className={`w-full h-[48px] bg-white px-3 text-body border transition-all outline-none cursor-text font-semibold placeholder:font-normal ${errors.password ? 'border-red-500' : 'border-gray-300 focus:border-gray-600'}`}
                     />
-                    {errors.password && <span className="text-red-500 text-label font-semibold">{errors.password}</span>}
+                    {errors.password && <span className="text-red-500 text-label font-semibold text-[13px]">{errors.password}</span>}
                   </div>
                 </>
-              )}
-
-              {mode === 'otp' && (
+              ) : (
                 <>
                   <div className="flex flex-col gap-[5px] relative">
                     <label className="block text-body font-semibold text-black uppercase tracking-widest">
                       {t("login.mobileNumberLabel")} <span className="text-red-600 font-bold">*</span>
                     </label>
                     <div
-                      className={`flex h-[48px] bg-white border transition-all ${errors.mobile ? 'border-red-500' : 'border-gray-300 focus-within:border-gray-600'}`}
+                      className={`flex flex-row items-center h-[48px] bg-white border transition-all ${errors.mobile ? 'border-red-500' : 'border-gray-300 focus-within:border-gray-600'}`}
                     >
-                      <div
-                        className="px-4 flex items-center gap-2 border-r border-gray-100 rtl:border-r-0 rtl:border-l rtl:border-gray-100 cursor-pointer min-w-[110px] sm:min-w-[120px] hover:bg-gray-50 transition-colors"
-                        onClick={() => setShowDropdown(!showDropdown)}
-                      >
-                        <span className={`${selectedCountry?.flagClass}`}></span>
-                        {/* Only the country code span is LTR so "+966" renders with the plus on the left.
-                            The rest of the field inherits the page direction (RTL on /ar). */}
-                        <span
-                          dir="ltr"
-                          className="font-semibold text-body"
-                          style={{ color: '#e02b27' }}
-                        >
-                          {selectedCountry?.code}
-                        </span>
-                        <span className="text-micro text-black/50">▼</span>
-                      </div>
+                      <CountryDropdown
+                        selectedCountryCode={countryCode}
+                        onSelect={(code) => setCountryCode(code)}
+                      />
                       <input
-                        id="mobile-input"
+                        id="mobile-input-login"
                         type="tel"
+                        dir="ltr"
                         placeholder={t("login.mobilePlaceholder")}
                         value={mobileNumber}
                         onChange={(e) => { setMobileNumber(e.target.value.replace(/\D/g, "")); if (errors.mobile) setErrors({ ...errors, mobile: '' }); }}
-                        className="flex-1 px-3 text-body outline-none bg-transparent cursor-text font-semibold"
+                        className="flex-1 px-3 text-body outline-none bg-transparent cursor-text font-semibold placeholder:font-normal ltr:text-left rtl:text-right"
                       />
-
-                      {showDropdown && (
-                        <div className="absolute top-full left-0 w-full min-w-max bg-white border border-gray-100 shadow-[0_15px_60px_-15px_rgba(0,0,0,0.15)] z-[100] rounded-sm mt-1 max-h-60 overflow-y-auto">
-                          {COUNTRY_CODES.map((item) => (
-                            <div
-                              key={item.code}
-                              onClick={() => { setCountryCode(item.code); setShowDropdown(false); }}
-                              className="px-4 py-2 hover:bg-gray-50 cursor-pointer flex items-center justify-between gap-4 group border-b last:border-0 border-gray-50"
-                            >
-                              <div className="flex items-center gap-3">
-                                <span className={`${item.flagClass}`}></span>
-                                <span className="text-body" style={{ color: '#e02b27' }}>{item.country} ({item.arCountry})</span>
-                              </div>
-                              <span className="text-body text-black/60">{item.code}</span>
-                            </div>
-                          ))}
-                        </div>
-                      )}
                     </div>
-                    {errors.mobile && <span className="text-red-500 text-label font-bold">{errors.mobile}</span>}
+                    {errors.mobile && <span className="text-red-500 text-label font-bold text-[13px]">{errors.mobile}</span>}
                   </div>
 
                   {otpSent && (
@@ -336,7 +314,7 @@ function LoginPageContent() {
                         className={`w-full h-[48px] bg-white px-3 text-body border transition-all outline-none text-center font-semibold tracking-[8px] cursor-text placeholder:font-normal placeholder:tracking-normal ${errors.otp ? 'border-red-500' : 'border-gray-300 focus:border-gray-600'}`}
                         placeholder={t("login.enterOtp")}
                       />
-                      {errors.otp && <span className="text-red-500 text-label font-bold">{errors.otp}</span>}
+                      {errors.otp && <span className="text-red-500 text-label font-bold text-[13px]">{errors.otp}</span>}
                     </div>
                   )}
                 </>

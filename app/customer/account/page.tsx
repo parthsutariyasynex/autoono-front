@@ -109,9 +109,6 @@ export default function MyAccountPage() {
 
     return (
         <>
-
-
-            return (
             <div className="flex-1 flex flex-col lg:flex-row min-h-0">
                 <Sidebar />
 
@@ -121,7 +118,7 @@ export default function MyAccountPage() {
 
                         <div className="flex items-center gap-4 mb-2">
                             <h1 className="text-2xl font-black text-black uppercase tracking-tight">
-                                {t("nav.accountDashboard")}
+                                {t("account.title")}
                             </h1>
                             <div className="h-[2px] flex-1 bg-gradient-to-r from-primary to-transparent"></div>
                         </div>
