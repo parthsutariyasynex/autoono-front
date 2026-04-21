@@ -21,7 +21,7 @@ const SelectedAddressCard: React.FC<SelectedAddressCardProps> = ({ address, onEd
 
             {/* Left side: Address Text */}
             <div className="flex-1 pr-4">
-                <p className="text-[12px] text-[#333] leading-relaxed font-medium">
+                <p className="text-body-sm text-[#333] leading-relaxed font-medium">
                     <span className="font-bold text-black">{address.firstname} {address.lastname}</span>{" "}
                     {address.street} {address.city}, {address.postcode}{" "}
                     {address.country_id === 'SA' ? t("data.Saudi Arabia") : address.country_id} {address.telephone}
@@ -38,7 +38,7 @@ const SelectedAddressCard: React.FC<SelectedAddressCardProps> = ({ address, onEd
                     e.stopPropagation();
                     onEdit();
                 }}
-                className="bg-[#F5B21B] text-black text-[10px] font-black px-6 py-2 uppercase tracking-widest hover:bg-black hover:text-white transition-all duration-300 flex-shrink-0"
+                className="bg-primary text-black text-caption font-black px-6 py-2 uppercase tracking-widest hover:bg-black hover:text-white transition-all duration-300 flex-shrink-0"
             >
                 {t("addressBook.editAddress")}
             </button>

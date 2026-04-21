@@ -105,7 +105,7 @@ export default function ProductEnquiryModal({
         <Drawer isOpen={isOpen} onClose={onClose}>
             <div className="flex flex-col h-full bg-white font-sans">
                 {/* HEADER */}
-                <div className="bg-[#FFB82B] py-6 flex items-center justify-center relative flex-shrink-0">
+                <div className="bg-primary py-6 flex items-center justify-center relative flex-shrink-0">
                     <h2 className="text-[18px] font-bold text-black uppercase tracking-tight">{t("inquiry.title")}</h2>
                 </div>
 
@@ -113,14 +113,14 @@ export default function ProductEnquiryModal({
                     {/* Product Info Section (Matches provided Image Layout) */}
                     <div className="px-1 space-y-5">
                         <div className="space-y-1">
-                            <h3 className="text-[16px] font-bold text-black leading-none">{t("inquiry.name")}</h3>
+                            <h3 className="text-h3-sm font-bold text-black leading-none">{t("inquiry.name")}</h3>
                             <p className="text-[15px] text-black leading-snug truncate-none">
                                 {productName}
                             </p>
                         </div>
 
                         <div className="space-y-1">
-                            <h3 className="text-[16px] font-bold text-black leading-none">{t("inquiry.price")}</h3>
+                            <h3 className="text-h3-sm font-bold text-black leading-none">{t("inquiry.price")}</h3>
                             <div className="text-[18px] text-black price currency-riyal">
 
                                 <Price amount={productPrice} />
@@ -132,12 +132,12 @@ export default function ProductEnquiryModal({
                     <div className="space-y-6">
                         {/* Quantity */}
                         <div className="space-y-2">
-                            <label className="text-[16px] font-bold text-black leading-none">{t("inquiry.orderQuantity")}</label>
+                            <label className="text-h3-sm font-bold text-black leading-none">{t("inquiry.orderQuantity")}</label>
                             <input
                                 required
                                 type="number"
                                 min="1"
-                                className="w-full px-4 py-3.5 bg-white border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-[#FFB82B] transition-all text-base font-medium shadow-sm"
+                                className="w-full px-4 py-3.5 bg-white border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-primary transition-all text-base font-medium shadow-sm"
                                 value={formData.quantity}
                                 onChange={(e) => setFormData({ ...formData, quantity: e.target.value })}
                             />
@@ -145,11 +145,11 @@ export default function ProductEnquiryModal({
 
                         {/* Comment */}
                         <div className="space-y-2">
-                            <label className="text-[16px] font-bold text-black leading-none">{t("inquiry.notesComments")}</label>
+                            <label className="text-h3-sm font-bold text-black leading-none">{t("inquiry.notesComments")}</label>
                             <textarea
                                 rows={4}
                                 placeholder={t("inquiry.placeholder")}
-                                className="w-full px-4 py-3.5 bg-white border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-[#FFB82B] transition-all text-base resize-none shadow-sm"
+                                className="w-full px-4 py-3.5 bg-white border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-primary transition-all text-base resize-none shadow-sm"
                                 value={formData.comment}
                                 onChange={(e) => setFormData({ ...formData, comment: e.target.value })}
                             />
@@ -161,7 +161,7 @@ export default function ProductEnquiryModal({
                                 <div className="relative flex items-center">
                                     <input
                                         type="checkbox"
-                                        className="h-6 w-6 cursor-pointer accent-[#FFB82B] rounded-md border-gray-300 transition-all"
+                                        className="h-6 w-6 cursor-pointer accent-primary rounded-md border-gray-300 transition-all"
                                         checked={formData.notifyStock}
                                         onChange={(e) => setFormData({ ...formData, notifyStock: e.target.checked })}
                                     />
@@ -178,7 +178,7 @@ export default function ProductEnquiryModal({
                         <button
                             type="submit"
                             disabled={isSubmitting}
-                            className="w-full py-4.5 px-10 bg-[#FFB82B] hover:bg-[#EAA71D] text-black font-black rounded-lg transition-all text-sm uppercase tracking-widest shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center min-h-[56px] cursor-pointer"
+                            className="w-full py-4.5 px-10 bg-primary hover:bg-[#EAA71D] text-black font-black rounded-lg transition-all text-sm uppercase tracking-widest shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center min-h-[56px] cursor-pointer"
                         >
                             {isSubmitting ? (
                                 <div className="w-6 h-6 border-3 border-black border-t-transparent rounded-full animate-spin"></div>

@@ -2,7 +2,7 @@ import { getServerSession } from "next-auth";
 import { getToken } from "next-auth/jwt";
 import { authOptions } from "@/lib/auth/auth-options";
 import { NextRequest } from "next/server";
-import { getBaseUrl, getLocaleFromRequest } from "@/lib/api/magento-url";
+import { getBaseUrl, getLocaleFromRequest, getV101BaseUrl, getStoreBaseUrl } from "@/lib/api/magento-url";
 
 export async function GET(request: NextRequest) {
     try {
@@ -22,6 +22,7 @@ export async function GET(request: NextRequest) {
                 const jwtToken = await getToken({
                     req: request,
                     secret: process.env.NEXTAUTH_SECRET,
+                    cookieName: "autoono.session-token",
                 });
                 token = (jwtToken as any)?.accessToken || null;
                 console.log("[category-products] Token from JWT cookie:", token ? "found" : "missing");
@@ -52,9 +53,11 @@ export async function GET(request: NextRequest) {
 
         // Step 2: Handle search parameters
         const { searchParams } = new URL(request.url);
-        const categoryId = searchParams.get("categoryId") || "5";
+        const categoryId = searchParams.get("categoryId") || "15";
         const page = searchParams.get("page") || "1";
         const pageSize = searchParams.get("pageSize") || "20";
+        // Optional store/warehouse code (e.g. V101, V102, V103) — goes into the Magento URL path
+        const storeCode = searchParams.get("storeCode") || searchParams.get("store") || "";
 
         // Group parameters: Magento's layered navigation uses key[0]=v1. 
         // We want to group these into key=v1,v2 for the category-products JSON API.
@@ -74,7 +77,7 @@ export async function GET(request: NextRequest) {
         ];
 
         // Filters: mapping and joining grouped values
-        const reservedKeys = new Set(["categoryId", "page", "pageSize", "sortBy", "is_ajax"]);
+        const reservedKeys = new Set(["categoryId", "page", "pageSize", "sortBy", "is_ajax", "storeCode", "store", "lang", "category"]);
 
         Object.entries(groupedParams).forEach(([key, values]) => {
             if (reservedKeys.has(key)) return;
@@ -94,7 +97,10 @@ export async function GET(request: NextRequest) {
                     warranty_period: "warrantyPeriod",
                     new_arrivals: "newArrivals",
                     item_code: "itemCode",
-                    oem_marking: "oemMarking"
+                    oem_marking: "oemMarking",
+                    parts_category: "partsCategory",
+                    oil_type: "oilType",
+                    grade: "oilGrade"
                 };
 
                 const magentoKey = keyMap[key] || key;
@@ -112,11 +118,14 @@ export async function GET(request: NextRequest) {
         const resolvedLocale = getLocaleFromRequest(request);
         console.log("[category-products] LOCALE DEBUG: lang=" + langParam + " header=" + xLocaleHeader + " cookie=" + localeCookie + " resolved=" + resolvedLocale + " referer=" + referer);
 
-        const baseUrl = getBaseUrl(request);
-        const magentoUrlStr = `${baseUrl}/category-products?${queryParts.join("&")}`;
-        console.log("[category-products] Magento URL:", magentoUrlStr);
+        // Choose the Magento base URL: storeCode from query (e.g. V101) takes priority,
+        // otherwise fall back to "ar" as the default store context.
+        const effectiveStoreCode = storeCode || "ar";
+        const primaryBaseUrl = getStoreBaseUrl(effectiveStoreCode);
+        const magentoUrlStr = `${primaryBaseUrl}/category-products?${queryParts.join("&")}`;
+        console.log("[category-products] storeCode=" + effectiveStoreCode + " URL:", magentoUrlStr);
 
-        const res = await fetch(magentoUrlStr, {
+        let res = await fetch(magentoUrlStr, {
             headers: {
                 ...(token && { Authorization: `Bearer ${token}` }),
                 "Content-Type": "application/json",
@@ -125,6 +134,21 @@ export async function GET(request: NextRequest) {
             },
             cache: "no-store",
         });
+
+        // Fallback Strategy: If V101 returns 404, try the locale-specific URL
+        if (!res.ok && res.status === 404) {
+            console.warn("[category-products] V101 URL returned 404. Falling back to locale baseUrl.");
+            const localeBaseUrl = getBaseUrl(request);
+            const fallbackUrl = `${localeBaseUrl}/category-products?${queryParts.join("&")}`;
+            res = await fetch(fallbackUrl, {
+                headers: {
+                    ...(token && { Authorization: `Bearer ${token}` }),
+                    "Content-Type": "application/json",
+                    "platform": "web",
+                },
+                cache: "no-store",
+            });
+        }
 
         if (!res.ok) {
             const errBody = await res.text();
@@ -149,6 +173,10 @@ export async function GET(request: NextRequest) {
                 if (code === "productGroup") code = "product_group";
                 if (code === "warrantyPeriod") code = "warranty_period";
                 if (code === "newArrivals") code = "new_arrivals";
+                if (code === "partsCategory") code = "parts_category";
+                if (code === "oilType") code = "oil_type";
+                if (code === "oilGrade") code = "grade";
+                if (code === "oilGrade") code = "grade";
 
                 return { ...f, code };
             });

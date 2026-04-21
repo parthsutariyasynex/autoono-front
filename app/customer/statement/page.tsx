@@ -71,7 +71,7 @@ export default function MyStatementPage() {
     if (authStatus === "loading") {
         return (
             <div className="min-h-screen flex items-center justify-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#f5a623]"></div>
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
             </div>
         );
     }
@@ -161,14 +161,14 @@ export default function MyStatementPage() {
 
                 {/* Right Content */}
                 <main className="flex-1 p-4 md:p-6 lg:p-8 bg-[#fcfcfc] min-h-0">
-                    <h1 className="text-[18px] sm:text-[20px] md:text-[24px] font-black text-black tracking-tight uppercase mb-4 md:mb-8">
+                    <h1 className="text-[18px] sm:text-h3 md:text-h2 font-black text-black tracking-tight uppercase mb-4 md:mb-8">
                         {t("statement.title")}
                     </h1>
 
                     <div className="max-w-[700px] bg-white border border-gray-200 rounded-sm shadow-sm overflow-hidden">
                         {/* Card Header */}
                         <div className="bg-[#f8f8f8] px-6 py-3 border-b border-gray-200">
-                            <h2 className="text-[14px] font-bold text-black uppercase tracking-wide">
+                            <h2 className="text-body-lg font-bold text-black uppercase tracking-wide">
                                 {t("m.get-your-statement")}
                             </h2>
                         </div>
@@ -178,34 +178,34 @@ export default function MyStatementPage() {
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8 mb-4 md:mb-8">
                                 {/* Start Date */}
                                 <div>
-                                    <label className="block text-[13px] font-bold text-gray-800 mb-2">
+                                    <label className="block text-body font-bold text-gray-800 mb-2">
                                         {t("m.start-date")}
                                     </label>
                                     <input
                                         type="date"
                                         value={startDate}
                                         onChange={(e) => setStartDate(e.target.value)}
-                                        className="w-full h-[45px] px-4 border border-gray-300 text-[14px] text-gray-700 focus:outline-none focus:border-[#f5a623] transition-colors"
+                                        className="w-full h-[45px] px-4 border border-gray-300 text-body-lg text-gray-700 focus:outline-none focus:border-primary transition-colors"
                                     />
                                 </div>
 
                                 {/* End Date */}
                                 <div>
-                                    <label className="block text-[13px] font-bold text-gray-800 mb-2">
+                                    <label className="block text-body font-bold text-gray-800 mb-2">
                                         {t("m.end-date")}
                                     </label>
                                     <input
                                         type="date"
                                         value={endDate}
                                         onChange={(e) => setEndDate(e.target.value)}
-                                        className="w-full h-[45px] px-4 border border-gray-300 text-[14px] text-gray-700 focus:outline-none focus:border-[#f5a623] transition-colors"
+                                        className="w-full h-[45px] px-4 border border-gray-300 text-body-lg text-gray-700 focus:outline-none focus:border-primary transition-colors"
                                     />
                                 </div>
                             </div>
 
                             {/* Statement Type */}
                             <div className="mb-6 md:mb-10">
-                                <label className="block text-[13px] font-bold text-gray-800 mb-2">
+                                <label className="block text-body font-bold text-gray-800 mb-2">
                                     {t("m.type")}
                                 </label>
                                 <PortalDropdown
@@ -213,7 +213,7 @@ export default function MyStatementPage() {
                                     onChange={(val) => setStatementType(val)}
                                     options={statementTypes}
                                     placeholder={statementTypes.length > 0 ? t("m.select") : t("common.loading")}
-                                    buttonClassName="w-full h-[45px] px-4 border border-gray-300 text-[14px] text-gray-700 focus:outline-none focus:border-[#f5a623] transition-colors bg-white font-medium shadow-sm flex items-center justify-between cursor-pointer"
+                                    buttonClassName="w-full h-[45px] px-4 border border-gray-300 text-body-lg text-gray-700 focus:outline-none focus:border-primary transition-colors bg-white font-medium shadow-sm flex items-center justify-between cursor-pointer"
                                 />
                             </div>
 
@@ -222,7 +222,7 @@ export default function MyStatementPage() {
                                 <button
                                     onClick={handleGetStatement}
                                     disabled={isDownloading}
-                                    className={`w-full sm:w-auto bg-[#f5a623] text-black px-6 sm:px-10 py-3 md:py-3.5 font-bold text-[14px] uppercase tracking-widest hover:bg-[#e6950f] transition-all shadow-md flex items-center justify-center gap-3 active:scale-[0.98] ${isDownloading ? 'opacity-70 cursor-not-allowed grayscale' : ''}`}
+                                    className={`w-full sm:w-auto bg-primary text-black px-6 sm:px-10 py-3 md:py-3.5 font-bold text-body-lg uppercase tracking-widest hover:bg-[#e6950f] transition-all shadow-md flex items-center justify-center gap-3 active:scale-[0.98] ${isDownloading ? 'opacity-70 cursor-not-allowed grayscale' : ''}`}
                                 >
                                     {isDownloading ? (
                                         <>
@@ -236,8 +236,8 @@ export default function MyStatementPage() {
 
                                 {error && (
                                     <div className="mt-4 p-4 bg-red-50 border-l-4 border-red-500 text-red-700">
-                                        <p className="text-[13px] font-bold mb-1">{t("common.error")}</p>
-                                        <p className="text-[12px]">{error}</p>
+                                        <p className="text-body font-bold mb-1">{t("common.error")}</p>
+                                        <p className="text-body-sm">{error}</p>
                                     </div>
                                 )}
                             </div>

@@ -62,10 +62,10 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                     {/* Header Sub-info */}
                     <div className="px-6 py-4 bg-gray-50/50 border-b border-gray-100">
                         <div className="flex justify-between items-center">
-                            <span className="text-[11px] font-black text-gray-400 uppercase tracking-widest leading-none">
+                            <span className="text-label font-semibold text-gray-400 uppercase tracking-widest leading-none">
                                 {t("cart.subtotal")}
                             </span>
-                            <span className="text-[17px] font-black text-black price currency-riyal">
+                            <span className="text-[17px] font-semibold text-black price currency-riyal">
                                 <Price amount={cart?.subtotal || 0} />
                             </span>
                         </div>
@@ -75,7 +75,7 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                     <div className="flex-1 overflow-y-auto custom-scrollbar">
                         {isLoading ? (
                             <div className="flex flex-col items-center justify-center py-20 space-y-4">
-                                <div className="w-10 h-10 border-3 border-[#f5b21a] border-t-transparent rounded-full animate-spin"></div>
+                                <div className="w-10 h-10 border-3 border-primary border-t-transparent rounded-full animate-spin"></div>
                                 <p className="text-xs text-gray-400 font-black uppercase tracking-widest">{t("cart.updatingCart")}</p>
                             </div>
                         ) : (cart?.items?.length || 0) === 0 ? (
@@ -83,11 +83,11 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                                 <div className="bg-gray-50 w-20 h-20 rounded-full flex items-center justify-center mb-6 shadow-inner">
                                     <ShoppingCartIcon />
                                 </div>
-                                <p className="text-[16px] font-black text-gray-900 uppercase tracking-tight">{t("cart.yourCartIsEmpty")}</p>
+                                <p className="text-h3-sm font-semibold text-gray-900 uppercase tracking-tight">{t("cart.yourCartIsEmpty")}</p>
                                 <p className="text-xs text-gray-400 mt-2 font-medium">{t("cart.addItems")}</p>
                                 <button
                                     onClick={onClose}
-                                    className="mt-8 text-[11px] font-black text-[#f5b21a] uppercase tracking-[0.2em] hover:text-black transition-colors"
+                                    className="mt-8 text-label font-semibold text-primary uppercase tracking-[0.2em] hover:text-black transition-colors"
                                 >
                                     {t("multi.continueShopping")}
                                 </button>
@@ -111,10 +111,10 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                                         {/* Center: Info */}
                                         <div className="flex-1 min-w-0 flex flex-col justify-center">
                                             <div>
-                                                <h3 className="text-sm font-black text-gray-900 leading-snug line-clamp-2 uppercase tracking-tight">
+                                                <h3 className="text-sm font-semibold text-gray-900 leading-snug line-clamp-2 uppercase tracking-tight">
                                                     {item.name}
                                                 </h3>
-                                                <p className="text-[16px] font-black text-black mt-1.5 price currency-riyal">
+                                                <p className="text-h3-sm font-semibold text-black mt-1.5 price currency-riyal">
                                                     <Price amount={item.price} />
                                                 </p>
                                             </div>
@@ -129,7 +129,7 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                                                     >
                                                         <Minus size={12} strokeWidth={3} />
                                                     </button>
-                                                    <span className="w-10 text-center text-xs font-black text-gray-900 bg-transparent">
+                                                    <span className="w-10 text-center text-xs font-semibold text-gray-900 bg-transparent">
                                                         {item.qty}
                                                     </span>
                                                     <button
@@ -160,7 +160,7 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                         <Link
                             href={lp("/cart")}
                             onClick={onClose}
-                            className="w-full h-[55px] bg-[#f5b21a] hover:bg-black text-black hover:text-white font-black rounded-sm transition-all duration-300 flex items-center justify-center shadow-lg hover:shadow-xl uppercase tracking-[0.2em] text-[12px]"
+                            className="w-full h-[55px] bg-primary hover:bg-black text-black hover:text-white font-semibold rounded-sm transition-all duration-300 flex items-center justify-center shadow-lg hover:shadow-xl uppercase tracking-[0.2em] text-body-sm"
                         >
                             {t("cart.viewAndEditCart")}
                         </Link>
@@ -193,14 +193,14 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                     <div className="border-t border-gray-100 p-6 pt-5 pb-5 flex justify-end gap-3 bg-white">
                         <button
                             onClick={() => setConfirmId(null)}
-                            className="px-8 py-2.5 bg-black text-white font-black uppercase tracking-widest text-[12px] hover:bg-gray-900 transition-all rounded-sm min-w-[120px]"
+                            className="px-8 py-2.5 bg-black text-white font-semibold uppercase tracking-widest text-body-sm hover:bg-gray-900 transition-all rounded-sm min-w-[120px]"
                         >
                             {t("common.cancel")}
                         </button>
                         <button
                             onClick={handleConfirmDelete}
                             disabled={isRemoving}
-                            className="px-10 py-2.5 bg-[#fdb913] text-black font-black uppercase tracking-widest text-[12px] hover:bg-[#e5a811] transition-all rounded-sm min-w-[100px] flex items-center justify-center gap-2"
+                            className="px-10 py-2.5 bg-primary text-black font-semibold uppercase tracking-widest text-body-sm hover:bg-[#e5a811] transition-all rounded-sm min-w-[100px] flex items-center justify-center gap-2"
                         >
                             {isRemoving ? <div className="w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin" /> : t("common.ok")}
                         </button>

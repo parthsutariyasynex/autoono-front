@@ -18,7 +18,7 @@ import type { AppRouterInstance } from "next/dist/shared/lib/app-router-context.
 
 export async function fetchProducts(searchParams?: URLSearchParams | string): Promise<Product[]> {
   try {
-    let url = "/category-products?categoryId=5"; // Default fallback structure
+    let url = "/category-products?categoryId=15"; // Default fallback structure
 
     if (searchParams instanceof URLSearchParams) {
       url = `/products?${searchParams.toString()}`;

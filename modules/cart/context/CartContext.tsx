@@ -71,7 +71,9 @@ function isAuthError(status: number): boolean {
 
 function handleAuthError() {
   console.warn("Cart: token expired or unauthorized — signing out");
-  signOut({ callbackUrl: "/login" });
+  const locale = typeof window !== "undefined" && window.location.pathname.startsWith("/ar") ? "ar" : "en";
+  const origin = typeof window !== "undefined" ? window.location.origin : "";
+  signOut({ callbackUrl: `${origin}/${locale}/login` });
 }
 
 export function CartProvider({ children }: { children: ReactNode }) {

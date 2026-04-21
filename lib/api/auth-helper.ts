@@ -24,6 +24,7 @@ export async function getRequestToken(req: Request | NextRequest): Promise<strin
             const jwt = await getToken({
                 req: req as any,
                 secret: process.env.NEXTAUTH_SECRET,
+                cookieName: "autoono.session-token",
             });
             token = (jwt as any)?.accessToken || null;
         } catch (e) {

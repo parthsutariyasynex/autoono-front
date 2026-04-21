@@ -188,8 +188,8 @@ export default function MyOrdersPage() {
                             <h1 className="text-xl font-black text-black uppercase tracking-tight">
                                 {t("nav.myOrders")}
                             </h1>
-                            <div className="h-[2px] flex-1 bg-gradient-to-r from-yellow-400 to-transparent"></div>
-                            <button className="hidden sm:flex items-center justify-center gap-2 bg-[#f5a623] text-black text-[11px] font-black px-6 py-3 uppercase tracking-widest hover:bg-[#e6950f] transition-all rounded-lg shadow-sm active:scale-95">
+                            <div className="h-[2px] flex-1 bg-gradient-to-r from-primary to-transparent"></div>
+                            <button className="hidden sm:flex items-center justify-center gap-2 bg-primary text-black text-label font-black px-6 py-3 uppercase tracking-widest hover:bg-[#e6950f] transition-all rounded-lg shadow-sm active:scale-95">
                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                 </svg>
@@ -212,14 +212,14 @@ export default function MyOrdersPage() {
                         <div className="relative">
                             {(isLoading || (authStatus === "loading") || (authStatus === "authenticated" && !hasFetched)) ? (
                                 <div className="flex justify-center items-center py-20">
-                                    <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#f5a623]"></div>
+                                    <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary"></div>
                                 </div>
                             ) : error ? (
                                 <div className="text-center py-16 text-red-500">
-                                    <p className="text-[14px] font-medium mb-3">{error}</p>
+                                    <p className="text-body-lg font-medium mb-3">{error}</p>
                                     <button
                                         onClick={() => fetchOrders()}
-                                        className="text-[12px] font-bold uppercase underline underline-offset-4 text-black hover:text-[#f5a623]"
+                                        className="text-body-sm font-bold uppercase underline underline-offset-4 text-black hover:text-primary"
                                     >
                                         Try Again
                                     </button>

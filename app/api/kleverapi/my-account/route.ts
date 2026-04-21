@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getBaseUrl } from '@/lib/api/magento-url';
+import { getBaseUrl, getGlobalBaseUrl } from '@/lib/api/magento-url';
 import { getRequestToken } from '@/lib/api/auth-helper';
 
 export async function GET(request: NextRequest) {
@@ -15,77 +15,76 @@ export async function GET(request: NextRequest) {
         }
 
         const magentoUrl = `${baseUrl}/my-account`;
-        console.log(`[API ROUTE] Fetching Customer Info from: ${magentoUrl}`);
+        console.log(`[MY-ACCOUNT] GET ${magentoUrl}`);
 
         const response = await fetch(magentoUrl, {
             method: 'GET',
             headers: {
-                'Content-Type': 'application/json',
                 'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json',
                 'platform': 'web',
             },
             cache: 'no-store',
         });
 
-        const contentType = response.headers.get("content-type");
-        let data;
-        if (contentType && contentType.includes("application/json")) {
-            data = await response.json();
-        } else {
-            data = { message: await response.text() };
-        }
+        const data = await response.json().catch(() => null);
 
         if (!response.ok) {
-            console.error(`[API ROUTE ERROR] Magento returned ${response.status}:`, data);
-            return NextResponse.json(data, { status: response.status });
+            console.error(`[MY-ACCOUNT] Error ${response.status}:`, data);
+            return NextResponse.json(
+                data || { message: `Magento returned error ${response.status}` },
+                { status: response.status }
+            );
         }
 
         return NextResponse.json(data);
-
     } catch (error: any) {
-        console.error('[API ROUTE ERROR] My Account GET Catch:', error);
+        console.error('[MY-ACCOUNT] Exception:', error);
         return NextResponse.json(
-            { message: error.message || 'Server-side error fetching account details.' },
+            { message: error.message || 'Failed to fetch account details.' },
             { status: 500 }
         );
     }
 }
 
-/**
- * Optional: Handle POST requests for updating profile data
- */
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
     try {
         const baseUrl = getBaseUrl(request);
-        const authHeader = request.headers.get('Authorization');
+        const token = await getRequestToken(request);
         const body = await request.json();
 
-        if (!authHeader) {
-            return NextResponse.json({ message: 'Authorization required' }, { status: 401 });
+        if (!token) {
+            return NextResponse.json({ message: 'Authentication required.' }, { status: 401 });
         }
 
-        // Use normalized URL to match standard REST path
-
         const magentoUrl = `${baseUrl}/my-account`;
-        console.log(`[API ROUTE] Updating Customer Info at: ${magentoUrl}`);
+        console.log(`[MY-ACCOUNT] POST ${magentoUrl}`);
 
         const response = await fetch(magentoUrl, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': authHeader,
+                'Authorization': `Bearer ${token}`,
                 'platform': 'web',
             },
             body: JSON.stringify(body),
         });
 
-        const data = await response.json();
-        return NextResponse.json(data, { status: response.status });
+        const data = await response.json().catch(() => null);
 
+        if (!response.ok) {
+            console.error(`[MY-ACCOUNT] POST Error ${response.status}:`, data);
+            return NextResponse.json(
+                data || { message: `Failed to update account (${response.status})` },
+                { status: response.status }
+            );
+        }
+
+        return NextResponse.json(data);
     } catch (error: any) {
-        console.error('[API ROUTE ERROR] My Account POST:', error);
+        console.error('[MY-ACCOUNT] POST Exception:', error);
         return NextResponse.json(
-            { message: 'Server-side error updating account details.' },
+            { message: error.message || 'Server-side error updating account details.' },
             { status: 500 }
         );
     }

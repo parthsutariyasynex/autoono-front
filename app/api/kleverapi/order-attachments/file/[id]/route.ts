@@ -62,7 +62,7 @@ export async function GET(
 
         const { searchParams } = new URL(request.url);
         const rawFileUrl = searchParams.get('url');
-        const origin = new URL(BASE_URL || 'https://altalayi-demo.btire.com').origin;
+        const origin = new URL(BASE_URL || 'https://autoono-demo.btire.com').origin;
 
         console.log('[AttachmentDownload] ID:', id, 'Raw URL:', rawFileUrl);
 
@@ -71,8 +71,8 @@ export async function GET(
 
         if (rawFileUrl) {
             // Extract the path portion after /media/
-            // file_url example: https://altalayi-demo.btire.com/media//t/y/filename.pdf
-            // Working pattern: https://altalayi-demo.btire.com/media/orderupload/t/y/filename.pdf
+            // file_url example: https://autoono-demo.btire.com/media//t/y/filename.pdf
+            // Working pattern: https://autoono-demo.btire.com/media/orderupload/t/y/filename.pdf
             const fixedUrl = fixUrl(rawFileUrl);
 
             const mediaMatch = fixedUrl.match(/\/media\/(.+)$/);

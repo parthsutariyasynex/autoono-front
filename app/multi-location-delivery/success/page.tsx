@@ -17,7 +17,7 @@ const MultiShippingSuccessPage = () => {
     return (
         <Suspense fallback={
             <div className="min-h-screen flex items-center justify-center bg-white">
-                <div className="w-10 h-10 border-4 border-gray-100 border-t-[#f5b21a] rounded-full animate-spin" />
+                <div className="w-10 h-10 border-4 border-gray-100 border-t-primary rounded-full animate-spin" />
             </div>
         }>
             <MultiShippingSuccessContent />
@@ -93,8 +93,8 @@ const MultiShippingSuccessContent = () => {
         return (
             <div className="min-h-screen flex items-center justify-center bg-white">
                 <div className="flex flex-col items-center gap-4">
-                    <div className="w-12 h-12 border-4 border-gray-200 border-t-[#f5b21a] rounded-full animate-spin" />
-                    <p className="text-[11px] font-black text-gray-400 uppercase tracking-widest">{t("multi.verifying")}</p>
+                    <div className="w-12 h-12 border-4 border-gray-200 border-t-primary rounded-full animate-spin" />
+                    <p className="text-label font-black text-gray-400 uppercase tracking-widest">{t("multi.verifying")}</p>
                 </div>
             </div>
         );
@@ -106,17 +106,17 @@ const MultiShippingSuccessContent = () => {
 
                 {/* Header */}
                 <div className="text-center mb-10 md:mb-16">
-                    <h1 className="text-[24px] md:text-[32px] font-black text-black uppercase tracking-tight mb-4">
+                    <h1 className="text-h2 md:text-h1 font-black text-black uppercase tracking-tight mb-4">
                         {t("multi.thankYou")}
                     </h1>
-                    <p className="text-[13px] md:text-[14px] text-black font-medium max-w-4xl mx-auto leading-relaxed">
+                    <p className="text-body md:text-body-lg text-black font-medium max-w-4xl mx-auto leading-relaxed">
                         {t("multi.confirmationEmail")}
                     </p>
                 </div>
 
                 {/* Successfully ordered */}
                 <div className="mb-6 text-center">
-                    <h2 className="text-[15px] md:text-[16px] font-bold text-black tracking-tight">
+                    <h2 className="text-[15px] md:text-h3-sm font-bold text-black tracking-tight">
                         {t("multi.successOrdered")}
                     </h2>
                 </div>
@@ -124,8 +124,8 @@ const MultiShippingSuccessContent = () => {
                 <div className="border border-gray-200 shadow-sm overflow-hidden">
                     {/* Table Header */}
                     <div className="flex bg-[#f8f8f8] border-b border-gray-200 py-3 px-6">
-                        <div className="w-[180px] md:w-[220px] flex-shrink-0 text-[12px] md:text-[13px] font-black text-black">{t("multi.orderId")}</div>
-                        <div className="flex-1 text-[12px] md:text-[13px] font-black text-black">{t("multi.shipTo")}</div>
+                        <div className="w-[180px] md:w-[220px] flex-shrink-0 text-body-sm md:text-body font-black text-black">{t("multi.orderId")}</div>
+                        <div className="flex-1 text-body-sm md:text-body font-black text-black">{t("multi.shipTo")}</div>
                     </div>
 
                     {/* Table Body */}
@@ -133,21 +133,21 @@ const MultiShippingSuccessContent = () => {
                         {orders.length > 0 ? orders.map((order, index) => (
                             <div
                                 key={index}
-                                className="flex border-b border-gray-100 last:border-b-0 border-l-4 border-l-[#f5b21a] py-5 px-6 items-start bg-[#fafafa]"
+                                className="flex border-b border-gray-100 last:border-b-0 border-l-4 border-l-primary py-5 px-6 items-start bg-[#fafafa]"
                             >
                                 <div className="w-[180px] md:w-[220px] flex-shrink-0">
-                                    <span className="text-[13px] md:text-[14px] font-black text-black">
+                                    <span className="text-body md:text-body-lg font-black text-black">
                                         {order.order_increment_id}
                                     </span>
                                 </div>
                                 <div className="flex-1">
-                                    <p className="text-[13px] md:text-[14px] text-gray-700 font-medium">
+                                    <p className="text-body md:text-body-lg text-gray-700 font-medium">
                                         {order.shipping_address || t("m.address")}
                                     </p>
                                 </div>
                             </div>
                         )) : (
-                            <div className="py-10 text-center text-gray-400 text-[14px]">
+                            <div className="py-10 text-center text-gray-400 text-body-lg">
                                 {t("multi.noOrderDetails")}
                             </div>
                         )}
@@ -157,7 +157,7 @@ const MultiShippingSuccessContent = () => {
                     <div className="bg-[#f2f2f2] p-4 flex justify-end">
                         <Link
                             href={lp("/products")}
-                            className="bg-[#f5b21a] text-black px-8 md:px-12 py-3 text-[11px] font-black uppercase tracking-[0.1em] hover:bg-black hover:text-white transition-all shadow-sm"
+                            className="bg-primary text-black px-8 md:px-12 py-3 text-label font-black uppercase tracking-[0.1em] hover:bg-black hover:text-white transition-all shadow-sm"
                         >
                             {t("multi.continueShopping")}
                         </Link>

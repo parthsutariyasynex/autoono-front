@@ -57,7 +57,7 @@ const Pagination: React.FC<PaginationProps> = ({
     return (
         <div className="flex flex-col md:flex-row items-center justify-between py-3 px-6 bg-[#f0f0f0] rounded-sm mt-0 border-t border-gray-100">
             {/* Left: Item count */}
-            <div className="text-[13px] text-gray-600 font-medium">
+            <div className="text-body text-gray-600 font-medium">
                 Items {startItem} to {endItem} of {totalItems} total
             </div>
 
@@ -65,15 +65,15 @@ const Pagination: React.FC<PaginationProps> = ({
             <div className="flex items-center gap-1.5">
                 {pages.map((p, idx) =>
                     p === "..." ? (
-                        <span key={`dots-${idx}`} className="w-8 h-8 flex items-center justify-center text-[13px] text-gray-400">
+                        <span key={`dots-${idx}`} className="w-8 h-8 flex items-center justify-center text-body text-gray-400">
                             ...
                         </span>
                     ) : (
                         <button
                             key={p}
                             onClick={() => onPageChange(p as number)}
-                            className={`w-8 h-8 flex items-center justify-center text-[13px] rounded-full transition-all duration-200 ${currentPage === p
-                                ? "bg-[#f5a623] text-black font-bold shadow-sm"
+                            className={`w-8 h-8 flex items-center justify-center text-body rounded-full transition-all duration-200 ${currentPage === p
+                                ? "bg-primary text-black font-bold shadow-sm"
                                 : "bg-white text-gray-700 hover:bg-gray-200 border border-gray-200"
                                 }`}
                         >
@@ -95,7 +95,7 @@ const Pagination: React.FC<PaginationProps> = ({
 
             {/* Right: Per page */}
             <div className="flex items-center gap-3">
-                <span className="text-[13px] text-gray-600 font-medium">Show</span>
+                <span className="text-body text-gray-600 font-medium">Show</span>
                 <div className="relative">
                     <input
                         type="text"
@@ -104,10 +104,10 @@ const Pagination: React.FC<PaginationProps> = ({
                             const val = parseInt(e.target.value);
                             if (val > 0) onItemsPerPageChange(val);
                         }}
-                        className="w-[55px] h-[34px] text-center text-[13px] font-bold border border-gray-300 focus:outline-none focus:border-black rounded-[2px] bg-white"
+                        className="w-[55px] h-[34px] text-center text-body font-bold border border-gray-300 focus:outline-none focus:border-black rounded-[2px] bg-white"
                     />
                 </div>
-                <span className="text-[13px] text-gray-600 font-bold">per page</span>
+                <span className="text-body text-gray-600 font-bold">per page</span>
             </div>
         </div>
     );

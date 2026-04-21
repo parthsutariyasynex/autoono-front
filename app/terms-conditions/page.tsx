@@ -10,11 +10,11 @@ export default function TermsConditionsPage() {
                 className="max-w-[1200px] mx-auto px-4 sm:px-6 md:px-10 lg:px-16 py-8 sm:py-12 md:py-16 lg:py-20"
                 dir={isRtl ? "rtl" : "ltr"}
             >
-                <h1 className="text-[20px] sm:text-[24px] md:text-[28px] lg:text-[32px] font-black text-black uppercase tracking-tight mb-6 sm:mb-8 text-center">
+                <h1 className="text-h3 sm:text-h2 md:text-h1-sm lg:text-h1 font-black text-black uppercase tracking-tight mb-6 sm:mb-8 text-center">
                     {t("terms.title")}
                 </h1>
 
-                <div className={`text-[14px] md:text-[15px] leading-[1.7] text-gray-600 ${isRtl ? 'text-right' : 'text-left'}`}>
+                <div className={`text-body-lg md:text-[15px] leading-[1.7] text-gray-600 ${isRtl ? 'text-right' : 'text-left'}`}>
 
                     <p className="mb-6">{t("terms.welcome")}</p>
 
@@ -45,7 +45,7 @@ export default function TermsConditionsPage() {
                     <h2 className="text-[15px] md:text-[17px] font-black text-black uppercase tracking-tight mb-2">{t("terms.disclaimerTitle")}</h2>
                     <p className="mb-6">{t("terms.disclaimerText")}</p>
 
-                    <p className="italic font-bold text-black text-[13px] sm:text-[14px]">{t("terms.saudiLaw")}</p>
+                    <p className="italic font-bold text-black text-body sm:text-body-lg">{t("terms.saudiLaw")}</p>
                 </div>
             </div>
         </div>

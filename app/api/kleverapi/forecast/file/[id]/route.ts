@@ -57,7 +57,7 @@ export async function GET(
         const { searchParams } = new URL(request.url);
         const fileName = searchParams.get('file_name');
         const fileUrl = searchParams.get('url');
-        const origin = new URL(BASE_URL || 'https://altalayi-demo.btire.com').origin;
+        const origin = new URL(BASE_URL || 'https://autoono-demo.btire.com').origin;
 
         console.log('[ForecastDownload] ID:', id, 'File Name:', fileName, 'URL:', fileUrl);
 

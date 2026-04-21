@@ -527,12 +527,12 @@ export default function OrderDetailsPage() {
                     <Sidebar />
                     <main className="flex-1 w-full px-4 md:px-6 lg:px-8 py-10">
                         <div className="bg-red-50 border border-red-100 text-red-600 p-4 md:p-8 rounded-lg text-center shadow-sm">
-                            <p className="font-bold text-[14px] uppercase tracking-widest mb-2">{t("orderDetails.errorLoading")}</p>
+                            <p className="font-bold text-body-lg uppercase tracking-widest mb-2">{t("orderDetails.errorLoading")}</p>
 
                             <p className="text-xs">{error}</p>
                             <button
                                 onClick={fetchOrderDetails}
-                                className="mt-6 px-6 md:px-8 py-2.5 bg-red-600 text-white rounded-md font-black text-[10px] uppercase tracking-widest hover:bg-red-700 transition-all active:scale-95 w-full sm:w-auto"
+                                className="mt-6 px-6 md:px-8 py-2.5 bg-red-600 text-white rounded-md font-black text-caption uppercase tracking-widest hover:bg-red-700 transition-all active:scale-95 w-full sm:w-auto"
                             >
                                 {t("orderDetails.tryAgain")}
 
@@ -562,11 +562,11 @@ export default function OrderDetailsPage() {
                     <div className="flex flex-col mb-10 no-print">
                         <div className="flex flex-col border-b border-gray-100 pb-6">
                             <div className="flex items-center gap-3 md:gap-5 mb-1.5 flex-wrap">
-                                <h1 className="text-[22px] md:text-[28px] font-[900] text-black uppercase tracking-tight leading-none">
+                                <h1 className="text-h3 md:text-h1-sm font-[900] text-black uppercase tracking-tight leading-none">
                                     {t("orderDetails.orderHash")} {order.increment_id}
                                 </h1>
 
-                                <span className={`inline-flex px-4 py-1.5 border rounded-sm text-[10px] md:text-[11px] font-bold uppercase tracking-widest bg-white ${order.status?.toLowerCase().includes('pending') ? 'border-[#d1d1d1] text-black' :
+                                <span className={`inline-flex px-4 py-1.5 border rounded-sm text-caption md:text-label font-bold uppercase tracking-widest bg-white ${order.status?.toLowerCase().includes('pending') ? 'border-[#d1d1d1] text-black' :
                                     order.status?.toLowerCase().includes('complete') ? 'border-green-300 text-green-700 bg-green-50' :
                                         order.status?.toLowerCase().includes('cancel') ? 'border-red-300 text-red-700 bg-red-50' :
                                             'border-gray-300 text-gray-700 bg-white'
@@ -583,7 +583,7 @@ export default function OrderDetailsPage() {
                         <div className="flex flex-col sm:flex-row justify-start items-stretch sm:items-center gap-3 w-full">
                             <button
                                 onClick={handleReorder}
-                                className="bg-primary hover:bg-primary text-black font-black py-2.5 px-6 md:px-8 rounded-md text-[12px] uppercase tracking-widest transition-all shadow-sm active:scale-95 border border-primary w-full sm:w-auto"
+                                className="bg-primary hover:bg-primary text-black font-black py-2.5 px-6 md:px-8 rounded-md text-body-sm uppercase tracking-widest transition-all shadow-sm active:scale-95 border border-primary w-full sm:w-auto"
                             >
                                 {t("orderDetails.reorder")}
 
@@ -593,7 +593,7 @@ export default function OrderDetailsPage() {
                             {/* {!isPaid && (
                                 <button
                                     onClick={() => setIsPaymentModalOpen(true)}
-                                    className="bg-[#1D70B8] hover:bg-[#155a96] text-white font-black py-2.5 px-6 md:px-8 rounded-md text-[11px] uppercase tracking-widest transition-all shadow-sm active:scale-95 border border-[#1D70B8] w-full sm:w-auto"
+                                    className="bg-primary hover:bg-primaryHover text-white font-black py-2.5 px-6 md:px-8 rounded-md text-label uppercase tracking-widest transition-all shadow-sm active:scale-95 border border-primary w-full sm:w-auto"
                                 >
                                     {t("orders.makePayment")}
                                 </button>
@@ -609,7 +609,7 @@ export default function OrderDetailsPage() {
                                     <button
                                         onClick={handleCancelOrder}
                                         disabled={isCancelling}
-                                        className={`bg-red-600 hover:bg-red-700 text-white font-black py-2.5 px-6 md:px-8 rounded-md text-[12px] uppercase tracking-widest transition-all shadow-sm active:scale-95 border border-red-600 flex items-center justify-center gap-2 no-print w-full sm:w-auto ${isCancelling ? 'opacity-70 cursor-not-allowed' : ''}`}
+                                        className={`bg-red-600 hover:bg-red-700 text-white font-black py-2.5 px-6 md:px-8 rounded-md text-body-sm uppercase tracking-widest transition-all shadow-sm active:scale-95 border border-red-600 flex items-center justify-center gap-2 no-print w-full sm:w-auto ${isCancelling ? 'opacity-70 cursor-not-allowed' : ''}`}
                                     >
                                         {isCancelling ? (
                                             <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
@@ -628,7 +628,7 @@ export default function OrderDetailsPage() {
                             <button
                                 onClick={handlePrintOrder}
                                 disabled={isPrinting}
-                                className={`bg-white hover:bg-gray-50 text-black font-black py-2.5 px-6 md:px-8 rounded-md text-[11px] uppercase tracking-widest transition-all border border-[#ebebeb] shadow-sm flex items-center justify-center gap-2 no-print active:scale-95 w-full sm:w-auto ${isPrinting ? 'opacity-70 cursor-not-allowed' : ''}`}
+                                className={`bg-white hover:bg-gray-50 text-black font-black py-2.5 px-6 md:px-8 rounded-md text-label uppercase tracking-widest transition-all border border-[#ebebeb] shadow-sm flex items-center justify-center gap-2 no-print active:scale-95 w-full sm:w-auto ${isPrinting ? 'opacity-70 cursor-not-allowed' : ''}`}
                             >
                                 {isPrinting ? (
                                     <div className="animate-spin rounded-full h-4 w-4 border-2 border-black border-t-transparent"></div>
@@ -656,7 +656,7 @@ export default function OrderDetailsPage() {
                         {/* Desktop Table */}
                         <div className="hidden md:block overflow-x-auto">
                             <table className="w-full text-left min-w-[500px]">
-                                <thead className="bg-gray-50/50 text-[11px] font-black text-black uppercase border-b border-[#ebebeb]">
+                                <thead className="bg-gray-50/50 text-label font-black text-black uppercase border-b border-[#ebebeb]">
                                     <tr>
                                         <th className="px-3 md:px-6 py-3 md:py-4 tracking-widest">{t("orderDetails.productName")}</th>
                                         <th className="px-3 md:px-6 py-3 md:py-4 tracking-widest text-center">{t("orderDetails.sku")}</th>
@@ -696,7 +696,7 @@ export default function OrderDetailsPage() {
                             {order.items?.map((item: any, idx: number) => (
                                 <div key={item.item_id || item.id} className={`p-4 text-xs ${idx % 2 !== 0 ? 'bg-gray-50' : 'bg-white'}`}>
                                     <p className="text-black font-black text-sm mb-2">{item.name}</p>
-                                    <p className="text-gray-400 font-bold uppercase tracking-widest text-[10px] mb-3">{t("orderDetails.sku")}: {item.sku}</p>
+                                    <p className="text-gray-400 font-bold uppercase tracking-widest text-caption mb-3">{t("orderDetails.sku")}: {item.sku}</p>
 
                                     <div className="flex justify-between items-center mb-1">
                                         <span className="text-gray-500 font-bold uppercase tracking-widest">{t("orderDetails.price")}</span>
@@ -748,7 +748,7 @@ export default function OrderDetailsPage() {
                                     </span>
                                 </div>
 
-                                <div className="flex justify-between items-center text-[11px] pt-1 pt-4 opacity-50">
+                                <div className="flex justify-between items-center text-label pt-1 pt-4 opacity-50">
                                     <span className="text-gray-500 font-black uppercase tracking-widest flex-1 text-end me-10">{t("orderDetails.totalQty")}</span>
 
                                     <span className="font-black text-black w-[110px] text-end">
@@ -763,7 +763,7 @@ export default function OrderDetailsPage() {
                     {/* Order Information Section */}
                     <div className="mb-10">
                         <div className="border-b-2 border-primary inline-block pb-1 mb-10">
-                            <h2 className="text-[16px] md:text-[18px] font-black text-black uppercase tracking-tight">
+                            <h2 className="text-h3-sm md:text-[18px] font-black text-black uppercase tracking-tight">
                                 {t("orderDetails.orderInfo")}
 
                             </h2>
@@ -804,7 +804,7 @@ export default function OrderDetailsPage() {
                                     <p className="font-black text-black uppercase mb-2">{translateDynamic(order.shipping_description || "Pickup from Warehouse")}</p>
 
                                     <div className="mt-4 pt-4 border-t border-gray-100">
-                                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">{t("orderDetails.expectedDelivery")}</p>
+                                        <p className="text-caption font-black text-gray-400 uppercase tracking-widest mb-1">{t("orderDetails.expectedDelivery")}</p>
 
                                         <p className="font-bold text-black">N/A</p>
                                     </div>
@@ -846,7 +846,7 @@ export default function OrderDetailsPage() {
 
                                     <div className="mt-4 pt-4 border-t border-gray-100 flex items-center gap-2">
                                         <div className="w-2 h-2 rounded-full bg-green-500"></div>
-                                        <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{t("orderDetails.paymentConfirmed")}</span>
+                                        <span className="text-caption font-black text-gray-400 uppercase tracking-widest">{t("orderDetails.paymentConfirmed")}</span>
 
                                     </div>
                                 </div>
@@ -857,7 +857,7 @@ export default function OrderDetailsPage() {
                     {/* Order Attachments Section */}
                     <div className="mb-12">
                         <div className="border-b-2 border-primary inline-block pb-1 mb-10">
-                            <h2 className="text-[16px] md:text-[18px] font-black text-black uppercase tracking-tight">
+                            <h2 className="text-h3-sm md:text-[18px] font-black text-black uppercase tracking-tight">
                                 {t("orderDetails.orderAttachments")}
 
                             </h2>
@@ -929,7 +929,7 @@ export default function OrderDetailsPage() {
                                                             {attachment.invoice_due ? formatDateDDMMYYYY(attachment.invoice_due) : "-"}
                                                         </td>
                                                         <td className="px-3 md:px-6 py-3 md:py-5 text-center">
-                                                            <span className="inline-flex px-2 py-1 bg-gray-100 text-gray-600 rounded-full text-[10px] font-black uppercase tracking-widest">
+                                                            <span className="inline-flex px-2 py-1 bg-gray-100 text-gray-600 rounded-full text-caption font-black uppercase tracking-widest">
                                                                 {attachment.payment || attachment.payment_status || "-"}
                                                             </span>
                                                         </td>
@@ -952,12 +952,12 @@ export default function OrderDetailsPage() {
                     <div className="mb-12" id="payment-history-section">
                         <div className="flex items-center justify-between border-b border-gray-100 pb-2 mb-8">
                             <div className="border-b-2 border-primary inline-block pb-1">
-                                <h2 className="text-[16px] md:text-[18px] font-black text-black uppercase tracking-tight">
+                                <h2 className="text-h3-sm md:text-[18px] font-black text-black uppercase tracking-tight">
                                     {t("m.payment-historydso") || "Payment History"}
                                 </h2>
                             </div>
                             {isPaid ? (
-                                <div className="text-green-600 font-bold text-[11px] uppercase tracking-widest flex items-center gap-1">
+                                <div className="text-green-600 font-bold text-label uppercase tracking-widest flex items-center gap-1">
                                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
                                         <polyline points="20 6 9 17 4 12"></polyline>
                                     </svg>
@@ -966,7 +966,7 @@ export default function OrderDetailsPage() {
                             ) : (
                                 <button
                                     onClick={() => setIsPaymentModalOpen(true)}
-                                    className="bg-[#1D70B8] hover:bg-[#155a96] text-white px-5 py-2 rounded-sm font-bold text-[12px] transition-all shadow-sm active:scale-95"
+                                    className="bg-primary hover:bg-primaryHover text-white px-5 py-2 rounded-sm font-bold text-body-sm transition-all shadow-sm active:scale-95"
                                 >
                                     {t("orders.makePayment")}
                                 </button>
@@ -1007,7 +1007,7 @@ export default function OrderDetailsPage() {
                                                     {formatCurrency(payment.due_payment)}
                                                 </td>
                                                 <td className="px-3 md:px-4 py-4">
-                                                    <span className={`inline-flex px-3 py-1 rounded-sm text-[10px] font-black uppercase tracking-tight border ${payment.payment_status === "Full Paid"
+                                                    <span className={`inline-flex px-3 py-1 rounded-sm text-caption font-black uppercase tracking-tight border ${payment.payment_status === "Full Paid"
                                                         ? "bg-[#E7F6EC] text-[#038E42] border-[#D1EBD9]"
                                                         : "bg-[#FFF4E5] text-[#FA8C16] border-[#FFE7BA]"
                                                         }`}>
@@ -1019,14 +1019,14 @@ export default function OrderDetailsPage() {
                                                     <div className="flex items-center justify-center gap-2">
                                                         <button
                                                             onClick={() => fetchSinglePayment(payment.id)}
-                                                            className="bg-[#EFA73F] text-white px-3 py-1.5 rounded-sm font-bold text-[10px] uppercase tracking-wide hover:bg-[#d69638] transition-colors shadow-sm"
+                                                            className="bg-[#EFA73F] text-white px-3 py-1.5 rounded-sm font-bold text-caption uppercase tracking-wide hover:bg-[#d69638] transition-colors shadow-sm"
                                                         >
                                                             Edit
                                                         </button>
                                                         <span className="text-gray-300 font-light">|</span>
                                                         <button
                                                             onClick={() => handleDownloadReceipt(payment)}
-                                                            className="bg-[#1D70B8] text-white px-3 py-1.5 rounded-sm font-bold text-[10px] uppercase tracking-wide hover:bg-[#155a96] transition-colors shadow-sm"
+                                                            className="bg-primary text-white px-3 py-1.5 rounded-sm font-bold text-caption uppercase tracking-wide hover:bg-primaryHover transition-colors shadow-sm"
                                                         >
                                                             Download
                                                         </button>

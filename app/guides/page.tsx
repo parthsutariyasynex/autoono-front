@@ -19,7 +19,7 @@ export default function UserGuidesPage() {
 
             {/* Content Section */}
             <div className="max-w-[1200px] mx-auto px-6 mt-16 md:mt-20 pb-10 sm:pb-16 md:pb-20" dir={isRtl ? "rtl" : "ltr"}>
-                <h1 className="text-[22px] sm:text-[26px] md:text-[32px] font-black text-center mb-16 tracking-wide text-black uppercase">
+                <h1 className="text-h3 sm:text-[26px] md:text-h1 font-black text-center mb-16 tracking-wide text-black uppercase">
                     {t("guides.title")}
                 </h1>
 
@@ -32,7 +32,7 @@ export default function UserGuidesPage() {
                             <div className="relative w-full aspect-[16/9] bg-[#1a1a1e] flex items-center justify-center overflow-hidden">
                                 <img src="/images/Why-Btire-English.jpg" alt={t("guides.whyBtire")} className="w-full h-full object-cover" />
                                 <div className="absolute inset-0 flex items-center justify-center pointer-events-none transition-transform group-hover:scale-110 duration-300">
-                                    <div className="w-14 h-14 bg-[#f5b21a] rounded-full flex items-center justify-center shadow-md">
+                                    <div className="w-14 h-14 bg-primary rounded-full flex items-center justify-center shadow-md">
                                         <div className="w-0 h-0 border-t-[8px] border-t-transparent border-l-[14px] border-l-white border-b-[8px] border-b-transparent ml-1"></div>
                                     </div>
                                 </div>
@@ -49,7 +49,7 @@ export default function UserGuidesPage() {
                             <div className="relative w-full aspect-[16/9] bg-[#1a1a1e] flex items-center justify-center overflow-hidden">
                                 <img src="/images/What-is-Btire-English.jpg" alt={t("guides.whatIsBtire")} className="w-full h-full object-cover" />
                                 <div className="absolute inset-0 flex items-center justify-center pointer-events-none transition-transform group-hover:scale-110 duration-300">
-                                    <div className="w-14 h-14 bg-[#f5b21a] rounded-full flex items-center justify-center shadow-md">
+                                    <div className="w-14 h-14 bg-primary rounded-full flex items-center justify-center shadow-md">
                                         <div className="w-0 h-0 border-t-[8px] border-t-transparent border-l-[14px] border-l-white border-b-[8px] border-b-transparent ml-1"></div>
                                     </div>
                                 </div>
@@ -66,7 +66,7 @@ export default function UserGuidesPage() {
                             <div className="relative w-full aspect-[16/9] bg-[#1a1a1e] flex items-center justify-center overflow-hidden">
                                 <img src="/images/My-account-information-English.jpg" alt={t("guides.myAccountProfile")} className="w-full h-full object-cover" />
                                 <div className="absolute inset-0 flex items-center justify-center pointer-events-none transition-transform group-hover:scale-110 duration-300">
-                                    <div className="w-14 h-14 bg-[#f5b21a] rounded-full flex items-center justify-center shadow-md">
+                                    <div className="w-14 h-14 bg-primary rounded-full flex items-center justify-center shadow-md">
                                         <div className="w-0 h-0 border-t-[8px] border-t-transparent border-l-[14px] border-l-white border-b-[8px] border-b-transparent ml-1"></div>
                                     </div>
                                 </div>
@@ -83,7 +83,7 @@ export default function UserGuidesPage() {
                             <div className="relative w-full aspect-[16/9] bg-[#1a1a1e] flex items-center justify-center overflow-hidden">
                                 <img src="/images/Create-an-order-english.jpg" alt={t("guides.btireOrderCycle")} className="w-full h-full object-cover" />
                                 <div className="absolute inset-0 flex items-center justify-center pointer-events-none transition-transform group-hover:scale-110 duration-300">
-                                    <div className="w-14 h-14 bg-[#f5b21a] rounded-full flex items-center justify-center shadow-md">
+                                    <div className="w-14 h-14 bg-primary rounded-full flex items-center justify-center shadow-md">
                                         <div className="w-0 h-0 border-t-[8px] border-t-transparent border-l-[14px] border-l-white border-b-[8px] border-b-transparent ml-1"></div>
                                     </div>
                                 </div>

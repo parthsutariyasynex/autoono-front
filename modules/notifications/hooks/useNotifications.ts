@@ -31,7 +31,8 @@ export function useNotifications() {
             if (response.status === 401) {
                 console.warn("[useNotifications] Received 401, signing out...");
                 const { signOut } = await import("next-auth/react");
-                signOut({ callbackUrl: "/login" });
+                const locale = typeof window !== "undefined" && window.location.pathname.startsWith("/ar") ? "ar" : "en";
+                signOut({ callbackUrl: `${window.location.origin}/${locale}/login` });
                 return;
             }
 

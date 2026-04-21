@@ -166,7 +166,7 @@ const SearchPopup: React.FC<SearchPopupProps> = ({ isOpen, onClose }) => {
 
                 <div className="flex flex-col gap-0">
                     {/* Search Input */}
-                    <form onSubmit={(e) => handleSearch(e)} className="flex items-stretch gap-0 bg-white border-2 border-[#f5b21a] rounded-xl overflow-hidden shadow-sm h-14 md:h-16 transition-all relative z-20 flex-shrink-0">
+                    <form onSubmit={(e) => handleSearch(e)} className="flex items-stretch gap-0 bg-white border-2 border-primary rounded-xl overflow-hidden shadow-sm h-14 md:h-16 transition-all relative z-20 flex-shrink-0">
                         <input
                             type="text"
                             autoFocus
@@ -177,7 +177,7 @@ const SearchPopup: React.FC<SearchPopupProps> = ({ isOpen, onClose }) => {
                         />
                         <button
                             type="submit"
-                            className="bg-[#f5b21a] hover:bg-yellow-500 text-black w-14 md:w-20 flex items-center justify-center transition-all duration-300 cursor-pointer active:scale-95 flex-shrink-0"
+                            className="bg-primary hover:bg-primary text-black w-14 md:w-20 flex items-center justify-center transition-all duration-300 cursor-pointer active:scale-95 flex-shrink-0"
                         >
                             <Search size={22} strokeWidth={3} />
                         </button>
@@ -188,7 +188,7 @@ const SearchPopup: React.FC<SearchPopupProps> = ({ isOpen, onClose }) => {
                         <div className="bg-white border border-gray-200 border-t-0 rounded-b-xl max-h-[300px] overflow-y-auto shadow-lg">
                             {isSearching && (
                                 <div className="p-8 text-center text-gray-400 text-sm flex items-center justify-center gap-3">
-                                    <div className="w-5 h-5 border-2 border-yellow-400 border-t-transparent rounded-full animate-spin" />
+                                    <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
                                 </div>
                             )}
                             {!isSearching && noResults && (

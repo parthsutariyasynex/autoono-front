@@ -86,15 +86,15 @@ export default function NotificationDrawer({ isOpen, onClose }: NotificationDraw
                 <div className="flex-1 overflow-y-auto custom-scrollbar">
                     {isLoading && notifications.length === 0 ? (
                         <div className="flex flex-col items-center justify-center py-20 animate-in fade-in duration-500">
-                            <div className="w-10 h-10 border-3 border-[#f5b21a] border-t-transparent rounded-full animate-spin"></div>
-                            <p className="mt-4 text-[11px] text-gray-400 font-black uppercase tracking-[0.2em]">{t("common.loading")}</p>
+                            <div className="w-10 h-10 border-3 border-primary border-t-transparent rounded-full animate-spin"></div>
+                            <p className="mt-4 text-label text-gray-400 font-black uppercase tracking-[0.2em]">{t("common.loading")}</p>
                         </div>
                     ) : notifications.length === 0 ? (
                         <div className="flex flex-col items-center justify-center py-32 px-10 text-center animate-in zoom-in-95 duration-500">
                             <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mb-6 shadow-inner">
                                 <BellIcon />
                             </div>
-                            <p className="text-[16px] font-black text-gray-900 uppercase tracking-tight">{t("notifications.empty")}</p>
+                            <p className="text-h3-sm font-black text-gray-900 uppercase tracking-tight">{t("notifications.empty")}</p>
                             <p className="text-xs text-gray-400 mt-2 font-medium tracking-widest uppercase">{t("notifications.upToDate")}</p>
                         </div>
                     ) : (
@@ -102,14 +102,14 @@ export default function NotificationDrawer({ isOpen, onClose }: NotificationDraw
                             {notifications.map((item, index) => (
                                 <div
                                     key={`${item.notification_id || index}-${index}`}
-                                    className={`p-6 flex flex-col gap-1 transition-all relative border-l-4 ${!item.is_read ? "bg-[#fcf8ec] border-[#f5b21a]" : "bg-white border-transparent"
+                                    className={`p-6 flex flex-col gap-1 transition-all relative border-l-4 ${!item.is_read ? "bg-[#fcf8ec] border-primary" : "bg-white border-transparent"
                                         }`}
                                 >
                                     {/* Header Row: Title & Remove */}
                                     <div className="flex justify-between items-start gap-4">
                                         <h3 className={`text-[15px] leading-snug ltr:pr-6 rtl:pl-6 ${!item.is_read ? "font-black text-black" : "font-bold text-gray-700"}`}>
                                             {getOrderLink(item) ? (
-                                                <Link href={getOrderLink(item)!} onClick={onClose} className="hover:text-[#f5b21a] transition-colors hover:underline underline-offset-2">
+                                                <Link href={getOrderLink(item)!} onClick={onClose} className="hover:text-primary transition-colors hover:underline underline-offset-2">
                                                     {translateNotification(item.title)}
                                                 </Link>
                                             ) : translateNotification(item.title)}
@@ -132,14 +132,14 @@ export default function NotificationDrawer({ isOpen, onClose }: NotificationDraw
                                     </div>
 
                                     {/* Message */}
-                                    <p className={`text-[13px] leading-relaxed mt-1 ${!item.is_read ? "text-black/80 font-medium" : "text-gray-500"
+                                    <p className={`text-body leading-relaxed mt-1 ${!item.is_read ? "text-black/80 font-medium" : "text-gray-500"
                                         }`}>
                                         {translateNotification(item.description)}
                                     </p>
 
                                     {/* Footer: Date & Mark as Read */}
                                     <div className="flex justify-between items-center mt-3">
-                                        <p className="text-[11px] text-gray-400 font-black uppercase tracking-widest">
+                                        <p className="text-label text-gray-400 font-black uppercase tracking-widest">
                                             {isRtl ? formatNotificationDate(item.date_added || item.date_added_formatted) : item.date_added_formatted}
                                         </p>
 
@@ -149,7 +149,7 @@ export default function NotificationDrawer({ isOpen, onClose }: NotificationDraw
                                                     e.stopPropagation();
                                                     markAsRead(item.notification_id);
                                                 }}
-                                                className="text-[10px] font-black uppercase tracking-widest pointer-events-auto text-[#f5b21a] hover:text-black transition-colors"
+                                                className="text-caption font-black uppercase tracking-widest pointer-events-auto text-primary hover:text-black transition-colors"
                                             >
                                                 {t("notifications.markRead")}
                                             </button>
@@ -166,7 +166,7 @@ export default function NotificationDrawer({ isOpen, onClose }: NotificationDraw
                     <Link
                         href={lp("/customer/notifications")}
                         onClick={onClose}
-                        className="w-full h-[55px] bg-[#f5b21a] hover:bg-black text-black hover:text-white font-black rounded-sm transition-all duration-300 flex items-center justify-center shadow-lg hover:shadow-xl uppercase tracking-[0.2em] text-[12px]"
+                        className="w-full h-[55px] bg-primary hover:bg-black text-black hover:text-white font-black rounded-sm transition-all duration-300 flex items-center justify-center shadow-lg hover:shadow-xl uppercase tracking-[0.2em] text-body-sm"
                     >
                         {t("common.view")} {t("nav.notifications")}
                     </Link>

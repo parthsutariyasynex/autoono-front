@@ -111,7 +111,7 @@ const Filters: React.FC<FiltersProps> = ({
             <div className="flex flex-wrap gap-x-5 gap-y-4 items-end">
                 {/* Status Dropdown */}
                 <div className="flex flex-col gap-1.5">
-                    <label className="text-[14px] font-bold text-black uppercase tracking-tight">
+                    <label className="text-body-lg font-bold text-black uppercase tracking-tight">
                         Filter By Status
                     </label>
                     <div className="relative" ref={statusRef}>
@@ -121,7 +121,7 @@ const Filters: React.FC<FiltersProps> = ({
                                 setIsStatusOpen(!isStatusOpen);
                                 setIsOrderOpen(false);
                             }}
-                            className="h-[42px] min-w-[180px] px-3 bg-[#f5a623] text-black text-[13px] font-bold flex items-center justify-between cursor-pointer focus:outline-none rounded-[1px]"
+                            className="h-[42px] min-w-[180px] px-3 bg-primary text-black text-body font-bold flex items-center justify-between cursor-pointer focus:outline-none rounded-[1px]"
                         >
                             <span>{status || "All"}</span>
                             <svg className={`w-3.5 h-3.5 transition-transform duration-200 ${isStatusOpen ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -130,7 +130,7 @@ const Filters: React.FC<FiltersProps> = ({
                         </button>
 
                         {isStatusOpen && (
-                            <ul className="absolute top-full left-0 min-w-[180px] w-full bg-[#f5a623] z-50 shadow-md max-h-[320px] overflow-y-auto border-t border-black/10">
+                            <ul className="absolute top-full left-0 min-w-[180px] w-full bg-primary z-50 shadow-md max-h-[320px] overflow-y-auto border-t border-black/10">
                                 {statusOptions.map((opt: any, idx: number) => {
                                     const optionLabel = typeof opt === 'string' ? opt : (opt.label || opt.name || opt.status || String(idx));
                                     const optionValue = typeof opt === 'string' ? opt : (opt.value || opt.id || optionLabel);
@@ -143,7 +143,7 @@ const Filters: React.FC<FiltersProps> = ({
                                                     onStatusChange(optionValue);
                                                     setIsStatusOpen(false);
                                                 }}
-                                                className={`w-full text-left px-4 py-2 text-[14px] text-black hover:bg-[#1a73e8] hover:text-white transition-colors ${status === optionValue ? "bg-[#1a73e8] text-white font-bold" : ""}`}
+                                                className={`w-full text-left px-4 py-2 text-body-lg text-black hover:bg-[#1a73e8] hover:text-white transition-colors ${status === optionValue ? "bg-[#1a73e8] text-white font-bold" : ""}`}
                                             >
                                                 {optionLabel}
                                             </button>
@@ -157,7 +157,7 @@ const Filters: React.FC<FiltersProps> = ({
 
                 {/* Order Search (Text Input) */}
                 <div className="flex-1 min-w-[220px]">
-                    <label className="block text-[14px] font-bold text-black mb-1.5 uppercase tracking-tight">
+                    <label className="block text-body-lg font-bold text-black mb-1.5 uppercase tracking-tight">
                         Search By Order #
                     </label>
                     <input
@@ -165,20 +165,20 @@ const Filters: React.FC<FiltersProps> = ({
                         value={orderNumber === "All" ? "" : orderNumber}
                         onChange={(e) => onOrderNumberChange(e.target.value)}
                         placeholder="e.g. 000001"
-                        className="w-full h-[42px] px-3 bg-[#f8f8f8] border border-gray-200 text-[14px] text-gray-700 focus:outline-none focus:border-[#f5a623] transition-colors rounded-[1px]"
+                        className="w-full h-[42px] px-3 bg-[#f8f8f8] border border-gray-200 text-body-lg text-gray-700 focus:outline-none focus:border-primary transition-colors rounded-[1px]"
                     />
                 </div>
 
                 <div className="flex gap-2.5">
                     <button
                         onClick={onSearch}
-                        className="h-[42px] px-8 bg-black text-white text-[13px] font-bold uppercase tracking-widest hover:bg-gray-800 transition-colors rounded-[1px]"
+                        className="h-[42px] px-8 bg-black text-white text-body font-bold uppercase tracking-widest hover:bg-gray-800 transition-colors rounded-[1px]"
                     >
                         SEARCH
                     </button>
                     <button
                         onClick={onReset}
-                        className="h-[42px] px-8 bg-black text-white text-[13px] font-bold uppercase tracking-widest hover:bg-gray-800 transition-colors rounded-[1px]"
+                        className="h-[42px] px-8 bg-black text-white text-body font-bold uppercase tracking-widest hover:bg-gray-800 transition-colors rounded-[1px]"
                     >
                         RESET
                     </button>

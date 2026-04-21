@@ -105,7 +105,7 @@ const CartPage: React.FC = () => {
     if (isLoading) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-gray-50">
-                <div className="w-12 h-12 border-4 border-gray-200 border-t-yellow-400 rounded-full animate-spin" />
+                <div className="w-12 h-12 border-4 border-gray-200 border-t-primary rounded-full animate-spin" />
             </div>
         );
     }
@@ -125,12 +125,12 @@ const CartPage: React.FC = () => {
     if (!hasItems) {
         return (
             <div className="bg-white min-h-screen">
-                <div className="max-w-7xl mx-auto py-12 md:py-24 px-4 md:px-6 text-center">
+                <div className="w-full py-12 md:py-24 px-4 md:px-6 text-center">
                     <ShoppingBag size={64} className="mx-auto text-gray-200 mb-6" />
                     <h1 className="text-xl md:text-2xl font-bold text-gray-900 uppercase tracking-widest mb-4">
                         {t("cart.noItems")}
                     </h1>
-                    <Link href={lp("/products")} className="inline-flex items-center gap-2 text-yellow-600 font-bold hover:underline">
+                    <Link href={lp("/products")} className="inline-flex items-center gap-2 text-primary font-bold hover:underline">
                         {t("cart.goToProducts")}
                         <ArrowRight size={16} />
                     </Link>
@@ -142,14 +142,14 @@ const CartPage: React.FC = () => {
     return (
         <div className="min-h-screen bg-[#FDFDFD] pb-4 lg:pb-10">
             {/* Main Content Container */}
-            <div className="max-w-[1440px] mx-auto px-4 md:px-12 pt-8 md:pt-14">
+            <div className="w-full px-4 md:px-12 pt-8 md:pt-14">
 
                 {/* Breadcrumbs & Title Section */}
                 <div className="mb-10 md:mb-14 text-center">
                     <h1 className="text-xl md:text-2xl font-black text-gray-900 uppercase tracking-tight mb-2">
                         {t("cart.title")}
                     </h1>
-                    <div className="h-1 w-12 bg-yellow-400 mx-auto"></div>
+                    <div className="h-1 w-12 bg-primary mx-auto"></div>
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 xl:gap-16 items-start">
@@ -160,10 +160,10 @@ const CartPage: React.FC = () => {
                         <div className="flex flex-col h-full">
                             {/* Table Header (Sticky Top) */}
                             <div className="hidden lg:flex sticky top-0 z-20 bg-white border border-gray-100 rounded-xl items-center py-4 px-10 mb-4 shadow-sm">
-                                <div className="w-[45%] text-[10px] font-bold text-black uppercase tracking-widest">{t("cart.itemDescription")}</div>
-                                <div className="w-[15%] text-[10px] font-bold text-black uppercase tracking-widest text-center">{t("cart.price")}</div>
-                                <div className="w-[20%] text-[10px] font-bold text-black uppercase tracking-widest text-center">{t("cart.qty")}</div>
-                                <div className="w-[20%] text-[10px] font-bold text-black uppercase tracking-widest text-right">{t("cart.total")}</div>
+                                <div className="w-[45%] text-caption font-bold text-black uppercase tracking-widest">{t("cart.itemDescription")}</div>
+                                <div className="w-[15%] text-caption font-bold text-black uppercase tracking-widest text-center">{t("cart.price")}</div>
+                                <div className="w-[20%] text-caption font-bold text-black uppercase tracking-widest text-center">{t("cart.qty")}</div>
+                                <div className="w-[20%] text-caption font-bold text-black uppercase tracking-widest text-right">{t("cart.total")}</div>
                             </div>
 
                             {/* Scrollable Items Container */}
@@ -189,14 +189,14 @@ const CartPage: React.FC = () => {
                                     />
 
                                     {/* Multiple Address Section Bar */}
-                                    <div className="border border-[#FFC107] bg-white rounded-xl flex flex-col md:flex-row items-stretch justify-between overflow-hidden shadow-xl shadow-yellow-400/5">
+                                    <div className="border border-primary bg-white rounded-xl flex flex-col md:flex-row items-stretch justify-between overflow-hidden shadow-xl shadow-primary/5">
                                         <div className="px-6 py-4 flex items-center bg-gray-50/50 flex-1">
-                                            <h4 className="text-[10px] font-black text-gray-900 uppercase tracking-wider">{t("cart.multiAddressShipping")}</h4>
+                                            <h4 className="text-caption font-black text-gray-900 uppercase tracking-wider">{t("cart.multiAddressShipping")}</h4>
                                         </div>
                                         <button
                                             onClick={handleStartMultiShipping}
                                             disabled={isStartingMultiShipping}
-                                            className="bg-[#FFC107] text-black font-black py-4 px-10 uppercase tracking-widest text-[10px] hover:bg-black hover:text-white transition-all duration-300 disabled:opacity-70 disabled:cursor-not-allowed w-full md:w-auto shadow-none"
+                                            className="bg-primary text-black font-black py-4 px-10 uppercase tracking-widest text-caption hover:bg-black hover:text-white transition-all duration-300 disabled:opacity-70 disabled:cursor-not-allowed w-full md:w-auto shadow-none"
                                         >
                                             {isStartingMultiShipping ? (
                                                 <Loader2 className="animate-spin" size={14} />

@@ -17,14 +17,14 @@ export default function BranchLocationsPage() {
             <MapSection />
 
             {/* Main Content Area */}
-            <main className="max-w-[1280px] mx-auto px-4 sm:px-6 py-8 sm:py-12 md:py-20 lg:py-24" dir={isRtl ? "rtl" : "ltr"}>
+            <main className="w-full px-4 sm:px-6 py-8 sm:py-12 md:py-20 lg:py-24" dir={isRtl ? "rtl" : "ltr"}>
 
                 {/* Contact Heading Section */}
                 <div className={`text-center mb-16 md:mb-24 ${styles.fadeIn}`}>
-                    <h2 className="text-[22px] sm:text-[26px] md:text-[32px] lg:text-[38px] font-black text-black uppercase tracking-tighter leading-none mb-6">
+                    <h2 className="text-h3 sm:text-[26px] md:text-h1 lg:text-[38px] font-black text-black uppercase tracking-tighter leading-none mb-6">
                         {t("locations.title")}
                     </h2>
-                    <div className="h-1.5 w-20 sm:w-24 md:w-28 bg-[#f5a623] mx-auto rounded-full"></div>
+                    <div className="h-1.5 w-20 sm:w-24 md:w-28 bg-primary mx-auto rounded-full"></div>
                 </div>
 
                 {/* Region Selection Grid */}

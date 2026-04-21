@@ -76,7 +76,7 @@ export default function PortalDropdown({
                 ref={triggerRef}
                 type="button"
                 onClick={handleToggle}
-                className={`flex items-center justify-between gap-2 cursor-pointer transition-all ${buttonClassName || "bg-white border border-gray-200 rounded-md px-3 py-2 text-[13px] font-bold text-black hover:border-gray-300 shadow-sm"} ${isOpen ? "border-[#f5a623] z-[9999]" : ""}`}
+                className={`flex items-center justify-between gap-2 cursor-pointer transition-all ${buttonClassName || "bg-white border border-gray-200 rounded-md px-3 py-2 text-body font-bold text-black hover:border-gray-300 shadow-sm"} ${isOpen ? "border-primary z-[9999]" : ""}`}
                 style={{ minWidth }}
             >
                 <span className="truncate">{selected ? selected.label : placeholder}</span>
@@ -104,7 +104,7 @@ export default function PortalDropdown({
                                 key={opt.value}
                                 type="button"
                                 onClick={() => { onChange(opt.value); setIsOpen(false); }}
-                                className={`w-full text-left px-3 py-2.5 text-[13px] font-bold cursor-pointer transition-colors border-b last:border-0 border-gray-50 whitespace-nowrap ${String(opt.value) === String(value) ? "bg-[#f5a623] text-black" : "text-gray-700 hover:bg-gray-50 hover:text-[#f5a623]"}`}
+                                className={`w-full text-left px-3 py-2.5 text-body font-bold cursor-pointer transition-colors border-b last:border-0 border-gray-50 whitespace-nowrap ${String(opt.value) === String(value) ? "bg-primary text-black" : "text-gray-700 hover:bg-gray-50 hover:text-primary"}`}
                             >
                                 {opt.label}
                             </button>

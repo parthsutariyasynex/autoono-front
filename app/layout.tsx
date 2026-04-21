@@ -30,8 +30,8 @@ const rubik = Rubik({
 });
 
 export const metadata: Metadata = {
-  title: "Altalayi",
-  description: "Shopping Platform",
+  title: "AutoOno",
+  description: "AutoOno",
 };
 
 export default async function RootLayout({

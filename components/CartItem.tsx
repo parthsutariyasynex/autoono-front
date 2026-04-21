@@ -63,11 +63,11 @@ const CartItem: React.FC<CartItemProps> = ({ item, currencyCode, onUpdateQty, on
                         <img src={item.image_url || "/images/tyre-sample.png"} alt={item.name} className="max-w-full max-h-full object-contain" />
                     </div>
                     <div className="flex-1 min-w-0 pt-1">
-                        <span className="text-[10px] font-black text-yellow-600 uppercase tracking-widest mb-1 block">{t("quickOrder.title")}</span>
+                        <span className="text-caption font-black text-primary uppercase tracking-widest mb-1 block">{t("quickOrder.title")}</span>
                         <h3 className="text-sm font-black text-gray-900 leading-tight uppercase tracking-tight line-clamp-2">{item.name}</h3>
                         <div className="flex flex-wrap gap-2 mt-3">
                             {item.size_display && (
-                                <div className="text-[10px] font-bold text-gray-500 bg-gray-50 border border-gray-100 px-2 py-1 rounded-lg">
+                                <div className="text-caption font-bold text-gray-500 bg-gray-50 border border-gray-100 px-2 py-1 rounded-lg">
                                     {item.size_display}
                                 </div>
                             )}
@@ -84,7 +84,7 @@ const CartItem: React.FC<CartItemProps> = ({ item, currencyCode, onUpdateQty, on
                         <button
                             onClick={() => handleQtyChange(localQty - 1)}
                             disabled={localQty <= 1}
-                            className="w-8 h-8 flex items-center justify-center hover:bg-yellow-400 font-bold transition-all disabled:opacity-20"
+                            className="w-8 h-8 flex items-center justify-center hover:bg-primary font-bold transition-all disabled:opacity-20"
                         >
                             <Minus size={12} strokeWidth={3} />
                         </button>
@@ -93,7 +93,7 @@ const CartItem: React.FC<CartItemProps> = ({ item, currencyCode, onUpdateQty, on
                         </span>
                         <button
                             onClick={() => handleQtyChange(localQty + 1)}
-                            className="w-8 h-8 flex items-center justify-center hover:bg-yellow-400 font-bold transition-all disabled:opacity-20"
+                            className="w-8 h-8 flex items-center justify-center hover:bg-primary font-bold transition-all disabled:opacity-20"
                         >
                             <Plus size={12} strokeWidth={3} />
                         </button>
@@ -122,12 +122,12 @@ const CartItem: React.FC<CartItemProps> = ({ item, currencyCode, onUpdateQty, on
                         <h3 className="text-xs xl:text-sm font-black text-gray-900 leading-tight uppercase tracking-tight mb-2 transition-colors group-hover/item:text-black line-clamp-1">{item.name}</h3>
                         <div className="flex flex-wrap gap-1.5 single-line-attributes">
                             {item.size_display && (
-                                <span className="text-[9px] font-black text-gray-400 bg-gray-50 border border-gray-100 px-1.5 py-0.5 rounded-md uppercase">
+                                <span className="text-micro font-black text-gray-400 bg-gray-50 border border-gray-100 px-1.5 py-0.5 rounded-md uppercase">
                                     {t("m.size")}: {item.size_display}
                                 </span>
                             )}
                             {item.pattern_display && (
-                                <span className="text-[9px] font-black text-gray-400 bg-gray-50 border border-gray-100 px-1.5 py-0.5 rounded-md uppercase">
+                                <span className="text-micro font-black text-gray-400 bg-gray-50 border border-gray-100 px-1.5 py-0.5 rounded-md uppercase">
                                     {t("m.pattern")}: {item.pattern_display}
                                 </span>
                             )}
@@ -144,11 +144,11 @@ const CartItem: React.FC<CartItemProps> = ({ item, currencyCode, onUpdateQty, on
 
                 {/* Qty (20%) */}
                 <div className="w-[20%] flex justify-center items-center">
-                    <div className="flex items-center border border-gray-100 bg-white rounded-lg shadow-sm overflow-hidden focus-within:ring-2 focus-within:ring-yellow-400 transition-all">
+                    <div className="flex items-center border border-gray-100 bg-white rounded-lg shadow-sm overflow-hidden focus-within:ring-2 focus-within:ring-primary transition-all">
                         <button
                             onClick={() => handleQtyChange(localQty - 1)}
                             disabled={localQty <= 1}
-                            className="w-7 h-7 flex items-center justify-center hover:bg-yellow-400 text-black transition-all disabled:opacity-20 active:scale-95"
+                            className="w-7 h-7 flex items-center justify-center hover:bg-primary text-black transition-all disabled:opacity-20 active:scale-95"
                         >
                             <Minus size={11} strokeWidth={3} />
                         </button>
@@ -157,7 +157,7 @@ const CartItem: React.FC<CartItemProps> = ({ item, currencyCode, onUpdateQty, on
                         </div>
                         <button
                             onClick={() => handleQtyChange(localQty + 1)}
-                            className="w-7 h-7 flex items-center justify-center hover:bg-yellow-400 text-black transition-all disabled:opacity-20 active:scale-95"
+                            className="w-7 h-7 flex items-center justify-center hover:bg-primary text-black transition-all disabled:opacity-20 active:scale-95"
                         >
                             <Plus size={11} strokeWidth={3} />
                         </button>

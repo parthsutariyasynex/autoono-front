@@ -48,7 +48,7 @@ export default function ChangePasswordPage() {
           <h1 className="text-base sm:text-lg md:text-xl font-bold mb-4 sm:mb-6 uppercase tracking-wider text-black">{t("changePassword.title")}</h1>
           <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-5">
             <div>
-              <label className="block text-[11px] font-bold uppercase text-gray-700 tracking-tight mb-1">{t("changePassword.currentPassword")} *</label>
+              <label className="block text-label font-bold uppercase text-gray-700 tracking-tight mb-1">{t("changePassword.currentPassword")} *</label>
               <input
                 type="password"
                 required
@@ -58,7 +58,7 @@ export default function ChangePasswordPage() {
               />
             </div>
             <div>
-              <label className="block text-[11px] font-bold uppercase text-gray-700 tracking-tight mb-1">{t("changePassword.newPassword")} *</label>
+              <label className="block text-label font-bold uppercase text-gray-700 tracking-tight mb-1">{t("changePassword.newPassword")} *</label>
               <input
                 type="password"
                 required
@@ -68,7 +68,7 @@ export default function ChangePasswordPage() {
               />
             </div>
             <div>
-              <label className="block text-[11px] font-bold uppercase text-gray-700 tracking-tight mb-1">{t("changePassword.confirmNewPassword")} *</label>
+              <label className="block text-label font-bold uppercase text-gray-700 tracking-tight mb-1">{t("changePassword.confirmNewPassword")} *</label>
               <input
                 type="password"
                 required

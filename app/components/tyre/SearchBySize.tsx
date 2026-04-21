@@ -79,7 +79,7 @@
 
 //                         <li>
 
-//                             <span className="bg-yellow-400 px-6 py-2 rounded font-semibold">
+//                             <span className="bg-primary px-6 py-2 rounded font-semibold">
 
 //                                 Search by Size
 
@@ -195,7 +195,7 @@
 
 //                                 onClick={handleSearch}
 
-//                                 className="bg-yellow-400 px-6 py-2 rounded font-semibold"
+//                                 className="bg-primary px-6 py-2 rounded font-semibold"
 
 //                             >
 

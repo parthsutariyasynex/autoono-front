@@ -9,7 +9,7 @@ import { api } from "@/lib/api/api-client";
 
 export default function EditAddressPage() {
     return (
-        <Suspense fallback={<div className="flex-1 flex items-center justify-center"><div className="h-10 w-10 animate-spin rounded-full border-4 border-gray-200 border-t-[#f5a623]"></div></div>}>
+        <Suspense fallback={<div className="flex-1 flex items-center justify-center"><div className="h-10 w-10 animate-spin rounded-full border-4 border-gray-200 border-t-primary"></div></div>}>
             <EditAddressPageContent />
         </Suspense>
     );
@@ -150,7 +150,7 @@ function EditAddressPageContent() {
             <>
 
                 <div className="flex items-center justify-center min-h-[calc(100vh-100px)] mt-4 md:mt-8">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#f5a623]"></div>
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
                 </div>
             </>
         );
@@ -164,14 +164,14 @@ function EditAddressPageContent() {
                 <Sidebar />
 
                 <main className="flex-1 w-full min-w-0 p-4 md:p-10 bg-[#fdfdfd]">
-                    <h1 className="text-[22px] md:text-[32px] font-black text-black uppercase tracking-tight mb-6 md:mb-10 px-1 md:px-0 ltr:text-left rtl:text-right">
+                    <h1 className="text-h3 md:text-h1 font-black text-black uppercase tracking-tight mb-6 md:mb-10 px-1 md:px-0 ltr:text-left rtl:text-right">
                         {t("addressBook.editAddress")}
                     </h1>
 
                     <div className="bg-white border border-gray-200 shadow-sm rounded-sm overflow-hidden max-w-4xl">
                         {/* Section Header */}
                         <div className="bg-white px-5 md:px-8 py-3.5 md:py-4 border-b border-gray-100">
-                            <h2 className="text-[14px] md:text-[16px] font-black text-black uppercase tracking-tight ltr:text-left rtl:text-right">
+                            <h2 className="text-body-lg md:text-h3-sm font-black text-black uppercase tracking-tight ltr:text-left rtl:text-right">
                                 {t("addressBook.contactInformation")}
                             </h2>
                         </div>
@@ -180,7 +180,7 @@ function EditAddressPageContent() {
                             <form onSubmit={onSubmit} className="space-y-6 md:space-y-8">
                                 {/* First Name */}
                                 <div>
-                                    <label className="block text-[14px] font-bold text-[#333] mb-2 ltr:text-left rtl:text-right">
+                                    <label className="block text-body-lg font-bold text-[#333] mb-2 ltr:text-left rtl:text-right">
                                         {t("addressBook.firstName")} <span className="text-red-600 font-bold">*</span>
                                     </label>
                                     <input
@@ -188,7 +188,7 @@ function EditAddressPageContent() {
                                         value={formData.firstname}
                                         onChange={handleInputChange}
                                         type="text"
-                                        className={`w-full p-2.5 md:p-3 border ${errors.firstname ? 'border-red-500' : 'border-gray-300'} rounded-sm focus:outline-none focus:border-[#f5a623] text-sm text-gray-700 ltr:text-left rtl:text-right`}
+                                        className={`w-full p-2.5 md:p-3 border ${errors.firstname ? 'border-red-500' : 'border-gray-300'} rounded-sm focus:outline-none focus:border-primary text-sm text-gray-700 ltr:text-left rtl:text-right`}
                                         placeholder={t("addressBook.firstName")}
                                     />
                                     {errors.firstname && (
@@ -198,7 +198,7 @@ function EditAddressPageContent() {
 
                                 {/* Last Name */}
                                 <div>
-                                    <label className="block text-[14px] font-bold text-[#333] mb-2 ltr:text-left rtl:text-right">
+                                    <label className="block text-body-lg font-bold text-[#333] mb-2 ltr:text-left rtl:text-right">
                                         {t("addressBook.lastName")} <span className="text-red-600 font-bold">*</span>
                                     </label>
                                     <input
@@ -206,7 +206,7 @@ function EditAddressPageContent() {
                                         value={formData.lastname}
                                         onChange={handleInputChange}
                                         type="text"
-                                        className={`w-full p-2.5 md:p-3 border ${errors.lastname ? 'border-red-500' : 'border-gray-300'} rounded-sm focus:outline-none focus:border-[#f5a623] text-sm text-gray-700 ltr:text-left rtl:text-right`}
+                                        className={`w-full p-2.5 md:p-3 border ${errors.lastname ? 'border-red-500' : 'border-gray-300'} rounded-sm focus:outline-none focus:border-primary text-sm text-gray-700 ltr:text-left rtl:text-right`}
                                         placeholder={t("addressBook.lastName")}
                                     />
                                     {errors.lastname && (
@@ -216,7 +216,7 @@ function EditAddressPageContent() {
 
                                 {/* Phone Number */}
                                 <div>
-                                    <label className="block text-[14px] font-bold text-[#333] mb-2 ltr:text-left rtl:text-right">
+                                    <label className="block text-body-lg font-bold text-[#333] mb-2 ltr:text-left rtl:text-right">
                                         {t("addressBook.phoneNumber")} <span className="text-red-600 font-bold">*</span>
                                     </label>
                                     <input
@@ -225,7 +225,7 @@ function EditAddressPageContent() {
                                         onChange={handleInputChange}
                                         type="tel"
                                         dir="ltr"
-                                        className={`w-full p-2.5 md:p-3 border ${errors.telephone ? 'border-red-500' : 'border-gray-300'} rounded-sm focus:outline-none focus:border-[#f5a623] text-sm text-gray-700 ltr:text-left rtl:text-right`}
+                                        className={`w-full p-2.5 md:p-3 border ${errors.telephone ? 'border-red-500' : 'border-gray-300'} rounded-sm focus:outline-none focus:border-primary text-sm text-gray-700 ltr:text-left rtl:text-right`}
                                         placeholder={t("addressBook.phoneNumber")}
                                     />
                                     {errors.telephone && (
@@ -238,7 +238,7 @@ function EditAddressPageContent() {
                                     <button
                                         type="submit"
                                         disabled={saving}
-                                        className="w-full sm:w-auto bg-[#ffb12b] hover:bg-[#e5a026] text-black text-[14px] font-bold px-6 sm:px-10 py-2.5 md:py-3 uppercase transition-colors rounded-[3px] shadow-sm tracking-wide disabled:opacity-50 flex items-center justify-center min-w-[180px]"
+                                        className="w-full sm:w-auto bg-[#ffb12b] hover:bg-[#e5a026] text-black text-body-lg font-bold px-6 sm:px-10 py-2.5 md:py-3 uppercase transition-colors rounded-[3px] shadow-sm tracking-wide disabled:opacity-50 flex items-center justify-center min-w-[180px]"
                                     >
                                         {saving ? (
                                             <div className="h-5 w-5 animate-spin rounded-full border-2 border-black border-t-transparent"></div>

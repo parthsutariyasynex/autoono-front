@@ -11,6 +11,7 @@ import PortalDropdown from "@/components/PortalDropdown";
 import { useSession } from "next-auth/react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { redirectToLogin } from "@/utils/helpers";
+import { api } from "@/lib/api/api-client";
 
 type CustomAttribute = {
     attribute_code: string;
@@ -91,18 +92,7 @@ export default function DashboardPage() {
                 params.append('compareYear', String(compareYear));
             }
 
-            const response = await fetch(`/api/kleverapi/dashboard?${params.toString()}`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'x-locale': window.location.pathname.startsWith("/ar") ? "ar" : "en"
-                }
-            });
-
-            if (!response.ok) {
-                throw new Error(`API returned ${response.status}`);
-            }
-
-            const data = await response.json();
+            const data = await api.get(`/kleverapi/dashboard?${params.toString()}`);
             if (data) {
                 setDashboardData(data);
                 if (data.available_years) setAvailableYears(data.available_years);
@@ -127,7 +117,7 @@ export default function DashboardPage() {
         return (
             <div className="min-h-screen bg-white">
                 <div className="flex items-center justify-center h-[60vh]">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#f5b21a]"></div>
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
                 </div>
             </div>
         );
@@ -157,13 +147,13 @@ export default function DashboardPage() {
 
             {/* Right Content Area */}
             <main className="flex-1 p-4 md:p-8 lg:p-10 bg-[#fcfcfc] min-h-0 font-rubik" dir={isRtl ? "rtl" : "ltr"}>
-                <div className="max-w-[1240px] mx-auto space-y-12">
+                <div className="w-full space-y-12">
 
                     {/* Sub-account Identity Banner */}
                     {isSubAccountSession && (
                         <div className={`bg-green-50/80 ${isRtl ? 'border-r-4' : 'border-l-4'} border-green-500 text-green-800 p-4 mb-8 ${isRtl ? 'rounded-l-lg' : 'rounded-r-lg'} flex items-center gap-3 animate-in fade-in slide-in-from-top duration-500 shadow-sm border border-gray-100`} role="alert">
-                            <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center text-white text-[10px] font-bold">&#10004;</div>
-                            <p className="text-[14px] font-bold tracking-tight uppercase">{t("dashboard.subAccountBanner")}</p>
+                            <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center text-white text-caption font-bold">&#10004;</div>
+                            <p className="text-body-lg font-bold tracking-tight uppercase">{t("dashboard.subAccountBanner")}</p>
                         </div>
                     )}
 
@@ -171,7 +161,7 @@ export default function DashboardPage() {
                         <h1 className="text-2xl font-black text-black uppercase tracking-tight">
                             {t("dashboard.title")}
                         </h1>
-                        <div className="h-[2px] flex-1 bg-gradient-to-r from-yellow-400 to-transparent"></div>
+                        <div className="h-[2px] flex-1 bg-gradient-to-r from-primary to-transparent"></div>
                     </div>
 
                     {/* COMPARE SECTION */}
@@ -189,16 +179,16 @@ export default function DashboardPage() {
                                             setSearchYear(new Date().getFullYear());
                                         }
                                     }}
-                                    className="w-[18px] h-[18px] accent-[#f5a623] cursor-pointer"
+                                    className="w-[18px] h-[18px] accent-primary cursor-pointer"
                                 />
-                                <label htmlFor="compare-toggle" className="text-[11px] font-black uppercase text-black tracking-widest cursor-pointer select-none">{t("dashboard.compare")}</label>
+                                <label htmlFor="compare-toggle" className="text-label font-black uppercase text-black tracking-widest cursor-pointer select-none">{t("dashboard.compare")}</label>
                             </div>
                         </div>
 
                         {/* Body Section */}
                         <div className="p-8 px-8 md:px-12 flex flex-col md:flex-row items-center justify-between gap-6 md:gap-12">
                             {/* First Selector */}
-                            <div className="flex-1 w-full bg-white border border-[#ebebeb] rounded-lg shadow-sm hover:border-[#f5a623] transition-all">
+                            <div className="flex-1 w-full bg-white border border-[#ebebeb] rounded-lg shadow-sm hover:border-primary transition-all">
                                 <PortalDropdown
                                     value={searchYear}
                                     onChange={(val) => {
@@ -206,20 +196,20 @@ export default function DashboardPage() {
                                         setIsCompare(true);
                                     }}
                                     options={availableYears.map(y => ({ label: String(y), value: String(y) }))}
-                                    buttonClassName="w-full h-11 px-5 flex items-center justify-between gap-2 cursor-pointer bg-transparent outline-none ltr:text-left rtl:text-right font-black text-[13px] uppercase tracking-wider text-black"
+                                    buttonClassName="w-full h-11 px-5 flex items-center justify-between gap-2 cursor-pointer bg-transparent outline-none ltr:text-left rtl:text-right font-black text-body uppercase tracking-wider text-black"
                                     className="w-full h-full"
                                 />
                             </div>
 
                             {/* Constant "vs." label */}
                             <div className="flex items-center justify-center">
-                                <span className="bg-gray-100/80 px-4 py-1 rounded-full text-[11px] font-black text-black uppercase tracking-tighter italic border border-gray-200">
+                                <span className="bg-gray-100/80 px-4 py-1 rounded-full text-label font-black text-black uppercase tracking-tighter italic border border-gray-200">
                                     {isRtl ? "مقابل" : "vs."}
                                 </span>
                             </div>
 
                             {/* Second Selector */}
-                            <div className="flex-1 w-full bg-white border border-[#ebebeb] rounded-lg shadow-sm hover:border-[#f5a623] transition-all">
+                            <div className="flex-1 w-full bg-white border border-[#ebebeb] rounded-lg shadow-sm hover:border-primary transition-all">
                                 <PortalDropdown
                                     value={compareYear}
                                     onChange={(val) => {
@@ -227,7 +217,7 @@ export default function DashboardPage() {
                                         setIsCompare(true);
                                     }}
                                     options={availableYears.map(y => ({ label: String(y), value: String(y) }))}
-                                    buttonClassName="w-full h-11 px-5 flex items-center justify-between gap-2 cursor-pointer bg-transparent outline-none ltr:text-left rtl:text-right font-black text-[13px] uppercase tracking-wider text-black"
+                                    buttonClassName="w-full h-11 px-5 flex items-center justify-between gap-2 cursor-pointer bg-transparent outline-none ltr:text-left rtl:text-right font-black text-body uppercase tracking-wider text-black"
                                     className="w-full h-full"
                                 />
                             </div>
@@ -241,7 +231,7 @@ export default function DashboardPage() {
                             <section>
                                 <div className="flex items-center gap-4 mb-6">
                                     <h2 className="text-lg font-black text-black uppercase tracking-tight">{t("m.total-order-qty")}</h2>
-                                    <div className="h-[2px] w-12 bg-yellow-400"></div>
+                                    <div className="h-[2px] w-12 bg-primary"></div>
                                 </div>
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                                     <QtyCard
@@ -266,7 +256,7 @@ export default function DashboardPage() {
                             <section>
                                 <div className="flex items-center gap-4 mb-6">
                                     <h2 className="text-lg font-black text-black uppercase tracking-tight">{t("m.total-order-value")}</h2>
-                                    <div className="h-[2px] w-12 bg-yellow-400"></div>
+                                    <div className="h-[2px] w-12 bg-primary"></div>
                                 </div>
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                                     <ValueCard
@@ -291,7 +281,7 @@ export default function DashboardPage() {
                             <section className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-4">
                                 {/* Product Group Filter */}
                                 <div className="flex flex-col gap-4">
-                                    <h3 className="text-[13px] font-black text-black uppercase tracking-widest ltr:text-left rtl:text-right opacity-60">{t("dashboard.productGroupLabel")}</h3>
+                                    <h3 className="text-body font-black text-black uppercase tracking-widest ltr:text-left rtl:text-right opacity-60">{t("dashboard.productGroupLabel")}</h3>
                                     <div className="bg-white border border-[#ebebeb] rounded-xl shadow-sm overflow-hidden group hover:shadow-md transition-all">
                                         <div className="bg-gray-50 border-b border-[#ebebeb] h-12 px-5 flex items-center relative">
                                             <PortalDropdown
@@ -303,7 +293,7 @@ export default function DashboardPage() {
                                                         : dashboardData.product_groups.map((pg: any) => ({ label: translateData(pg.product_group), value: pg.product_group }))
                                                 }
                                                 placeholder={t("m.select")}
-                                                buttonClassName="w-full h-full flex items-center justify-between gap-2 cursor-pointer bg-transparent outline-none ltr:text-left rtl:text-right font-black text-[12px] uppercase tracking-wider text-black"
+                                                buttonClassName="w-full h-full flex items-center justify-between gap-2 cursor-pointer bg-transparent outline-none ltr:text-left rtl:text-right font-black text-body-sm uppercase tracking-wider text-black"
                                                 className="w-full h-full"
                                             />
                                         </div>
@@ -317,7 +307,7 @@ export default function DashboardPage() {
 
                                 {/* Tyre Size Filter */}
                                 <div className="flex flex-col gap-4">
-                                    <h3 className="text-[13px] font-black text-black uppercase tracking-widest ltr:text-left rtl:text-right opacity-60">{t("dashboard.tyreSizeLabel")}</h3>
+                                    <h3 className="text-body font-black text-black uppercase tracking-widest ltr:text-left rtl:text-right opacity-60">{t("dashboard.tyreSizeLabel")}</h3>
                                     <div className="bg-white border border-[#ebebeb] rounded-xl shadow-sm overflow-hidden group hover:shadow-md transition-all">
                                         <div className="bg-gray-50 border-b border-[#ebebeb] h-12 px-5 flex items-center relative">
                                             <PortalDropdown
@@ -329,7 +319,7 @@ export default function DashboardPage() {
                                                         : dashboardData.tyre_sizes.map((ts: any) => ({ label: translateData(ts.size_pattern), value: ts.size_pattern }))
                                                 }
                                                 placeholder={t("m.select")}
-                                                buttonClassName="w-full h-full flex items-center justify-between gap-2 cursor-pointer bg-transparent outline-none ltr:text-left rtl:text-right font-black text-[12px] uppercase tracking-wider text-black"
+                                                buttonClassName="w-full h-full flex items-center justify-between gap-2 cursor-pointer bg-transparent outline-none ltr:text-left rtl:text-right font-black text-body-sm uppercase tracking-wider text-black"
                                                 className="w-full h-full"
                                             />
                                         </div>
@@ -357,14 +347,14 @@ export default function DashboardPage() {
                             <div className="flex px-4 pt-4 gap-2 bg-gray-50/50">
                                 <button
                                     onClick={() => setActiveTab('quarterly')}
-                                    className={`px-6 md:px-10 py-3 md:py-4 text-[11px] font-black uppercase tracking-widest cursor-pointer transition-all rounded-t-lg
+                                    className={`px-6 md:px-10 py-3 md:py-4 text-label font-black uppercase tracking-widest cursor-pointer transition-all rounded-t-lg
                                         ${activeTab === 'quarterly' ? 'bg-white text-black border-x border-t border-[#ebebeb]' : 'bg-transparent text-gray-400 hover:text-gray-600'}`}
                                 >
                                     {t("dashboard.quarterlySalesData")}
                                 </button>
                                 <button
                                     onClick={() => setActiveTab('monthly')}
-                                    className={`px-6 md:px-10 py-3 md:py-4 text-[11px] font-black uppercase tracking-widest cursor-pointer transition-all rounded-t-lg
+                                    className={`px-6 md:px-10 py-3 md:py-4 text-label font-black uppercase tracking-widest cursor-pointer transition-all rounded-t-lg
                                         ${activeTab === 'monthly' ? 'bg-white text-black border-x border-t border-[#ebebeb]' : 'bg-transparent text-gray-400 hover:text-gray-600'}`}
                                 >
                                     {t("dashboard.monthlySalesData")}
@@ -413,7 +403,7 @@ export default function DashboardPage() {
                                                 iconType="circle"
                                                 wrapperStyle={{ paddingBottom: '40px', fontSize: '11px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em' }}
                                             />
-                                            <Bar dataKey={searchYear} fill="#f5a623" radius={[4, 4, 0, 0]} barSize={32} name={searchYear.toString()} />
+                                            <Bar dataKey={searchYear} fill="var(--color-primary)" radius={[4, 4, 0, 0]} barSize={32} name={searchYear.toString()} />
                                             <Bar dataKey={compareYear} fill="#111827" radius={[4, 4, 0, 0]} barSize={32} name={compareYear.toString()} />
                                         </BarChart>
                                     </ResponsiveContainer>
@@ -424,10 +414,10 @@ export default function DashboardPage() {
                                     <table className="w-full border-collapse">
                                         <thead>
                                             <tr className="bg-gray-50/80 border-b border-[#ebebeb] h-[55px]">
-                                                <th className="py-4 px-6 text-[11px] font-black text-black uppercase tracking-widest text-left">{activeTab === 'quarterly' ? t("dashboard.quarter") : t("dashboard.month")}</th>
-                                                <th className="py-4 px-6 text-[11px] font-black text-black uppercase tracking-widest text-center">{searchYear} QTY</th>
-                                                <th className="py-4 px-6 text-[11px] font-black text-black uppercase tracking-widest text-center">{compareYear} QTY</th>
-                                                <th className="py-4 px-6 text-[11px] font-black text-black uppercase tracking-widest text-right">{isRtl ? 'التغيير' : 'CHANGE'}</th>
+                                                <th className="py-4 px-6 text-label font-black text-black uppercase tracking-widest text-left">{activeTab === 'quarterly' ? t("dashboard.quarter") : t("dashboard.month")}</th>
+                                                <th className="py-4 px-6 text-label font-black text-black uppercase tracking-widest text-center">{searchYear} QTY</th>
+                                                <th className="py-4 px-6 text-label font-black text-black uppercase tracking-widest text-center">{compareYear} QTY</th>
+                                                <th className="py-4 px-6 text-label font-black text-black uppercase tracking-widest text-right">{isRtl ? 'التغيير' : 'CHANGE'}</th>
                                             </tr>
                                         </thead>
                                         <tbody className="divide-y divide-gray-50 bg-white">
@@ -444,12 +434,12 @@ export default function DashboardPage() {
                                                 const change = val2 > 0 ? ((val1 - val2) / val2 * 100).toFixed(1) : (val1 > 0 ? "100" : "0");
 
                                                 return (
-                                                    <tr key={p} className="hover:bg-yellow-50/10 transition-colors h-[60px]">
-                                                        <td className="py-4 px-6 font-black text-black text-[13px] uppercase">{label}</td>
-                                                        <td className="py-4 px-6 text-[14px] font-black text-gray-800 text-center">{val1}</td>
-                                                        <td className="py-4 px-6 text-[14px] font-bold text-gray-400 text-center">{val2}</td>
+                                                    <tr key={p} className="hover:bg-primary/10 transition-colors h-[60px]">
+                                                        <td className="py-4 px-6 font-black text-black text-body uppercase">{label}</td>
+                                                        <td className="py-4 px-6 text-body-lg font-black text-gray-800 text-center">{val1}</td>
+                                                        <td className="py-4 px-6 text-body-lg font-bold text-gray-400 text-center">{val2}</td>
                                                         <td className="py-4 px-6 text-right">
-                                                            <span className={`text-[11px] font-black px-2 py-1 rounded ${Number(change) >= 0 ? 'text-green-600 bg-green-50' : 'text-red-600 bg-red-50'}`}>
+                                                            <span className={`text-label font-black px-2 py-1 rounded ${Number(change) >= 0 ? 'text-green-600 bg-green-50' : 'text-red-600 bg-red-50'}`}>
                                                                 {Number(change) >= 0 ? '+' : ''}{change}%
                                                             </span>
                                                         </td>
@@ -474,9 +464,9 @@ export default function DashboardPage() {
 function QtyCard({ label, value, isRtl }: { label: string; value: string; isRtl: boolean }) {
     return (
         <div className="bg-white border border-[#ebebeb] rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-all transform hover:-translate-y-1 group">
-            <div className="bg-gray-50 h-10 px-5 flex justify-between items-center text-black border-b border-[#ebebeb] group-hover:bg-yellow-50 transition-colors">
-                <span className="text-[10px] font-black uppercase tracking-widest text-gray-500 group-hover:text-yellow-700">{label}</span>
-                <div className="w-1.5 h-1.5 rounded-full bg-yellow-400"></div>
+            <div className="bg-gray-50 h-10 px-5 flex justify-between items-center text-black border-b border-[#ebebeb] group-hover:bg-primary transition-colors">
+                <span className="text-caption font-black uppercase tracking-widest text-gray-500 group-hover:text-primary">{label}</span>
+                <div className="w-1.5 h-1.5 rounded-full bg-primary"></div>
             </div>
             <div className="py-10 px-4 text-center">
                 <p className="text-4xl font-black text-black tracking-tighter">{value}</p>
@@ -488,12 +478,12 @@ function QtyCard({ label, value, isRtl }: { label: string; value: string; isRtl:
 function ValueCard({ label, value, isRtl }: { label: string; value: string; isRtl: boolean }) {
     return (
         <div className="bg-white border border-[#ebebeb] rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-all transform hover:-translate-y-1 group">
-            <div className="bg-gray-50 h-10 px-5 flex justify-between items-center text-black border-b border-[#ebebeb] group-hover:bg-yellow-50 transition-colors">
-                <span className="text-[10px] font-black uppercase tracking-widest text-gray-500 group-hover:text-yellow-700">{label}</span>
-                <div className="w-1.5 h-1.5 rounded-full bg-yellow-400"></div>
+            <div className="bg-gray-50 h-10 px-5 flex justify-between items-center text-black border-b border-[#ebebeb] group-hover:bg-primary transition-colors">
+                <span className="text-caption font-black uppercase tracking-widest text-gray-500 group-hover:text-primary">{label}</span>
+                <div className="w-1.5 h-1.5 rounded-full bg-primary"></div>
             </div>
             <div className="py-10 px-4 text-center">
-                <p className="text-2xl font-black text-black tracking-tight">{value} <span className="text-[11px] font-black text-gray-400 uppercase ml-1">SAR</span></p>
+                <p className="text-2xl font-black text-black tracking-tight">{value} <span className="text-label font-black text-gray-400 uppercase ml-1">SAR</span></p>
             </div>
         </div>
     );

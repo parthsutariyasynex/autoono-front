@@ -21,7 +21,7 @@ export default function PopupDemo() {
                     onClick={() => setActivePopup("center")}
                     className="group flex flex-col items-center p-8 bg-white rounded-3xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all border border-gray-100"
                 >
-                    <Layout className="w-10 h-10 mb-4 text-blue-500 group-hover:scale-110 transition-transform" />
+                    <Layout className="w-10 h-10 mb-4 text-primary group-hover:scale-110 transition-transform" />
                     <span className="font-bold text-gray-800">Classic Modal</span>
                     <span className="text-xs text-gray-400 mt-1">Fade + Scale</span>
                 </button>

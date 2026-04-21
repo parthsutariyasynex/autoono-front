@@ -26,7 +26,7 @@ export default function FavoritesPage() {
     if (authStatus === "loading") {
         return (
             <div className="min-h-screen flex items-center justify-center bg-white">
-                <div className="animate-spin rounded-full h-10 w-10 border-4 border-gray-200 border-t-[#f5a623]"></div>
+                <div className="animate-spin rounded-full h-10 w-10 border-4 border-gray-200 border-t-primary"></div>
             </div>
         );
     }
@@ -39,7 +39,7 @@ export default function FavoritesPage() {
             <div className="w-full mt-4 md:mt-8 px-4 md:px-10 pb-10 bg-white">
                 <FavouriteProducts
                     title={
-                        <h1 className="text-[20px] md:text-[26px] font-black text-black uppercase tracking-wide px-4 md:px-0">
+                        <h1 className="text-h3 md:text-[26px] font-black text-black uppercase tracking-wide px-4 md:px-0">
                             {t("sidebar.favoriteProducts")}
                         </h1>
                     }

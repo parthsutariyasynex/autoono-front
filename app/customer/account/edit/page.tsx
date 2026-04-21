@@ -15,7 +15,7 @@ import { redirectToLogin } from "@/utils/helpers";
 
 export default function EditAccountPage() {
     return (
-        <Suspense fallback={<div className="flex-1 flex items-center justify-center"><div className="h-10 w-10 animate-spin rounded-full border-4 border-gray-200 border-t-[#f5a623]"></div></div>}>
+        <Suspense fallback={<div className="flex-1 flex items-center justify-center"><div className="h-10 w-10 animate-spin rounded-full border-4 border-gray-200 border-t-primary"></div></div>}>
             <EditAccountPageContent />
         </Suspense>
     );
@@ -102,14 +102,14 @@ function EditAccountPageContent() {
     if (status === "loading" || loading || !customer) {
         return (
             <div className="min-h-screen bg-white flex items-center justify-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#F5B21B]"></div>
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
             </div>
         );
     }
 
-    const inputClass = "w-full border border-gray-200 px-4 py-2 text-[14px] focus:border-[#F5B21B] outline-none transition-all rounded-sm bg-white font-medium text-gray-800 placeholder:text-gray-300";
-    const labelClass = "block text-[13px] font-bold text-gray-900 mb-1.5";
-    const sectionHeader = "bg-white px-4 md:px-6 py-2.5 md:py-3 border-b border-gray-100 text-black font-black uppercase text-[13px] md:text-[15px] tracking-tight";
+    const inputClass = "w-full border border-gray-200 px-4 py-2 text-body-lg focus:border-primary outline-none transition-all rounded-sm bg-white font-medium text-gray-800 placeholder:text-gray-300";
+    const labelClass = "block text-body font-bold text-gray-900 mb-1.5";
+    const sectionHeader = "bg-white px-4 md:px-6 py-2.5 md:py-3 border-b border-gray-100 text-black font-black uppercase text-body md:text-[15px] tracking-tight";
 
     return (
         <div className="flex flex-col lg:flex-row flex-1 min-h-0 min-w-full">
@@ -117,7 +117,7 @@ function EditAccountPageContent() {
 
             <main className="flex-1 p-6 md:p-12 min-h-0 bg-[#FDFDFD]">
                 <div className="w-full">
-                    <h1 className="text-[20px] sm:text-[24px] md:text-[28px] font-black text-black mb-6 md:mb-10 uppercase tracking-tight">
+                    <h1 className="text-h3 sm:text-h2 md:text-h1-sm font-black text-black mb-6 md:mb-10 uppercase tracking-tight">
                         Edit Account Information
                     </h1>
 
@@ -159,11 +159,11 @@ function EditAccountPageContent() {
                                         <label className="flex items-center gap-3 cursor-pointer group">
                                             <input
                                                 type="checkbox"
-                                                className="w-4 h-4 border-gray-300 rounded focus:ring-[#F5B21B]"
+                                                className="w-4 h-4 border-gray-300 rounded focus:ring-primary"
                                                 checked={changeEmail}
                                                 onChange={(e) => setChangeEmail(e.target.checked)}
                                             />
-                                            <span className="text-[14px] font-bold text-gray-700 group-hover:text-black transition-colors select-none">
+                                            <span className="text-body-lg font-bold text-gray-700 group-hover:text-black transition-colors select-none">
                                                 Change Email
                                             </span>
                                         </label>
@@ -174,11 +174,11 @@ function EditAccountPageContent() {
                                         <label className="flex items-center gap-3 cursor-pointer group">
                                             <input
                                                 type="checkbox"
-                                                className="w-4 h-4 border-gray-300 rounded focus:ring-[#F5B21B]"
+                                                className="w-4 h-4 border-gray-300 rounded focus:ring-primary"
                                                 checked={changePassword}
                                                 onChange={(e) => setChangePassword(e.target.checked)}
                                             />
-                                            <span className="text-[14px] font-bold text-gray-700 group-hover:text-black transition-colors select-none">
+                                            <span className="text-body-lg font-bold text-gray-700 group-hover:text-black transition-colors select-none">
                                                 Change Password
                                             </span>
                                         </label>
@@ -250,7 +250,7 @@ function EditAccountPageContent() {
                                             className={inputClass}
                                             placeholder={t("changePassword.newPassword")}
                                         />
-                                        <div className="bg-[#f4f4f4] px-4 py-2 text-[12px] font-bold text-gray-600 border border-gray-100 italic">
+                                        <div className="bg-[#f4f4f4] px-4 py-2 text-body-sm font-bold text-gray-600 border border-gray-100 italic">
                                             Password Strength: No Password
                                         </div>
                                     </div>
@@ -274,7 +274,7 @@ function EditAccountPageContent() {
                             <button
                                 onClick={handleSave}
                                 disabled={isSaving}
-                                className="bg-[#F5B21B] hover:bg-black hover:text-white text-black text-[13px] md:text-[15px] font-black px-8 md:px-12 py-3 md:py-3.5 uppercase transition-all rounded-sm shadow-md tracking-wider active:scale-95 w-full sm:w-auto"
+                                className="bg-primary hover:bg-black hover:text-white text-black text-body md:text-[15px] font-black px-8 md:px-12 py-3 md:py-3.5 uppercase transition-all rounded-sm shadow-md tracking-wider active:scale-95 w-full sm:w-auto"
                             >
                                 {isSaving ? "Saving..." : "Save"}
                             </button>

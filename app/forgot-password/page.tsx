@@ -294,7 +294,7 @@ export default function ForgotPasswordPage() {
                         onChange={(e) => { setEmail(e.target.value); if (errors.email) setErrors({ ...errors, email: "" }); }}
                         className={`w-full h-10 sm:h-11 bg-white px-3 text-sm rounded-[1px] outline outline-1 transition-all cursor-text ${errors.email ? 'outline-red-500' : 'outline-neutral-200 focus:outline-black focus:outline-2 focus:ring-1 focus:ring-black'}`}
                       />
-                      {errors.email && <span className="text-red-500 text-[11px] font-medium leading-none">{errors.email}</span>}
+                      {errors.email && <span className="text-red-500 text-label font-medium leading-none">{errors.email}</span>}
                     </div>
                   ) : (
                     <div className="flex flex-col gap-1.5 relative">
@@ -330,13 +330,13 @@ export default function ForgotPasswordPage() {
                               >
                                 <span className={item.flagClass}></span>
                                 <span className="text-xs font-bold text-black">{item.code}</span>
-                                <span className="text-[10px] text-gray-400 italic">{item.country}</span>
+                                <span className="text-caption text-gray-400 italic">{item.country}</span>
                               </div>
                             ))}
                           </div>
                         )}
                       </div>
-                      {errors.mobile && <span className="text-red-500 text-[11px] font-medium leading-none">{errors.mobile}</span>}
+                      {errors.mobile && <span className="text-red-500 text-label font-medium leading-none">{errors.mobile}</span>}
                     </div>
                   )}
                 </>
@@ -357,11 +357,11 @@ export default function ForgotPasswordPage() {
                     onChange={(e) => { setOtp(e.target.value); if (errors.otp) setErrors({ ...errors, otp: "" }); }}
                     className={`w-full h-10 sm:h-11 bg-white px-3 text-sm text-center font-bold tracking-[6px] sm:tracking-[8px] rounded-[1px] outline outline-1 transition-all placeholder:tracking-normal placeholder:font-normal cursor-text ${errors.otp ? 'outline-red-500' : 'outline-neutral-200 focus:outline-black focus:outline-2 focus:ring-1 focus:ring-black'}`}
                   />
-                  {errors.otp && <span className="text-red-500 text-[11px] font-medium leading-none">{errors.otp}</span>}
+                  {errors.otp && <span className="text-red-500 text-label font-medium leading-none">{errors.otp}</span>}
                   <button
                     type="button"
                     onClick={handleSendMobileOtp}
-                    className="text-amber-600 text-[11px] font-semibold text-right mt-1 hover:underline cursor-pointer"
+                    className="text-amber-600 text-label font-semibold text-right mt-1 hover:underline cursor-pointer"
                   >
                     {t("forgotPassword.resendCode")}
                   </button>
@@ -384,7 +384,7 @@ export default function ForgotPasswordPage() {
                       onChange={(e) => { setNewPassword(e.target.value); if (errors.password) setErrors({ ...errors, password: "" }); }}
                       className={`w-full h-10 sm:h-11 bg-white px-3 text-sm rounded-[1px] outline outline-1 transition-all cursor-text ${errors.password ? 'outline-red-500' : 'outline-neutral-200 focus:outline-black focus:outline-2 focus:ring-1 focus:ring-black'}`}
                     />
-                    {errors.password && <span className="text-red-500 text-[11px] font-medium leading-none">{errors.password}</span>}
+                    {errors.password && <span className="text-red-500 text-label font-medium leading-none">{errors.password}</span>}
                   </div>
 
                   <div className="flex flex-col gap-1.5">
@@ -400,7 +400,7 @@ export default function ForgotPasswordPage() {
                       onChange={(e) => { setConfirmPassword(e.target.value); if (errors.confirmPassword) setErrors({ ...errors, confirmPassword: "" }); }}
                       className={`w-full h-10 sm:h-11 bg-white px-3 text-sm rounded-[1px] outline outline-1 transition-all cursor-text ${errors.confirmPassword ? 'outline-red-500' : 'outline-neutral-200 focus:outline-black focus:outline-2 focus:ring-1 focus:ring-black'}`}
                     />
-                    {errors.confirmPassword && <span className="text-red-500 text-[11px] font-medium leading-none">{errors.confirmPassword}</span>}
+                    {errors.confirmPassword && <span className="text-red-500 text-label font-medium leading-none">{errors.confirmPassword}</span>}
                   </div>
                 </>
               )}
@@ -412,7 +412,7 @@ export default function ForgotPasswordPage() {
                   disabled={loading || reduxLoading}
                   className="w-full h-12 bg-amber-400 hover:bg-amber-500 rounded-[3px] flex justify-center items-center transition-all disabled:opacity-50 shadow-sm active:scale-[0.98] cursor-pointer"
                 >
-                  <div className="text-center text-black text-[13px] font-bold uppercase tracking-wider cursor-pointer">
+                  <div className="text-center text-black text-body font-bold uppercase tracking-wider cursor-pointer">
                     {loading || reduxLoading ? t("forgotPassword.sending") : (
                       step === 'input' ? (resetMode === 'email' ? t("forgotPassword.sendResetLink") : t("forgotPassword.sendOtp")) :
                         step === 'otp' ? t("forgotPassword.verifyOtpButton") : t("forgotPassword.resetPasswordButton")

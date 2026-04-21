@@ -55,8 +55,8 @@ export default function ProductDialog({ product, isOpen, onClose }: ProductDialo
     <Drawer isOpen={isOpen} onClose={onClose}>
       <div className="flex flex-col h-full bg-white" dir={isRtl ? "rtl" : "ltr"}>
         {/* Yellow Header */}
-        <div className="bg-[#FFB82B] px-4 md:px-8 py-4 md:py-6 flex items-center justify-center relative flex-shrink-0">
-          <h2 className="text-[14px] md:text-[17px] font-black text-black text-center tracking-tight">
+        <div className="bg-primary px-4 md:px-8 py-4 md:py-6 flex items-center justify-center relative flex-shrink-0">
+          <h2 className="text-body-lg md:text-[17px] font-semibold text-black text-center tracking-tight">
             {p.tyre_size || ""} {p.pattern || p.name ? ` - ${p.pattern || p.name}` : ""}
           </h2>
         </div>
@@ -69,10 +69,10 @@ export default function ProductDialog({ product, isOpen, onClose }: ProductDialo
                 key={index}
                 className="flex justify-between items-center py-3 md:py-4 border-b border-gray-100 last:border-0 gap-4"
               >
-                <span className="text-[12px] md:text-[14px] font-bold text-gray-800 flex-shrink-0">
+                <span className="text-body-sm md:text-body-lg font-bold text-gray-800 flex-shrink-0">
                   {row.label}
                 </span>
-                <span className="text-[12px] md:text-[14px] font-black text-black ltr:text-right rtl:text-left truncate">
+                <span className="text-body-sm md:text-body-lg font-semibold text-black ltr:text-right rtl:text-left truncate">
                   {row.value || "-"}
                 </span>
               </div>
@@ -82,7 +82,7 @@ export default function ProductDialog({ product, isOpen, onClose }: ProductDialo
           <div className="mt-6 md:mt-10 py-4 md:py-6 border-t border-gray-100">
             <button
               onClick={onClose}
-              className="w-full py-3 md:py-4 bg-gray-900 text-white text-[12px] md:text-[14px] font-black uppercase tracking-widest rounded shadow-lg hover:bg-black transition-all"
+              className="w-full py-3 md:py-4 bg-gray-900 text-white text-body-sm md:text-body-lg font-semibold uppercase tracking-widest rounded shadow-lg hover:bg-black transition-all"
             >
               {t("productDialog.closeDetails")}
             </button>

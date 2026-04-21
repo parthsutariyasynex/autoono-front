@@ -11,12 +11,12 @@ export default function PrivacyPolicyPage() {
                 dir={isRtl ? "rtl" : "ltr"}
             >
                 {/* Title */}
-                <h1 className="text-[20px] sm:text-[24px] md:text-[28px] lg:text-[32px] font-black text-black uppercase tracking-tight mb-8 sm:mb-10 md:mb-12 text-center">
+                <h1 className="text-h3 sm:text-h2 md:text-h1-sm lg:text-h1 font-black text-black uppercase tracking-tight mb-8 sm:mb-10 md:mb-12 text-center">
                     {t("privacy.title")}
                 </h1>
 
                 {/* Content */}
-                <div className={`text-[13px] sm:text-[14px] md:text-[15px] leading-[1.8] sm:leading-[1.9] text-gray-700 font-medium ${isRtl ? 'text-right' : 'text-left'}`}>
+                <div className={`text-body sm:text-body-lg md:text-[15px] leading-[1.8] sm:leading-[1.9] text-gray-700 font-medium ${isRtl ? 'text-right' : 'text-left'}`}>
                     {/* Intro */}
                     <p>{t("privacy.intro")}</p>
 

@@ -185,7 +185,7 @@ const MultiLocationDeliveryPage: React.FC = () => {
     if (isCartLoading || isCheckoutLoading && !isAssigning) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-white">
-                <div className="w-10 h-10 border-4 border-gray-100 border-t-[#f5b21a] rounded-full animate-spin" />
+                <div className="w-10 h-10 border-4 border-gray-100 border-t-primary rounded-full animate-spin" />
             </div>
         );
     }
@@ -195,8 +195,8 @@ const MultiLocationDeliveryPage: React.FC = () => {
         return (
             <div className="bg-white min-h-screen font-sans">
 
-                <div className="max-w-[1440px] mx-auto py-12 md:py-24 px-3 sm:px-4 flex flex-col items-center text-center">
-                    <h1 className="text-[20px] sm:text-[24px] md:text-[28px] font-black text-black uppercase mb-8 md:mb-12 tracking-wide">
+                <div className="w-full py-12 md:py-24 px-3 sm:px-4 flex flex-col items-center text-center">
+                    <h1 className="text-h3 sm:text-h2 md:text-h1-sm font-black text-black uppercase mb-8 md:mb-12 tracking-wide">
                         {t("multi.shoppingCart")}
                     </h1>
 
@@ -210,13 +210,13 @@ const MultiLocationDeliveryPage: React.FC = () => {
                         </div>
                     </div>
 
-                    <h2 className="text-[13px] sm:text-[15px] md:text-[17px] font-bold text-black uppercase tracking-tight mb-6 md:mb-8">
+                    <h2 className="text-body sm:text-[15px] md:text-[17px] font-bold text-black uppercase tracking-tight mb-6 md:mb-8">
                         {t("multi.emptyCart")}
                     </h2>
 
                     <Link
                         href={lp("/")}
-                        className="bg-[#f5b21a] text-black px-8 sm:px-10 md:px-12 py-3.5 md:py-4 text-[11px] sm:text-[12px] md:text-[13px] font-black uppercase tracking-[0.1em] hover:bg-black hover:text-white transition-all shadow-md"
+                        className="bg-primary text-black px-8 sm:px-10 md:px-12 py-3.5 md:py-4 text-label sm:text-body-sm md:text-body font-black uppercase tracking-[0.1em] hover:bg-black hover:text-white transition-all shadow-md"
                     >
                         {t("multi.continueShopping")}
                     </Link>
@@ -233,13 +233,13 @@ const MultiLocationDeliveryPage: React.FC = () => {
         <div className="bg-white min-h-screen font-sans pb-16 md:pb-32">
 
 
-            <div className="max-w-[1440px] mx-auto py-6 sm:py-8 md:py-12 px-3 sm:px-6 lg:px-10">
+            <div className="w-full py-6 sm:py-8 md:py-12 px-3 sm:px-6 lg:px-10">
                 {/* Heading Block */}
                 <div className="text-center mb-6 md:mb-10">
-                    <h1 className="text-[18px] sm:text-[22px] md:text-[26px] font-black text-black uppercase tracking-normal mb-1">
+                    <h1 className="text-[18px] sm:text-h3 md:text-[26px] font-black text-black uppercase tracking-normal mb-1">
                         {t("multi.shipToMultiple")}
                     </h1>
-                    {/* <p className="text-[12px] sm:text-[13px] md:text-[14px] text-gray-800 font-medium italic">
+                    {/* <p className="text-body-sm sm:text-body md:text-body-lg text-gray-800 font-medium italic">
                         Please assign Qty against shipping address for applicable items.
                     </p> */}
                 </div>
@@ -253,15 +253,15 @@ const MultiLocationDeliveryPage: React.FC = () => {
                                 <tr>
                                     <th
                                         rowSpan={2}
-                                        className="py-3 md:py-4 px-3 md:px-5 text-left text-[11px] sm:text-[12px] md:text-[13px] font-black uppercase text-black border-r border-b border-gray-300 w-[160px] md:w-[220px] bg-white align-middle"
+                                        className="py-3 md:py-4 px-3 md:px-5 text-left text-label sm:text-body-sm md:text-body font-black uppercase text-black border-r border-b border-gray-300 w-[160px] md:w-[220px] bg-white align-middle"
                                     >
                                         {t("multi.product")}
                                     </th>
-                                    <th className="py-3 md:py-4 px-2 md:px-4 text-center text-[11px] sm:text-[12px] md:text-[13px] font-black uppercase text-black border-r border-b border-gray-300 w-[80px] md:w-[110px] bg-white">
+                                    <th className="py-3 md:py-4 px-2 md:px-4 text-center text-label sm:text-body-sm md:text-body font-black uppercase text-black border-r border-b border-gray-300 w-[80px] md:w-[110px] bg-white">
                                         {t("multi.cartQty")}
                                     </th>
                                     <th
-                                        className="py-3 md:py-4 px-2 md:px-4 text-center text-[11px] sm:text-[12px] md:text-[13px] font-black uppercase text-black border-b border-gray-300 bg-white"
+                                        className="py-3 md:py-4 px-2 md:px-4 text-center text-label sm:text-body-sm md:text-body font-black uppercase text-black border-b border-gray-300 bg-white"
                                         colSpan={addresses.length + 1}
                                     >
                                         {t("multi.assignQty")}
@@ -269,13 +269,13 @@ const MultiLocationDeliveryPage: React.FC = () => {
                                 </tr>
                                 {/* Sub Header Row */}
                                 <tr>
-                                    <th className="py-3 md:py-4 text-center text-[10px] md:text-[12px] font-bold text-black border-r border-b border-gray-300 uppercase bg-white">
+                                    <th className="py-3 md:py-4 text-center text-caption md:text-body-sm font-bold text-black border-r border-b border-gray-300 uppercase bg-white">
                                         Qty
                                     </th>
                                     {addresses.map((addr) => (
                                         <th
                                             key={addr.id}
-                                            className="py-3 md:py-4 px-2 md:px-4 text-center text-[10px] md:text-[12px] font-bold text-black border-r border-b border-gray-300 uppercase bg-white min-w-[100px] md:min-w-[150px]"
+                                            className="py-3 md:py-4 px-2 md:px-4 text-center text-caption md:text-body-sm font-bold text-black border-r border-b border-gray-300 uppercase bg-white min-w-[100px] md:min-w-[150px]"
                                         >
                                             {getAddressLocation(addr)}
                                         </th>
@@ -290,7 +290,7 @@ const MultiLocationDeliveryPage: React.FC = () => {
                                         <tr key={item.item_id} className="border-b border-gray-300 last:border-b-0">
                                             {/* Column 1: Product Information */}
                                             <td className="py-3 md:py-6 px-3 md:px-5 border-r border-gray-300 align-middle">
-                                                <span className="text-[12px] md:text-[14px] font-bold text-black leading-tight max-w-[200px] uppercase block">
+                                                <span className="text-body-sm md:text-body-lg font-bold text-black leading-tight max-w-[200px] uppercase block">
                                                     {item.name}
                                                 </span>
                                             </td>
@@ -298,8 +298,8 @@ const MultiLocationDeliveryPage: React.FC = () => {
                                             {/* Column 2: Cart Qty Box */}
                                             <td className="py-3 md:py-6 px-2 md:px-4 border-r border-gray-300 align-middle">
                                                 <div className="flex flex-col items-center">
-                                                    <span className="text-[10px] md:text-[11px] font-bold text-black mb-1.5 md:mb-2 uppercase tracking-tighter">{t("multi.qty")}</span>
-                                                    <div className="w-[40px] md:w-[50px] h-[34px] md:h-[38px] flex items-center justify-center border border-gray-300 text-gray-400 font-bold bg-white text-[13px] md:text-[14px]">
+                                                    <span className="text-caption md:text-label font-bold text-black mb-1.5 md:mb-2 uppercase tracking-tighter">{t("multi.qty")}</span>
+                                                    <div className="w-[40px] md:w-[50px] h-[34px] md:h-[38px] flex items-center justify-center border border-gray-300 text-gray-400 font-bold bg-white text-body md:text-body-lg">
                                                         {item.qty}
                                                     </div>
                                                 </div>
@@ -312,11 +312,11 @@ const MultiLocationDeliveryPage: React.FC = () => {
                                                 return (
                                                     <td
                                                         key={addr.id}
-                                                        className={`py-3 md:py-6 px-2 md:px-4 border-r border-gray-300 align-middle cursor-pointer transition-colors ${currentVal > 0 ? 'bg-yellow-50/10' : 'hover:bg-gray-50'}`}
+                                                        className={`py-3 md:py-6 px-2 md:px-4 border-r border-gray-300 align-middle cursor-pointer transition-colors ${currentVal > 0 ? 'bg-primary/10' : 'hover:bg-gray-50'}`}
                                                         onClick={() => handleAddressSelect(item.item_id, addr.id)}
                                                     >
                                                         <div className="flex flex-col items-center">
-                                                            <span className="text-[10px] md:text-[11px] font-bold text-black mb-1.5 md:mb-2 uppercase tracking-tighter">{cityLabel}</span>
+                                                            <span className="text-caption md:text-label font-bold text-black mb-1.5 md:mb-2 uppercase tracking-tighter">{cityLabel}</span>
                                                             <input
                                                                 type="text"
                                                                 inputMode="numeric"
@@ -334,7 +334,7 @@ const MultiLocationDeliveryPage: React.FC = () => {
                                                                     }
                                                                 }}
                                                                 onClick={(e) => e.stopPropagation()}
-                                                                className={`w-[40px] md:w-[50px] h-[34px] md:h-[38px] text-center text-[13px] md:text-[14px] font-bold border transition-all rounded-none outline-none focus:ring-1 focus:ring-black
+                                                                className={`w-[40px] md:w-[50px] h-[34px] md:h-[38px] text-center text-body md:text-body-lg font-bold border transition-all rounded-none outline-none focus:ring-1 focus:ring-black
                                                                     ${currentVal > 0 ? 'border-black bg-white' : 'border-gray-300 bg-gray-50'}`}
                                                             />
                                                         </div>
@@ -345,7 +345,7 @@ const MultiLocationDeliveryPage: React.FC = () => {
                                             {/* Validation Row Message */}
                                             <td className="py-3 md:py-6 px-2 md:px-4 align-middle bg-white">
                                                 {!isItemValid && (
-                                                    <div className="text-[#ff0000] text-[11px] font-bold leading-[1.3] text-center whitespace-pre-line uppercase tracking-tight">
+                                                    <div className="text-[#ff0000] text-label font-bold leading-[1.3] text-center whitespace-pre-line uppercase tracking-tight">
                                                         {t("multi.qtyMismatch")}
                                                     </div>
                                                 )}
@@ -362,7 +362,7 @@ const MultiLocationDeliveryPage: React.FC = () => {
                 <div className="mt-6 md:mt-8 bg-[#f2f2f2] p-4 sm:p-6 flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-6 border border-gray-100">
                     <Link
                         href={lp("/cart")}
-                        className="w-full sm:w-auto text-center bg-black text-white px-6 md:px-10 py-3.5 md:py-4 text-[11px] font-black uppercase tracking-[0.1em] hover:bg-zinc-900 transition-colors"
+                        className="w-full sm:w-auto text-center bg-black text-white px-6 md:px-10 py-3.5 md:py-4 text-label font-black uppercase tracking-[0.1em] hover:bg-zinc-900 transition-colors"
                     >
                         {t("multi.backToCart")}
                     </Link>
@@ -370,10 +370,10 @@ const MultiLocationDeliveryPage: React.FC = () => {
                     <button
                         onClick={handleProceed}
                         disabled={!isReadyToProceed || isAssigning}
-                        className={`w-full sm:w-auto justify-center px-6 md:px-10 py-3.5 md:py-4 text-[11px] font-black uppercase tracking-[0.1em] transition-all flex items-center gap-2
+                        className={`w-full sm:w-auto justify-center px-6 md:px-10 py-3.5 md:py-4 text-label font-black uppercase tracking-[0.1em] transition-all flex items-center gap-2
                             ${isReadyToProceed
-                                ? 'bg-[#f5b21a] text-black hover:bg-black hover:text-white cursor-pointer'
-                                : 'bg-[#f5b21a]/60 text-black/40 cursor-not-allowed'
+                                ? 'bg-primary text-black hover:bg-black hover:text-white cursor-pointer'
+                                : 'bg-primary/60 text-black/40 cursor-not-allowed'
                             }
                         `}
                     >

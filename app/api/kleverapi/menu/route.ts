@@ -6,6 +6,7 @@ import { getBaseUrl } from "@/lib/api/magento-url";
 // Map Magento absolute URLs to local Next.js routes
 const URL_MAP: Record<string, string> = {
     all_tyres: "/products",
+    all_lubricants: "/products",
     quick_order: "/quick-order",
     about_us: "/about",
     branch_locations: "/locations",
@@ -40,23 +41,42 @@ export async function GET(request: NextRequest) {
         });
 
         if (!res.ok) {
+
             const errBody = await res.text();
             console.error("[menu] Magento error:", res.status, errBody);
             return NextResponse.json({ error: "Failed to fetch menu" }, { status: res.status });
         }
 
         const data = await res.json();
+        const rawItems = Array.isArray(data) ? data : [];
 
-        // Normalize: map Magento URLs to local routes, filter hidden items, sort
-        const items = (Array.isArray(data) ? data : [])
-            .filter((item: any) => item.is_visible !== false)
-            .sort((a: any, b: any) => (a.sort_order || 0) - (b.sort_order || 0))
-            .map((item: any) => ({
+        // Recursive mapper to handle children and URL mapping
+        const mapMenuItem = (item: any): any => {
+            // Magento category id may come back under different keys depending on endpoint version
+            const categoryId = item.category_id ?? item.categoryId ?? item.entity_id ?? item.id ?? null;
+            const mapped = {
                 code: item.code,
                 label: item.label,
                 href: URL_MAP[item.code] || item.url || "#",
+                magentoUrl: item.url || "",
+                categoryId: categoryId != null ? String(categoryId) : null,
                 sort_order: item.sort_order,
-            }));
+                is_visible: item.is_visible !== false,
+            } as any;
+
+            if (Array.isArray(item.children) && item.children.length > 0) {
+                mapped.children = item.children
+                    .filter((child: any) => child.is_visible !== false)
+                    .map(mapMenuItem);
+            }
+
+            return mapped;
+        };
+
+        const items = rawItems
+            .filter((item: any) => item.is_visible !== false)
+            .sort((a: any, b: any) => (a.sort_order || 0) - (b.sort_order || 0))
+            .map(mapMenuItem);
 
         return new Response(JSON.stringify(items), {
             headers: {

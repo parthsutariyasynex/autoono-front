@@ -19,11 +19,11 @@ export default function AboutPage() {
 
             {/* Content Section */}
             <div className="max-w-[1200px] mx-auto px-6 mt-8 sm:mt-12 md:mt-20 pb-20" dir={isRtl ? "rtl" : "ltr"}>
-                <h1 className="text-[22px] sm:text-[26px] md:text-[32px] font-black text-center mb-16 tracking-wide text-black uppercase">
+                <h1 className="text-h3 sm:text-[26px] md:text-h1 font-black text-center mb-16 tracking-wide text-black uppercase">
                     {t("about.title")}
                 </h1>
 
-                <div className={`flex flex-col gap-10 text-black font-semibold text-[14px] sm:text-[15px] md:text-[16px] leading-[1.8] max-w-[1000px] mx-auto ${isRtl ? 'text-right' : 'text-center md:text-left'}`}>
+                <div className={`flex flex-col gap-10 text-black font-semibold text-body-lg sm:text-[15px] md:text-h3-sm leading-[1.8] max-w-[1000px] mx-auto ${isRtl ? 'text-right' : 'text-center md:text-left'}`}>
                     <p>{t("about.description")}</p>
                     <p>{t("about.paragraph2")}</p>
                     <p>{t("about.paragraph3")}</p>

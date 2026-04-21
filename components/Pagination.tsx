@@ -59,12 +59,12 @@ export function PageSizeSelect({ value, onChange }: { value: number; onChange: (
 
     return (
         <div className="flex items-center gap-2 md:gap-3">
-            <span className="text-[10px] md:text-[11px] text-gray-400 font-black uppercase tracking-wider">{t("favorites.show")}</span>
+            <span className="text-caption md:text-label text-gray-400 font-black uppercase tracking-wider">{t("favorites.show")}</span>
             <button
                 ref={triggerRef}
                 type="button"
                 onClick={handleToggle}
-                className={`h-8 md:h-9 px-3 bg-white border rounded text-[12px] md:text-[13px] font-black text-black flex items-center gap-2 min-w-[60px] justify-between cursor-pointer transition-all shadow-sm ${isOpen ? "border-[#f5a623] ring-1 ring-[#f5a623]/20" : "border-gray-200 hover:border-[#f5a623] hover:shadow-md"}`}
+                className={`h-8 md:h-9 px-3 bg-white border rounded text-body-sm md:text-body font-black text-black flex items-center gap-2 min-w-[60px] justify-between cursor-pointer transition-all shadow-sm ${isOpen ? "border-primary ring-1 ring-primary/20" : "border-gray-200 hover:border-primary hover:shadow-md"}`}
             >
                 {value}
                 <ChevronDown size={12} className={`text-[#f5a624] transition-transform duration-300 ${isOpen ? "rotate-180" : ""}`} />
@@ -82,7 +82,7 @@ export function PageSizeSelect({ value, onChange }: { value: number; onChange: (
                                 key={s}
                                 type="button"
                                 onClick={() => { onChange(s); setIsOpen(false); }}
-                                className={`w-full text-center px-3 py-2.5 text-[13px] font-bold cursor-pointer transition-colors border-b last:border-0 border-gray-50 ${s === value ? "bg-[#f5a623] text-black" : "text-gray-700 hover:bg-gray-50 hover:text-[#f5a623]"}`}
+                                className={`w-full text-center px-3 py-2.5 text-body font-bold cursor-pointer transition-colors border-b last:border-0 border-gray-50 ${s === value ? "bg-primary text-black" : "text-gray-700 hover:bg-gray-50 hover:text-primary"}`}
                             >
                                 {s}
                             </button>
@@ -91,7 +91,7 @@ export function PageSizeSelect({ value, onChange }: { value: number; onChange: (
                 </>,
                 document.body
             )}
-            <span className="text-[10px] md:text-[11px] text-gray-400 font-black uppercase tracking-wider whitespace-nowrap">{t("common.perPage")}</span>
+            <span className="text-caption md:text-label text-gray-400 font-black uppercase tracking-wider whitespace-nowrap">{t("common.perPage")}</span>
         </div>
     );
 }
@@ -140,7 +140,7 @@ const Pagination: React.FC<PaginationProps> = ({
     return (
         <div className="flex flex-col md:flex-row items-center justify-between py-3 md:py-4 px-1 gap-4 mt-4 border-t border-gray-100">
             {/* Item count */}
-            <div className="text-[13px] md:text-[14px] text-gray-500 font-medium order-2 md:order-1">
+            <div className="text-body md:text-body-lg text-gray-500 font-medium order-2 md:order-1">
                 {t("favorites.show")} <span className="text-black font-extrabold">{t("favorites.items")} {startItem} - {endItem}</span> {t("favorites.of")} <span className="text-black font-extrabold">{totalItems}</span> {t("favorites.total")}
             </div>
 
@@ -149,7 +149,7 @@ const Pagination: React.FC<PaginationProps> = ({
                 {currentPage > 1 && (
                     <button
                         onClick={() => onPageChange(currentPage - 1)}
-                        className="h-9 md:h-10 w-9 md:w-10 flex items-center justify-center bg-white border border-gray-200 text-black font-extrabold rounded-full hover:bg-gray-50 hover:border-[#f5a623] hover:text-[#f5a623] transition-all duration-200 cursor-pointer shadow-sm"
+                        className="h-9 md:h-10 w-9 md:w-10 flex items-center justify-center bg-white border border-gray-200 text-black font-extrabold rounded-full hover:bg-gray-50 hover:border-primary hover:text-primary transition-all duration-200 cursor-pointer shadow-sm"
                     >
                         {isRtl ? "›" : "‹"}
                     </button>
@@ -162,9 +162,9 @@ const Pagination: React.FC<PaginationProps> = ({
                         <button
                             key={p}
                             onClick={() => onPageChange(p as number)}
-                            className={`w-9 h-9 md:w-10 md:h-10 flex items-center justify-center text-[13px] md:text-[14px] rounded-full border transition-all duration-200 cursor-pointer ${currentPage === p
-                                ? "bg-[#f5a623] border-[#f5a623] text-black font-extrabold shadow-md transform scale-105"
-                                : "bg-white border-gray-200 text-gray-600 font-bold hover:bg-gray-50 hover:border-[#f5a623] hover:text-[#f5a623]"
+                            className={`w-9 h-9 md:w-10 md:h-10 flex items-center justify-center text-body md:text-body-lg rounded-full border transition-all duration-200 cursor-pointer ${currentPage === p
+                                ? "bg-primary border-primary text-black font-extrabold shadow-md transform scale-105"
+                                : "bg-white border-gray-200 text-gray-600 font-bold hover:bg-gray-50 hover:border-primary hover:text-primary"
                                 }`}
                         >
                             {p}
@@ -175,7 +175,7 @@ const Pagination: React.FC<PaginationProps> = ({
                 {currentPage < totalPages && (
                     <button
                         onClick={() => onPageChange(currentPage + 1)}
-                        className="h-9 md:h-10 w-9 md:w-10 flex items-center justify-center bg-white border border-gray-200 text-black font-extrabold rounded-full hover:bg-gray-50 hover:border-[#f5a623] hover:text-[#f5a623] transition-all duration-200 cursor-pointer shadow-sm"
+                        className="h-9 md:h-10 w-9 md:w-10 flex items-center justify-center bg-white border border-gray-200 text-black font-extrabold rounded-full hover:bg-gray-50 hover:border-primary hover:text-primary transition-all duration-200 cursor-pointer shadow-sm"
                     >
                         {isRtl ? "‹" : "›"}
                     </button>

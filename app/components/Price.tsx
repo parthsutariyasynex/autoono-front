@@ -21,8 +21,8 @@ export default function Price({ amount, className = "", symbolClassName = "" }: 
     // Mapping for the Saudi Riyal custom font icon
     const riyalIcon = "\uE900";
 
-    // If className doesn't specify a font weight, default to font-black
-    const weightClass = className.includes("font-") ? "" : "font-black";
+    // If className doesn't specify a font weight, default to font-semibold
+    const weightClass = className.includes("font-") ? "" : "font-semibold";
 
     return (
         <span dir="ltr" className={`inline-flex items-center gap-1 ${weightClass} ${className}`}>

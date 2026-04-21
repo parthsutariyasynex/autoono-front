@@ -408,13 +408,13 @@ function MyOrdersPageContent() {
 
                 <main className="flex-1 w-full px-4 md:px-6 lg:px-8 py-4 md:py-8 lg:py-10">
                     <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-6 md:mb-10">
-                        <h1 className="text-[20px] sm:text-[22px] md:text-[26px] font-black text-black uppercase tracking-wide">
+                        <h1 className="text-h3 sm:text-h3 md:text-[26px] font-black text-black uppercase tracking-wide">
                             {t("orders.title")}
                         </h1>
                         <button
                             onClick={handleExportOrders}
                             disabled={isExporting}
-                            className={`w-full md:w-auto justify-center flex items-center gap-2 border-2 border-primary text-black text-[12px] font-bold px-5 py-2 uppercase tracking-wide hover:bg-primary transition-colors ${isExporting ? 'opacity-70 cursor-not-allowed' : ''}`}
+                            className={`w-full md:w-auto justify-center flex items-center gap-2 border-2 border-primary text-black text-body-sm font-bold px-5 py-2 uppercase tracking-wide hover:bg-primary transition-colors ${isExporting ? 'opacity-70 cursor-not-allowed' : ''}`}
                         >
                             {isExporting ? (
                                 <>
@@ -457,7 +457,7 @@ function MyOrdersPageContent() {
                             <div className="mb-4">
                                 <button
                                     onClick={handleResetClick}
-                                    className="px-4 py-1.5 bg-[#f0f0f0] border border-gray-300 text-[13px] text-black hover:bg-gray-200 transition-colors rounded-[2px]"
+                                    className="px-4 py-1.5 bg-[#f0f0f0] border border-gray-300 text-body text-black hover:bg-gray-200 transition-colors rounded-[2px]"
                                 >
                                     {t("orders.reset")}
                                 </button>
@@ -466,7 +466,7 @@ function MyOrdersPageContent() {
                                 <svg className="w-5 h-5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                                     <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                                 </svg>
-                                <span className="text-[14px] font-medium">{t("orders.noOrders")}</span>
+                                <span className="text-body-lg font-medium">{t("orders.noOrders")}</span>
                             </div>
                         </div>
                     ) : (

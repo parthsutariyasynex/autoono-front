@@ -7,15 +7,21 @@
 } */
 
 @import "tailwindcss";
+@config "../tailwind.config.js";
+
 
 /* Rubik is loaded via next/font in layout.tsx — no @import needed */
 
 @layer base {
 
+
   /* Prevent scrollbar-caused layout shift — must be in @layer base to override preflight */
   html {
     scroll-behavior: smooth;
     --scrollbar-width: 0px;
+    /* Keep in sync with tailwind.config.js theme.extend.colors */
+    --color-primary: #4E81C2;
+    --color-primary-hover: #3A6BA8;
   }
 
   /* ─── RTL Support ─────────────────────────────────────────────────── */
@@ -128,6 +134,12 @@
   /* Proper Set Width */
   display: flex !important;
   flex-direction: column !important;
+}
+
+@media (max-width: 640px) {
+  .retro-datepicker {
+    width: 100% !important;
+  }
 }
 
 .retro-datepicker .react-datepicker__month-container {

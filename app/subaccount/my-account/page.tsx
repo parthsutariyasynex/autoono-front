@@ -89,7 +89,7 @@ export default function SubAccountMyAccountPage() {
             <div className="min-h-screen bg-white">
 
                 <div className="flex items-center justify-center h-[60vh]">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#F5B21B]"></div>
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
                 </div>
             </div>
         );
@@ -141,7 +141,7 @@ export default function SubAccountMyAccountPage() {
     const defaultShipping = subAddresses?.find((a: Address) => a.default_shipping);
 
     const cardBase = "border border-gray-300 bg-white shadow-sm rounded-none";
-    const sectionHeader = "bg-[#f5f5f5] px-3 md:px-4 py-2.5 md:py-3 border-b border-gray-300 text-black font-bold uppercase text-[12px] md:text-[13px]";
+    const sectionHeader = "bg-[#f5f5f5] px-3 md:px-4 py-2.5 md:py-3 border-b border-gray-300 text-black font-bold uppercase text-body-sm md:text-body";
 
     return (
         <>
@@ -157,7 +157,7 @@ export default function SubAccountMyAccountPage() {
                     {isSubAccountSession && (
                         <div className="bg-[#e7f6e7] border-l-4 border-[#2d8a2d] text-[#1b5e20] p-3 md:p-4 mb-6 md:mb-8 flex items-center gap-3 animate-in fade-in slide-in-from-top duration-500 shadow-sm" role="alert">
                             <span className="text-[#2d8a2d] font-bold text-lg">✔</span>
-                            <p className="text-[14px] font-medium tracking-tight">You are logged as subaccount now.</p>
+                            <p className="text-body-lg font-medium tracking-tight">You are logged as subaccount now.</p>
                         </div>
                     )}
 
@@ -168,7 +168,7 @@ export default function SubAccountMyAccountPage() {
                     <div className="space-y-6 md:space-y-8">
                         {/* ACCOUNT INFORMATION */}
                         <div>
-                            <h2 className="text-[14px] md:text-[16px] font-bold text-black uppercase mb-2 md:mb-3">ACCOUNT INFORMATION</h2>
+                            <h2 className="text-body-lg md:text-h3-sm font-bold text-black uppercase mb-2 md:mb-3">ACCOUNT INFORMATION</h2>
                             <hr className="border-gray-200 mb-4 md:mb-6" />
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
@@ -177,7 +177,7 @@ export default function SubAccountMyAccountPage() {
                                     <div className={sectionHeader}>
                                         CONTACT INFORMATION
                                     </div>
-                                    <div className="p-3 md:p-5 text-[13px] text-gray-800 space-y-2 font-normal leading-relaxed">
+                                    <div className="p-3 md:p-5 text-body text-gray-800 space-y-2 font-normal leading-relaxed">
                                         <p><span className="text-black font-bold">Contact Name:</span> {contactName}</p>
                                         <p><span className="text-black font-bold">Email:</span> {contactEmail}</p>
                                         <p><span className="text-black font-bold">Contact Information:</span> {contactEmail} ,</p>
@@ -189,7 +189,7 @@ export default function SubAccountMyAccountPage() {
                                     <div className={sectionHeader}>
                                         COMPANY INFORMATION
                                     </div>
-                                    <div className="p-3 md:p-5 text-[13px] text-gray-800 space-y-2 font-normal leading-relaxed">
+                                    <div className="p-3 md:p-5 text-body text-gray-800 space-y-2 font-normal leading-relaxed">
                                         <p><span className="text-black font-bold">Company Name:</span> {companyName}</p>
                                         <p><span className="text-black font-bold">Company Contact Name:</span> {companyContactName}</p>
                                         <p><span className="text-black font-bold">Company Email:</span> {companyEmail}</p>
@@ -202,7 +202,7 @@ export default function SubAccountMyAccountPage() {
 
                         {/* ADDRESS BOOK - from SUB-ACCOUNT login customer (has vat_id) */}
                         <div>
-                            <h2 className="text-[14px] md:text-[16px] font-bold text-black uppercase mb-2 md:mb-3">ADDRESS BOOK</h2>
+                            <h2 className="text-body-lg md:text-h3-sm font-bold text-black uppercase mb-2 md:mb-3">ADDRESS BOOK</h2>
                             <hr className="border-gray-200 mb-4 md:mb-6" />
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
@@ -213,7 +213,7 @@ export default function SubAccountMyAccountPage() {
                                     </div>
                                     <div className="p-3 md:p-5 flex flex-col flex-1">
                                         {defaultBilling ? (
-                                            <div className="text-[13px] text-gray-800 leading-relaxed space-y-1 font-normal flex-1">
+                                            <div className="text-body text-gray-800 leading-relaxed space-y-1 font-normal flex-1">
                                                 <p>{defaultBilling.firstname} {defaultBilling.lastname}</p>
                                                 <p>{defaultBilling.company}</p>
                                                 {defaultBilling.street?.map((s: string, i: number) => <p key={i}>{s}</p>)}
@@ -223,7 +223,7 @@ export default function SubAccountMyAccountPage() {
                                                 {defaultBilling.vat_id && <p>VAT: {defaultBilling.vat_id}</p>}
                                             </div>
                                         ) : (
-                                            <p className="text-[13px] text-gray-500 italic flex-1">No default billing address set.</p>
+                                            <p className="text-body text-gray-500 italic flex-1">No default billing address set.</p>
                                         )}
                                     </div>
                                 </div>
@@ -235,7 +235,7 @@ export default function SubAccountMyAccountPage() {
                                     </div>
                                     <div className="p-3 md:p-5 flex flex-col flex-1">
                                         {defaultShipping ? (
-                                            <div className="text-[13px] text-gray-800 leading-relaxed space-y-1 font-normal flex-1">
+                                            <div className="text-body text-gray-800 leading-relaxed space-y-1 font-normal flex-1">
                                                 <p>{defaultShipping.firstname} {defaultShipping.lastname}</p>
                                                 <p>{defaultShipping.company}</p>
                                                 {defaultShipping.street?.map((s: string, i: number) => <p key={i}>{s}</p>)}
@@ -245,21 +245,21 @@ export default function SubAccountMyAccountPage() {
                                                 {defaultShipping.vat_id && <p>VAT: {defaultShipping.vat_id}</p>}
                                             </div>
                                         ) : (
-                                            <p className="text-[13px] text-gray-500 italic flex-1">No default shipping address set.</p>
+                                            <p className="text-body text-gray-500 italic flex-1">No default shipping address set.</p>
                                         )}
 
                                         <div className="pt-8">
                                             {defaultShipping?.id ? (
                                                 <Link
                                                     href={lp(`/customer/address-book/edit/${defaultShipping.id}`)}
-                                                    className="bg-[#F5B21B] hover:bg-[#e0a116] text-black text-[12px] md:text-[13px] font-bold px-6 md:px-8 py-2 md:py-2.5 uppercase transition-all rounded-none inline-block w-full sm:w-auto text-center"
+                                                    className="bg-primary hover:bg-primaryHover text-black text-body-sm md:text-body font-bold px-6 md:px-8 py-2 md:py-2.5 uppercase transition-all rounded-none inline-block w-full sm:w-auto text-center"
                                                 >
                                                     EDIT ADDRESS
                                                 </Link>
                                             ) : (
                                                 <Link
                                                     href={lp("/customer/address-book")}
-                                                    className="bg-[#F5B21B] hover:bg-[#e0a116] text-black text-[12px] md:text-[13px] font-bold px-6 md:px-8 py-2 md:py-2.5 uppercase transition-all rounded-none inline-block w-full sm:w-auto text-center"
+                                                    className="bg-primary hover:bg-primaryHover text-black text-body-sm md:text-body font-bold px-6 md:px-8 py-2 md:py-2.5 uppercase transition-all rounded-none inline-block w-full sm:w-auto text-center"
                                                 >
                                                     ADD ADDRESS
                                                 </Link>

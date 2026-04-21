@@ -40,7 +40,7 @@ export async function GET(request: NextRequest) {
 
         // Step 4: Get categoryId from query params
         const { searchParams } = new URL(request.url);
-        const categoryId = searchParams.get("categoryId") || "5";
+        const categoryId = searchParams.get("categoryId") || "15";
 
         // Step 5: Fetch filter options from Magento
         const magentoUrl = `${baseUrl}/category-filter-options/${categoryId}`;
@@ -83,6 +83,10 @@ export async function GET(request: NextRequest) {
                 if (code === "productGroup") code = "product_group";
                 if (code === "warrantyPeriod") code = "warranty_period";
                 if (code === "newArrivals") code = "new_arrivals";
+                if (code === "partsCategory") code = "parts_category";
+                if (code === "oilType") code = "oil_type";
+                if (code === "oilGrade") code = "grade";
+                if (code === "itemCode") code = "item_code";
 
                 return { ...f, code };
             });

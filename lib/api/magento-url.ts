@@ -20,15 +20,47 @@ const DEFAULT_LOCALE = "en";
  *
  * @param request - The incoming Request object (available in API route handlers)
  * @returns The Magento base URL with the correct store code, e.g.:
- *   - `https://altalayi-demo.btire.com/rest/en/V1/kleverapi`
- *   - `https://altalayi-demo.btire.com/rest/ar/V1/kleverapi`
+ *   - `https://autoono-demo.btire.com/rest/en/V1/kleverapi`
  */
 export function getBaseUrl(request: Request): string {
     const locale = getLocaleFromRequest(request);
     const domain =
         process.env.NEXT_PUBLIC_MAGENTO_BASE_URL ||
-        "https://altalayi-demo.btire.com";
+        "https://autoono-demo.btire.com";
     return `${domain}/rest/${locale}/V1/kleverapi`;
+}
+
+/**
+ * Return the Magento base URL with V101 store code.
+ * This is often the most reliable "global" context for KleverApi.
+ */
+export function getV101BaseUrl(request: Request): string {
+    const domain =
+        process.env.NEXT_PUBLIC_MAGENTO_BASE_URL ||
+        "https://autoono-demo.btire.com";
+    return `${domain}/rest/V101/V1/kleverapi`;
+}
+
+/**
+ * Return the Magento base URL with a dynamic store code (e.g. V101, V102, V103).
+ * Example: https://autoono-demo.btire.com/rest/V101/V1/kleverapi
+ */
+export function getStoreBaseUrl(storeCode: string): string {
+    const domain =
+        process.env.NEXT_PUBLIC_MAGENTO_BASE_URL ||
+        "https://autoono-demo.btire.com";
+    const safe = encodeURIComponent(storeCode);
+    return `${domain}/rest/${safe}/V1/kleverapi`;
+}
+
+/**
+ * Return the Magento base URL WITHOUT the store code.
+ */
+export function getGlobalBaseUrl(request: Request): string {
+    const domain =
+        process.env.NEXT_PUBLIC_MAGENTO_BASE_URL ||
+        "https://autoono-demo.btire.com";
+    return `${domain}/rest/V1/kleverapi`;
 }
 
 /**
@@ -42,7 +74,7 @@ export function getLocaleFromRequest(request: Request): string {
         if (langParam && VALID_LOCALES.includes(langParam)) {
             return langParam;
         }
-    } catch {}
+    } catch { }
 
     // 2. Check custom x-locale header (sent by frontend fetch)
     const headerLocale = request.headers.get("x-locale");
@@ -72,6 +104,6 @@ export function getAuthUrl(request: Request): string {
     const locale = getLocaleFromRequest(request);
     const domain =
         process.env.NEXT_PUBLIC_MAGENTO_BASE_URL ||
-        "https://altalayi-demo.btire.com";
+        "https://autoono-demo.btire.com";
     return `${domain}/rest/${locale}/V1/integration/customer/token`;
 }

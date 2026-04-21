@@ -35,13 +35,6 @@ const Sidebar = () => {
 
                 <ul className="flex flex-row lg:flex-col space-y-0 lg:space-y-1">
                     {accountSidebarMenu
-                        .filter(item => {
-                            // Hide "Manage Accounts" for sub-account users
-                            if (item.name === "Manage Accounts" && isSubAccount) {
-                                return false;
-                            }
-                            return true;
-                        })
                         .map((item, idx) => {
                             // Redirect "My Account" to sub-account page when logged in as sub-account
                             const href = lp((item.name === "My Account" && isSubAccount)
@@ -53,7 +46,7 @@ const Sidebar = () => {
                                     <Link
                                         href={href}
                                         className={`block py-3 px-6 lg:px-4 transition-all duration-200 whitespace-nowrap ltr:text-left rtl:text-right ${isActive
-                                            ? "font-bold text-black border-b-[3px] lg:border-b-0 ltr:lg:border-l-4 rtl:lg:border-r-4 border-[#f5a623] bg-white shadow-sm"
+                                            ? "font-bold text-black border-b-[3px] lg:border-b-0 ltr:lg:border-l-4 rtl:lg:border-r-4 border-primary bg-white shadow-sm"
                                             : "text-gray-600 hover:text-black hover:bg-gray-100 border-b-[3px] lg:border-b-0 ltr:lg:border-l-4 rtl:lg:border-r-4 border-transparent"
                                             }`}
                                     >
