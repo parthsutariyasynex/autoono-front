@@ -165,7 +165,7 @@ const Filters: React.FC<FiltersProps> = ({
                         value={orderNumber === "All" ? "" : orderNumber}
                         onChange={(e) => onOrderNumberChange(e.target.value)}
                         placeholder="e.g. 000001"
-                        className="w-full h-[42px] px-3 bg-[#f8f8f8] border border-gray-200 text-body-lg text-gray-700 focus:outline-none focus:border-primary transition-colors rounded-[1px]"
+                        className="w-full h-[42px] px-3 bg-[#f8f8f8] border border-gray-200 text-body-lg text-black/80 focus:outline-none focus:border-primary transition-colors rounded-[1px]"
                     />
                 </div>
 

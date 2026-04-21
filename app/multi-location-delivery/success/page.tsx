@@ -94,7 +94,7 @@ const MultiShippingSuccessContent = () => {
             <div className="min-h-screen flex items-center justify-center bg-white">
                 <div className="flex flex-col items-center gap-4">
                     <div className="w-12 h-12 border-4 border-gray-200 border-t-primary rounded-full animate-spin" />
-                    <p className="text-label font-black text-gray-400 uppercase tracking-widest">{t("multi.verifying")}</p>
+                    <p className="text-label font-black text-black/50 uppercase tracking-widest">{t("multi.verifying")}</p>
                 </div>
             </div>
         );
@@ -141,13 +141,13 @@ const MultiShippingSuccessContent = () => {
                                     </span>
                                 </div>
                                 <div className="flex-1">
-                                    <p className="text-body md:text-body-lg text-gray-700 font-medium">
+                                    <p className="text-body md:text-body-lg text-black/80 font-medium">
                                         {order.shipping_address || t("m.address")}
                                     </p>
                                 </div>
                             </div>
                         )) : (
-                            <div className="py-10 text-center text-gray-400 text-body-lg">
+                            <div className="py-10 text-center text-black/50 text-body-lg">
                                 {t("multi.noOrderDetails")}
                             </div>
                         )}

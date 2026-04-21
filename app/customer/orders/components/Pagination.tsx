@@ -57,7 +57,7 @@ const Pagination: React.FC<PaginationProps> = ({
     return (
         <div className="flex flex-col md:flex-row items-center justify-between py-3 px-6 bg-[#f0f0f0] rounded-sm mt-0 border-t border-gray-100">
             {/* Left: Item count */}
-            <div className="text-body text-gray-600 font-medium">
+            <div className="text-body text-black/70 font-medium">
                 Items {startItem} to {endItem} of {totalItems} total
             </div>
 
@@ -65,7 +65,7 @@ const Pagination: React.FC<PaginationProps> = ({
             <div className="flex items-center gap-1.5">
                 {pages.map((p, idx) =>
                     p === "..." ? (
-                        <span key={`dots-${idx}`} className="w-8 h-8 flex items-center justify-center text-body text-gray-400">
+                        <span key={`dots-${idx}`} className="w-8 h-8 flex items-center justify-center text-body text-black/50">
                             ...
                         </span>
                     ) : (
@@ -74,7 +74,7 @@ const Pagination: React.FC<PaginationProps> = ({
                             onClick={() => onPageChange(p as number)}
                             className={`w-8 h-8 flex items-center justify-center text-body rounded-full transition-all duration-200 ${currentPage === p
                                 ? "bg-primary text-black font-bold shadow-sm"
-                                : "bg-white text-gray-700 hover:bg-gray-200 border border-gray-200"
+                                : "bg-white text-black/80 hover:bg-gray-200 border border-gray-200"
                                 }`}
                         >
                             {p}
@@ -83,7 +83,7 @@ const Pagination: React.FC<PaginationProps> = ({
                 )}
                 <button
                     onClick={() => currentPage < totalPages && onPageChange(currentPage + 1)}
-                    className={`w-8 h-8 flex items-center justify-center bg-white border border-gray-200 rounded-full text-gray-500 hover:bg-gray-200 transition-colors ${currentPage === totalPages ? "opacity-30 cursor-not-allowed" : ""
+                    className={`w-8 h-8 flex items-center justify-center bg-white border border-gray-200 rounded-full text-black/60 hover:bg-gray-200 transition-colors ${currentPage === totalPages ? "opacity-30 cursor-not-allowed" : ""
                         }`}
                     disabled={currentPage === totalPages}
                 >
@@ -95,7 +95,7 @@ const Pagination: React.FC<PaginationProps> = ({
 
             {/* Right: Per page */}
             <div className="flex items-center gap-3">
-                <span className="text-body text-gray-600 font-medium">Show</span>
+                <span className="text-body text-black/70 font-medium">Show</span>
                 <div className="relative">
                     <input
                         type="text"
@@ -107,7 +107,7 @@ const Pagination: React.FC<PaginationProps> = ({
                         className="w-[55px] h-[34px] text-center text-body font-bold border border-gray-300 focus:outline-none focus:border-black rounded-[2px] bg-white"
                     />
                 </div>
-                <span className="text-body text-gray-600 font-bold">per page</span>
+                <span className="text-body text-black/70 font-bold">per page</span>
             </div>
         </div>
     );

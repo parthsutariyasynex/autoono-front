@@ -18,6 +18,10 @@
   /* Prevent scrollbar-caused layout shift — must be in @layer base to override preflight */
   html {
     scroll-behavior: smooth;
+    /* Reserve scrollbar space permanently so opening a modal (which sets body
+       overflow:hidden) doesn't make the page widen by scrollbar-width and
+       shift fixed elements like the Navbar. Supported in all modern browsers. */
+    scrollbar-gutter: stable;
     --scrollbar-width: 0px;
     /* Keep in sync with tailwind.config.js theme.extend.colors */
     --color-primary: #4E81C2;

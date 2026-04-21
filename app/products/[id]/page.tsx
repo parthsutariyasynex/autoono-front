@@ -83,8 +83,8 @@ export default function CategoryProductsPage() {
                 />
               )}
               <h3 className="font-semibold text-base md:text-lg">{product.name}</h3>
-              <p className="text-xs md:text-sm text-gray-500">{product.tyre_size}</p>
-              <p className="text-xs md:text-sm text-gray-500">{product.origin} — {product.year}</p>
+              <p className="text-xs md:text-sm text-black/60">{product.tyre_size}</p>
+              <p className="text-xs md:text-sm text-black/60">{product.origin} — {product.year}</p>
               <p className="font-bold text-lg md:text-xl mt-2 price currency-riyal"><Price amount={product.final_price} /></p>
 
               <p className={`text-xs md:text-sm mt-1 ${product.is_in_stock ? "text-green-600" : "text-red-500"}`}>

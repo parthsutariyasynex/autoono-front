@@ -32,7 +32,7 @@ export default function FavoritesPage() {
     }
 
     return (
-        <div className="min-h-screen bg-white font-rubik scroll-smooth text-black">
+        <div className="min-h-screen bg-white scroll-smooth text-black">
 
 
             {/* Main Content Area - Full Width optimized */}

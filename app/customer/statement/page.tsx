@@ -178,34 +178,34 @@ export default function MyStatementPage() {
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8 mb-4 md:mb-8">
                                 {/* Start Date */}
                                 <div>
-                                    <label className="block text-body font-bold text-gray-800 mb-2">
+                                    <label className="block text-body font-bold text-black mb-2">
                                         {t("m.start-date")}
                                     </label>
                                     <input
                                         type="date"
                                         value={startDate}
                                         onChange={(e) => setStartDate(e.target.value)}
-                                        className="w-full h-[45px] px-4 border border-gray-300 text-body-lg text-gray-700 focus:outline-none focus:border-primary transition-colors"
+                                        className="w-full h-[45px] px-4 border border-gray-300 text-body-lg text-black/80 focus:outline-none focus:border-primary transition-colors"
                                     />
                                 </div>
 
                                 {/* End Date */}
                                 <div>
-                                    <label className="block text-body font-bold text-gray-800 mb-2">
+                                    <label className="block text-body font-bold text-black mb-2">
                                         {t("m.end-date")}
                                     </label>
                                     <input
                                         type="date"
                                         value={endDate}
                                         onChange={(e) => setEndDate(e.target.value)}
-                                        className="w-full h-[45px] px-4 border border-gray-300 text-body-lg text-gray-700 focus:outline-none focus:border-primary transition-colors"
+                                        className="w-full h-[45px] px-4 border border-gray-300 text-body-lg text-black/80 focus:outline-none focus:border-primary transition-colors"
                                     />
                                 </div>
                             </div>
 
                             {/* Statement Type */}
                             <div className="mb-6 md:mb-10">
-                                <label className="block text-body font-bold text-gray-800 mb-2">
+                                <label className="block text-body font-bold text-black mb-2">
                                     {t("m.type")}
                                 </label>
                                 <PortalDropdown
@@ -213,7 +213,7 @@ export default function MyStatementPage() {
                                     onChange={(val) => setStatementType(val)}
                                     options={statementTypes}
                                     placeholder={statementTypes.length > 0 ? t("m.select") : t("common.loading")}
-                                    buttonClassName="w-full h-[45px] px-4 border border-gray-300 text-body-lg text-gray-700 focus:outline-none focus:border-primary transition-colors bg-white font-medium shadow-sm flex items-center justify-between cursor-pointer"
+                                    buttonClassName="w-full h-[45px] px-4 border border-gray-300 text-body-lg text-black/80 focus:outline-none focus:border-primary transition-colors bg-white font-medium shadow-sm flex items-center justify-between cursor-pointer"
                                 />
                             </div>
 
@@ -222,7 +222,7 @@ export default function MyStatementPage() {
                                 <button
                                     onClick={handleGetStatement}
                                     disabled={isDownloading}
-                                    className={`w-full sm:w-auto bg-primary text-black px-6 sm:px-10 py-3 md:py-3.5 font-bold text-body-lg uppercase tracking-widest hover:bg-[#e6950f] transition-all shadow-md flex items-center justify-center gap-3 active:scale-[0.98] ${isDownloading ? 'opacity-70 cursor-not-allowed grayscale' : ''}`}
+                                    className={`w-full sm:w-auto bg-primary text-black px-6 sm:px-10 py-3 md:py-3.5 font-bold text-body-lg uppercase tracking-widest hover:bg-primaryHover transition-all shadow-md flex items-center justify-center gap-3 active:scale-[0.98] ${isDownloading ? 'opacity-70 cursor-not-allowed grayscale' : ''}`}
                                 >
                                     {isDownloading ? (
                                         <>

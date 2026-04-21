@@ -1,8 +1,6 @@
 "use client";
-
 import React, { useState } from "react";
-import { Send, User, Phone, Mail, MessageSquare, Loader2, CheckCircle2 } from "lucide-react";
-import styles from "../locations.module.css";
+import { Loader2, CheckCircle2 } from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
 
 const ContactForm: React.FC = () => {
@@ -53,15 +51,15 @@ const ContactForm: React.FC = () => {
 
     if (isSubmitted) {
         return (
-            <div className={`w-full max-w-[1100px] mx-auto bg-green-50 border border-green-200 p-8 sm:p-12 md:p-16 text-center rounded-sm ${styles.fadeIn} shadow-inner`}>
+            <div className="w-full bg-green-50 border border-green-200 p-8 sm:p-12 text-center rounded-sm shadow-inner">
                 <div className="flex justify-center mb-6">
-                    <CheckCircle2 className="w-20 h-20 text-green-500 animate-bounce" />
+                    <CheckCircle2 className="w-16 h-16 text-green-500 animate-bounce" />
                 </div>
-                <h3 className="text-[26px] font-black text-green-800 mb-4 uppercase tracking-tight">{t("contact.success")}</h3>
-                <p className="text-green-700 font-medium text-h3-sm">{t("contact.successDesc")}</p>
+                <h3 className="text-h3 font-black text-green-800 mb-3 uppercase tracking-tight">{t("contact.success")}</h3>
+                <p className="text-green-700 font-medium text-body">{t("contact.successDesc")}</p>
                 <button
                     onClick={() => setIsSubmitted(false)}
-                    className="mt-10 px-8 py-3 bg-green-800 text-white font-bold rounded hover:bg-green-900 transition-all uppercase text-body tracking-widest shadow-md"
+                    className="mt-8 px-8 py-2.5 bg-green-800 text-white font-bold rounded-sm hover:bg-green-900 transition-all uppercase text-sm tracking-widest"
                 >
                     {t("contact.sendAnother")}
                 </button>
@@ -70,88 +68,79 @@ const ContactForm: React.FC = () => {
     }
 
     return (
-        <section className={`w-full max-w-[1100px] mx-auto ${styles.fadeIn} pb-20`}>
-            <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pb-2">
-                    <div className="relative group">
-                        <div className="absolute left-4 top-[18px] text-gray-400 group-hover:text-primary transition-colors pointer-events-none">
-                            <User className="w-5 h-5" />
-                        </div>
+        <section className="w-full pb-20">
+            <form onSubmit={handleSubmit} className="space-y-4">
+                {/* Row 1: Name and Phone */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="relative">
                         <input
                             name="name"
                             type="text"
-                            placeholder={t("contact.namePlaceholder")}
+                            placeholder="Name"
                             value={formData.name}
                             onChange={handleChange}
-                            className={`w-full pl-10 sm:pl-12 pr-5 py-4.5 border-2 ${errors.name ? 'border-red-400 focus:border-red-500' : 'border-gray-100 focus:border-primary'} focus:outline-none transition-all bg-white text-black text-[15px] shadow-sm rounded-sm`}
+                            className={`w-full px-4 py-3 border ${errors.name ? 'border-red-400' : 'border-gray-100'} focus:outline-none focus:border-primary bg-white text-black text-body-lg rounded-sm transition-colors`}
                         />
-                        {errors.name && <span className="text-red-500 text-label font-black mt-1.5 block uppercase tracking-wider pl-1">{errors.name}</span>}
+                        {errors.name && <span className="text-red-500 text-label font-semibold mt-1 block uppercase pl-1">{errors.name}</span>}
                     </div>
-                    <div className="relative group">
-                        <div className="absolute left-4 top-[18px] text-gray-400 group-hover:text-primary transition-colors pointer-events-none">
-                            <Phone className="w-5 h-5" />
-                        </div>
+                    <div className="relative">
                         <input
                             name="phone"
                             type="tel"
-                            placeholder={t("contact.phonePlaceholder")}
+                            placeholder="Phone"
                             value={formData.phone}
                             onChange={handleChange}
-                            className={`w-full pl-10 sm:pl-12 pr-5 py-4.5 border-2 ${errors.phone ? 'border-red-400 focus:border-red-500' : 'border-gray-100 focus:border-primary'} focus:outline-none transition-all bg-white text-black text-[15px] shadow-sm rounded-sm`}
+                            className={`w-full px-4 py-3 border ${errors.phone ? 'border-red-400' : 'border-gray-100'} focus:outline-none focus:border-primary bg-white text-black text-body-lg rounded-sm transition-colors`}
                         />
-                        {errors.phone && <span className="text-red-500 text-label font-black mt-1.5 block uppercase tracking-wider pl-1">{errors.phone}</span>}
+                        {errors.phone && <span className="text-red-500 text-label font-semibold mt-1 block uppercase pl-1">{errors.phone}</span>}
                     </div>
                 </div>
 
-                <div className="relative group">
-                    <div className="absolute left-4 top-[18px] text-gray-400 group-hover:text-primary transition-colors pointer-events-none">
-                        <Mail className="w-5 h-5" />
-                    </div>
+                {/* Row 2: Email */}
+                <div className="relative">
                     <input
                         name="email"
                         type="email"
-                        placeholder={t("contact.emailPlaceholder")}
+                        placeholder="Email"
                         value={formData.email}
                         onChange={handleChange}
-                        className={`w-full pl-10 sm:pl-12 pr-5 py-4.5 border-2 ${errors.email ? 'border-red-400 focus:border-red-500' : 'border-gray-100 focus:border-primary'} focus:outline-none transition-all bg-white text-black text-[15px] shadow-sm rounded-sm`}
+                        className={`w-full px-4 py-3 border ${errors.email ? 'border-red-400' : 'border-gray-100'} focus:outline-none focus:border-primary bg-white text-black text-body-lg rounded-sm transition-colors`}
                     />
-                    {errors.email && <span className="text-red-500 text-label font-black mt-1.5 block uppercase tracking-wider pl-1">{errors.email}</span>}
+                    {errors.email && <span className="text-red-500 text-label font-semibold mt-1 block uppercase pl-1">{errors.email}</span>}
                 </div>
 
-                <div className="relative group">
-                    <div className="absolute left-4 top-5 text-gray-400 group-hover:text-primary transition-colors pointer-events-none">
-                        <MessageSquare className="w-5 h-5" />
+                {/* Row 3: Message / Comment */}
+                <div className="relative border border-gray-100 rounded-sm">
+                    <div className="px-4 pt-3 pb-0 text-body text-black/50 font-medium">
+                        Comment
                     </div>
                     <textarea
                         name="comment"
-                        placeholder={t("contact.messagePlaceholder")}
-                        rows={7}
+                        placeholder="What's on your mind?"
+                        rows={6}
                         value={formData.comment}
                         onChange={handleChange}
-                        className={`w-full pl-10 sm:pl-12 pr-5 py-4.5 border-2 ${errors.comment ? 'border-red-400 focus:border-red-500' : 'border-gray-100 focus:border-primary'} focus:outline-none transition-all bg-white text-black text-[15px] resize-none shadow-sm rounded-sm`}
+                        className={`w-full px-4 pt-1 pb-4 bg-white text-black text-body-lg focus:outline-none resize-none rounded-b-sm`}
                     ></textarea>
-                    {errors.comment && <span className="text-red-500 text-label font-black mt-1.5 block uppercase tracking-wider pl-1">{errors.comment}</span>}
+                    {errors.comment && <span className="text-red-500 text-label font-semibold px-4 pb-2 block uppercase">{errors.comment}</span>}
                 </div>
 
-                <div className="pt-4 flex flex-col items-center sm:items-start">
+                {/* Submit Button */}
+                <div className="pt-4">
                     <button
                         type="submit"
                         disabled={isLoading}
-                        className={`bg-primary text-black font-black px-8 sm:px-10 md:px-12 py-4.5 uppercase tracking-widest hover:bg-black hover:text-white transition-all duration-500 text-[15px] shadow-xl hover:shadow-2xl flex items-center justify-center gap-4 min-w-[240px] border-b-4 border-black/10 hover:border-black/0 active:translate-y-1 mb-2`}
+                        className="bg-primary text-white font-semibold px-12 py-3.5 uppercase tracking-widest hover:bg-primaryHover transition-all duration-300 text-body-lg shadow-sm flex items-center justify-center gap-3 min-w-[200px]"
                     >
                         {isLoading ? (
                             <>
-                                <Loader2 className="w-6 h-6 animate-spin" />
+                                <Loader2 className="w-5 h-5 animate-spin" />
                                 {t("contact.processing")}
                             </>
                         ) : (
-                            <>
-                                <Send className="w-5 h-5" />
-                                {t("contact.sendMessage")}
-                            </>
+                            t("contact.sendMessage")
                         )}
                     </button>
-                    <p className="text-label text-gray-500 mt-2 font-medium italic">{t("contact.privacyNote")}</p>
                 </div>
             </form>
         </section>

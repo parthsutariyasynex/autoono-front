@@ -16,7 +16,7 @@ export default function PrivacyPolicyPage() {
                 </h1>
 
                 {/* Content */}
-                <div className={`text-body sm:text-body-lg md:text-[15px] leading-[1.8] sm:leading-[1.9] text-gray-700 font-medium ${isRtl ? 'text-right' : 'text-left'}`}>
+                <div className={`text-body sm:text-body-lg md:text-[15px] leading-[1.8] sm:leading-[1.9] text-black/80 font-medium ${isRtl ? 'text-right' : 'text-left'}`}>
                     {/* Intro */}
                     <p>{t("privacy.intro")}</p>
 

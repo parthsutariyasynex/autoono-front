@@ -183,7 +183,7 @@ const MultiShippingShippingPage: React.FC = () => {
                         return (
                             <div key={group.address.id} className="space-y-4">
                                 <p className="text-body-sm sm:text-body md:text-body-lg font-[900] text-black text-center tracking-tight">
-                                    {t("multi.address")} {index + 1} <span className="text-[#cccccc] font-medium">of {groups.length}</span>
+                                    {t("multi.address")} {index + 1} <span className="text-black/30 font-medium">of {groups.length}</span>
                                 </p>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
                                     {/* Shipping To Section */}
@@ -221,10 +221,10 @@ const MultiShippingShippingPage: React.FC = () => {
                                                 <tbody className="bg-white">
                                                     {group.items.map((item) => (
                                                         <tr key={item.itemId} className="border-b border-[#f2f2f2] last:border-b-0">
-                                                            <td className="py-3 md:py-4 px-4 md:px-6 text-body-sm md:text-body font-medium text-gray-700">
+                                                            <td className="py-3 md:py-4 px-4 md:px-6 text-body-sm md:text-body font-medium text-black/80">
                                                                 {item.name}
                                                             </td>
-                                                            <td className="py-3 md:py-4 px-4 md:px-6 text-body-sm md:text-body font-medium text-gray-700 text-right">
+                                                            <td className="py-3 md:py-4 px-4 md:px-6 text-body-sm md:text-body font-medium text-black/80 text-right">
                                                                 {item.qty}
                                                             </td>
                                                         </tr>

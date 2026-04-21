@@ -116,7 +116,7 @@ export default function MyAccountPage() {
                 <Sidebar />
 
                 {/* Right Content Area */}
-                <main className="flex-1 p-4 md:p-8 lg:p-10 bg-[#fcfcfc] min-h-0 font-rubik">
+                <main className="flex-1 p-4 md:p-8 lg:p-10 bg-[#fcfcfc] min-h-0">
                     <div className="w-full space-y-12">
 
                         <div className="flex items-center gap-4 mb-2">
@@ -134,7 +134,7 @@ export default function MyAccountPage() {
                                     <div className="bg-gray-50/80 px-6 py-4 border-b border-[#ebebeb] flex justify-between items-center h-[60px]">
                                         <span className="text-black font-black tracking-widest uppercase text-label">Contact Information</span>
                                     </div>
-                                    <div className="p-8 text-body text-gray-700 space-y-4 font-medium leading-relaxed">
+                                    <div className="p-8 text-body text-black/80 space-y-4 font-medium leading-relaxed">
                                         <div className="flex items-center gap-4 group">
                                             <span className="w-1.5 h-1.5 rounded-full bg-primary"></span>
                                             <p className="flex-1">Name: <span className="font-black text-black">{(customer as any).firstname} {(customer as any).lastname}</span></p>
@@ -166,7 +166,7 @@ export default function MyAccountPage() {
                                     <div className="bg-gray-50/80 px-6 py-4 border-b border-[#ebebeb] flex justify-between items-center h-[60px]">
                                         <span className="text-black font-black tracking-widest uppercase text-label">Company Information</span>
                                     </div>
-                                    <div className="p-8 text-body text-gray-700 space-y-4 font-medium leading-relaxed">
+                                    <div className="p-8 text-body text-black/80 space-y-4 font-medium leading-relaxed">
                                         <div className="flex items-center gap-4 group">
                                             <span className="w-1.5 h-1.5 rounded-full bg-primary"></span>
                                             <p className="flex-1">Company: <span className="font-black text-black">{getAttr("company_name") || addresses?.[0]?.company || "—"}</span></p>
@@ -199,8 +199,8 @@ export default function MyAccountPage() {
                                             Edit
                                         </button>
                                     </div>
-                                    <div className="p-8 text-body text-gray-700 space-y-4 font-medium leading-relaxed">
-                                        <p className="italic text-gray-500 mb-2">Detailed business statistics and organizational size.</p>
+                                    <div className="p-8 text-body text-black/80 space-y-4 font-medium leading-relaxed">
+                                        <p className="italic text-black/60 mb-2">Detailed business statistics and organizational size.</p>
                                         <p>Company Size: <span className="font-black text-black">{getOverviewAttr("total_employees")} employees</span>, <span className="font-black text-black">{getOverviewAttr("trucks")} Trucks</span></p>
                                         <p>Annual Revenue: <span className="font-black text-black">{getOverviewAttr("annual_revenue")}</span></p>
                                         <p>Business Model: <span className="font-black text-black">{getOverviewAttr("business_model")}</span></p>
@@ -211,14 +211,14 @@ export default function MyAccountPage() {
                                     <div className="bg-gray-50/80 px-6 py-4 border-b border-[#ebebeb] flex justify-between items-center h-[60px]">
                                         <span className="text-black font-black tracking-widest uppercase text-label">Sales Performance</span>
                                     </div>
-                                    <div className="p-8 text-body text-gray-700 space-y-4 font-medium leading-relaxed">
+                                    <div className="p-8 text-body text-black/80 space-y-4 font-medium leading-relaxed">
                                         <div className="flex items-center justify-between">
-                                            <span className="text-gray-500 uppercase text-label font-black tracking-widest">Total Sales Qty</span>
+                                            <span className="text-black/60 uppercase text-label font-black tracking-widest">Total Sales Qty</span>
                                             <span className="text-2xl font-black text-black">{getAttr("total_sales_qty") !== "N/A" ? getAttr("total_sales_qty") : "0"}</span>
                                         </div>
                                         <div className="flex items-center justify-between pt-2">
-                                            <span className="text-gray-500 uppercase text-label font-black tracking-widest">Order Frequency</span>
-                                            <span className="text-lg font-black text-black">{getAttr("order_frequency") !== "N/A" ? getAttr("order_frequency") : "0"} <span className="text-caption text-gray-400">mo</span></span>
+                                            <span className="text-black/60 uppercase text-label font-black tracking-widest">Order Frequency</span>
+                                            <span className="text-lg font-black text-black">{getAttr("order_frequency") !== "N/A" ? getAttr("order_frequency") : "0"} <span className="text-caption text-black/50">mo</span></span>
                                         </div>
                                     </div>
                                 </div>
@@ -236,37 +236,37 @@ export default function MyAccountPage() {
                                     <div className="p-8">
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
                                             <div>
-                                                <h4 className="text-label font-black text-gray-400 mb-6 uppercase tracking-[0.2em] flex items-center gap-2">
+                                                <h4 className="text-label font-black text-black/50 mb-6 uppercase tracking-[0.2em] flex items-center gap-2">
                                                     <div className="w-8 h-px bg-gray-200"></div>
                                                     Default Billing
                                                 </h4>
                                                 {defaultBilling ? (
-                                                    <div className="text-body text-gray-700 leading-relaxed font-medium space-y-1">
+                                                    <div className="text-body text-black/80 leading-relaxed font-medium space-y-1">
                                                         <p className="font-black text-black text-sm mb-2">{(customer as any).firstname} {(customer as any).lastname}</p>
                                                         {defaultBilling.street?.map((s: string, i: number) => <p key={i}>{s}</p>)}
                                                         <p>{defaultBilling.city}, {defaultBilling.postcode}</p>
-                                                        <p className="uppercase text-label text-gray-400">{defaultBilling.country_id}</p>
-                                                        <p className="pt-4 text-gray-500 font-mono text-xs">T: {defaultBilling.telephone}</p>
+                                                        <p className="uppercase text-label text-black/50">{defaultBilling.country_id}</p>
+                                                        <p className="pt-4 text-black/60 font-mono text-xs">T: {defaultBilling.telephone}</p>
                                                     </div>
                                                 ) : (
-                                                    <p className="text-body text-gray-400 italic">No default billing address set.</p>
+                                                    <p className="text-body text-black/50 italic">No default billing address set.</p>
                                                 )}
                                             </div>
                                             <div>
-                                                <h4 className="text-label font-black text-gray-400 mb-6 uppercase tracking-[0.2em] flex items-center gap-2">
+                                                <h4 className="text-label font-black text-black/50 mb-6 uppercase tracking-[0.2em] flex items-center gap-2">
                                                     <div className="w-8 h-px bg-gray-200"></div>
                                                     Default Shipping
                                                 </h4>
                                                 {defaultShipping ? (
-                                                    <div className="text-body text-gray-700 leading-relaxed font-medium space-y-1">
+                                                    <div className="text-body text-black/80 leading-relaxed font-medium space-y-1">
                                                         <p className="font-black text-black text-sm mb-2">{(customer as any).firstname} {(customer as any).lastname}</p>
                                                         {defaultShipping.street?.map((s: string, i: number) => <p key={i}>{s}</p>)}
                                                         <p>{defaultShipping.city}, {defaultShipping.postcode}</p>
-                                                        <p className="uppercase text-label text-gray-400">{defaultShipping.country_id}</p>
-                                                        <p className="pt-4 text-gray-500 font-mono text-xs">T: {defaultShipping.telephone}</p>
+                                                        <p className="uppercase text-label text-black/50">{defaultShipping.country_id}</p>
+                                                        <p className="pt-4 text-black/60 font-mono text-xs">T: {defaultShipping.telephone}</p>
                                                     </div>
                                                 ) : (
-                                                    <p className="text-body text-gray-400 italic">No default shipping address set.</p>
+                                                    <p className="text-body text-black/50 italic">No default shipping address set.</p>
                                                 )}
                                             </div>
                                         </div>

@@ -23,7 +23,7 @@ const CartSummary: React.FC<CartSummaryProps> = ({ subtotal, taxAmount, taxLabel
         <div className="lg:sticky lg:top-28 self-start bg-white border border-gray-100 rounded-sm shadow-[0_10px_40px_rgba(0,0,0,0.05)] overflow-hidden">
             {/* Header */}
             <div className="bg-[#fcfcfc] px-6 py-4 border-b border-gray-100">
-                <h2 className="text-label font-bold text-gray-900 uppercase tracking-[0.2em]">
+                <h2 className="text-label font-bold text-black uppercase tracking-[0.2em]">
                     {t("m.order-summary")}
                 </h2>
             </div>
@@ -33,7 +33,7 @@ const CartSummary: React.FC<CartSummaryProps> = ({ subtotal, taxAmount, taxLabel
                 <div className="space-y-3.5">
                     <div className="flex justify-between items-center">
                         <span className="text-black font-medium text-caption uppercase tracking-wider">{t("cart.subtotal")}</span>
-                        <span className="font-semibold text-gray-900 text-body-sm">
+                        <span className="font-semibold text-black text-body-sm">
                             <Price amount={subtotal} />
                         </span>
                     </div>
@@ -42,7 +42,7 @@ const CartSummary: React.FC<CartSummaryProps> = ({ subtotal, taxAmount, taxLabel
                         <span className="text-black font-medium text-caption uppercase tracking-wider">
                             {taxLabel || t("m.tax")}
                         </span>
-                        <span className="font-semibold text-gray-900 text-body-sm">
+                        <span className="font-semibold text-black text-body-sm">
                             <Price amount={taxAmount} />
                         </span>
                     </div>
@@ -55,7 +55,7 @@ const CartSummary: React.FC<CartSummaryProps> = ({ subtotal, taxAmount, taxLabel
                         <div className="text-right">
                             <Price
                                 amount={grandTotal}
-                                symbolClassName="text-xs mr-1 font-bold text-gray-900"
+                                symbolClassName="text-xs mr-1 font-bold text-black"
                                 className="font-bold text-black text-body-lg tracking-tight"
                             />
                         </div>
@@ -69,7 +69,7 @@ const CartSummary: React.FC<CartSummaryProps> = ({ subtotal, taxAmount, taxLabel
                         <input
                             type="text"
                             placeholder={t("m.enter-discount-code") || "Enter discount code"}
-                            className="flex-1 min-w-0 px-4 text-sm font-medium text-black bg-white border border-gray-200 rounded focus:border-black focus:outline-none transition-all placeholder:text-gray-300 placeholder:font-normal"
+                            className="flex-1 min-w-0 px-4 text-sm font-medium text-black bg-white border border-gray-200 rounded focus:border-black focus:outline-none transition-all placeholder:text-black/40 placeholder:font-normal"
                         />
                         <button className="px-6 bg-black text-white text-xs font-semibold uppercase tracking-wider hover:bg-gray-800 transition-all cursor-pointer rounded flex items-center justify-center shrink-0">
                             {t("m.apply")}

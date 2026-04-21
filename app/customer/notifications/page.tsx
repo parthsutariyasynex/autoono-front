@@ -150,28 +150,28 @@ export default function NotificationsPage() {
                                                     key={`${item.notification_id || index}-${index}`}
                                                     className={`border-b border-[#ebebeb] last:border-0 transition-colors ${!item.is_read ? "bg-[#fcf8ec]" : "bg-white"}`}
                                                 >
-                                                    <td className="px-6 py-6 text-body-lg text-[#333333] text-center border-r border-[#ebebeb] align-middle relative">
+                                                    <td className="px-6 py-6 text-body-lg text-black text-center border-r border-[#ebebeb] align-middle relative">
                                                         {!item.is_read && (
                                                             <div className="absolute left-2 top-1/2 -translate-y-1/2 w-2 h-2 bg-primary rounded-full shadow-sm"></div>
                                                         )}
                                                         {formatDate(item.date_added_formatted, locale)}
                                                     </td>
-                                                    <td className={`px-6 py-6 text-body-lg text-center border-r border-[#ebebeb] align-middle ${!item.is_read ? "font-bold text-black" : "font-normal text-[#666666]"}`}>
+                                                    <td className={`px-6 py-6 text-body-lg text-center border-r border-[#ebebeb] align-middle ${!item.is_read ? "font-bold text-black" : "font-normal text-black/70"}`}>
                                                         {getOrderLink(item) ? (
                                                             <Link href={getOrderLink(item)!} className="hover:text-primary transition-colors cursor-pointer underline-offset-2 hover:underline">
                                                                 {translateNotificationText(item.title, locale)}
                                                             </Link>
                                                         ) : translateNotificationText(item.title, locale)}
                                                     </td>
-                                                    <td className={`px-6 py-6 text-body-lg text-center border-r border-[#ebebeb] leading-relaxed align-middle ${!item.is_read ? "font-medium text-black" : "text-[#666666]"}`}>
+                                                    <td className={`px-6 py-6 text-body-lg text-center border-r border-[#ebebeb] leading-relaxed align-middle ${!item.is_read ? "font-medium text-black" : "text-black/70"}`}>
                                                         {translateNotificationText(item.description, locale)}
                                                     </td>
                                                     <td className="px-6 py-6 text-body text-center align-middle">
-                                                        <div className="flex items-center justify-center gap-2 whitespace-nowrap text-[#333333]">
+                                                        <div className="flex items-center justify-center gap-2 whitespace-nowrap text-black">
                                                             {!item.is_read && (
                                                                 <>
                                                                     <button onClick={(e) => { e.stopPropagation(); markAsRead(item.notification_id); }} className="hover:text-primary transition-colors font-bold">{t('m.mark-as-read')}</button>
-                                                                    <span className="text-[#cccccc]">|</span>
+                                                                    <span className="text-black/30">|</span>
                                                                 </>
                                                             )}
                                                             <button onClick={(e) => { e.stopPropagation(); removeNotification(item.notification_id, item.is_read); }} disabled={deletingIds.includes(item.notification_id)} className="hover:text-primary cursor-pointer transition-colors font-bold disabled:opacity-50 disabled:cursor-not-allowed">
@@ -183,7 +183,7 @@ export default function NotificationsPage() {
                                             ))
                                         ) : (
                                             <tr>
-                                                <td colSpan={4} className="py-24 text-center text-gray-500 text-body-lg">{t('notifications.empty')}</td>
+                                                <td colSpan={4} className="py-24 text-center text-black/60 text-body-lg">{t('notifications.empty')}</td>
                                             </tr>
                                         )}
                                     </tbody>
@@ -206,23 +206,23 @@ export default function NotificationsPage() {
                                                 <div className="flex items-center gap-2">
                                                     {!item.is_read && <div className="w-2 h-2 bg-primary rounded-full flex-shrink-0 mt-1"></div>}
                                                     {getOrderLink(item) ? (
-                                                        <Link href={getOrderLink(item)!} className={`text-body hover:text-primary transition-colors hover:underline ${!item.is_read ? "font-bold text-black" : "font-normal text-[#666666]"}`}>
+                                                        <Link href={getOrderLink(item)!} className={`text-body hover:text-primary transition-colors hover:underline ${!item.is_read ? "font-bold text-black" : "font-normal text-black/70"}`}>
                                                             {translateNotificationText(item.title, locale)}
                                                         </Link>
                                                     ) : (
-                                                        <span className={`text-body ${!item.is_read ? "font-bold text-black" : "font-normal text-[#666666]"}`}>{translateNotificationText(item.title, locale)}</span>
+                                                        <span className={`text-body ${!item.is_read ? "font-bold text-black" : "font-normal text-black/70"}`}>{translateNotificationText(item.title, locale)}</span>
                                                     )}
                                                 </div>
-                                                <span className="text-label text-gray-400 flex-shrink-0">{formatDate(item.date_added_formatted, locale)}</span>
+                                                <span className="text-label text-black/50 flex-shrink-0">{formatDate(item.date_added_formatted, locale)}</span>
                                             </div>
-                                            <p className={`text-body-sm leading-relaxed mb-3 ${!item.is_read ? "font-medium text-black" : "text-[#666666]"}`}>
+                                            <p className={`text-body-sm leading-relaxed mb-3 ${!item.is_read ? "font-medium text-black" : "text-black/70"}`}>
                                                 {translateNotificationText(item.description, locale)}
                                             </p>
-                                            <div className="flex items-center gap-3 text-label font-bold text-[#333333]">
+                                            <div className="flex items-center gap-3 text-label font-bold text-black">
                                                 {!item.is_read && (
                                                     <>
                                                         <button onClick={(e) => { e.stopPropagation(); markAsRead(item.notification_id); }} className="hover:text-primary transition-colors">{t('m.mark-as-read')}</button>
-                                                        <span className="text-[#cccccc]">|</span>
+                                                        <span className="text-black/30">|</span>
                                                     </>
                                                 )}
                                                 <button onClick={(e) => { e.stopPropagation(); removeNotification(item.notification_id, item.is_read); }} disabled={deletingIds.includes(item.notification_id)} className="hover:text-primary transition-colors disabled:opacity-50">
@@ -232,13 +232,13 @@ export default function NotificationsPage() {
                                         </div>
                                     ))
                                 ) : (
-                                    <div className="py-16 text-center text-gray-500 text-body">{t('notifications.empty')}</div>
+                                    <div className="py-16 text-center text-black/60 text-body">{t('notifications.empty')}</div>
                                 )}
                             </div>
 
                             {/* PAGINATION PANEL */}
                             <div className="bg-[#e8e8e8] px-4 md:px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-4 md:gap-6 border-t border-[#dddddd]">
-                                <div className="text-body text-[#333333] font-medium order-2 lg:order-1">
+                                <div className="text-body text-black font-medium order-2 lg:order-1">
                                     {t('favorites.items')} {((currentPage - 1) * pageSize) + 1} {t('m.to')} {Math.min(currentPage * pageSize, totalCount)} {t('favorites.of')} {totalCount} {t('favorites.total')}
                                 </div>
 
@@ -246,7 +246,7 @@ export default function NotificationsPage() {
                                     {currentPage > 1 && (
                                         <button
                                             onClick={() => setCurrentPage(currentPage - 1)}
-                                            className="w-10 h-10 flex items-center justify-center text-[#666666] hover:text-black hover:bg-white/50 rounded-full transition-all border border-transparent hover:border-[#cccccc]"
+                                            className="w-10 h-10 flex items-center justify-center text-black/70 hover:text-black hover:bg-white/50 rounded-full transition-all border border-transparent hover:border-[#cccccc]"
                                         >
                                             {isRtl ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
                                         </button>
@@ -258,7 +258,7 @@ export default function NotificationsPage() {
                                                 onClick={() => setCurrentPage(num)}
                                                 className={`w-10 h-10 flex items-center justify-center text-body-lg font-bold rounded-full border transition-all ${currentPage === num
                                                     ? "bg-primary border-primary text-white shadow-md transform scale-105"
-                                                    : "bg-white border-[#cccccc] text-[#333333] hover:border-primary hover:text-primary"
+                                                    : "bg-white border-[#cccccc] text-black hover:border-primary hover:text-primary"
                                                     }`}
                                             >
                                                 {num}
@@ -268,14 +268,14 @@ export default function NotificationsPage() {
                                     {currentPage < totalPages && (
                                         <button
                                             onClick={() => setCurrentPage(currentPage + 1)}
-                                            className="w-10 h-10 flex items-center justify-center text-[#666666] hover:text-black hover:bg-white/50 rounded-full transition-all border border-transparent hover:border-[#cccccc]"
+                                            className="w-10 h-10 flex items-center justify-center text-black/70 hover:text-black hover:bg-white/50 rounded-full transition-all border border-transparent hover:border-[#cccccc]"
                                         >
                                             {isRtl ? <ChevronLeft size={20} /> : <ChevronRight size={20} />}
                                         </button>
                                     )}
                                 </div>
 
-                                <div className="flex items-center gap-3 text-body text-[#333333] font-medium order-3">
+                                <div className="flex items-center gap-3 text-body text-black font-medium order-3">
                                     <span>{t('favorites.show')}</span>
                                     <PortalDropdown
                                         value={String(pageSize)}

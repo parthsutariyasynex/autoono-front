@@ -59,7 +59,7 @@ export function PageSizeSelect({ value, onChange }: { value: number; onChange: (
 
     return (
         <div className="flex items-center gap-2 md:gap-3">
-            <span className="text-caption md:text-label text-gray-400 font-black uppercase tracking-wider">{t("favorites.show")}</span>
+            <span className="text-caption md:text-label text-black/50 font-black uppercase tracking-wider">{t("favorites.show")}</span>
             <button
                 ref={triggerRef}
                 type="button"
@@ -82,7 +82,7 @@ export function PageSizeSelect({ value, onChange }: { value: number; onChange: (
                                 key={s}
                                 type="button"
                                 onClick={() => { onChange(s); setIsOpen(false); }}
-                                className={`w-full text-center px-3 py-2.5 text-body font-bold cursor-pointer transition-colors border-b last:border-0 border-gray-50 ${s === value ? "bg-primary text-black" : "text-gray-700 hover:bg-gray-50 hover:text-primary"}`}
+                                className={`w-full text-center px-3 py-2.5 text-body font-bold cursor-pointer transition-colors border-b last:border-0 border-gray-50 ${s === value ? "bg-primary text-black" : "text-black/80 hover:bg-gray-50 hover:text-primary"}`}
                             >
                                 {s}
                             </button>
@@ -91,7 +91,7 @@ export function PageSizeSelect({ value, onChange }: { value: number; onChange: (
                 </>,
                 document.body
             )}
-            <span className="text-caption md:text-label text-gray-400 font-black uppercase tracking-wider whitespace-nowrap">{t("common.perPage")}</span>
+            <span className="text-caption md:text-label text-black/50 font-black uppercase tracking-wider whitespace-nowrap">{t("common.perPage")}</span>
         </div>
     );
 }
@@ -140,7 +140,7 @@ const Pagination: React.FC<PaginationProps> = ({
     return (
         <div className="flex flex-col md:flex-row items-center justify-between py-3 md:py-4 px-1 gap-4 mt-4 border-t border-gray-100">
             {/* Item count */}
-            <div className="text-body md:text-body-lg text-gray-500 font-medium order-2 md:order-1">
+            <div className="text-body md:text-body-lg text-black/60 font-medium order-2 md:order-1">
                 {t("favorites.show")} <span className="text-black font-extrabold">{t("favorites.items")} {startItem} - {endItem}</span> {t("favorites.of")} <span className="text-black font-extrabold">{totalItems}</span> {t("favorites.total")}
             </div>
 
@@ -157,14 +157,14 @@ const Pagination: React.FC<PaginationProps> = ({
 
                 {visiblePages.map((p, index) => (
                     p === '...' ? (
-                        <span key={`dots-${index}`} className="px-2 text-gray-400 font-bold">...</span>
+                        <span key={`dots-${index}`} className="px-2 text-black/50 font-bold">...</span>
                     ) : (
                         <button
                             key={p}
                             onClick={() => onPageChange(p as number)}
                             className={`w-9 h-9 md:w-10 md:h-10 flex items-center justify-center text-body md:text-body-lg rounded-full border transition-all duration-200 cursor-pointer ${currentPage === p
                                 ? "bg-primary border-primary text-black font-extrabold shadow-md transform scale-105"
-                                : "bg-white border-gray-200 text-gray-600 font-bold hover:bg-gray-50 hover:border-primary hover:text-primary"
+                                : "bg-white border-gray-200 text-black/70 font-bold hover:bg-gray-50 hover:border-primary hover:text-primary"
                                 }`}
                         >
                             {p}

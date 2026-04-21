@@ -47,7 +47,7 @@ export default function InquiryModal({ product, isOpen, onClose }: InquiryModalP
             <div className="flex flex-col h-full bg-white overflow-hidden">
                 {/* Header - Keeps same styling but fits in drawer */}
                 <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100 bg-gray-50/50 flex-shrink-0">
-                    <h2 className="text-xl font-bold text-gray-800">{t("inquiry.title")}</h2>
+                    <h2 className="text-xl font-bold text-black">{t("inquiry.title")}</h2>
                 </div>
 
                 <form onSubmit={handleSubmit} className="p-6 space-y-6 overflow-y-auto flex-1 pb-10">
@@ -62,19 +62,19 @@ export default function InquiryModal({ product, isOpen, onClose }: InquiryModalP
                                 />
                             )}
                             <div className="flex-1">
-                                <h3 className="font-bold text-gray-900 text-base mb-2 italic uppercase">{product.name || "Product Inquiry"}</h3>
+                                <h3 className="font-bold text-black text-base mb-2 italic uppercase">{product.name || "Product Inquiry"}</h3>
                                 <div className="grid grid-cols-2 gap-x-4 gap-y-3">
                                     <div className="space-y-0.5">
-                                        <p className="text-caption text-gray-400 uppercase font-black tracking-widest">Brand</p>
-                                        <p className="text-xs font-bold text-gray-700">{product?.name ? product.name.split(' ')[0] : "N/A"}</p>
+                                        <p className="text-caption text-black/50 uppercase font-black tracking-widest">Brand</p>
+                                        <p className="text-xs font-bold text-black/80">{product?.name ? product.name.split(' ')[0] : "N/A"}</p>
                                     </div>
                                     <div className="space-y-0.5">
-                                        <p className="text-caption text-gray-400 uppercase font-black tracking-widest">Size</p>
-                                        <p className="text-xs font-bold text-gray-700">{product.tyre_size}</p>
+                                        <p className="text-caption text-black/50 uppercase font-black tracking-widest">Size</p>
+                                        <p className="text-xs font-bold text-black/80">{product.tyre_size}</p>
                                     </div>
                                     <div className="space-y-0.5">
-                                        <p className="text-caption text-gray-400 uppercase font-black tracking-widest">Pattern</p>
-                                        <p className="text-xs font-bold text-gray-700">{product.pattern || "N/A"}</p>
+                                        <p className="text-caption text-black/50 uppercase font-black tracking-widest">Pattern</p>
+                                        <p className="text-xs font-bold text-black/80">{product.pattern || "N/A"}</p>
                                     </div>
                                     <div className="space-y-0.5">
                                         <p className="text-sm font-black text-primary price currency-riyal"><Price amount={product.final_price || product.price} /></p>
@@ -89,7 +89,7 @@ export default function InquiryModal({ product, isOpen, onClose }: InquiryModalP
                     {/* Form Fields */}
                     <div className="space-y-6">
                         <div>
-                            <label className="block text-xs font-bold text-gray-700 uppercase tracking-widest mb-2 ml-0.5">{t("inquiry.fullName")}</label>
+                            <label className="block text-xs font-bold text-black/80 uppercase tracking-widest mb-2 ml-0.5">{t("inquiry.fullName")}</label>
                             <input
                                 required
                                 type="text"
@@ -101,7 +101,7 @@ export default function InquiryModal({ product, isOpen, onClose }: InquiryModalP
                         </div>
 
                         <div>
-                            <label className="block text-xs font-bold text-gray-700 uppercase tracking-widest mb-2 ml-0.5">{t("inquiry.emailAddress")}</label>
+                            <label className="block text-xs font-bold text-black/80 uppercase tracking-widest mb-2 ml-0.5">{t("inquiry.emailAddress")}</label>
                             <input
                                 required
                                 type="email"
@@ -113,7 +113,7 @@ export default function InquiryModal({ product, isOpen, onClose }: InquiryModalP
                         </div>
 
                         <div>
-                            <label className="block text-xs font-bold text-gray-700 uppercase tracking-widest mb-2 ml-0.5">{t("inquiry.mobileNumber")}</label>
+                            <label className="block text-xs font-bold text-black/80 uppercase tracking-widest mb-2 ml-0.5">{t("inquiry.mobileNumber")}</label>
                             <input
                                 required
                                 type="tel"
@@ -125,7 +125,7 @@ export default function InquiryModal({ product, isOpen, onClose }: InquiryModalP
                         </div>
 
                         <div>
-                            <label className="block text-xs font-bold text-gray-700 uppercase tracking-widest mb-2 ml-0.5">{t("inquiry.yourMessage")}</label>
+                            <label className="block text-xs font-bold text-black/80 uppercase tracking-widest mb-2 ml-0.5">{t("inquiry.yourMessage")}</label>
                             <textarea
                                 required
                                 rows={4}
@@ -141,7 +141,7 @@ export default function InquiryModal({ product, isOpen, onClose }: InquiryModalP
                         <button
                             type="button"
                             onClick={onClose}
-                            className="flex-1 py-4 px-4 rounded-lg border border-gray-300 text-sm font-bold text-gray-600 hover:bg-gray-50 transition-colors uppercase tracking-widest shadow-sm"
+                            className="flex-1 py-4 px-4 rounded-lg border border-gray-300 text-sm font-bold text-black/70 hover:bg-gray-50 transition-colors uppercase tracking-widest shadow-sm"
                         >
                             {t("inquiry.cancel")}
                         </button>

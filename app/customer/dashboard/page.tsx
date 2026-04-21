@@ -146,7 +146,7 @@ export default function DashboardPage() {
             <Sidebar />
 
             {/* Right Content Area */}
-            <main className="flex-1 p-4 md:p-8 lg:p-10 bg-[#fcfcfc] min-h-0 font-rubik" dir={isRtl ? "rtl" : "ltr"}>
+            <main className="flex-1 p-4 md:p-8 lg:p-10 bg-[#fcfcfc] min-h-0" dir={isRtl ? "rtl" : "ltr"}>
                 <div className="w-full space-y-12">
 
                     {/* Sub-account Identity Banner */}
@@ -298,7 +298,7 @@ export default function DashboardPage() {
                                             />
                                         </div>
                                         <div className="py-8 px-6 text-center">
-                                            <p className="text-3xl font-black text-black font-rubik tracking-tight">
+                                            <p className="text-3xl font-black text-black tracking-tight">
                                                 {dashboardData?.product_groups?.find((pg: any) => pg.product_group === selectedProductGroup)?.qty || "0"}
                                             </p>
                                         </div>
@@ -324,7 +324,7 @@ export default function DashboardPage() {
                                             />
                                         </div>
                                         <div className="py-8 px-6 text-center">
-                                            <p className="text-3xl font-black text-black font-rubik tracking-tight">
+                                            <p className="text-3xl font-black text-black tracking-tight">
                                                 {dashboardData?.tyre_sizes?.find((ts: any) => ts.size_pattern === selectedTyreSize)?.qty || "0"}
                                             </p>
                                         </div>
@@ -348,14 +348,14 @@ export default function DashboardPage() {
                                 <button
                                     onClick={() => setActiveTab('quarterly')}
                                     className={`px-6 md:px-10 py-3 md:py-4 text-label font-black uppercase tracking-widest cursor-pointer transition-all rounded-t-lg
-                                        ${activeTab === 'quarterly' ? 'bg-white text-black border-x border-t border-[#ebebeb]' : 'bg-transparent text-gray-400 hover:text-gray-600'}`}
+                                        ${activeTab === 'quarterly' ? 'bg-white text-black border-x border-t border-[#ebebeb]' : 'bg-transparent text-black/50 hover:text-black/70'}`}
                                 >
                                     {t("dashboard.quarterlySalesData")}
                                 </button>
                                 <button
                                     onClick={() => setActiveTab('monthly')}
                                     className={`px-6 md:px-10 py-3 md:py-4 text-label font-black uppercase tracking-widest cursor-pointer transition-all rounded-t-lg
-                                        ${activeTab === 'monthly' ? 'bg-white text-black border-x border-t border-[#ebebeb]' : 'bg-transparent text-gray-400 hover:text-gray-600'}`}
+                                        ${activeTab === 'monthly' ? 'bg-white text-black border-x border-t border-[#ebebeb]' : 'bg-transparent text-black/50 hover:text-black/70'}`}
                                 >
                                     {t("dashboard.monthlySalesData")}
                                 </button>
@@ -434,10 +434,10 @@ export default function DashboardPage() {
                                                 const change = val2 > 0 ? ((val1 - val2) / val2 * 100).toFixed(1) : (val1 > 0 ? "100" : "0");
 
                                                 return (
-                                                    <tr key={p} className="hover:bg-primary/10 transition-colors h-[60px]">
+                                                    <tr key={p} className="hover:bg-primary/5 transition-colors h-[60px]">
                                                         <td className="py-4 px-6 font-black text-black text-body uppercase">{label}</td>
-                                                        <td className="py-4 px-6 text-body-lg font-black text-gray-800 text-center">{val1}</td>
-                                                        <td className="py-4 px-6 text-body-lg font-bold text-gray-400 text-center">{val2}</td>
+                                                        <td className="py-4 px-6 text-body-lg font-black text-black text-center">{val1}</td>
+                                                        <td className="py-4 px-6 text-body-lg font-bold text-black/50 text-center">{val2}</td>
                                                         <td className="py-4 px-6 text-right">
                                                             <span className={`text-label font-black px-2 py-1 rounded ${Number(change) >= 0 ? 'text-green-600 bg-green-50' : 'text-red-600 bg-red-50'}`}>
                                                                 {Number(change) >= 0 ? '+' : ''}{change}%
@@ -465,7 +465,7 @@ function QtyCard({ label, value, isRtl }: { label: string; value: string; isRtl:
     return (
         <div className="bg-white border border-[#ebebeb] rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-all transform hover:-translate-y-1 group">
             <div className="bg-gray-50 h-10 px-5 flex justify-between items-center text-black border-b border-[#ebebeb] group-hover:bg-primary transition-colors">
-                <span className="text-caption font-black uppercase tracking-widest text-gray-500 group-hover:text-primary">{label}</span>
+                <span className="text-caption font-black uppercase tracking-widest text-black/60 group-hover:text-primary">{label}</span>
                 <div className="w-1.5 h-1.5 rounded-full bg-primary"></div>
             </div>
             <div className="py-10 px-4 text-center">
@@ -479,11 +479,11 @@ function ValueCard({ label, value, isRtl }: { label: string; value: string; isRt
     return (
         <div className="bg-white border border-[#ebebeb] rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-all transform hover:-translate-y-1 group">
             <div className="bg-gray-50 h-10 px-5 flex justify-between items-center text-black border-b border-[#ebebeb] group-hover:bg-primary transition-colors">
-                <span className="text-caption font-black uppercase tracking-widest text-gray-500 group-hover:text-primary">{label}</span>
+                <span className="text-caption font-black uppercase tracking-widest text-black/60 group-hover:text-primary">{label}</span>
                 <div className="w-1.5 h-1.5 rounded-full bg-primary"></div>
             </div>
             <div className="py-10 px-4 text-center">
-                <p className="text-2xl font-black text-black tracking-tight">{value} <span className="text-label font-black text-gray-400 uppercase ml-1">SAR</span></p>
+                <p className="text-2xl font-black text-black tracking-tight">{value} <span className="text-label font-black text-black/50 uppercase ml-1">SAR</span></p>
             </div>
         </div>
     );

@@ -77,12 +77,12 @@ const Modal: React.FC<ModalProps> = ({
             >
                 {/* Header */}
                 <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-white sticky top-0 z-10">
-                    <h3 className="text-lg font-bold text-gray-900">
+                    <h3 className="text-lg font-bold text-black">
                         {title || ""}
                     </h3>
                     <button
                         onClick={onClose}
-                        className="p-2 rounded-full hover:bg-gray-100 text-gray-400 hover:text-gray-900 transition-colors cursor-pointer"
+                        className="p-2 rounded-full hover:bg-gray-100 text-black/50 hover:text-black transition-colors cursor-pointer"
                         aria-label="Close modal"
                     >
                         <X className="w-5 h-5" />

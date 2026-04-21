@@ -166,7 +166,7 @@ export default function ProductEnquiryModal({
                                         onChange={(e) => setFormData({ ...formData, notifyStock: e.target.checked })}
                                     />
                                 </div>
-                                <span className="text-[15px] font-bold text-gray-700 group-hover:text-black transition-colors">
+                                <span className="text-[15px] font-bold text-black/80 group-hover:text-black transition-colors">
                                     {t("inquiry.notifyStock")}
                                 </span>
                             </label>
@@ -178,7 +178,7 @@ export default function ProductEnquiryModal({
                         <button
                             type="submit"
                             disabled={isSubmitting}
-                            className="w-full py-4.5 px-10 bg-primary hover:bg-[#EAA71D] text-black font-black rounded-lg transition-all text-sm uppercase tracking-widest shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center min-h-[56px] cursor-pointer"
+                            className="w-full py-4.5 px-10 bg-primary hover:bg-primaryHover text-black font-black rounded-lg transition-all text-sm uppercase tracking-widest shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center min-h-[56px] cursor-pointer"
                         >
                             {isSubmitting ? (
                                 <div className="w-6 h-6 border-3 border-black border-t-transparent rounded-full animate-spin"></div>
@@ -191,7 +191,7 @@ export default function ProductEnquiryModal({
                     {/* <button
                         type="button"
                         onClick={onClose}
-                        className="w-full py-4 text-center text-xs font-black text-gray-400 hover:text-gray-900 uppercase tracking-widest transition-colors mt-2 cursor-pointer"
+                        className="w-full py-4 text-center text-xs font-black text-black/50 hover:text-black uppercase tracking-widest transition-colors mt-2 cursor-pointer"
                     >
                         Close Panel
                     </button> */}

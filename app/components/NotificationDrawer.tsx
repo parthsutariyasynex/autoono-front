@@ -87,15 +87,15 @@ export default function NotificationDrawer({ isOpen, onClose }: NotificationDraw
                     {isLoading && notifications.length === 0 ? (
                         <div className="flex flex-col items-center justify-center py-20 animate-in fade-in duration-500">
                             <div className="w-10 h-10 border-3 border-primary border-t-transparent rounded-full animate-spin"></div>
-                            <p className="mt-4 text-label text-gray-400 font-black uppercase tracking-[0.2em]">{t("common.loading")}</p>
+                            <p className="mt-4 text-label text-black/50 font-black uppercase tracking-[0.2em]">{t("common.loading")}</p>
                         </div>
                     ) : notifications.length === 0 ? (
                         <div className="flex flex-col items-center justify-center py-32 px-10 text-center animate-in zoom-in-95 duration-500">
                             <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mb-6 shadow-inner">
                                 <BellIcon />
                             </div>
-                            <p className="text-h3-sm font-black text-gray-900 uppercase tracking-tight">{t("notifications.empty")}</p>
-                            <p className="text-xs text-gray-400 mt-2 font-medium tracking-widest uppercase">{t("notifications.upToDate")}</p>
+                            <p className="text-h3-sm font-black text-black uppercase tracking-tight">{t("notifications.empty")}</p>
+                            <p className="text-xs text-black/50 mt-2 font-medium tracking-widest uppercase">{t("notifications.upToDate")}</p>
                         </div>
                     ) : (
                         <div className="divide-y divide-gray-100 pb-24">
@@ -107,7 +107,7 @@ export default function NotificationDrawer({ isOpen, onClose }: NotificationDraw
                                 >
                                     {/* Header Row: Title & Remove */}
                                     <div className="flex justify-between items-start gap-4">
-                                        <h3 className={`text-[15px] leading-snug ltr:pr-6 rtl:pl-6 ${!item.is_read ? "font-black text-black" : "font-bold text-gray-700"}`}>
+                                        <h3 className={`text-[15px] leading-snug ltr:pr-6 rtl:pl-6 ${!item.is_read ? "font-black text-black" : "font-bold text-black/80"}`}>
                                             {getOrderLink(item) ? (
                                                 <Link href={getOrderLink(item)!} onClick={onClose} className="hover:text-primary transition-colors hover:underline underline-offset-2">
                                                     {translateNotification(item.title)}
@@ -120,7 +120,7 @@ export default function NotificationDrawer({ isOpen, onClose }: NotificationDraw
                                                 removeNotification(item.notification_id, item.is_read);
                                             }}
                                             disabled={deletingIds.includes(item.notification_id)}
-                                            className="w-7 h-7 flex items-center justify-center bg-gray-100 hover:bg-black hover:text-white text-gray-400 rounded-full transition-all flex-shrink-0 disabled:opacity-50"
+                                            className="w-7 h-7 flex items-center justify-center bg-gray-100 hover:bg-black hover:text-white text-black/50 rounded-full transition-all flex-shrink-0 disabled:opacity-50"
                                             aria-label="Remove notification"
                                         >
                                             {deletingIds.includes(item.notification_id) ? (
@@ -132,14 +132,14 @@ export default function NotificationDrawer({ isOpen, onClose }: NotificationDraw
                                     </div>
 
                                     {/* Message */}
-                                    <p className={`text-body leading-relaxed mt-1 ${!item.is_read ? "text-black/80 font-medium" : "text-gray-500"
+                                    <p className={`text-body leading-relaxed mt-1 ${!item.is_read ? "text-black/80 font-medium" : "text-black/60"
                                         }`}>
                                         {translateNotification(item.description)}
                                     </p>
 
                                     {/* Footer: Date & Mark as Read */}
                                     <div className="flex justify-between items-center mt-3">
-                                        <p className="text-label text-gray-400 font-black uppercase tracking-widest">
+                                        <p className="text-label text-black/50 font-black uppercase tracking-widest">
                                             {isRtl ? formatNotificationDate(item.date_added || item.date_added_formatted) : item.date_added_formatted}
                                         </p>
 

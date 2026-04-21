@@ -58,7 +58,7 @@ export default function LanguageSwitcher() {
             px-3 py-1.5 text-xs font-semibold rounded-full transition-all duration-200
             ${currentLocale === locale
                             ? "bg-primary text-white shadow-sm"
-                            : "text-gray-600 hover:text-gray-900 hover:bg-gray-200"
+                            : "text-black/70 hover:text-black hover:bg-gray-200"
                         }
           `}
                     aria-label={`Switch to ${localeNames[locale]}`}

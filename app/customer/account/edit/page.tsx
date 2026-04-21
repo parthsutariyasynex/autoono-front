@@ -107,8 +107,8 @@ function EditAccountPageContent() {
         );
     }
 
-    const inputClass = "w-full border border-gray-200 px-4 py-2 text-body-lg focus:border-primary outline-none transition-all rounded-sm bg-white font-medium text-gray-800 placeholder:text-gray-300";
-    const labelClass = "block text-body font-bold text-gray-900 mb-1.5";
+    const inputClass = "w-full border border-gray-200 px-4 py-2 text-body-lg focus:border-primary outline-none transition-all rounded-sm bg-white font-medium text-black placeholder:text-black/40";
+    const labelClass = "block text-body font-bold text-black mb-1.5";
     const sectionHeader = "bg-white px-4 md:px-6 py-2.5 md:py-3 border-b border-gray-100 text-black font-black uppercase text-body md:text-[15px] tracking-tight";
 
     return (
@@ -163,7 +163,7 @@ function EditAccountPageContent() {
                                                 checked={changeEmail}
                                                 onChange={(e) => setChangeEmail(e.target.checked)}
                                             />
-                                            <span className="text-body-lg font-bold text-gray-700 group-hover:text-black transition-colors select-none">
+                                            <span className="text-body-lg font-bold text-black/80 group-hover:text-black transition-colors select-none">
                                                 Change Email
                                             </span>
                                         </label>
@@ -178,7 +178,7 @@ function EditAccountPageContent() {
                                                 checked={changePassword}
                                                 onChange={(e) => setChangePassword(e.target.checked)}
                                             />
-                                            <span className="text-body-lg font-bold text-gray-700 group-hover:text-black transition-colors select-none">
+                                            <span className="text-body-lg font-bold text-black/80 group-hover:text-black transition-colors select-none">
                                                 Change Password
                                             </span>
                                         </label>
@@ -250,7 +250,7 @@ function EditAccountPageContent() {
                                             className={inputClass}
                                             placeholder={t("changePassword.newPassword")}
                                         />
-                                        <div className="bg-[#f4f4f4] px-4 py-2 text-body-sm font-bold text-gray-600 border border-gray-100 italic">
+                                        <div className="bg-[#f4f4f4] px-4 py-2 text-body-sm font-bold text-black/70 border border-gray-100 italic">
                                             Password Strength: No Password
                                         </div>
                                     </div>

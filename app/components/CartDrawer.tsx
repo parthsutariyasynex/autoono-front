@@ -62,7 +62,7 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                     {/* Header Sub-info */}
                     <div className="px-6 py-4 bg-gray-50/50 border-b border-gray-100">
                         <div className="flex justify-between items-center">
-                            <span className="text-label font-semibold text-gray-400 uppercase tracking-widest leading-none">
+                            <span className="text-label font-semibold text-black/50 uppercase tracking-widest leading-none">
                                 {t("cart.subtotal")}
                             </span>
                             <span className="text-[17px] font-semibold text-black price currency-riyal">
@@ -76,15 +76,15 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                         {isLoading ? (
                             <div className="flex flex-col items-center justify-center py-20 space-y-4">
                                 <div className="w-10 h-10 border-3 border-primary border-t-transparent rounded-full animate-spin"></div>
-                                <p className="text-xs text-gray-400 font-black uppercase tracking-widest">{t("cart.updatingCart")}</p>
+                                <p className="text-xs text-black/50 font-black uppercase tracking-widest">{t("cart.updatingCart")}</p>
                             </div>
                         ) : (cart?.items?.length || 0) === 0 ? (
                             <div className="flex flex-col items-center justify-center py-24 px-10 text-center">
                                 <div className="bg-gray-50 w-20 h-20 rounded-full flex items-center justify-center mb-6 shadow-inner">
                                     <ShoppingCartIcon />
                                 </div>
-                                <p className="text-h3-sm font-semibold text-gray-900 uppercase tracking-tight">{t("cart.yourCartIsEmpty")}</p>
-                                <p className="text-xs text-gray-400 mt-2 font-medium">{t("cart.addItems")}</p>
+                                <p className="text-h3-sm font-semibold text-black uppercase tracking-tight">{t("cart.yourCartIsEmpty")}</p>
+                                <p className="text-xs text-black/50 mt-2 font-medium">{t("cart.addItems")}</p>
                                 <button
                                     onClick={onClose}
                                     className="mt-8 text-label font-semibold text-primary uppercase tracking-[0.2em] hover:text-black transition-colors"
@@ -111,7 +111,7 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                                         {/* Center: Info */}
                                         <div className="flex-1 min-w-0 flex flex-col justify-center">
                                             <div>
-                                                <h3 className="text-sm font-semibold text-gray-900 leading-snug line-clamp-2 uppercase tracking-tight">
+                                                <h3 className="text-sm font-semibold text-black leading-snug line-clamp-2 uppercase tracking-tight">
                                                     {item.name}
                                                 </h3>
                                                 <p className="text-h3-sm font-semibold text-black mt-1.5 price currency-riyal">
@@ -124,17 +124,17 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                                                 <div className="flex items-center bg-gray-100 rounded-md p-0.5 border border-gray-200">
                                                     <button
                                                         onClick={() => updateCartItem(item.item_id, item.qty - 1)}
-                                                        className="w-7 h-7 flex items-center justify-center hover:bg-white hover:shadow-sm rounded transition-all text-gray-600 disabled:opacity-30"
+                                                        className="w-7 h-7 flex items-center justify-center hover:bg-white hover:shadow-sm rounded transition-all text-black/70 disabled:opacity-30"
                                                         disabled={item.qty <= 1}
                                                     >
                                                         <Minus size={12} strokeWidth={3} />
                                                     </button>
-                                                    <span className="w-10 text-center text-xs font-semibold text-gray-900 bg-transparent">
+                                                    <span className="w-10 text-center text-xs font-semibold text-black bg-transparent">
                                                         {item.qty}
                                                     </span>
                                                     <button
                                                         onClick={() => updateCartItem(item.item_id, item.qty + 1)}
-                                                        className="w-7 h-7 flex items-center justify-center hover:bg-white hover:shadow-sm rounded transition-all text-gray-600"
+                                                        className="w-7 h-7 flex items-center justify-center hover:bg-white hover:shadow-sm rounded transition-all text-black/70"
                                                     >
                                                         <Plus size={12} strokeWidth={3} />
                                                     </button>
@@ -142,7 +142,7 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
 
                                                 <button
                                                     onClick={() => setConfirmId(item.item_id)}
-                                                    className="w-9 h-9 flex items-center justify-center text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-full transition-all"
+                                                    className="w-9 h-9 flex items-center justify-center text-black/40 hover:text-red-500 hover:bg-red-50 rounded-full transition-all"
                                                     aria-label="Remove item"
                                                 >
                                                     <Trash2 size={18} strokeWidth={2.5} />
@@ -185,7 +185,7 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                     </button>
 
                     <div className="p-8 pb-6">
-                        <p className="text-gray-900 text-[15px] font-medium leading-relaxed mt-2">
+                        <p className="text-black text-[15px] font-medium leading-relaxed mt-2">
                             {t("cart.confirmRemove")}
                         </p>
                     </div>
@@ -200,7 +200,7 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                         <button
                             onClick={handleConfirmDelete}
                             disabled={isRemoving}
-                            className="px-10 py-2.5 bg-primary text-black font-semibold uppercase tracking-widest text-body-sm hover:bg-[#e5a811] transition-all rounded-sm min-w-[100px] flex items-center justify-center gap-2"
+                            className="px-10 py-2.5 bg-primary text-black font-semibold uppercase tracking-widest text-body-sm hover:bg-primaryHover transition-all rounded-sm min-w-[100px] flex items-center justify-center gap-2"
                         >
                             {isRemoving ? <div className="w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin" /> : t("common.ok")}
                         </button>
@@ -213,7 +213,7 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
 
 function ShoppingCartIcon() {
     return (
-        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-300">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-black/40">
             <circle cx="9" cy="21" r="1" />
             <circle cx="20" cy="21" r="1" />
             <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />

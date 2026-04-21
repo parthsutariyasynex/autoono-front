@@ -509,7 +509,7 @@ export default function OrderDetailsPage() {
 
     if (authStatus === "loading" || (isLoading && !order)) {
         return (
-            <div className="min-h-screen flex flex-col w-full bg-[#fcfcfc] font-rubik">
+            <div className="min-h-screen flex flex-col w-full bg-[#fcfcfc]">
                 <div className="flex flex-col lg:flex-row flex-1 w-full">
                     <Sidebar />
                     <main className="flex-1 w-full flex items-center justify-center p-4 md:p-8">
@@ -522,7 +522,7 @@ export default function OrderDetailsPage() {
 
     if (error) {
         return (
-            <div className="min-h-screen flex flex-col w-full bg-[#fcfcfc] font-rubik">
+            <div className="min-h-screen flex flex-col w-full bg-[#fcfcfc]">
                 <div className="flex flex-col lg:flex-row flex-1 w-full">
                     <Sidebar />
                     <main className="flex-1 w-full px-4 md:px-6 lg:px-8 py-10">
@@ -551,7 +551,7 @@ export default function OrderDetailsPage() {
     const paymentMethod = order.payment?.additional_information?.[0] || order.payment?.method || "N/A";
 
     return (
-        <div className="min-h-screen flex flex-col w-full bg-[#fcfcfc] font-rubik">
+        <div className="min-h-screen flex flex-col w-full bg-[#fcfcfc]">
             <div className="flex flex-col lg:flex-row flex-1 w-full">
                 {/* Left Sidebar */}
                 <Sidebar />
@@ -569,13 +569,13 @@ export default function OrderDetailsPage() {
                                 <span className={`inline-flex px-4 py-1.5 border rounded-sm text-caption md:text-label font-bold uppercase tracking-widest bg-white ${order.status?.toLowerCase().includes('pending') ? 'border-[#d1d1d1] text-black' :
                                     order.status?.toLowerCase().includes('complete') ? 'border-green-300 text-green-700 bg-green-50' :
                                         order.status?.toLowerCase().includes('cancel') ? 'border-red-300 text-red-700 bg-red-50' :
-                                            'border-gray-300 text-gray-700 bg-white'
+                                            'border-gray-300 text-black/80 bg-white'
                                     }`}>
                                     {formatStatus(order.status)}
                                 </span>
                             </div>
 
-                            <div className="text-[#333] text-[15px] md:text-[17px] font-normal leading-none">
+                            <div className="text-black text-[15px] md:text-[17px] font-normal leading-none">
                                 {formatDate(order.created_at)}
                             </div>
                         </div>
@@ -668,17 +668,17 @@ export default function OrderDetailsPage() {
                                 </thead>
                                 <tbody className="divide-y divide-[#ebebeb]">
                                     {order.items?.map((item: any, idx: number) => (
-                                        <tr key={item.item_id || item.id} className={`text-xs hover:bg-primary/30 transition-colors ${idx % 2 !== 0 ? 'bg-gray-50' : 'bg-white'}`}>
+                                        <tr key={item.item_id || item.id} className={`text-xs hover:bg-primary/5 transition-colors ${idx % 2 !== 0 ? 'bg-gray-50' : 'bg-white'}`}>
                                             <td className="px-3 md:px-6 py-3 md:py-5 text-black font-bold">
                                                 {item.name}
                                             </td>
-                                            <td className="px-3 md:px-6 py-3 md:py-5 text-gray-400 font-bold text-center">
+                                            <td className="px-3 md:px-6 py-3 md:py-5 text-black/50 font-bold text-center">
                                                 {item.sku}
                                             </td>
                                             <td className="px-3 md:px-6 py-3 md:py-5 text-black font-bold text-center">
                                                 {formatCurrency(item.price)}
                                             </td>
-                                            <td className="px-3 md:px-6 py-3 md:py-5 text-center text-gray-500 font-bold uppercase">
+                                            <td className="px-3 md:px-6 py-3 md:py-5 text-center text-black/60 font-bold uppercase">
                                                 {Math.round(item.qty_ordered)}
                                             </td>
                                             <td className="px-3 md:px-6 py-3 md:py-5 text-end font-black text-black">
@@ -696,17 +696,17 @@ export default function OrderDetailsPage() {
                             {order.items?.map((item: any, idx: number) => (
                                 <div key={item.item_id || item.id} className={`p-4 text-xs ${idx % 2 !== 0 ? 'bg-gray-50' : 'bg-white'}`}>
                                     <p className="text-black font-black text-sm mb-2">{item.name}</p>
-                                    <p className="text-gray-400 font-bold uppercase tracking-widest text-caption mb-3">{t("orderDetails.sku")}: {item.sku}</p>
+                                    <p className="text-black/50 font-bold uppercase tracking-widest text-caption mb-3">{t("orderDetails.sku")}: {item.sku}</p>
 
                                     <div className="flex justify-between items-center mb-1">
-                                        <span className="text-gray-500 font-bold uppercase tracking-widest">{t("orderDetails.price")}</span>
+                                        <span className="text-black/60 font-bold uppercase tracking-widest">{t("orderDetails.price")}</span>
 
                                         <span className="text-black font-bold">{formatCurrency(item.price)}</span>
                                     </div>
                                     <div className="flex justify-between items-center mb-1">
-                                        <span className="text-gray-500 font-bold uppercase tracking-widest">{t("orderDetails.qty")}</span>
+                                        <span className="text-black/60 font-bold uppercase tracking-widest">{t("orderDetails.qty")}</span>
 
-                                        <span className="text-gray-500 font-bold">{Math.round(item.qty_ordered)}</span>
+                                        <span className="text-black/60 font-bold">{Math.round(item.qty_ordered)}</span>
                                     </div>
                                     <div className="flex justify-between items-center pt-2 border-t border-gray-100">
                                         <span className="text-black font-black uppercase tracking-widest">{t("orderDetails.subtotal")}</span>
@@ -721,7 +721,7 @@ export default function OrderDetailsPage() {
                         <div className="flex justify-end p-4 md:p-8 bg-gray-50/30 border-t border-[#ebebeb]">
                             <div className="w-full max-w-[340px] space-y-3">
                                 <div className="flex justify-between items-center text-xs">
-                                    <span className="text-gray-400 font-bold uppercase tracking-widest flex-1 text-end me-10">{t("orderDetails.itemsTotal")}</span>
+                                    <span className="text-black/50 font-bold uppercase tracking-widest flex-1 text-end me-10">{t("orderDetails.itemsTotal")}</span>
 
 
                                     <span className="font-black text-black w-[110px] text-end">
@@ -731,7 +731,7 @@ export default function OrderDetailsPage() {
                                 </div>
 
                                 <div className="flex justify-between items-center text-xs">
-                                    <span className="text-gray-400 font-bold uppercase tracking-widest flex-1 text-end me-10">{t("orderDetails.vat")}</span>
+                                    <span className="text-black/50 font-bold uppercase tracking-widest flex-1 text-end me-10">{t("orderDetails.vat")}</span>
 
 
                                     <span className="font-black text-black w-[110px] text-end">
@@ -749,7 +749,7 @@ export default function OrderDetailsPage() {
                                 </div>
 
                                 <div className="flex justify-between items-center text-label pt-1 pt-4 opacity-50">
-                                    <span className="text-gray-500 font-black uppercase tracking-widest flex-1 text-end me-10">{t("orderDetails.totalQty")}</span>
+                                    <span className="text-black/60 font-black uppercase tracking-widest flex-1 text-end me-10">{t("orderDetails.totalQty")}</span>
 
                                     <span className="font-black text-black w-[110px] text-end">
 
@@ -776,7 +776,7 @@ export default function OrderDetailsPage() {
                                     <h3 className="text-xs font-black text-black uppercase tracking-widest">{t("orderDetails.shippingAddress")}</h3>
 
                                 </div>
-                                <div className="p-4 md:p-6 text-xs text-gray-600 leading-relaxed min-h-[140px]">
+                                <div className="p-4 md:p-6 text-xs text-black/70 leading-relaxed min-h-[140px]">
                                     {shippingAddress ? (
                                         <div className="space-y-1">
                                             <p className="font-black text-black uppercase mb-2">{shippingAddress.firstname} {shippingAddress.lastname}</p>
@@ -785,10 +785,10 @@ export default function OrderDetailsPage() {
                                             <p className="font-medium">{shippingAddress.city}, {shippingAddress.postcode}</p>
                                             <p className="font-medium">{shippingAddress.country_id === "SA" ? t("data.Saudi Arabia") : shippingAddress.country_id}</p>
 
-                                            <p className="pt-2 text-black font-black">T: <span className="text-gray-600 font-medium">{shippingAddress.telephone}</span></p>
+                                            <p className="pt-2 text-black font-black">T: <span className="text-black/70 font-medium">{shippingAddress.telephone}</span></p>
                                         </div>
                                     ) : (
-                                        <p className="text-gray-400 italic">{t("orderDetails.noShippingAddress")}</p>
+                                        <p className="text-black/50 italic">{t("orderDetails.noShippingAddress")}</p>
 
                                     )}
                                 </div>
@@ -800,11 +800,11 @@ export default function OrderDetailsPage() {
                                     <h3 className="text-xs font-black text-black uppercase tracking-widest">{t("orderDetails.shippingMethod")}</h3>
 
                                 </div>
-                                <div className="p-4 md:p-6 text-xs text-gray-600 leading-relaxed min-h-[140px]">
+                                <div className="p-4 md:p-6 text-xs text-black/70 leading-relaxed min-h-[140px]">
                                     <p className="font-black text-black uppercase mb-2">{translateDynamic(order.shipping_description || "Pickup from Warehouse")}</p>
 
                                     <div className="mt-4 pt-4 border-t border-gray-100">
-                                        <p className="text-caption font-black text-gray-400 uppercase tracking-widest mb-1">{t("orderDetails.expectedDelivery")}</p>
+                                        <p className="text-caption font-black text-black/50 uppercase tracking-widest mb-1">{t("orderDetails.expectedDelivery")}</p>
 
                                         <p className="font-bold text-black">N/A</p>
                                     </div>
@@ -817,7 +817,7 @@ export default function OrderDetailsPage() {
                                     <h3 className="text-xs font-black text-black uppercase tracking-widest">{t("orderDetails.billingAddress")}</h3>
 
                                 </div>
-                                <div className="p-4 md:p-6 text-xs text-gray-600 leading-relaxed min-h-[140px]">
+                                <div className="p-4 md:p-6 text-xs text-black/70 leading-relaxed min-h-[140px]">
                                     {billingAddress ? (
                                         <div className="space-y-1">
                                             <p className="font-black text-black uppercase mb-2">{billingAddress.firstname} {billingAddress.lastname}</p>
@@ -826,10 +826,10 @@ export default function OrderDetailsPage() {
                                             <p className="font-medium">{billingAddress.city}, {billingAddress.postcode}</p>
                                             <p className="font-medium">{billingAddress.country_id === "SA" ? t("data.Saudi Arabia") : billingAddress.country_id}</p>
 
-                                            <p className="pt-2 text-black font-black">T: <span className="text-gray-600 font-medium">{billingAddress.telephone}</span></p>
+                                            <p className="pt-2 text-black font-black">T: <span className="text-black/70 font-medium">{billingAddress.telephone}</span></p>
                                         </div>
                                     ) : (
-                                        <p className="text-gray-400 italic">{t("orderDetails.noBillingAddress")}</p>
+                                        <p className="text-black/50 italic">{t("orderDetails.noBillingAddress")}</p>
 
                                     )}
                                 </div>
@@ -841,12 +841,12 @@ export default function OrderDetailsPage() {
                                     <h3 className="text-xs font-black text-black uppercase tracking-widest">{t("orderDetails.paymentMethod")}</h3>
 
                                 </div>
-                                <div className="p-4 md:p-6 text-xs text-gray-600 leading-relaxed min-h-[140px]">
+                                <div className="p-4 md:p-6 text-xs text-black/70 leading-relaxed min-h-[140px]">
                                     <p className="font-black text-black uppercase mb-1">{translateDynamic(order.payment?.method_title || paymentMethod)}</p>
 
                                     <div className="mt-4 pt-4 border-t border-gray-100 flex items-center gap-2">
                                         <div className="w-2 h-2 rounded-full bg-green-500"></div>
-                                        <span className="text-caption font-black text-gray-400 uppercase tracking-widest">{t("orderDetails.paymentConfirmed")}</span>
+                                        <span className="text-caption font-black text-black/50 uppercase tracking-widest">{t("orderDetails.paymentConfirmed")}</span>
 
                                     </div>
                                 </div>
@@ -906,7 +906,7 @@ export default function OrderDetailsPage() {
                                                 const isOpening = openingAttachmentId === String(currentAttachmentId);
 
                                                 return (
-                                                    <tr key={currentAttachmentId} className={`hover:bg-primary/30 transition-colors ${idx % 2 !== 0 ? 'bg-gray-50' : 'bg-white'}`}>
+                                                    <tr key={currentAttachmentId} className={`hover:bg-primary/5 transition-colors ${idx % 2 !== 0 ? 'bg-gray-50' : 'bg-white'}`}>
                                                         <td className="px-3 md:px-6 py-3 md:py-5 text-left">
                                                             <button
                                                                 onClick={() => handleOpenAttachment(attachment)}
@@ -919,17 +919,17 @@ export default function OrderDetailsPage() {
                                                                 {attachment.file_name || "-"}
                                                             </button>
                                                         </td>
-                                                        <td className="px-3 md:px-6 py-3 md:py-5 text-center text-gray-500 font-bold uppercase">
+                                                        <td className="px-3 md:px-6 py-3 md:py-5 text-center text-black/60 font-bold uppercase">
                                                             {attachment.document_type || attachment.attachment_type || "-"}
                                                         </td>
-                                                        <td className="px-3 md:px-6 py-3 md:py-5 text-center text-gray-500 font-bold uppercase">
+                                                        <td className="px-3 md:px-6 py-3 md:py-5 text-center text-black/60 font-bold uppercase">
                                                             {formatDateDDMMYYYY(attachment.upload_date)}
                                                         </td>
-                                                        <td className="px-3 md:px-6 py-3 md:py-5 text-center text-gray-400 font-bold uppercase">
+                                                        <td className="px-3 md:px-6 py-3 md:py-5 text-center text-black/50 font-bold uppercase">
                                                             {attachment.invoice_due ? formatDateDDMMYYYY(attachment.invoice_due) : "-"}
                                                         </td>
                                                         <td className="px-3 md:px-6 py-3 md:py-5 text-center">
-                                                            <span className="inline-flex px-2 py-1 bg-gray-100 text-gray-600 rounded-full text-caption font-black uppercase tracking-widest">
+                                                            <span className="inline-flex px-2 py-1 bg-gray-100 text-black/70 rounded-full text-caption font-black uppercase tracking-widest">
                                                                 {attachment.payment || attachment.payment_status || "-"}
                                                             </span>
                                                         </td>
@@ -941,7 +941,7 @@ export default function OrderDetailsPage() {
                                 </div>
                             </div>
                         ) : (
-                            <div className="bg-white border border-[#ebebeb] p-10 md:p-20 text-center text-gray-400 italic rounded-md shadow-sm text-xs font-bold uppercase tracking-widest">
+                            <div className="bg-white border border-[#ebebeb] p-10 md:p-20 text-center text-black/50 italic rounded-md shadow-sm text-xs font-bold uppercase tracking-widest">
                                 {t("orderDetails.noAttachments")}
 
                             </div>
@@ -991,19 +991,19 @@ export default function OrderDetailsPage() {
                                     </thead>
                                     <tbody className="divide-y divide-[#ebebeb] text-center">
                                         {paymentHistory.map((payment: any, index: number) => (
-                                            <tr key={payment.id || payment.receipt_no || index} className="hover:bg-gray-50 bg-white">
-                                                <td className="px-3 md:px-4 py-4 text-gray-700 font-medium">{payment.receipt_no}</td>
-                                                <td className="px-3 md:px-4 py-4 text-gray-700 font-medium">
+                                            <tr key={payment.id || payment.receipt_no || index} className="hover:bg-primary/5 bg-white">
+                                                <td className="px-3 md:px-4 py-4 text-black/80 font-medium">{payment.receipt_no}</td>
+                                                <td className="px-3 md:px-4 py-4 text-black/80 font-medium">
                                                     {payment.payment_date ? new Date(payment.payment_date).toLocaleDateString("en-GB").replace(/\//g, "-") : "-"}
                                                 </td>
-                                                <td className="px-3 md:px-4 py-4 text-gray-700 font-medium">{payment.payment_method}</td>
-                                                <td className="px-3 md:px-4 py-4 text-gray-700 font-bold">
+                                                <td className="px-3 md:px-4 py-4 text-black/80 font-medium">{payment.payment_method}</td>
+                                                <td className="px-3 md:px-4 py-4 text-black/80 font-bold">
                                                     {formatCurrency(payment.invoice_amount || order.grand_total || 575)}
                                                 </td>
-                                                <td className="px-3 md:px-4 py-4 text-gray-700 font-bold">
+                                                <td className="px-3 md:px-4 py-4 text-black/80 font-bold">
                                                     {formatCurrency(payment.paid_payment)}
                                                 </td>
-                                                <td className="px-3 md:px-4 py-4 text-gray-700 font-bold text-red-500">
+                                                <td className="px-3 md:px-4 py-4 text-black/80 font-bold text-red-500">
                                                     {formatCurrency(payment.due_payment)}
                                                 </td>
                                                 <td className="px-3 md:px-4 py-4">
@@ -1014,16 +1014,16 @@ export default function OrderDetailsPage() {
                                                         {payment.payment_status}
                                                     </span>
                                                 </td>
-                                                <td className="px-3 md:px-4 py-4 text-gray-400 font-medium">-</td>
+                                                <td className="px-3 md:px-4 py-4 text-black/50 font-medium">-</td>
                                                 <td className="px-3 md:px-4 py-4">
                                                     <div className="flex items-center justify-center gap-2">
                                                         <button
                                                             onClick={() => fetchSinglePayment(payment.id)}
-                                                            className="bg-[#EFA73F] text-white px-3 py-1.5 rounded-sm font-bold text-caption uppercase tracking-wide hover:bg-[#d69638] transition-colors shadow-sm"
+                                                            className="bg-[#EFA73F] text-white px-3 py-1.5 rounded-sm font-bold text-caption uppercase tracking-wide hover:bg-primaryHover transition-colors shadow-sm"
                                                         >
                                                             Edit
                                                         </button>
-                                                        <span className="text-gray-300 font-light">|</span>
+                                                        <span className="text-black/40 font-light">|</span>
                                                         <button
                                                             onClick={() => handleDownloadReceipt(payment)}
                                                             className="bg-primary text-white px-3 py-1.5 rounded-sm font-bold text-caption uppercase tracking-wide hover:bg-primaryHover transition-colors shadow-sm"

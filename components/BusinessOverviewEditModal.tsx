@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { api } from "@/lib/api/api-client";
 import toast from "react-hot-toast";
+import { useLockBodyScroll } from "@/hooks/useLockBodyScroll";
 
 interface BusinessOverviewData {
     total_employees: string;
@@ -20,6 +21,8 @@ interface Props {
 }
 
 export default function BusinessOverviewEditModal({ isOpen, onClose, initialData, onSuccess }: Props) {
+    useLockBodyScroll(isOpen);
+
     const [formData, setFormData] = useState<BusinessOverviewData>({
         total_employees: "",
         trucks: "",
@@ -62,7 +65,7 @@ export default function BusinessOverviewEditModal({ isOpen, onClose, initialData
         }
     };
 
-    const inputClass = "w-full border border-gray-200 px-4 py-3 text-body-lg focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all rounded-sm bg-white font-medium text-gray-800 placeholder:text-gray-400";
+    const inputClass = "w-full border border-gray-200 px-4 py-3 text-body-lg focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all rounded-sm bg-white font-medium text-black placeholder:text-black/50";
     const labelClass = "block text-body-sm font-bold text-black mb-1.5 uppercase tracking-wider";
 
     return (
@@ -75,7 +78,7 @@ export default function BusinessOverviewEditModal({ isOpen, onClose, initialData
                     </h2>
                     <button
                         onClick={onClose}
-                        className="text-gray-400 hover:text-black transition-colors"
+                        className="text-black/50 hover:text-black transition-colors"
                     >
                         <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -148,7 +151,7 @@ export default function BusinessOverviewEditModal({ isOpen, onClose, initialData
                     {/* <button
                         onClick={onClose}
                         disabled={isSaving}
-                        className="px-6 py-2.5 text-body font-bold text-gray-500 hover:text-black uppercase transition-all tracking-widest"
+                        className="px-6 py-2.5 text-body font-bold text-black/60 hover:text-black uppercase transition-all tracking-widest"
                     >
                         Cancel
                     </button> */}

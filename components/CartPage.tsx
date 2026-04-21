@@ -114,7 +114,7 @@ const CartPage: React.FC = () => {
         return (
             <div className="min-h-screen flex flex-col items-center justify-center p-6 text-center">
                 <h2 className="text-xl font-bold text-red-600 mb-2">{t("checkout.error")}</h2>
-                <p className="text-gray-500 mb-6">{error}</p>
+                <p className="text-black/60 mb-6">{error}</p>
                 <button onClick={refetchCart} className="bg-black text-white px-6 py-2 rounded font-bold">{t("common.tryAgain")}</button>
             </div>
         );
@@ -126,8 +126,8 @@ const CartPage: React.FC = () => {
         return (
             <div className="bg-white min-h-screen">
                 <div className="w-full py-12 md:py-24 px-4 md:px-6 text-center">
-                    <ShoppingBag size={64} className="mx-auto text-gray-200 mb-6" />
-                    <h1 className="text-xl md:text-2xl font-bold text-gray-900 uppercase tracking-widest mb-4">
+                    <ShoppingBag size={64} className="mx-auto text-black/30 mb-6" />
+                    <h1 className="text-xl md:text-2xl font-bold text-black uppercase tracking-widest mb-4">
                         {t("cart.noItems")}
                     </h1>
                     <Link href={lp("/products")} className="inline-flex items-center gap-2 text-primary font-bold hover:underline">
@@ -146,7 +146,7 @@ const CartPage: React.FC = () => {
 
                 {/* Breadcrumbs & Title Section */}
                 <div className="mb-10 md:mb-14 text-center">
-                    <h1 className="text-xl md:text-2xl font-black text-gray-900 uppercase tracking-tight mb-2">
+                    <h1 className="text-xl md:text-2xl font-black text-black uppercase tracking-tight mb-2">
                         {t("cart.title")}
                     </h1>
                     <div className="h-1 w-12 bg-primary mx-auto"></div>
@@ -191,7 +191,7 @@ const CartPage: React.FC = () => {
                                     {/* Multiple Address Section Bar */}
                                     <div className="border border-primary bg-white rounded-xl flex flex-col md:flex-row items-stretch justify-between overflow-hidden shadow-xl shadow-primary/5">
                                         <div className="px-6 py-4 flex items-center bg-gray-50/50 flex-1">
-                                            <h4 className="text-caption font-black text-gray-900 uppercase tracking-wider">{t("cart.multiAddressShipping")}</h4>
+                                            <h4 className="text-caption font-black text-black uppercase tracking-wider">{t("cart.multiAddressShipping")}</h4>
                                         </div>
                                         <button
                                             onClick={handleStartMultiShipping}

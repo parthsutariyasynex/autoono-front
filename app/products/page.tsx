@@ -322,7 +322,7 @@ export default function ProductsPage() {
     return (
       <div className="flex flex-col items-center justify-center text-center gap-1">
         <span className={`w-4 h-4 rounded-full border border-gray-100 shadow-sm ${colorClass}`}></span>
-        <span className="text-caption font-semibold text-gray-700 uppercase leading-none">{label}</span>
+        <span className="text-caption font-semibold text-black/80 uppercase leading-none">{label}</span>
       </div>
     );
   };
@@ -357,18 +357,18 @@ export default function ProductsPage() {
         {/* Top: content left + image right */}
         <div className="flex gap-2.5">
           <div className="flex-1 min-w-0">
-            <p className="text-caption font-semibold text-gray-400 uppercase tracking-wider">{brandName}</p>
-            <p className="text-body-sm md:text-body font-semibold text-gray-900 leading-tight mt-0.5 truncate">{product?.name || "—"}</p>
+            <p className="text-caption font-semibold text-black/50 uppercase tracking-wider">{brandName}</p>
+            <p className="text-body-sm md:text-body font-semibold text-black leading-tight mt-0.5 truncate">{product?.name || "—"}</p>
             <div className="flex items-center gap-1.5 mt-1.5">
               <span className={`w-2 h-2 rounded-full ${dotColor}`}></span>
-              <span className="text-caption font-semibold text-gray-600 uppercase">{stockLabel}</span>
+              <span className="text-caption font-semibold text-black/70 uppercase">{stockLabel}</span>
             </div>
           </div>
           <div
             className="w-12 h-12 sm:w-14 sm:h-14 flex-shrink-0 rounded-lg border border-gray-100 overflow-hidden bg-gray-50 flex items-center justify-center cursor-pointer"
             onClick={() => { if (product?.image_url) { setSelectedImage(product.image_url); setPreviewProduct(product); setIsImageModalOpen(true); } }}
           >
-            {product?.image_url ? <img src={product.image_url} alt={product.name} className="w-full h-full object-contain" /> : <span className="text-[8px] text-gray-300 font-semibold uppercase">No Img</span>}
+            {product?.image_url ? <img src={product.image_url} alt={product.name} className="w-full h-full object-contain" /> : <span className="text-[8px] text-black/40 font-semibold uppercase">No Img</span>}
           </div>
         </div>
         {/* Bottom: price left + actions right */}
@@ -377,7 +377,7 @@ export default function ProductsPage() {
             <div className="flex flex-col">
               {product.original_price && product.original_price > product.final_price ? (
                 <>
-                  <span className="text-caption font-semibold text-gray-400">
+                  <span className="text-caption font-semibold text-black/50">
                     <Price amount={product.original_price} className="font-semibold line-through" />
                   </span>
                   <span className="text-body font-semibold text-black rubik-sans truncate">
@@ -416,7 +416,7 @@ export default function ProductsPage() {
             )}
             <button
               onClick={() => toggleFavorite(product)}
-              className={`w-9 h-9 rounded-lg flex items-center justify-center active:scale-95 cursor-pointer flex-shrink-0 ${favIds.includes(product.product_id) ? "bg-primary text-black" : "bg-gray-100 text-gray-400"}`}
+              className={`w-9 h-9 rounded-lg flex items-center justify-center active:scale-95 cursor-pointer flex-shrink-0 ${favIds.includes(product.product_id) ? "bg-primary text-black" : "bg-gray-100 text-black/50"}`}
             >
               <Star size={16} fill={favIds.includes(product.product_id) ? "currentColor" : "none"} strokeWidth={2.5} />
             </button>
@@ -433,13 +433,13 @@ export default function ProductsPage() {
     const show = !loading && displayCount > 0;
     return (
       <div className={`flex items-center justify-between ${compact ? 'py-3 px-1' : 'px-6 h-[52px] border-t border-gray-100 bg-gray-50/30'} ${show ? 'opacity-100' : 'opacity-0'} transition-opacity`}>
-        <span className={`font-semibold text-gray-400 uppercase tracking-widest ${compact ? 'text-caption' : 'text-caption'}`}>
-          {compact ? `${displayCount} ${t("m.products")}` : <>{t("m.found")} <span className="text-gray-900">{displayCount}</span> {t("m.products")}</>}
+        <span className={`font-semibold text-black/50 uppercase tracking-widest ${compact ? 'text-caption' : 'text-caption'}`}>
+          {compact ? `${displayCount} ${t("m.products")}` : <>{t("m.found")} <span className="text-black">{displayCount}</span> {t("m.products")}</>}
         </span>
         <div className="flex items-center gap-1 md:gap-1.5">
           <button disabled={currentPage === 1} onClick={() => setCurrentPage(p => p - 1)} className={`border border-gray-200 rounded-lg md:rounded-xl bg-white disabled:opacity-30 ${compact ? 'p-1.5' : 'p-2'}`}>{isRtl ? <ChevronRight size={compact ? 14 : 16} /> : <ChevronLeft size={compact ? 14 : 16} />}</button>
           {Array.from({ length: Math.min(5, totalPages || 1) }).map((_, i) => (
-            <button key={i} onClick={() => setCurrentPage(i + 1)} className={`rounded-lg md:rounded-xl font-semibold ${compact ? 'w-8 h-8 text-label' : 'w-9 h-9 text-xs'} ${currentPage === i + 1 ? "bg-primary text-black" : "bg-white text-gray-400 border border-gray-200"}`}>{i + 1}</button>
+            <button key={i} onClick={() => setCurrentPage(i + 1)} className={`rounded-lg md:rounded-xl font-semibold ${compact ? 'w-8 h-8 text-label' : 'w-9 h-9 text-xs'} ${currentPage === i + 1 ? "bg-primary text-black" : "bg-white text-black/50 border border-gray-200"}`}>{i + 1}</button>
           ))}
           <button disabled={currentPage === totalPages} onClick={() => setCurrentPage(p => p + 1)} className={`border border-gray-200 rounded-lg md:rounded-xl bg-white disabled:opacity-30 ${compact ? 'p-1.5' : 'p-2'}`}>{isRtl ? <ChevronLeft size={compact ? 14 : 16} /> : <ChevronRight size={compact ? 14 : 16} />}</button>
         </div>
@@ -513,8 +513,8 @@ export default function ProductsPage() {
             {Object.keys(selectedFilterLabels).length > 0 && (
               <div className="flex items-center gap-1.5 overflow-x-auto custom-scrollbar-hide py-1">
                 {Object.entries(selectedFilterLabels).flatMap(([code, items]) => items.map((item) => (
-                  <div key={`${code}-${item.value}`} className="flex items-center gap-1 bg-gray-100 px-2.5 py-1 rounded-full text-caption font-semibold text-gray-700 whitespace-nowrap flex-shrink-0">
-                    {item.label} <button onClick={() => removeSpecificFilter(code, item.value)} className="text-gray-400"><X size={12} /></button>
+                  <div key={`${code}-${item.value}`} className="flex items-center gap-1 bg-gray-100 px-2.5 py-1 rounded-full text-caption font-semibold text-black/80 whitespace-nowrap flex-shrink-0">
+                    {item.label} <button onClick={() => removeSpecificFilter(code, item.value)} className="text-black/50"><X size={12} /></button>
                   </div>
                 )))}
                 <button onClick={clearAllFilters} className="text-caption font-semibold text-red-500 uppercase whitespace-nowrap flex-shrink-0 px-2">{t("m.clear-all")}</button>
@@ -529,7 +529,7 @@ export default function ProductsPage() {
               <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-2xl shadow-2xl animate-in slide-in-from-bottom duration-300">
                 <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
                   <h3 className="text-body-lg font-semibold uppercase tracking-tight">Sort By</h3>
-                  <button onClick={() => setIsMobileSortOpen(false)} className="p-1 text-gray-400 hover:text-black"><X size={20} /></button>
+                  <button onClick={() => setIsMobileSortOpen(false)} className="p-1 text-black/50 hover:text-black"><X size={20} /></button>
                 </div>
                 <div className="flex flex-col py-2">
                   {[
@@ -540,7 +540,7 @@ export default function ProductsPage() {
                     <button
                       key={opt.value}
                       onClick={() => { setSortBy(opt.value); setIsMobileSortOpen(false); }}
-                      className={`px-5 py-3.5 text-body font-semibold text-left flex items-center justify-between transition-colors ${sortBy === opt.value ? "bg-primary/10 text-black" : "text-gray-700 hover:bg-gray-50"}`}
+                      className={`px-5 py-3.5 text-body font-semibold text-left flex items-center justify-between transition-colors ${sortBy === opt.value ? "bg-primary/10 text-black" : "text-black/80 hover:bg-gray-50"}`}
                     >
                       {opt.label}
                       {sortBy === opt.value && <Check size={18} className="text-primary" strokeWidth={3} />}
@@ -555,7 +555,7 @@ export default function ProductsPage() {
           {/* ── MOBILE/TABLET CARD LIST ── */}
           <div className="xl:hidden flex-1 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5 overflow-y-auto">
             {loading ? <MobileCardShimmer /> : sortedProducts.length === 0 ? (
-              <div className="flex-1 flex items-center justify-center py-20 col-span-full"><p className="text-xs font-semibold text-gray-400 uppercase tracking-widest">{t("products.noProducts")}</p></div>
+              <div className="flex-1 flex items-center justify-center py-20 col-span-full"><p className="text-xs font-semibold text-black/50 uppercase tracking-widest">{t("products.noProducts")}</p></div>
             ) : sortedProducts.map((p, i) => renderProductCard(p, i))}
           </div>
           <div className="xl:hidden">{renderPagination(true)}</div>
@@ -575,8 +575,8 @@ export default function ProductsPage() {
                     </div>
                   )}
                   {Object.entries(selectedFilterLabels).flatMap(([code, items]) => items.map((item) => (
-                    <div key={`${code}-${item.value}`} className="flex items-center gap-1 bg-white border border-gray-200 px-4 py-2 rounded-full text-body-sm font-semibold text-gray-700 shadow-sm whitespace-nowrap flex-shrink-0">
-                      {item.label} <button onClick={() => removeSpecificFilter(code, item.value)} className="hover:text-red-500 text-gray-400"><X size={14} strokeWidth={2.5} /></button>
+                    <div key={`${code}-${item.value}`} className="flex items-center gap-1 bg-white border border-gray-200 px-4 py-2 rounded-full text-body-sm font-semibold text-black/80 shadow-sm whitespace-nowrap flex-shrink-0">
+                      {item.label} <button onClick={() => removeSpecificFilter(code, item.value)} className="hover:text-red-500 text-black/50"><X size={14} strokeWidth={2.5} /></button>
                     </div>
                   )))}
                 </div>
@@ -588,7 +588,7 @@ export default function ProductsPage() {
                 value={sortBy}
                 onChange={setSortBy}
                 options={[{ label: t("products.sortByDefault"), value: "none" }, { label: t("products.sortByLowToHigh"), value: "price-asc" }, { label: t("products.sortByHighToLow"), value: "price-desc" }]}
-                buttonClassName="bg-gray-50 px-4 py-2 rounded-xl border border-gray-200 text-xs font-medium text-gray-800 cursor-pointer shadow-sm hover:border-gray-300 whitespace-nowrap"
+                buttonClassName="bg-gray-50 px-4 py-2 rounded-xl border border-gray-200 text-xs font-medium text-black cursor-pointer shadow-sm hover:border-gray-300 whitespace-nowrap"
                 minWidth={150}
               />
             </div>
@@ -606,16 +606,16 @@ export default function ProductsPage() {
                 </thead>
                 <tbody className="divide-y divide-gray-50">
                   {loading ? <ShimmerRows /> : products.length === 0 ? (
-                    <tr><td colSpan={totalColumns} className="py-24 text-center"><p className="text-xs font-semibold text-gray-400 uppercase tracking-[0.2em]">{t("products.noProducts")}</p></td></tr>
+                    <tr><td colSpan={totalColumns} className="py-24 text-center"><p className="text-xs font-semibold text-black/50 uppercase tracking-[0.2em]">{t("products.noProducts")}</p></td></tr>
                   ) : sortedProducts.map((product, index) => {
                     const brandName = product?.brand || (product?.name ? product.name.split(' ')[0] : "N/A");
                     const isOutOfStock = product.stock_status === "Not Available" || Number(product?.stock_qty ?? 0) <= 0;
                     return (
-                      <tr key={index} className={`hover:bg-gray-50/50 transition-colors group ${ROW_HEIGHT}`}>
+                      <tr key={index} className={`hover:bg-primary/5 transition-colors group ${ROW_HEIGHT}`}>
                         {/* Brand */}
-                        <td className="px-2 md:px-4 text-body-sm font-normal text-gray-700 text-center">{t(`data.${brandName}`) !== `data.${brandName}` ? t(`data.${brandName}`) : brandName}</td>
+                        <td className="px-2 md:px-4 text-body-sm font-normal text-black/80 text-center">{t(`data.${brandName}`) !== `data.${brandName}` ? t(`data.${brandName}`) : brandName}</td>
                         {/* Name */}
-                        <td className="px-2 md:px-4 text-body-sm font-normal text-gray-900 text-center">{product?.name || "—"}</td>
+                        <td className="px-2 md:px-4 text-body-sm font-normal text-black text-center">{product?.name || "—"}</td>
                         {/* Image */}
                         <td className="px-2 md:px-4 text-center">
                           <div className="w-10 h-10 mx-auto">
@@ -626,7 +626,7 @@ export default function ProductsPage() {
                                   <div className="w-5 h-5 bg-primary rounded-full flex items-center justify-center text-black font-semibold text-caption shadow-lg transform scale-50 group-hover/img:scale-100 transition-transform duration-300">+</div>
                                 </div>
                               </div>
-                            ) : <span className="text-caption text-gray-300 font-semibold uppercase leading-[40px]">No Image</span>}
+                            ) : <span className="text-caption text-black/40 font-semibold uppercase leading-[40px]">No Image</span>}
                           </div>
                         </td>
                         {/* Stock */}
@@ -636,7 +636,7 @@ export default function ProductsPage() {
                           <div className="flex flex-col items-center justify-center">
                             {product.original_price && product.original_price > product.final_price ? (
                               <>
-                                <span className="text-caption font-semibold text-gray-400 mb-0.5">
+                                <span className="text-caption font-semibold text-black/50 mb-0.5">
                                   <Price amount={product.original_price} className="font-semibold line-through" />
                                 </span>
                                 <span className="text-body-sm font-semibold text-black tracking-tight rubik-sans">
@@ -654,7 +654,7 @@ export default function ProductsPage() {
                         <td className="px-1 text-center align-middle">
                           <div className="inline-grid grid-cols-3 gap-1 items-center">
                             {!isOutOfStock ? (
-                              <div className="w-8 h-8 border-2 border-gray-100 rounded-md flex items-center justify-center text-label font-semibold text-gray-900 bg-white shadow-sm">1</div>
+                              <div className="w-8 h-8 border-2 border-gray-100 rounded-md flex items-center justify-center text-label font-semibold text-black bg-white shadow-sm">1</div>
                             ) : (
                               <div className="w-8 h-8" />
                             )}
@@ -665,7 +665,7 @@ export default function ProductsPage() {
                             ) : (
                               <button onClick={() => { setInquiryProduct(product); setIsInquiryModalOpen(true); }} className="w-8 h-8 bg-primary hover:bg-primary text-black rounded-md flex items-center justify-center shadow-md active:scale-95 cursor-pointer"><Info size={15} strokeWidth={2.5} /></button>
                             )}
-                            <button onClick={() => toggleFavorite(product)} className={`w-8 h-8 rounded-md flex items-center justify-center shadow-md active:scale-95 cursor-pointer ${favIds.includes(product.product_id) ? "bg-primary text-black" : "bg-white text-gray-400 border border-gray-100 hover:border-primary"}`}>
+                            <button onClick={() => toggleFavorite(product)} className={`w-8 h-8 rounded-md flex items-center justify-center shadow-md active:scale-95 cursor-pointer ${favIds.includes(product.product_id) ? "bg-primary text-black" : "bg-white text-black/50 border border-gray-100 hover:border-primary"}`}>
                               <Star size={15} fill={favIds.includes(product.product_id) ? "currentColor" : "none"} strokeWidth={2.5} />
                             </button>
                           </div>

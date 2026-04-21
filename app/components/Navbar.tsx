@@ -354,7 +354,7 @@ export default function Navbar() {
                     <UserCircle size={16} strokeWidth={2.5} />
                   </div>
                   <div className="flex flex-col min-w-0 pr-1 rtl:pr-0 rtl:pl-1">
-                    <span className="hidden lg:block text-[8px] text-gray-400 font-semibold uppercase tracking-widest leading-none">{t("nav.welcomeBack")}</span>
+                    <span className="hidden lg:block text-[8px] text-black/50 font-semibold uppercase tracking-widest leading-none">{t("nav.welcomeBack")}</span>
                     <span className="text-body text-black font-semibold tracking-tighter leading-snug mt-0.5 truncate max-w-[80px] lg:max-w-[140px]">
                       {isSubAccount && subAccountName ? subAccountName : displayUser}
                     </span>
@@ -366,7 +366,7 @@ export default function Navbar() {
                   <div className="absolute right-0 mt-2 w-48 bg-white rounded-sm shadow-2xl border border-gray-200 py-1 z-[100]" dir={isRtl ? "rtl" : "ltr"}>
                     <Link
                       href={lp("/my-account")}
-                      className="block px-4 py-2.5 text-body font-semibold text-gray-800 hover:bg-gray-50 transition-colors ltr:text-left rtl:text-right"
+                      className="block px-4 py-2.5 text-body font-semibold text-black hover:bg-gray-50 transition-colors ltr:text-left rtl:text-right"
                       onClick={() => setIsProfileOpen(false)}
                     >
                       {t("nav.myAccount")}
@@ -388,7 +388,7 @@ export default function Navbar() {
                     )}
                     <button
                       onClick={handleLogout}
-                      className="w-full ltr:text-left rtl:text-right px-4 py-2.5 text-body font-semibold text-gray-800 hover:bg-gray-50 transition-colors cursor-pointer border-t border-gray-100"
+                      className="w-full ltr:text-left rtl:text-right px-4 py-2.5 text-body font-semibold text-black hover:bg-gray-50 transition-colors cursor-pointer border-t border-gray-100"
                     >
                       {t("nav.signOut")}
                     </button>
@@ -505,7 +505,7 @@ export default function Navbar() {
                                 key={w.code}
                                 type="button"
                                 onClick={() => handleStoreSelect(w.label, w.code, item.href, item.categoryId)}
-                                className={`text-start px-6 py-2.5 text-body font-semibold transition-colors cursor-pointer ${isSelected ? "bg-primary/10 text-primary" : "text-gray-800 hover:bg-gray-50"}`}
+                                className={`text-start px-6 py-2.5 text-body font-semibold transition-colors cursor-pointer ${isSelected ? "bg-primary/10 text-primary" : "text-black hover:bg-gray-50"}`}
                               >
                                 {w.label}
                               </button>
@@ -515,7 +515,7 @@ export default function Navbar() {
                             <Link
                               key={idx}
                               href={lp(child.href)}
-                              className="px-6 py-2.5 text-body font-semibold text-gray-800 hover:bg-gray-50 transition-colors"
+                              className="px-6 py-2.5 text-body font-semibold text-black hover:bg-gray-50 transition-colors"
                             >
                               {child.label}
                             </Link>
@@ -540,7 +540,7 @@ export default function Navbar() {
               <div className="px-4 py-3 bg-gray-50 border-b border-gray-100 mb-1">
                 <div className="flex items-center gap-3">
                   <div className="flex flex-col overflow-hidden">
-                    <span className="text-micro text-gray-400 font-semibold uppercase tracking-widest leading-none">{t("nav.loggedInAs")}</span>
+                    <span className="text-micro text-black/50 font-semibold uppercase tracking-widest leading-none">{t("nav.loggedInAs")}</span>
                     <span className="text-body text-black font-semibold uppercase truncate tracking-tight">
                       {isSubAccount && subAccountName ? subAccountName : displayUser}
                     </span>
@@ -551,7 +551,7 @@ export default function Navbar() {
 
             {/* Nav links */}
             <div className="px-4 py-2">
-              <span className="text-micro font-bold text-gray-400 uppercase tracking-[0.2em] block mb-2">{t("nav.navigation")}</span>
+              <span className="text-micro font-bold text-black/50 uppercase tracking-[0.2em] block mb-2">{t("nav.navigation")}</span>
               {navLinks.map((item) => {
                 const isWarehouse = isWarehouseCategory(item);
                 const baseHref = isWarehouse ? `/en${item.href}` : lp(item.href);
@@ -569,7 +569,7 @@ export default function Navbar() {
                       onClick={() => setIsMenuOpen(false)}
                     >
                       {resolveLabel(item)}
-                      <span className="text-gray-300 group-hover:text-primary transition-colors text-caption">→</span>
+                      <span className="text-black/40 group-hover:text-primary transition-colors text-caption">→</span>
                     </Link>
                     {isWarehouse && warehouseItems.length > 0 && (
                       <div className="pl-3 border-l-2 border-gray-100 ml-1 mb-1">
@@ -583,7 +583,7 @@ export default function Navbar() {
                                 handleStoreSelect(w.label, w.code, item.href, item.categoryId);
                                 setIsMenuOpen(false);
                               }}
-                              className={`block w-full text-start py-2 text-label font-semibold cursor-pointer ${isSelected ? "text-primary" : "text-gray-600 hover:text-primary"}`}
+                              className={`block w-full text-start py-2 text-label font-semibold cursor-pointer ${isSelected ? "text-primary" : "text-black/70 hover:text-primary"}`}
                             >
                               {w.label}
                             </button>
@@ -598,24 +598,24 @@ export default function Navbar() {
 
             {/* Quick actions */}
             <div className="px-4 py-3 mt-1 border-t border-gray-100">
-              <span className="text-micro font-bold text-gray-400 uppercase tracking-[0.2em] block mb-2">{t("nav.quickActions")}</span>
+              <span className="text-micro font-bold text-black/50 uppercase tracking-[0.2em] block mb-2">{t("nav.quickActions")}</span>
 
               {isAuthenticated && pathname !== "/login" && (
                 <>
                   <button
                     onClick={() => { setIsSearchOpen(true); setIsMenuOpen(false); }}
-                    className="py-2.5 text-body font-semibold text-gray-700 flex items-center gap-3 w-full text-start"
+                    className="py-2.5 text-body font-semibold text-black/80 flex items-center gap-3 w-full text-start"
                   >
                     <Search size={16} /> {t("nav.searchProducts") || "Search Products"}
                   </button>
 
                   <button
                     onClick={() => { setIsNotificationOpen(true); setIsMenuOpen(false); }}
-                    className="py-2.5 text-body font-semibold text-gray-700 flex items-center gap-3 w-full"
+                    className="py-2.5 text-body font-semibold text-black/80 flex items-center gap-3 w-full"
                   >
                     <Bell size={16} /> {t("nav.notifications")} ({unreadCount})
                   </button>
-                  <Link href={lp("/my-account")} className="py-2.5 text-body font-semibold text-gray-700 flex items-center gap-3" onClick={() => setIsMenuOpen(false)}>
+                  <Link href={lp("/my-account")} className="py-2.5 text-body font-semibold text-black/80 flex items-center gap-3" onClick={() => setIsMenuOpen(false)}>
 
                     <UserCircle size={16} /> {t("nav.myAccount")}
                   </Link>

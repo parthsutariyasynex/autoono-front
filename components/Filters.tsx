@@ -178,7 +178,7 @@
 //                             }
 //                         }}
 //                         placeholder="e.g. 000001"
-//                         className="w-full h-[42px] px-3 bg-[#f8f8f8] border border-gray-200 text-body-lg text-gray-700 focus:outline-none focus:border-primary transition-colors rounded-[1px]"
+//                         className="w-full h-[42px] px-3 bg-[#f8f8f8] border border-gray-200 text-body-lg text-black/80 focus:outline-none focus:border-primary transition-colors rounded-[1px]"
 //                     />
 //                 </div>
 
@@ -338,7 +338,7 @@ const Filters: React.FC<FiltersProps> = ({
                             className="h-[38px] w-full px-3 bg-white border border-gray-300 text-black text-xs font-bold flex items-center justify-between cursor-pointer focus:outline-none focus:border-primary rounded-md transition-colors"
                         >
                             <span>{t(`data.${selectedStatusLabel}`) !== `data.${selectedStatusLabel}` ? t(`data.${selectedStatusLabel}`) : selectedStatusLabel}</span>
-                            <svg className={`w-3 h-3 text-gray-500 transition-transform duration-200 ${isStatusOpen ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg className={`w-3 h-3 text-black/60 transition-transform duration-200 ${isStatusOpen ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7" />
                             </svg>
                         </button>
@@ -359,7 +359,7 @@ const Filters: React.FC<FiltersProps> = ({
                                                 }}
                                                 className={`w-full text-left px-4 py-2 text-xs transition-colors truncate ${status === optionValue
                                                         ? "bg-primary text-black font-bold"
-                                                        : "text-gray-700 hover:bg-primary hover:text-primary"
+                                                        : "text-black/80 hover:bg-primary hover:text-primary"
                                                     }`}
                                             >
                                                 {t(`data.${optionLabel}`) !== `data.${optionLabel}` ? t(`data.${optionLabel}`) : optionLabel}
@@ -388,7 +388,7 @@ const Filters: React.FC<FiltersProps> = ({
                                 }
                             }}
                             placeholder={t("m.search")}
-                            className="w-full h-[38px] px-3 bg-white border border-gray-300 text-xs text-black focus:outline-none focus:border-primary transition-colors rounded-md placeholder:text-gray-400"
+                            className="w-full h-[38px] px-3 bg-white border border-gray-300 text-xs text-black focus:outline-none focus:border-primary transition-colors rounded-md placeholder:text-black/50"
                         />
                     </div>
                 </div>

@@ -14,10 +14,10 @@ interface RegionCardProps {
 const RegionCard: React.FC<RegionCardProps> = ({ title, address, mapLink }) => {
     const { t, isRtl } = useTranslation();
     return (
-        <div className={`border border-gray-100 bg-[#fbfbfb] p-6 sm:p-8 md:p-10 flex flex-col justify-between transition-all duration-300 min-h-[320px] group ${styles.fadeIn} ${styles.shadow_premium}`} dir={isRtl ? "rtl" : "ltr"}>
+        <div className={`border border-gray-100 bg-white p-6 sm:p-8 md:p-10 flex flex-col justify-between transition-all duration-300 min-h-[320px] group ${styles.fadeIn} ${styles.shadow_premium}`} dir={isRtl ? "rtl" : "ltr"}>
             <div>
-                <h2 className="text-[19px] font-black mb-6 text-black uppercase tracking-tight border-b-2 border-primary/20 pb-2 w-fit">{title}</h2>
-                <div className="text-[15px] leading-[1.7] text-gray-800 space-y-2 mb-8 whitespace-pre-line font-medium opacity-90">
+                <h2 className="text-h3-sm font-semibold mb-4 text-black uppercase tracking-tight pb-1 w-fit border-b-2 border-primary/20">{title}</h2>
+                <div className="text-body leading-[1.6] text-black/80 space-y-2 mb-6 whitespace-pre-line font-medium">
                     {address}
                 </div>
             </div>
@@ -25,12 +25,12 @@ const RegionCard: React.FC<RegionCardProps> = ({ title, address, mapLink }) => {
                 href={mapLink}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-4 text-body-lg font-bold text-black group-hover:text-primary transition-all w-fit"
+                className="flex items-center gap-3 text-body font-semibold text-black group-hover:text-primary transition-all w-fit"
             >
-                <div className="bg-black text-white p-2.5 rounded-full group-hover:bg-primary group-hover:text-black transition-all shadow-md group-hover:rotate-[15deg] transform">
-                    <MapPin className="w-4 h-4" />
+                <div className="bg-black text-white p-2 rounded-full group-hover:bg-primary group-hover:text-black transition-all shadow-md group-hover:rotate-[15deg] transform">
+                    <MapPin className="w-3.5 h-3.5" />
                 </div>
-                <span className="border-b-2 border-transparent group-hover:border-primary transition-all tracking-tight uppercase">{t("locations.googleMap")}</span>
+                <span className="border-b border-transparent group-hover:border-primary transition-all tracking-tight uppercase">{t("locations.googleMap")}</span>
             </a>
         </div>
     );

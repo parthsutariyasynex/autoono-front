@@ -161,7 +161,7 @@ const SearchPopup: React.FC<SearchPopupProps> = ({ isOpen, onClose }) => {
                     onClick={onClose}
                     className={`absolute -top-3 ${isRtl ? "-left-3" : "-right-3"} w-8 h-8 bg-white border border-gray-200 rounded-full flex items-center justify-center shadow-lg hover:bg-red-600 hover:border-red-600 transition-all duration-300 z-[1001] cursor-pointer group hover:scale-110 active:scale-90`}
                 >
-                    <X size={16} className="text-gray-900 group-hover:text-white transition-colors" />
+                    <X size={16} className="text-black group-hover:text-white transition-colors" />
                 </button>
 
                 <div className="flex flex-col gap-0">
@@ -173,7 +173,7 @@ const SearchPopup: React.FC<SearchPopupProps> = ({ isOpen, onClose }) => {
                             value={query}
                             onChange={(e) => setQuery(e.target.value)}
                             placeholder={t("nav.searchPlaceholder")}
-                            className="flex-1 px-6 md:px-10 text-base md:text-lg font-bold text-black outline-none placeholder:text-[#b2b2b2] placeholder:font-medium bg-transparent min-w-0 ltr:text-left rtl:text-right"
+                            className="flex-1 px-6 md:px-10 text-base md:text-lg font-bold text-black outline-none placeholder:text-black/40 placeholder:font-medium bg-transparent min-w-0 ltr:text-left rtl:text-right"
                         />
                         <button
                             type="submit"
@@ -187,12 +187,12 @@ const SearchPopup: React.FC<SearchPopupProps> = ({ isOpen, onClose }) => {
                     {(suggestions.length > 0 || isSearching || noResults) && (
                         <div className="bg-white border border-gray-200 border-t-0 rounded-b-xl max-h-[300px] overflow-y-auto shadow-lg">
                             {isSearching && (
-                                <div className="p-8 text-center text-gray-400 text-sm flex items-center justify-center gap-3">
+                                <div className="p-8 text-center text-black/50 text-sm flex items-center justify-center gap-3">
                                     <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
                                 </div>
                             )}
                             {!isSearching && noResults && (
-                                <div className="px-6 md:px-10 py-6 text-center text-gray-400 text-sm font-medium">
+                                <div className="px-6 md:px-10 py-6 text-center text-black/50 text-sm font-medium">
                                     {t("quickOrder.noProducts")}
                                 </div>
                             )}

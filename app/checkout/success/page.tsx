@@ -71,7 +71,7 @@ const CheckoutSuccessContent = () => {
             <div className="min-h-screen flex items-center justify-center bg-[#f9f9f9]">
                 <div className="flex flex-col items-center gap-4">
                     <div className="w-12 h-12 border-4 border-gray-200 border-t-primary rounded-full animate-spin" />
-                    <p className="text-label font-black text-gray-400 uppercase tracking-widest italic">{t("checkoutSuccess.verifyingOrder")}</p>
+                    <p className="text-label font-black text-black/50 uppercase tracking-widest italic">{t("checkoutSuccess.verifyingOrder")}</p>
                 </div>
             </div>
         );
@@ -91,7 +91,7 @@ const CheckoutSuccessContent = () => {
                         <p className="text-body-lg sm:text-h3-sm md:text-[18px] text-black">
                             {t("checkoutSuccess.orderNumber")} <span className="font-bold">{orderData?.order_increment_id || "..."}</span>.
                         </p>
-                        <p className="text-body sm:text-body-lg md:text-h3-sm text-[#555] font-medium max-w-lg mx-auto leading-relaxed">
+                        <p className="text-body sm:text-body-lg md:text-h3-sm text-black/80 font-medium max-w-lg mx-auto leading-relaxed">
                             {t("checkoutSuccess.orderConfirmation")}
                         </p>
                     </div>

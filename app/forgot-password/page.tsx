@@ -231,7 +231,7 @@ export default function ForgotPasswordPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#f4f4f4] flex flex-col font-['Rubik']">
+    <div className="min-h-screen bg-[#f4f4f4] flex flex-col">
 
 
       <div className="flex-1 flex items-center justify-center p-4 md:p-10">
@@ -268,7 +268,7 @@ export default function ForgotPasswordPage() {
 
           {/* Form Content Section */}
           <div className="px-4 sm:px-6 md:px-8 pb-6 sm:pb-8 flex flex-col gap-6">
-            <div className="text-gray-600 text-xs font-normal leading-5 sm:leading-4">
+            <div className="text-black/70 text-xs font-normal leading-5 sm:leading-4">
               {step === 'input'
                 ? (resetMode === 'email' ? t("forgotPassword.emailSubtitle") : t("forgotPassword.mobileSubtitle"))
                 : step === 'otp' ? `${t("forgotPassword.otpSubtitle")} ${countryCode} ${mobileNumber}`
@@ -309,7 +309,7 @@ export default function ForgotPasswordPage() {
                         >
                           <span className={`${selectedCountry?.flagClass} scale-110`}></span>
                           <span className="text-[#e02b27] font-bold text-xs">{selectedCountry?.code}</span>
-                          <span className="text-[8px] text-gray-500">▼</span>
+                          <span className="text-[8px] text-black/60">▼</span>
                         </div>
                         <input
                           id="mobile-input"
@@ -330,7 +330,7 @@ export default function ForgotPasswordPage() {
                               >
                                 <span className={item.flagClass}></span>
                                 <span className="text-xs font-bold text-black">{item.code}</span>
-                                <span className="text-caption text-gray-400 italic">{item.country}</span>
+                                <span className="text-caption text-black/50 italic">{item.country}</span>
                               </div>
                             ))}
                           </div>
@@ -410,7 +410,7 @@ export default function ForgotPasswordPage() {
                   id="submit-button"
                   type="submit"
                   disabled={loading || reduxLoading}
-                  className="w-full h-12 bg-amber-400 hover:bg-amber-500 rounded-[3px] flex justify-center items-center transition-all disabled:opacity-50 shadow-sm active:scale-[0.98] cursor-pointer"
+                  className="w-full h-12 bg-amber-400 hover:bg-primaryHover rounded-[3px] flex justify-center items-center transition-all disabled:opacity-50 shadow-sm active:scale-[0.98] cursor-pointer"
                 >
                   <div className="text-center text-black text-body font-bold uppercase tracking-wider cursor-pointer">
                     {loading || reduxLoading ? t("forgotPassword.sending") : (
@@ -422,7 +422,7 @@ export default function ForgotPasswordPage() {
 
                 <div className="flex justify-between items-center">
                   <Link href={lp("/login")}>
-                    <div className="text-black text-sm font-normal cursor-pointer hover:underline hover:text-amber-600 transition-colors">
+                    <div className="text-black text-sm font-normal cursor-pointer hover:underline hover:text-primaryHover transition-colors">
                       {t("forgotPassword.backToLogin")}
                     </div>
                   </Link>
@@ -430,7 +430,7 @@ export default function ForgotPasswordPage() {
                     <button
                       type="button"
                       onClick={() => setStep('input')}
-                      className="text-gray-500 text-sm font-normal cursor-pointer hover:underline"
+                      className="text-black/60 text-sm font-normal cursor-pointer hover:underline"
                     >
                       {t("forgotPassword.changeMethod")}
                     </button>

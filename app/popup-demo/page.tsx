@@ -12,8 +12,8 @@ export default function PopupDemo() {
     return (
         <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-6 space-y-8">
             <div className="text-center space-y-2">
-                <h1 className="text-4xl font-black text-gray-900 tracking-tight">PREMIUM POPUPS</h1>
-                <p className="text-gray-500">Smooth, GPU-accelerated transitions powered by Framer Motion.</p>
+                <h1 className="text-4xl font-black text-black tracking-tight">PREMIUM POPUPS</h1>
+                <p className="text-black/60">Smooth, GPU-accelerated transitions powered by Framer Motion.</p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-2xl">
@@ -22,8 +22,8 @@ export default function PopupDemo() {
                     className="group flex flex-col items-center p-8 bg-white rounded-3xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all border border-gray-100"
                 >
                     <Layout className="w-10 h-10 mb-4 text-primary group-hover:scale-110 transition-transform" />
-                    <span className="font-bold text-gray-800">Classic Modal</span>
-                    <span className="text-xs text-gray-400 mt-1">Fade + Scale</span>
+                    <span className="font-bold text-black">Classic Modal</span>
+                    <span className="text-xs text-black/50 mt-1">Fade + Scale</span>
                 </button>
 
                 <button
@@ -31,8 +31,8 @@ export default function PopupDemo() {
                     className="group flex flex-col items-center p-8 bg-white rounded-3xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all border border-gray-100"
                 >
                     <ShoppingCart className="w-10 h-10 mb-4 text-purple-500 group-hover:scale-110 transition-transform" />
-                    <span className="font-bold text-gray-800">Right Slider</span>
-                    <span className="text-xs text-gray-400 mt-1">Standard Drawer</span>
+                    <span className="font-bold text-black">Right Slider</span>
+                    <span className="text-xs text-black/50 mt-1">Standard Drawer</span>
                 </button>
 
                 <button
@@ -40,8 +40,8 @@ export default function PopupDemo() {
                     className="group flex flex-col items-center p-8 bg-white rounded-3xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all border border-gray-100"
                 >
                     <Settings className="w-10 h-10 mb-4 text-orange-500 group-hover:scale-110 transition-transform" />
-                    <span className="font-bold text-gray-800">Bottom Sheet</span>
-                    <span className="text-xs text-gray-400 mt-1">Mobile Friendly</span>
+                    <span className="font-bold text-black">Bottom Sheet</span>
+                    <span className="text-xs text-black/50 mt-1">Mobile Friendly</span>
                 </button>
 
                 <button
@@ -49,8 +49,8 @@ export default function PopupDemo() {
                     className="group flex flex-col items-center p-8 bg-white rounded-3xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all border border-gray-100"
                 >
                     <Info className="w-10 h-10 mb-4 text-emerald-500 group-hover:scale-110 transition-transform" />
-                    <span className="font-bold text-gray-800">Full View</span>
-                    <span className="text-xs text-gray-400 mt-1">Immersive Experience</span>
+                    <span className="font-bold text-black">Full View</span>
+                    <span className="text-xs text-black/50 mt-1">Immersive Experience</span>
                 </button>
             </div>
 
@@ -69,7 +69,7 @@ export default function PopupDemo() {
                         <div className="h-4 bg-gray-100 rounded w-1/2 animate-pulse" />
                         <div className="h-4 bg-gray-100 rounded w-2/3 animate-pulse" />
                     </div>
-                    <p className="text-gray-500 text-sm leading-relaxed">
+                    <p className="text-black/60 text-sm leading-relaxed">
                         This modal uses a smooth scale-in animation with a subtle fade, creating a focused experience.
                     </p>
                     <button
@@ -116,7 +116,7 @@ export default function PopupDemo() {
                 <div className="p-8 space-y-4">
                     <div className="grid grid-cols-2 gap-3">
                         {["Summer", "Winter", "Performance", "Touring"].map((cat) => (
-                            <button key={cat} className="p-6 border border-gray-100 rounded-3xl hover:bg-orange-50 hover:border-orange-200 transition-all font-bold text-gray-700">
+                            <button key={cat} className="p-6 border border-gray-100 rounded-3xl hover:bg-orange-50 hover:border-orange-200 transition-all font-bold text-black/80">
                                 {cat}
                             </button>
                         ))}
@@ -135,8 +135,8 @@ export default function PopupDemo() {
                     <div className="w-40 h-40 bg-emerald-100 rounded-full flex items-center justify-center mb-8">
                         <Info className="w-20 h-20 text-emerald-600" />
                     </div>
-                    <h2 className="text-4xl font-black text-gray-900 mb-4">All Systems Normal</h2>
-                    <p className="text-gray-500 max-w-xl text-lg">
+                    <h2 className="text-4xl font-black text-black mb-4">All Systems Normal</h2>
+                    <p className="text-black/60 max-w-xl text-lg">
                         Your application is running smoothly with optimized animations and high performance components.
                     </p>
                 </div>

@@ -176,7 +176,7 @@ const Popup: React.FC<PopupProps> = ({
                     >
                         {title && (
                             <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 flex-shrink-0">
-                                <h3 className="text-lg font-bold text-gray-900">{title}</h3>
+                                <h3 className="text-lg font-bold text-black">{title}</h3>
                             </div>
                         )}
                         <div className={`flex-1 ${scrollable ? "overflow-y-auto" : "flex flex-col h-full"}`}>

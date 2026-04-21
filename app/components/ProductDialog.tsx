@@ -69,7 +69,7 @@ export default function ProductDialog({ product, isOpen, onClose }: ProductDialo
                 key={index}
                 className="flex justify-between items-center py-3 md:py-4 border-b border-gray-100 last:border-0 gap-4"
               >
-                <span className="text-body-sm md:text-body-lg font-bold text-gray-800 flex-shrink-0">
+                <span className="text-body-sm md:text-body-lg font-bold text-black flex-shrink-0">
                   {row.label}
                 </span>
                 <span className="text-body-sm md:text-body-lg font-semibold text-black ltr:text-right rtl:text-left truncate">

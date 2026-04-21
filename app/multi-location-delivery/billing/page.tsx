@@ -168,7 +168,7 @@ const MultiShippingBillingPage: React.FC = () => {
 
                                 </div>
                             ) : (
-                                <p className="text-gray-400 italic">{t("multi.noAddress")}</p>
+                                <p className="text-black/50 italic">{t("multi.noAddress")}</p>
                             )}
                         </div>
                     </div>
@@ -239,7 +239,7 @@ const MultiShippingBillingPage: React.FC = () => {
                     <button
                         onClick={handleGoToReview}
                         disabled={isSubmitting || !selectedAddressId || !selectedPaymentCode}
-                        className="w-full sm:w-auto justify-center bg-primary text-black px-8 md:px-12 py-3.5 md:py-4 text-label font-black uppercase tracking-[0.15em] hover:bg-black hover:text-white transition-all shadow-sm flex items-center gap-2 disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed"
+                        className="w-full sm:w-auto justify-center bg-primary text-black px-8 md:px-12 py-3.5 md:py-4 text-label font-black uppercase tracking-[0.15em] hover:bg-black hover:text-white transition-all shadow-sm flex items-center gap-2 disabled:bg-gray-300 disabled:text-black/60 disabled:cursor-not-allowed"
                     >
                         {isSubmitting && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
                         {t("multi.goToReview")}

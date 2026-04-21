@@ -169,7 +169,7 @@ export default function MyAccountPage() {
         <>
 
 
-            <div className="min-h-screen flex flex-col w-full bg-[#fcfcfc] font-rubik">
+            <div className="min-h-screen flex flex-col w-full bg-[#fcfcfc]">
                 <div className="flex flex-col lg:flex-row flex-1 w-full">
                     <Sidebar />
 
@@ -200,7 +200,7 @@ export default function MyAccountPage() {
                                         <div className={sectionHeader}>
                                             {t("account.contactInformation")}
                                         </div>
-                                        <div className="p-3 md:p-5 text-body text-gray-700 space-y-2.5 font-medium leading-relaxed">
+                                        <div className="p-3 md:p-5 text-body text-black/80 space-y-2.5 font-medium leading-relaxed">
                                             <p>{t("account.contactName")}: {(customer as any).firstname} {(customer as any).lastname}</p>
                                             <p>{t("account.email")}: {(customer as any).email}</p>
                                             <p>{t("account.customerMobile")}: {customerMobile}</p>
@@ -235,7 +235,7 @@ export default function MyAccountPage() {
                                             {t("m.edit")}
                                         </button>
                                     </div>
-                                    <div className="p-3 md:p-5 text-body text-gray-700 space-y-2.5 font-medium leading-relaxed">
+                                    <div className="p-3 md:p-5 text-body text-black/80 space-y-2.5 font-medium leading-relaxed">
                                         <p>{t("m.company-size")}: {getOverviewAttr("total_employees")} {t("account.employees")}, {getOverviewAttr("trucks")} {t("account.trucks")}, {getOverviewAttr("annual_revenue")} {t("account.annualRevenue")}</p>
                                         <p>{t("m.business-model")}: {getOverviewAttr("business_model")}</p>
                                         <p>{t("m.products-services-offered")}: {getOverviewAttr("products_offered")}</p>
@@ -246,7 +246,7 @@ export default function MyAccountPage() {
                                     <div className={sectionHeader}>
                                         {t("m.sales-data-qty")}
                                     </div>
-                                    <div className="p-3 md:p-5 text-body text-gray-700 space-y-2.5 font-medium leading-relaxed">
+                                    <div className="p-3 md:p-5 text-body text-black/80 space-y-2.5 font-medium leading-relaxed">
                                         <p>{t("m.total-sales-qty")}: {getAttr("total_sales_qty", "0")}</p>
                                         <p>{t("m.order-frequency")}: {getAttr("order_frequency", "0")} {t("account.ordersPerMonth")}</p>
                                     </div>
@@ -265,7 +265,7 @@ export default function MyAccountPage() {
                                             minWidth={70}
                                         />
                                     </div>
-                                    <div className="p-3 md:p-5 text-body text-gray-700 space-y-2.5 font-medium leading-relaxed">
+                                    <div className="p-3 md:p-5 text-body text-black/80 space-y-2.5 font-medium leading-relaxed">
                                         {targets ? (
                                             <>
                                                 <p>{t("m.sales-targets")}: {targets.sales_target || "0"}</p>
@@ -287,7 +287,7 @@ export default function MyAccountPage() {
                                     <div className={sectionHeader}>
                                         {t("m.customer-behavior")}
                                     </div>
-                                    <div className="p-3 md:p-5 text-body text-gray-700 space-y-2.5 font-medium leading-relaxed">
+                                    <div className="p-3 md:p-5 text-body text-black/80 space-y-2.5 font-medium leading-relaxed">
                                         <p>{t("m.payment-historydso")}: {getAttr("payment_history")}</p>
                                         <p>{t("m.credit-limit")}: SAR {formatCurrency(getAttr("total_credit_limit"))}</p>
                                         <p>{t("m.credit-period")}: {getAttr("credit_period")} {t("account.days")}</p>
@@ -308,7 +308,7 @@ export default function MyAccountPage() {
                                         </div>
                                         <div className="p-3 md:p-5 flex flex-col flex-1">
                                             {defaultBilling ? (
-                                                <div className="text-body text-gray-800 leading-relaxed space-y-1 font-normal flex-1">
+                                                <div className="text-body text-black leading-relaxed space-y-1 font-normal flex-1">
                                                     <p>{defaultBilling.firstname} {defaultBilling.lastname}</p>
                                                     <p>{defaultBilling.company}</p>
                                                     {defaultBilling.street?.map((s: string, i: number) => <p key={i}>{s}</p>)}
@@ -317,7 +317,7 @@ export default function MyAccountPage() {
                                                     <p>T: {defaultBilling.telephone}</p>
                                                 </div>
                                             ) : (
-                                                <p className="text-body text-gray-500 italic flex-1">{t("addressBook.noBillingAddress")}</p>
+                                                <p className="text-body text-black/60 italic flex-1">{t("addressBook.noBillingAddress")}</p>
                                             )}
                                         </div>
                                     </div>
@@ -329,7 +329,7 @@ export default function MyAccountPage() {
                                         </div>
                                         <div className="p-3 md:p-5 flex flex-col flex-1">
                                             {defaultShipping ? (
-                                                <div className="text-body text-gray-800 leading-relaxed space-y-1 font-normal flex-1">
+                                                <div className="text-body text-black leading-relaxed space-y-1 font-normal flex-1">
                                                     <p>{defaultShipping.firstname} {defaultShipping.lastname}</p>
                                                     <p>{defaultShipping.company}</p>
                                                     {defaultShipping.street?.map((s: string, i: number) => <p key={i}>{s}</p>)}
@@ -338,7 +338,7 @@ export default function MyAccountPage() {
                                                     <p>T: {defaultShipping.telephone}</p>
                                                 </div>
                                             ) : (
-                                                <p className="text-body text-gray-500 italic flex-1">{t("addressBook.noShippingAddress")}</p>
+                                                <p className="text-body text-black/60 italic flex-1">{t("addressBook.noShippingAddress")}</p>
                                             )}
 
                                             <div className="pt-4 md:pt-8">

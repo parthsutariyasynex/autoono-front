@@ -402,7 +402,7 @@ function MyOrdersPageContent() {
     }
 
     return (
-        <div className="min-h-screen flex flex-col w-full bg-[#fcfcfc] font-rubik">
+        <div className="min-h-screen flex flex-col w-full bg-[#fcfcfc]">
             <div className="flex flex-col lg:flex-row flex-1 w-full">
                 <Sidebar />
 
@@ -447,7 +447,7 @@ function MyOrdersPageContent() {
                         But here we just show no orders.
                     */}
                     {!isLoading && !hasFetched && orders.length === 0 && (
-                        <div className="text-gray-500 py-10 md:py-20 text-center animate-pulse">
+                        <div className="text-black/60 py-10 md:py-20 text-center animate-pulse">
                             {t("orders.initializingDashboard")}
                         </div>
                     )}

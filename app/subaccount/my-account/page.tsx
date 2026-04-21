@@ -177,7 +177,7 @@ export default function SubAccountMyAccountPage() {
                                     <div className={sectionHeader}>
                                         CONTACT INFORMATION
                                     </div>
-                                    <div className="p-3 md:p-5 text-body text-gray-800 space-y-2 font-normal leading-relaxed">
+                                    <div className="p-3 md:p-5 text-body text-black space-y-2 font-normal leading-relaxed">
                                         <p><span className="text-black font-bold">Contact Name:</span> {contactName}</p>
                                         <p><span className="text-black font-bold">Email:</span> {contactEmail}</p>
                                         <p><span className="text-black font-bold">Contact Information:</span> {contactEmail} ,</p>
@@ -189,7 +189,7 @@ export default function SubAccountMyAccountPage() {
                                     <div className={sectionHeader}>
                                         COMPANY INFORMATION
                                     </div>
-                                    <div className="p-3 md:p-5 text-body text-gray-800 space-y-2 font-normal leading-relaxed">
+                                    <div className="p-3 md:p-5 text-body text-black space-y-2 font-normal leading-relaxed">
                                         <p><span className="text-black font-bold">Company Name:</span> {companyName}</p>
                                         <p><span className="text-black font-bold">Company Contact Name:</span> {companyContactName}</p>
                                         <p><span className="text-black font-bold">Company Email:</span> {companyEmail}</p>
@@ -213,7 +213,7 @@ export default function SubAccountMyAccountPage() {
                                     </div>
                                     <div className="p-3 md:p-5 flex flex-col flex-1">
                                         {defaultBilling ? (
-                                            <div className="text-body text-gray-800 leading-relaxed space-y-1 font-normal flex-1">
+                                            <div className="text-body text-black leading-relaxed space-y-1 font-normal flex-1">
                                                 <p>{defaultBilling.firstname} {defaultBilling.lastname}</p>
                                                 <p>{defaultBilling.company}</p>
                                                 {defaultBilling.street?.map((s: string, i: number) => <p key={i}>{s}</p>)}
@@ -223,7 +223,7 @@ export default function SubAccountMyAccountPage() {
                                                 {defaultBilling.vat_id && <p>VAT: {defaultBilling.vat_id}</p>}
                                             </div>
                                         ) : (
-                                            <p className="text-body text-gray-500 italic flex-1">No default billing address set.</p>
+                                            <p className="text-body text-black/60 italic flex-1">No default billing address set.</p>
                                         )}
                                     </div>
                                 </div>
@@ -235,7 +235,7 @@ export default function SubAccountMyAccountPage() {
                                     </div>
                                     <div className="p-3 md:p-5 flex flex-col flex-1">
                                         {defaultShipping ? (
-                                            <div className="text-body text-gray-800 leading-relaxed space-y-1 font-normal flex-1">
+                                            <div className="text-body text-black leading-relaxed space-y-1 font-normal flex-1">
                                                 <p>{defaultShipping.firstname} {defaultShipping.lastname}</p>
                                                 <p>{defaultShipping.company}</p>
                                                 {defaultShipping.street?.map((s: string, i: number) => <p key={i}>{s}</p>)}
@@ -245,7 +245,7 @@ export default function SubAccountMyAccountPage() {
                                                 {defaultShipping.vat_id && <p>VAT: {defaultShipping.vat_id}</p>}
                                             </div>
                                         ) : (
-                                            <p className="text-body text-gray-500 italic flex-1">No default shipping address set.</p>
+                                            <p className="text-body text-black/60 italic flex-1">No default shipping address set.</p>
                                         )}
 
                                         <div className="pt-8">

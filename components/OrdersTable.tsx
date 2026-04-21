@@ -25,7 +25,7 @@ interface OrdersTableProps {
 const OrdersTable: React.FC<OrdersTableProps> = ({ orders, onViewOrder, onReorder, onMakePayment }) => {
     const { t } = useTranslation();
     return (
-        <div className="w-full font-rubik">
+        <div className="w-full">
             {/* Desktop Table */}
             <div className="hidden md:block overflow-x-auto">
                 <table className="w-full text-body text-left border-collapse min-w-[700px]">
@@ -45,32 +45,32 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders, onViewOrder, onReorde
                             orders.map((order, idx) => (
                                 <tr
                                     key={order.increment_id + idx}
-                                    className="border-b border-gray-200 hover:bg-gray-50/50 transition-colors"
+                                    className="border-b border-gray-200 hover:bg-primary/5 transition-colors"
                                 >
                                     <td
-                                        className="px-2 lg:px-4 py-4 border-r border-gray-200 text-gray-800 text-body-lg font-bold cursor-pointer"
+                                        className="px-2 lg:px-4 py-4 border-r border-gray-200 text-black text-body-lg font-bold cursor-pointer"
                                         onClick={() => onViewOrder(order.entity_id)}
                                     >
                                         {order.id}
                                     </td>
-                                    <td className="px-2 lg:px-4 py-4 border-r border-gray-200 text-gray-600 text-body">
+                                    <td className="px-2 lg:px-4 py-4 border-r border-gray-200 text-black/70 text-body">
                                         {order.sapOrderNumber}
                                     </td>
-                                    <td className="px-2 lg:px-4 py-4 border-r border-gray-200 text-gray-600 text-body whitespace-nowrap text-center">
+                                    <td className="px-2 lg:px-4 py-4 border-r border-gray-200 text-black/70 text-body whitespace-nowrap text-center">
                                         {order.date}
                                     </td>
                                     <td className="px-2 lg:px-4 py-4 border-r border-gray-200 text-black text-body-lg font-bold whitespace-nowrap text-right price currency-riyal">
                                         <Price amount={order.grandTotal} />
                                     </td>
 
-                                    <td className="px-2 lg:px-4 py-4 border-r border-gray-200 text-gray-600 text-body text-center">
+                                    <td className="px-2 lg:px-4 py-4 border-r border-gray-200 text-black/70 text-body text-center">
                                         {order.orderedBy}
                                     </td>
                                     <td className="px-2 lg:px-4 py-3 border-r border-gray-200 text-center">
                                         <span className={`inline-flex px-2 py-1 border rounded-sm text-caption font-bold uppercase tracking-wider bg-white whitespace-nowrap ${order.status?.toLowerCase().includes('pending') ? 'border-[#ccc] text-black' :
                                             order.status?.toLowerCase().includes('complete') ? 'border-green-200 text-green-700 bg-green-50' :
                                                 order.status?.toLowerCase().includes('cancel') ? 'border-red-200 text-red-700 bg-red-50' :
-                                                    'border-gray-200 text-gray-700 bg-white'
+                                                    'border-gray-200 text-black/80 bg-white'
                                             }`}>
                                             {t(`data.${order.status}`) !== `data.${order.status}` ? t(`data.${order.status}`) : order.status}
                                         </span>
@@ -79,18 +79,18 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders, onViewOrder, onReorde
                                         <div className="flex items-center justify-center gap-2.5 text-body-sm font-bold uppercase tracking-wide">
                                             <button
                                                 onClick={() => onViewOrder(order.entity_id)}
-                                                className="text-gray-500 hover:text-black transition-colors"
+                                                className="text-black/60 hover:text-black transition-colors"
                                             >
                                                 {t("orders.viewOrder")}
                                             </button>
-                                            <span className="text-gray-300 font-normal">|</span>
+                                            <span className="text-black/40 font-normal">|</span>
                                             <button
                                                 onClick={() => onReorder(order)}
-                                                className="text-gray-500 hover:text-black transition-colors"
+                                                className="text-black/60 hover:text-black transition-colors"
                                             >
                                                 {t("orders.reorder")}
                                             </button>
-                                            <span className="text-gray-300 font-normal">|</span>
+                                            <span className="text-black/40 font-normal">|</span>
                                             {order.is_paid ? (
                                                 <button
                                                     onClick={() => onViewOrder(order.entity_id)}
@@ -112,7 +112,7 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders, onViewOrder, onReorde
                             ))
                         ) : (
                             <tr>
-                                <td colSpan={7} className="px-4 py-10 text-center text-gray-400 italic">
+                                <td colSpan={7} className="px-4 py-10 text-center text-black/50 italic">
                                     {t("orders.noRecords")}
                                 </td>
                             </tr>
@@ -132,12 +132,12 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders, onViewOrder, onReorde
                             {/* Order number + Date */}
                             <div className="flex items-center justify-between">
                                 <span
-                                    className="text-body font-medium text-gray-800 cursor-pointer"
+                                    className="text-body font-medium text-black cursor-pointer"
                                     onClick={() => onViewOrder(order.entity_id)}
                                 >
                                     #{order.id}
                                 </span>
-                                <span className="text-body-sm text-gray-500">{order.date}</span>
+                                <span className="text-body-sm text-black/60">{order.date}</span>
                             </div>
 
                             {/* Status badge */}
@@ -145,7 +145,7 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders, onViewOrder, onReorde
                                 <span className={`inline-block px-2.5 py-1 border rounded-sm text-caption font-bold uppercase tracking-wider bg-white ${order.status?.toLowerCase().includes('pending') ? 'border-[#ccc] text-black' :
                                     order.status?.toLowerCase().includes('complete') ? 'border-green-200 text-green-700 bg-green-50' :
                                         order.status?.toLowerCase().includes('cancel') ? 'border-red-200 text-red-700 bg-red-50' :
-                                            'border-gray-300 text-gray-700 bg-white'
+                                            'border-gray-300 text-black/80 bg-white'
                                     }`}>
                                     {t(`data.${order.status}`) !== `data.${order.status}` ? t(`data.${order.status}`) : order.status}
                                 </span>
@@ -154,39 +154,39 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders, onViewOrder, onReorde
                             {/* SAP Order Number */}
                             {order.sapOrderNumber && (
                                 <div className="flex justify-between text-body-sm">
-                                    <span className="text-gray-400">{t("orders.sapOrder")}</span>
-                                    <span className="text-gray-600">{order.sapOrderNumber}</span>
+                                    <span className="text-black/50">{t("orders.sapOrder")}</span>
+                                    <span className="text-black/70">{order.sapOrderNumber}</span>
                                 </div>
                             )}
 
                             {/* Ordered By (Ship To) */}
                             <div className="flex justify-between text-body-sm">
-                                <span className="text-gray-400">{t("orders.shipTo")}</span>
-                                <span className="text-gray-600">{order.orderedBy}</span>
+                                <span className="text-black/50">{t("orders.shipTo")}</span>
+                                <span className="text-black/70">{order.orderedBy}</span>
                             </div>
 
                             {/* Order Total */}
                             <div className="flex justify-between text-body-sm">
-                                <span className="text-gray-400">{t("orders.orderTotal")}</span>
-                                <span className="text-gray-800 font-medium price currency-riyal"><Price amount={order.grandTotal} /></span>
+                                <span className="text-black/50">{t("orders.orderTotal")}</span>
+                                <span className="text-black font-medium price currency-riyal"><Price amount={order.grandTotal} /></span>
                             </div>
 
                             {/* Actions */}
                             <div className="flex items-center gap-2.5 pt-2 border-t border-gray-100 text-body-sm">
                                 <button
                                     onClick={() => onViewOrder(order.entity_id)}
-                                    className="text-gray-600 font-medium"
+                                    className="text-black/70 font-medium"
                                 >
                                     {t("orders.viewOrder")}
                                 </button>
-                                <span className="text-gray-300">|</span>
+                                <span className="text-black/40">|</span>
                                 <button
                                     onClick={() => onReorder(order)}
-                                    className="text-gray-600 font-medium"
+                                    className="text-black/70 font-medium"
                                 >
                                     {t("orders.reorder")}
                                 </button>
-                                <span className="text-gray-300">|</span>
+                                <span className="text-black/40">|</span>
                                 {order.is_paid ? (
                                     <button
                                         onClick={() => onViewOrder(order.entity_id)}
@@ -206,7 +206,7 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders, onViewOrder, onReorde
                         </div>
                     ))
                 ) : (
-                    <div className="px-4 py-10 text-center text-gray-400 italic">
+                    <div className="px-4 py-10 text-center text-black/50 italic">
                         {t("orders.noRecords")}
                     </div>
                 )}

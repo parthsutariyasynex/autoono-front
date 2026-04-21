@@ -21,7 +21,7 @@ const SelectedAddressCard: React.FC<SelectedAddressCardProps> = ({ address, onEd
 
             {/* Left side: Address Text */}
             <div className="flex-1 pr-4">
-                <p className="text-body-sm text-[#333] leading-relaxed font-medium">
+                <p className="text-body-sm text-black leading-relaxed font-medium">
                     <span className="font-bold text-black">{address.firstname} {address.lastname}</span>{" "}
                     {address.street} {address.city}, {address.postcode}{" "}
                     {address.country_id === 'SA' ? t("data.Saudi Arabia") : address.country_id} {address.telephone}

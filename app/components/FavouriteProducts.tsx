@@ -262,7 +262,7 @@ export default function FavouriteProducts({ title }: { title?: React.ReactNode }
     };
 
     return (
-        <div className="w-full font-rubik overflow-hidden">
+        <div className="w-full overflow-hidden">
             {/* Centered Page Title */}
             <div className="text-center mb-8">
                 {typeof title === 'string' ? (
@@ -280,7 +280,7 @@ export default function FavouriteProducts({ title }: { title?: React.ReactNode }
             {/* Mobile/Tablet Card List */}
             <div className="xl:hidden grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
                 {favProducts.length === 0 ? (
-                    <div className="py-16 text-center text-gray-400 italic text-body">{t("favorites.empty")}</div>
+                    <div className="py-16 text-center text-black/50 italic text-body">{t("favorites.empty")}</div>
                 ) : favProducts.map((product) => {
                     const brandName = product.brand || product.name.split(' ')[0] || "—";
                     const isOutOfStock = product.stock_status === "Out of Stock" || product.stock_status === "Not Available" || Number(product.stock_qty || 0) <= 0;
@@ -292,17 +292,17 @@ export default function FavouriteProducts({ title }: { title?: React.ReactNode }
                         <div key={product.product_id} className="bg-white rounded-xl border border-gray-200 shadow-sm p-3 flex flex-col gap-2">
                             <div className="flex gap-3">
                                 <div className="flex-1 min-w-0">
-                                    <p className="text-caption font-semibold text-gray-400 uppercase tracking-wider">{t(`data.${brandName}`) !== `data.${brandName}` ? t(`data.${brandName}`) : brandName}</p>
-                                    <p className="text-body-sm font-black text-gray-900 leading-tight mt-0.5 truncate">{product.pattern || product.name || "—"}</p>
+                                    <p className="text-caption font-semibold text-black/50 uppercase tracking-wider">{t(`data.${brandName}`) !== `data.${brandName}` ? t(`data.${brandName}`) : brandName}</p>
+                                    <p className="text-body-sm font-black text-black leading-tight mt-0.5 truncate">{product.pattern || product.name || "—"}</p>
                                     <div className="flex items-center gap-1.5 mt-1">
                                         <span className="text-body-sm font-semibold text-black">{product.tyre_size || "—"}</span>
                                         <div onClick={() => handleShowProductDetail(product)} className="w-4 h-4 bg-gray-900 rounded-full flex items-center justify-center text-micro font-semibold text-white cursor-pointer active:scale-95 flex-shrink-0">i</div>
-                                        {product.origin && <span className="text-label text-gray-400">{t(`data.${product.origin}`) !== `data.${product.origin}` ? t(`data.${product.origin}`) : product.origin}</span>}
-                                        {product.year && <span className="text-label text-gray-400 font-mono">{product.year}</span>}
+                                        {product.origin && <span className="text-label text-black/50">{t(`data.${product.origin}`) !== `data.${product.origin}` ? t(`data.${product.origin}`) : product.origin}</span>}
+                                        {product.year && <span className="text-label text-black/50 font-mono">{product.year}</span>}
                                     </div>
                                     <div className="flex items-center gap-1.5 mt-1.5">
                                         <span className={`w-2 h-2 rounded-full ${dotColor}`}></span>
-                                        <span className="text-caption font-semibold text-gray-600 uppercase">{stockLabel}</span>
+                                        <span className="text-caption font-semibold text-black/70 uppercase">{stockLabel}</span>
                                     </div>
                                     {product.offer && <p className="text-caption font-bold text-red-600 uppercase mt-1">{product.offer}</p>}
                                 </div>
@@ -314,7 +314,7 @@ export default function FavouriteProducts({ title }: { title?: React.ReactNode }
                                 <div className="flex flex-col">
                                     {product.original_price && product.original_price > product.final_price ? (
                                         <>
-                                            <span className="text-caption font-bold text-gray-400">
+                                            <span className="text-caption font-bold text-black/50">
                                                 <Price amount={product.original_price} className="font-bold line-through" />
                                             </span>
                                             <span className="text-body font-semibold text-black rubik-sans">
@@ -337,7 +337,7 @@ export default function FavouriteProducts({ title }: { title?: React.ReactNode }
                                             <Info size={14} strokeWidth={2.5} />
                                         </button>
                                     )}
-                                    <button onClick={() => handleRemove(product)} disabled={removing === product.product_id} className={`w-9 h-9 rounded-lg flex items-center justify-center active:scale-95 cursor-pointer flex-shrink-0 ${removing === product.product_id ? "bg-gray-100 text-gray-400" : "bg-white text-gray-400 border border-gray-100 hover:text-red-500"}`}>
+                                    <button onClick={() => handleRemove(product)} disabled={removing === product.product_id} className={`w-9 h-9 rounded-lg flex items-center justify-center active:scale-95 cursor-pointer flex-shrink-0 ${removing === product.product_id ? "bg-gray-100 text-black/50" : "bg-white text-black/50 border border-gray-100 hover:text-red-500"}`}>
                                         {removing === product.product_id ? <div className="w-3.5 h-3.5 border-2 border-gray-300 border-t-red-500 rounded-full animate-spin"></div> : <Trash2 size={16} strokeWidth={2.5} />}
                                     </button>
                                 </div>
@@ -366,7 +366,7 @@ export default function FavouriteProducts({ title }: { title?: React.ReactNode }
                             {favProducts.length === 0 ? (
                                 <tr>
                                     <td colSpan={6} className="px-5 py-24 text-center">
-                                        <p className="text-xs font-black text-gray-400 uppercase tracking-[0.2em]">{t("favorites.empty")}</p>
+                                        <p className="text-xs font-black text-black/50 uppercase tracking-[0.2em]">{t("favorites.empty")}</p>
                                     </td>
                                 </tr>
                             ) : (
@@ -378,9 +378,9 @@ export default function FavouriteProducts({ title }: { title?: React.ReactNode }
                                     const stockLabel = isOutOfStock ? t("stock.not_available") : isLimited ? t("stock.limited") : t("stock.available");
 
                                     return (
-                                        <tr key={product.product_id} className={`hover:bg-primary/20 transition-colors group ${ROW_HEIGHT}`}>
-                                            <td className="px-2 md:px-4 text-body-sm font-semibold text-gray-900 text-center">{t(`data.${brandName}`) !== `data.${brandName}` ? t(`data.${brandName}`) : brandName}</td>
-                                            <td className="px-2 md:px-4 text-body-sm font-semibold text-gray-900 text-center">{product.name}</td>
+                                        <tr key={product.product_id} className={`hover:bg-primary/5 transition-colors group ${ROW_HEIGHT}`}>
+                                            <td className="px-2 md:px-4 text-body-sm font-semibold text-black text-center">{t(`data.${brandName}`) !== `data.${brandName}` ? t(`data.${brandName}`) : brandName}</td>
+                                            <td className="px-2 md:px-4 text-body-sm font-semibold text-black text-center">{product.name}</td>
                                             <td className="px-2 md:px-4 text-center">
                                                 <div className="w-12 h-12 mx-auto">
                                                     {product.image_url ? (
@@ -404,14 +404,14 @@ export default function FavouriteProducts({ title }: { title?: React.ReactNode }
                                                             </div>
                                                         </div>
                                                     ) : (
-                                                        <span className="text-caption text-gray-300 font-black uppercase leading-[40px]">{t("m.no-image")}</span>
+                                                        <span className="text-caption text-black/40 font-black uppercase leading-[40px]">{t("m.no-image")}</span>
                                                     )}
                                                 </div>
                                             </td>
                                             <td className="px-3 py-4 text-center">
                                                 <div className="flex flex-col items-center justify-center text-center gap-1.5">
                                                     <span className={`w-3.5 h-3.5 rounded-full border border-white shadow-sm ${stockColor}`}></span>
-                                                    <span className="text-body-sm font-semibold text-gray-700 uppercase leading-none tracking-tighter">{stockLabel}</span>
+                                                    <span className="text-body-sm font-semibold text-black/80 uppercase leading-none tracking-tighter">{stockLabel}</span>
                                                 </div>
                                             </td>
                                             <td className="px-3 py-4 text-center whitespace-nowrap">
@@ -420,7 +420,7 @@ export default function FavouriteProducts({ title }: { title?: React.ReactNode }
                                             <td className="px-2 text-center align-middle">
                                                 <div className="flex items-center justify-center gap-1.5">
                                                     {!isOutOfStock ? (
-                                                        <div className="w-10 h-9 border border-gray-200 rounded-md flex items-center justify-center text-label font-semibold text-gray-900 bg-white shadow-sm overflow-hidden">
+                                                        <div className="w-10 h-9 border border-gray-200 rounded-md flex items-center justify-center text-label font-semibold text-black bg-white shadow-sm overflow-hidden">
                                                             <input
                                                                 type="number"
                                                                 min="1"
@@ -437,7 +437,7 @@ export default function FavouriteProducts({ title }: { title?: React.ReactNode }
                                                         <button
                                                             onClick={() => onAddToCart(product)}
                                                             disabled={addingToCart === product.sku}
-                                                            className="w-9 h-9 bg-primary hover:bg-[#e0951d] text-black rounded-md flex items-center justify-center shadow-sm active:scale-95 transition-all disabled:opacity-50"
+                                                            className="w-9 h-9 bg-primary hover:bg-primaryHover text-black rounded-md flex items-center justify-center shadow-sm active:scale-95 transition-all disabled:opacity-50"
                                                         >
                                                             {addingToCart === product.sku ? (
                                                                 <div className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
@@ -448,7 +448,7 @@ export default function FavouriteProducts({ title }: { title?: React.ReactNode }
                                                     ) : (
                                                         <button
                                                             onClick={() => { setInquiryProduct(product); setIsInquiryModalOpen(true); }}
-                                                            className="w-9 h-9 bg-primary hover:bg-[#e0951d] text-black rounded-md flex items-center justify-center shadow-sm active:scale-95 transition-all"
+                                                            className="w-9 h-9 bg-primary hover:bg-primaryHover text-black rounded-md flex items-center justify-center shadow-sm active:scale-95 transition-all"
                                                         >
                                                             <Info size={16} strokeWidth={2.5} />
                                                         </button>
@@ -457,7 +457,7 @@ export default function FavouriteProducts({ title }: { title?: React.ReactNode }
                                                     <button
                                                         onClick={() => handleRemove(product)}
                                                         disabled={removing === product.product_id}
-                                                        className={`w-9 h-9 rounded-md flex items-center justify-center active:scale-95 cursor-pointer border transition-colors ${removing === product.product_id ? "bg-gray-100 text-gray-400 border-gray-100" : "bg-white text-gray-400 border-gray-200 hover:text-red-500 hover:border-red-100"}`}
+                                                        className={`w-9 h-9 rounded-md flex items-center justify-center active:scale-95 cursor-pointer border transition-colors ${removing === product.product_id ? "bg-gray-100 text-black/50 border-gray-100" : "bg-white text-black/50 border-gray-200 hover:text-red-500 hover:border-red-100"}`}
                                                     >
                                                         {removing === product.product_id ? (
                                                             <div className="w-4 h-4 border-2 border-gray-300 border-t-red-500 rounded-full animate-spin"></div>

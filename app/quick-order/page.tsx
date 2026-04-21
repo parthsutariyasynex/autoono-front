@@ -461,9 +461,9 @@ export default function QuickOrderPage() {
                             placeholder={t("m.search")}
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            className="w-full h-12 md:h-14 ltr:pl-4 ltr:md:pl-6 ltr:pr-12 ltr:md:pr-14 rtl:pr-4 rtl:md:pr-6 rtl:pl-12 rtl:md:pl-14 bg-white border border-gray-100 shadow-[0_2px_12px_rgba(0,0,0,0.04)] rounded-sm text-body md:text-body-lg font-medium focus:outline-none focus:border-primary focus:shadow-lg transition-all placeholder:text-gray-300"
+                            className="w-full h-12 md:h-14 ltr:pl-4 ltr:md:pl-6 ltr:pr-12 ltr:md:pr-14 rtl:pr-4 rtl:md:pr-6 rtl:pl-12 rtl:md:pl-14 bg-white border border-gray-100 shadow-[0_2px_12px_rgba(0,0,0,0.04)] rounded-sm text-body md:text-body-lg font-medium focus:outline-none focus:border-primary focus:shadow-lg transition-all placeholder:text-black/40"
                         />
-                        <div className="absolute ltr:right-6 rtl:left-6 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-primary transition-colors">
+                        <div className="absolute ltr:right-6 rtl:left-6 top-1/2 -translate-y-1/2 text-black/50 group-focus-within:text-primary transition-colors">
                             {isSearching ? <Loader2 size={24} className="animate-spin" /> : <Search size={20} />}
                         </div>
                     </div>
@@ -484,13 +484,13 @@ export default function QuickOrderPage() {
                                         <div className="flex items-center gap-2">
                                             <p className="text-body font-black text-black uppercase tracking-tight">{p.sku}</p>
                                             {p.item_code && p.item_code !== p.sku && (
-                                                <span className="text-micro font-bold text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded">{p.item_code}</span>
+                                                <span className="text-micro font-bold text-black/50 bg-gray-100 px-1.5 py-0.5 rounded">{p.item_code}</span>
                                             )}
                                             {p.is_in_stock === false && (
                                                 <span className="text-[8px] font-black text-red-500 bg-red-50 px-1.5 py-0.5 rounded uppercase">{t("quickOrder.outOfStock")}</span>
                                             )}
                                         </div>
-                                        <p className="text-label text-gray-400 font-medium truncate">{p.name}</p>
+                                        <p className="text-label text-black/50 font-medium truncate">{p.name}</p>
                                     </div>
                                     <div className="ltr:ml-6 rtl:mr-6 flex-shrink-0">
                                         <span className="w-8 h-8 bg-primary text-black rounded flex items-center justify-center font-black text-h3-sm hover:bg-black hover:text-white transition-all shadow-sm active:scale-90">+</span>
@@ -503,7 +503,7 @@ export default function QuickOrderPage() {
                     {/* No Results */}
                     {searchTerm.length >= 2 && !isSearching && searchResults.length === 0 && (
                         <div className="absolute top-[calc(100%+8px)] left-0 right-0 bg-white border border-gray-100 rounded-sm shadow-xl z-[100] py-8 text-center">
-                            <p className="text-label font-black text-gray-300 uppercase tracking-widest">{t("quickOrder.noProducts")}</p>
+                            <p className="text-label font-black text-black/40 uppercase tracking-widest">{t("quickOrder.noProducts")}</p>
                         </div>
                     )}
                 </div>
@@ -528,9 +528,9 @@ export default function QuickOrderPage() {
                                         <td colSpan={5} className="px-8 py-32 text-center">
                                             <div className="flex flex-col items-center">
                                                 <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mb-4">
-                                                    <Plus size={24} className="text-gray-300" />
+                                                    <Plus size={24} className="text-black/40" />
                                                 </div>
-                                                <p className="text-caption font-black text-gray-400 uppercase tracking-widest max-w-[300px]">
+                                                <p className="text-caption font-black text-black/50 uppercase tracking-widest max-w-[300px]">
                                                     {t("quickOrder.emptyList")}
                                                 </p>
                                             </div>
@@ -538,13 +538,13 @@ export default function QuickOrderPage() {
                                     </tr>
                                 ) : (
                                     items.map((item) => (
-                                        <tr key={item.sku} className="group hover:bg-gray-50/50 transition-colors">
+                                        <tr key={item.sku} className="group hover:bg-primary/5 transition-colors">
                                             <td className="px-6 lg:px-8 py-4">
                                                 <div className="flex items-center">
                                                     <div className="w-10 h-10 bg-white rounded border border-gray-50 flex items-center justify-center ltr:mr-4 rtl:ml-4 flex-shrink-0 group-hover:shadow-md transition-shadow">
-                                                        {item.image ? <img src={item.image} alt={item.sku} className="w-8 h-8 object-contain" /> : <Loader2 size={12} className="text-gray-100" />}
+                                                        {item.image ? <img src={item.image} alt={item.sku} className="w-8 h-8 object-contain" /> : <Loader2 size={12} className="text-black/20" />}
                                                     </div>
-                                                    <span className="text-caption font-bold text-gray-700 leading-snug line-clamp-2">{item.name}</span>
+                                                    <span className="text-caption font-bold text-black/80 leading-snug line-clamp-2">{item.name}</span>
                                                 </div>
                                             </td>
                                             <td className="px-4 lg:px-6 py-4 text-center">
@@ -569,7 +569,7 @@ export default function QuickOrderPage() {
                                             <td className="px-4 lg:px-6 py-4 text-center">
                                                 <button
                                                     onClick={() => removeOrderItem(item.sku)}
-                                                    className="w-10 h-10 mx-auto rounded-full flex items-center justify-center text-gray-400 hover:text-red-500 hover:bg-white hover:shadow-md hover:-translate-y-1 transition-all duration-300 active:scale-95 focus:outline-none focus:ring-2 focus:ring-red-100"
+                                                    className="w-10 h-10 mx-auto rounded-full flex items-center justify-center text-black/50 hover:text-red-500 hover:bg-white hover:shadow-md hover:-translate-y-1 transition-all duration-300 active:scale-95 focus:outline-none focus:ring-2 focus:ring-red-100"
                                                     title={t("m.remove-item")}
                                                 >
                                                     <Trash2 size={18} />
@@ -588,9 +588,9 @@ export default function QuickOrderPage() {
                             <div className="px-4 py-20 text-center">
                                 <div className="flex flex-col items-center">
                                     <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mb-4">
-                                        <Plus size={24} className="text-gray-300" />
+                                        <Plus size={24} className="text-black/40" />
                                     </div>
-                                    <p className="text-caption font-black text-gray-400 uppercase tracking-widest max-w-[300px]">
+                                    <p className="text-caption font-black text-black/50 uppercase tracking-widest max-w-[300px]">
                                         {t("quickOrder.emptyList")}
                                     </p>
                                 </div>
@@ -600,14 +600,14 @@ export default function QuickOrderPage() {
                                 <div key={item.sku} className="border-b border-gray-50 p-4">
                                     <div className="flex items-start gap-3">
                                         <div className="w-12 h-12 bg-white rounded border border-gray-50 flex items-center justify-center flex-shrink-0">
-                                            {item.image ? <img src={item.image} alt={item.sku} className="w-10 h-10 object-contain" /> : <Loader2 size={12} className="text-gray-100" />}
+                                            {item.image ? <img src={item.image} alt={item.sku} className="w-10 h-10 object-contain" /> : <Loader2 size={12} className="text-black/20" />}
                                         </div>
                                         <div className="flex-1 min-w-0">
                                             <p className="text-label font-black text-black uppercase tracking-tight">{item.sku}</p>
-                                            <p className="text-caption font-bold text-gray-500 leading-snug line-clamp-1 mt-0.5">{item.name}</p>
+                                            <p className="text-caption font-bold text-black/60 leading-snug line-clamp-1 mt-0.5">{item.name}</p>
                                             <div className="flex items-center justify-between mt-3">
                                                 <div className="flex items-center gap-2">
-                                                    <span className="text-micro font-black text-gray-400 uppercase">{t("quickOrder.qty")}:</span>
+                                                    <span className="text-micro font-black text-black/50 uppercase">{t("quickOrder.qty")}:</span>
                                                     <input
                                                         type="number"
                                                         min="1"
@@ -623,7 +623,7 @@ export default function QuickOrderPage() {
                                         </div>
                                         <button
                                             onClick={() => removeOrderItem(item.sku)}
-                                            className="w-10 h-10 rounded-full flex items-center justify-center text-gray-400 hover:text-red-500 hover:bg-white hover:shadow-md hover:-translate-y-1 transition-all duration-300 active:scale-95 focus:outline-none focus:ring-2 focus:ring-red-100"
+                                            className="w-10 h-10 rounded-full flex items-center justify-center text-black/50 hover:text-red-500 hover:bg-white hover:shadow-md hover:-translate-y-1 transition-all duration-300 active:scale-95 focus:outline-none focus:ring-2 focus:ring-red-100"
                                             title={t("m.remove-item")}
                                         >
                                             <Trash2 size={18} />
@@ -637,7 +637,7 @@ export default function QuickOrderPage() {
                     {/* Fixed Summary Bar */}
                     <div className="px-4 md:px-8 py-4 md:py-6 bg-white border-t border-gray-100 flex flex-col md:flex-row justify-between items-center gap-4 md:gap-6">
                         <div className="flex items-center gap-3 md:gap-4 w-full md:w-auto justify-between md:justify-start">
-                            <span className="text-label md:text-body-sm font-black text-gray-400 uppercase tracking-[0.2em]">{t("quickOrder.grandTotal")}</span>
+                            <span className="text-label md:text-body-sm font-black text-black/50 uppercase tracking-[0.2em]">{t("quickOrder.grandTotal")}</span>
                             <span className="text-h3 md:text-h2 font-black text-black">
                                 <Price amount={totalAmount} />
                             </span>
@@ -673,10 +673,10 @@ export default function QuickOrderPage() {
                             placeholder={t("m.enter-sku-or-product-name")}
                             value={skuText}
                             onChange={(e) => setSkuText(e.target.value)}
-                            className="w-full h-48 bg-gray-50/30 border border-gray-100 rounded-sm p-6 text-body font-medium focus:outline-none focus:border-primary focus:bg-white transition-all mb-6 resize-none placeholder:text-gray-200 ltr:text-left rtl:text-right"
+                            className="w-full h-48 bg-gray-50/30 border border-gray-100 rounded-sm p-6 text-body font-medium focus:outline-none focus:border-primary focus:bg-white transition-all mb-6 resize-none placeholder:text-black/30 ltr:text-left rtl:text-right"
                         />
                         <div className="flex flex-col sm:flex-row justify-between items-center gap-6 mt-auto">
-                            <p className="text-caption font-black text-gray-400 uppercase tracking-widest bg-gray-100 px-3 py-1.5 rounded-full">{t("quickOrder.formatHint")}</p>
+                            <p className="text-caption font-black text-black/50 uppercase tracking-widest bg-gray-100 px-3 py-1.5 rounded-full">{t("quickOrder.formatHint")}</p>
                             <button
                                 onClick={handleAddMultipleSkus}
                                 disabled={loading}
@@ -711,13 +711,13 @@ export default function QuickOrderPage() {
                                         <div className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center mb-3 shadow-lg">
                                             <Check size={18} className="text-white" strokeWidth={3} />
                                         </div>
-                                        <p className="text-body font-black text-gray-800 text-center max-w-[200px] truncate">{file.name}</p>
+                                        <p className="text-body font-black text-black text-center max-w-[200px] truncate">{file.name}</p>
                                         <button onClick={(e) => { e.stopPropagation(); setFile(null); }} className="text-micro font-black text-red-500 uppercase mt-2 hover:underline">{t("quickOrder.removeFile")}</button>
                                     </div>
                                 ) : (
                                     <div className="flex flex-col items-center animate-in fade-in duration-300">
-                                        <Upload size={32} className="text-gray-200 mb-3 group-hover:text-primary transition-colors" />
-                                        <p className="text-body-sm font-black text-gray-400 uppercase tracking-widest">{t("quickOrder.dropCsv")}</p>
+                                        <Upload size={32} className="text-black/30 mb-3 group-hover:text-primary transition-colors" />
+                                        <p className="text-body-sm font-black text-black/50 uppercase tracking-widest">{t("quickOrder.dropCsv")}</p>
                                     </div>
                                 )}
                             </div>
@@ -750,7 +750,7 @@ export default function QuickOrderPage() {
                         className="flex items-center gap-4 text-label font-black text-black uppercase tracking-[0.2em] hover:text-red-600 transition-all hover:-translate-y-1 active:scale-95 disabled:opacity-50 group"
                     >
                         <div className="w-12 h-12 border-2 border-black rounded-full flex items-center justify-center group-hover:border-red-600 group-hover:shadow-lg transition-all duration-300">
-                            {loading ? <Loader2 size={20} className="animate-spin text-gray-300" /> : <X size={20} />}
+                            {loading ? <Loader2 size={20} className="animate-spin text-black/40" /> : <X size={20} />}
                         </div>
                         {loading ? t("common.loading") : t("quickOrder.clearAll")}
                     </button>

@@ -39,31 +39,31 @@ type AddressCardProps = {
 
 function AddressCard({ title, address, onEdit, buttonLabel, t, isRtl }: AddressCardProps) {
   return (
-    <div className="bg-white border border-[#ebebeb] rounded-xl shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden flex flex-col h-full font-rubik group">
+    <div className="bg-white border border-[#ebebeb] rounded-xl shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden flex flex-col h-full group">
       <div className="bg-gray-50/80 px-5 py-4 border-b border-[#ebebeb] uppercase text-label font-black text-black tracking-widest ltr:text-left rtl:text-right group-hover:bg-primary/50 transition-colors">
         {title}
       </div>
       <div className="p-6 flex-grow ltr:text-left rtl:text-right">
         {address ? (
-          <div className="space-y-1.5 text-body text-gray-600">
+          <div className="space-y-1.5 text-body text-black/70">
             <p className="font-black text-black uppercase mb-3 text-sm tracking-tight leading-tight">
               {address.firstname} {address.lastname}
             </p>
             {address.company && <p className="font-medium">{address.company}</p>}
             <p className="font-medium">{Array.isArray(address.street) ? address.street.join(", ") : address.street}</p>
-            <p className="font-medium text-gray-800">
+            <p className="font-medium text-black">
               {address.city}{isRtl ? "،" : ","} <span dir="ltr">{address.postcode}</span>
             </p>
             <p className="font-medium">{address.country_id === 'SA' ? t("addressBook.saudiArabia") : address.country_id}</p>
             <div className="pt-3 flex items-center gap-2">
               <span className="text-label font-black text-black uppercase tracking-wider">{t("addressBook.phone")}:</span>
-              <span className="text-gray-600 font-bold hover:text-primary cursor-pointer transition-colors duration-200" dir="ltr">{address.telephone}</span>
+              <span className="text-black/70 font-bold hover:text-primary cursor-pointer transition-colors duration-200" dir="ltr">{address.telephone}</span>
             </div>
             {buttonLabel && (
               <div className="pt-8 mt-auto">
                 <button
                   type="button"
-                  className="bg-primary hover:bg-[#e0951d] text-black text-label font-black px-10 py-3.5 uppercase transition-all rounded-lg shadow-sm tracking-widest active:scale-95 flex items-center gap-2"
+                  className="bg-primary hover:bg-primaryHover text-black text-label font-black px-10 py-3.5 uppercase transition-all rounded-lg shadow-sm tracking-widest active:scale-95 flex items-center gap-2"
                   onClick={() => onEdit?.(address.id)}
                 >
                   {buttonLabel}
@@ -72,7 +72,7 @@ function AddressCard({ title, address, onEdit, buttonLabel, t, isRtl }: AddressC
             )}
           </div>
         ) : (
-          <div className="flex flex-col items-center justify-center h-full py-10 text-gray-400">
+          <div className="flex flex-col items-center justify-center h-full py-10 text-black/50">
             <p className="italic text-xs font-semibold uppercase tracking-widest bg-gray-50 px-4 py-2 rounded-full border border-gray-100">
               {t("addressBook.noDefaultAddress")}
             </p>
@@ -159,17 +159,17 @@ export default function Addresses() {
 
   if (loading && addresses.length === 0) {
     return (
-      <div className="p-6 flex justify-center items-center min-h-[400px] font-rubik">
+      <div className="p-6 flex justify-center items-center min-h-[400px]">
         <div className="flex flex-col items-center gap-4">
           <div className="animate-spin rounded-full h-10 w-10 border-4 border-gray-100 border-t-primary"></div>
-          <p className="text-gray-400 text-xs font-black uppercase tracking-widest">{t("addressBook.loadingAddresses")}</p>
+          <p className="text-black/50 text-xs font-black uppercase tracking-widest">{t("addressBook.loadingAddresses")}</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="w-full font-rubik space-y-12" dir={isRtl ? "rtl" : "ltr"}>
+    <div className="w-full space-y-12" dir={isRtl ? "rtl" : "ltr"}>
       {/* Section 1: Default Addresses */}
       <section>
         <div className="flex items-center gap-4 mb-8">
@@ -222,7 +222,7 @@ export default function Addresses() {
                     <td colSpan={6} className="px-6 py-24 text-center">
                       <div className="flex flex-col items-center gap-2">
                         <span className="text-red-500 text-xs font-black uppercase tracking-widest">{t("common.error")}</span>
-                        <p className="text-gray-500 text-body">{error}</p>
+                        <p className="text-black/60 text-body">{error}</p>
                       </div>
                     </td>
                   </tr>
@@ -230,7 +230,7 @@ export default function Addresses() {
                 {filteredAddresses.length === 0 && !loading && !error && (
                   <tr>
                     <td colSpan={6} className="px-6 py-24 text-center">
-                      <p className="text-gray-400 text-xs italic tracking-[0.2em] uppercase font-black">
+                      <p className="text-black/50 text-xs italic tracking-[0.2em] uppercase font-black">
                         {t("addressBook.noAdditionalAddresses")}
                       </p>
                     </td>
@@ -238,14 +238,14 @@ export default function Addresses() {
                 )}
 
                 {filteredAddresses.slice((currentPage - 1) * pageSize, currentPage * pageSize).map((address: any, idx: number) => (
-                  <tr key={address.id} className="hover:bg-primary/20 transition-colors text-body group h-[70px]">
+                  <tr key={address.id} className="hover:bg-primary/5 transition-colors text-body group h-[70px]">
                     <td className="px-6 py-4 font-black text-black uppercase ltr:text-left rtl:text-right">{address.firstname}</td>
                     <td className="px-6 py-4 font-black text-black uppercase ltr:text-left rtl:text-right">{address.lastname}</td>
-                    <td className="px-6 py-4 text-gray-500 font-medium ltr:text-left rtl:text-right">{Array.isArray(address.street) ? address.street.join(", ") : address.street || "-"}</td>
-                    <td className="px-6 py-4 uppercase font-bold text-gray-800 ltr:text-left rtl:text-right">{address.city}</td>
-                    <td className="px-6 py-4 font-bold text-gray-700 ltr:text-left rtl:text-right group-hover:text-black transition-colors"><span dir="ltr">{address.postcode}</span></td>
+                    <td className="px-6 py-4 text-black/60 font-medium ltr:text-left rtl:text-right">{Array.isArray(address.street) ? address.street.join(", ") : address.street || "-"}</td>
+                    <td className="px-6 py-4 uppercase font-bold text-black ltr:text-left rtl:text-right">{address.city}</td>
+                    <td className="px-6 py-4 font-bold text-black/80 ltr:text-left rtl:text-right group-hover:text-black transition-colors"><span dir="ltr">{address.postcode}</span></td>
                     <td className="px-6 py-4 ltr:text-left rtl:text-right">
-                      <span dir="ltr" className="text-gray-600 font-bold hover:text-primary cursor-pointer transition-colors duration-200">
+                      <span dir="ltr" className="text-black/70 font-bold hover:text-primary cursor-pointer transition-colors duration-200">
                         {address.telephone}
                       </span>
                     </td>

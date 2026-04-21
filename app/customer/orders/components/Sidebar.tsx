@@ -22,7 +22,7 @@ const Sidebar = () => {
                                     href={lp(item.href)}
                                     className={`block py-3 px-3 transition-all duration-200 border-l-[3px] ${isActive
                                         ? "font-bold text-black border-primary bg-white shadow-sm"
-                                        : "text-gray-600 border-transparent hover:text-black hover:border-gray-200"
+                                        : "text-black/70 border-transparent hover:text-black hover:border-gray-200"
                                         }`}
                                 >
                                     {item.name}
@@ -33,7 +33,7 @@ const Sidebar = () => {
                     <li>
                         <button
                             onClick={() => signOut({ callbackUrl: `${window.location.origin}${lp("/login")}` })}
-                            className="block w-full text-left py-3 px-3 text-gray-600 border-l-[3px] border-transparent hover:text-black hover:border-gray-200 transition-all duration-200"
+                            className="block w-full text-left py-3 px-3 text-black/70 border-l-[3px] border-transparent hover:text-black hover:border-gray-200 transition-all duration-200"
                         >
                             Sign Out
                         </button>

@@ -261,12 +261,12 @@ export default function MyForecastPage() {
                                 </label>
                             </div>
                             {selectedFile && (
-                                <span className="text-body-sm md:text-body text-gray-800 font-medium truncate max-w-full">
+                                <span className="text-body-sm md:text-body text-black font-medium truncate max-w-full">
                                     {selectedFile.name}
                                 </span>
                             )}
                             <div className="text-center">
-                                <span className="text-label md:text-body-lg font-medium text-gray-600 leading-relaxed">
+                                <span className="text-label md:text-body-lg font-medium text-black/70 leading-relaxed">
                                     {t("forecast.allowedFileTypes")}
                                 </span>
                             </div>
@@ -300,14 +300,14 @@ export default function MyForecastPage() {
                     {forecasts.length > 0 ? forecasts.map((file, idx) => {
                         const fileId = file.forecast_id || file.entity_id || file.id || file.file_id;
                         return (
-                            <div key={fileId || idx} className="border-b border-gray-50 hover:bg-[#fff7e6] transition-colors group">
+                            <div key={fileId || idx} className="border-b border-gray-50 hover:bg-primary/5 transition-colors group">
                                 {/* Mobile layout */}
                                 <div className="sm:hidden px-4 py-3">
                                     <div className="flex items-start justify-between gap-2">
                                         <button
                                             onClick={() => handleDownload(file)}
                                             disabled={downloadingId !== null && downloadingId === fileId}
-                                            className="text-body text-gray-700 font-medium group-hover:text-[#f4b400] hover:underline ltr:text-left rtl:text-right disabled:opacity-50 break-all"
+                                            className="text-body text-black/80 font-medium group-hover:text-primaryHover hover:underline ltr:text-left rtl:text-right disabled:opacity-50 break-all"
                                         >
                                             {file.file_name || file.filename || file.name || t("m.name")}
                                         </button>
@@ -315,7 +315,7 @@ export default function MyForecastPage() {
                                             <div className="animate-spin h-3 w-3 border-b-2 border-[#f4b400] rounded-full flex-shrink-0 mt-1"></div>
                                         )}
                                     </div>
-                                    <span className="text-label text-gray-400 font-medium mt-1 block">
+                                    <span className="text-label text-black/50 font-medium mt-1 block">
                                         {getProperDate(file)}
                                     </span>
                                 </div>
@@ -325,7 +325,7 @@ export default function MyForecastPage() {
                                         <button
                                             onClick={() => handleDownload(file)}
                                             disabled={downloadingId !== null && downloadingId === fileId}
-                                            className="text-body text-gray-700 font-medium group-hover:text-[#f4b400] hover:underline ltr:text-left rtl:text-right disabled:opacity-50"
+                                            className="text-body text-black/80 font-medium group-hover:text-primaryHover hover:underline ltr:text-left rtl:text-right disabled:opacity-50"
                                         >
                                             {file.file_name || file.filename || file.name || t("m.name")}
                                         </button>
@@ -333,21 +333,21 @@ export default function MyForecastPage() {
                                             <div className="animate-spin h-3 w-3 border-b-2 border-[#f4b400] rounded-full"></div>
                                         )}
                                     </div>
-                                    <span className={`text-body text-gray-700 font-medium text-center ${isRtl ? 'border-r' : 'border-l'} border-gray-50`}>
+                                    <span className={`text-body text-black/80 font-medium text-center ${isRtl ? 'border-r' : 'border-l'} border-gray-50`}>
                                         {getProperDate(file)}
                                     </span>
                                 </div>
                             </div>
                         );
                     }) : (
-                        <div className="py-16 md:py-20 text-center text-gray-400 text-body md:text-body-lg bg-white">
+                        <div className="py-16 md:py-20 text-center text-black/50 text-body md:text-body-lg bg-white">
                             {t("forecast.noRecords")}
                         </div>
                     )}
                 </div>
 
                 {/* Pagination */}
-                <div className="bg-[#f2f2f2] mt-6 md:mt-10 py-3 md:py-3.5 px-3 md:px-6 flex flex-col sm:flex-row justify-between items-center gap-3 text-[#555] rounded-sm">
+                <div className="bg-[#f2f2f2] mt-6 md:mt-10 py-3 md:py-3.5 px-3 md:px-6 flex flex-col sm:flex-row justify-between items-center gap-3 text-black/80 rounded-sm">
                     <div className="flex items-center gap-4 sm:gap-6">
                         <span className="text-label md:text-body-sm font-medium">{totalItems} {t("forecast.items")}</span>
                         <div className="flex items-center gap-2">

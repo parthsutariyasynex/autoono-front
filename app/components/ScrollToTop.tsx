@@ -42,7 +42,7 @@ export default function ScrollToTop() {
         <div className="fixed bottom-24 right-8 z-[100] animate-in fade-in slide-in-from-bottom-4 duration-300">
             <button
                 onClick={scrollToTop}
-                className="w-12 h-12 bg-white border border-gray-200 rounded-full shadow-lg flex items-center justify-center text-gray-400 hover:text-black hover:border-black transition-all group active:scale-90"
+                className="w-12 h-12 bg-white border border-gray-200 rounded-full shadow-lg flex items-center justify-center text-black/50 hover:text-black hover:border-black transition-all group active:scale-90"
                 aria-label="Scroll to top"
             >
                 <ArrowUp size={24} strokeWidth={1.5} className="group-hover:-translate-y-1 transition-transform" />

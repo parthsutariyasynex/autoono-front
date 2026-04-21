@@ -50,7 +50,7 @@ const CartItem: React.FC<CartItemProps> = ({ item, currencyCode, onUpdateQty, on
                         },
                     });
                 }}
-                className="absolute top-2 right-2 w-6 h-6 flex items-center justify-center bg-gray-50 text-gray-400 rounded-full transition-all z-10 cursor-pointer hover:bg-[#FF4444] hover:text-white hover:scale-110 active:scale-95 opacity-0 group-hover/item:opacity-100 shadow-sm border border-gray-100"
+                className="absolute top-2 right-2 w-6 h-6 flex items-center justify-center bg-gray-50 text-black/50 rounded-full transition-all z-10 cursor-pointer hover:bg-[#FF4444] hover:text-white hover:scale-110 active:scale-95 opacity-0 group-hover/item:opacity-100 shadow-sm border border-gray-100"
                 title={t("m.remove-item")}
             >
                 <X size={10} strokeWidth={4} />
@@ -64,10 +64,10 @@ const CartItem: React.FC<CartItemProps> = ({ item, currencyCode, onUpdateQty, on
                     </div>
                     <div className="flex-1 min-w-0 pt-1">
                         <span className="text-caption font-black text-primary uppercase tracking-widest mb-1 block">{t("quickOrder.title")}</span>
-                        <h3 className="text-sm font-black text-gray-900 leading-tight uppercase tracking-tight line-clamp-2">{item.name}</h3>
+                        <h3 className="text-sm font-black text-black leading-tight uppercase tracking-tight line-clamp-2">{item.name}</h3>
                         <div className="flex flex-wrap gap-2 mt-3">
                             {item.size_display && (
-                                <div className="text-caption font-bold text-gray-500 bg-gray-50 border border-gray-100 px-2 py-1 rounded-lg">
+                                <div className="text-caption font-bold text-black/60 bg-gray-50 border border-gray-100 px-2 py-1 rounded-lg">
                                     {item.size_display}
                                 </div>
                             )}
@@ -119,15 +119,15 @@ const CartItem: React.FC<CartItemProps> = ({ item, currencyCode, onUpdateQty, on
                         />
                     </div>
                     <div className="min-w-0">
-                        <h3 className="text-xs xl:text-sm font-black text-gray-900 leading-tight uppercase tracking-tight mb-2 transition-colors group-hover/item:text-black line-clamp-1">{item.name}</h3>
+                        <h3 className="text-xs xl:text-sm font-black text-black leading-tight uppercase tracking-tight mb-2 transition-colors group-hover/item:text-black line-clamp-1">{item.name}</h3>
                         <div className="flex flex-wrap gap-1.5 single-line-attributes">
                             {item.size_display && (
-                                <span className="text-micro font-black text-gray-400 bg-gray-50 border border-gray-100 px-1.5 py-0.5 rounded-md uppercase">
+                                <span className="text-micro font-black text-black/50 bg-gray-50 border border-gray-100 px-1.5 py-0.5 rounded-md uppercase">
                                     {t("m.size")}: {item.size_display}
                                 </span>
                             )}
                             {item.pattern_display && (
-                                <span className="text-micro font-black text-gray-400 bg-gray-50 border border-gray-100 px-1.5 py-0.5 rounded-md uppercase">
+                                <span className="text-micro font-black text-black/50 bg-gray-50 border border-gray-100 px-1.5 py-0.5 rounded-md uppercase">
                                     {t("m.pattern")}: {item.pattern_display}
                                 </span>
                             )}
@@ -137,7 +137,7 @@ const CartItem: React.FC<CartItemProps> = ({ item, currencyCode, onUpdateQty, on
 
                 {/* Price (15%) */}
                 <div className="w-[15%] text-center">
-                    <span className="text-xs xl:text-sm font-black text-gray-900">
+                    <span className="text-xs xl:text-sm font-black text-black">
                         <Price amount={item.price} />
                     </span>
                 </div>
@@ -153,7 +153,7 @@ const CartItem: React.FC<CartItemProps> = ({ item, currencyCode, onUpdateQty, on
                             <Minus size={11} strokeWidth={3} />
                         </button>
                         <div className="w-8 h-7 flex items-center justify-center border-x border-gray-50">
-                            <span className="text-xs font-black text-gray-900">{localQty}</span>
+                            <span className="text-xs font-black text-black">{localQty}</span>
                         </div>
                         <button
                             onClick={() => handleQtyChange(localQty + 1)}

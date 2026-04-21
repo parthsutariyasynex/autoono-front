@@ -14,7 +14,7 @@ export default function TermsConditionsPage() {
                     {t("terms.title")}
                 </h1>
 
-                <div className={`text-body-lg md:text-[15px] leading-[1.7] text-gray-600 ${isRtl ? 'text-right' : 'text-left'}`}>
+                <div className={`text-body-lg md:text-[15px] leading-[1.7] text-black/70 ${isRtl ? 'text-right' : 'text-left'}`}>
 
                     <p className="mb-6">{t("terms.welcome")}</p>
 

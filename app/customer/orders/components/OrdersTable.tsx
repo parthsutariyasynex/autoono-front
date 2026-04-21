@@ -39,21 +39,21 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders }) => {
                                 orders.map((order, idx) => (
                                     <tr
                                         key={order.id + idx}
-                                        className="hover:bg-primary/20 transition-colors group h-[70px]"
+                                        className="hover:bg-primary/5 transition-colors group h-[70px]"
                                     >
                                         <td className="px-6 py-4 font-black text-black ltr:text-left rtl:text-right group-hover:text-primary transition-colors">
                                             {order.id}
                                         </td>
-                                        <td className="px-6 py-4 text-gray-500 font-medium ltr:text-left rtl:text-right">
+                                        <td className="px-6 py-4 text-black/60 font-medium ltr:text-left rtl:text-right">
                                             {order.sapOrderNumber || "—"}
                                         </td>
-                                        <td className="px-6 py-4 text-gray-400 font-mono text-center">
+                                        <td className="px-6 py-4 text-black/50 font-mono text-center">
                                             {order.date}
                                         </td>
-                                        <td className="px-6 py-4 text-gray-800 font-black text-right whitespace-nowrap">
+                                        <td className="px-6 py-4 text-black font-black text-right whitespace-nowrap">
                                             <Price amount={order.grandTotal} />
                                         </td>
-                                        <td className="px-6 py-4 text-gray-500 font-bold text-center">
+                                        <td className="px-6 py-4 text-black/60 font-bold text-center">
                                             {order.orderedBy}
                                         </td>
                                         <td className="px-6 py-4 text-center">
@@ -63,11 +63,11 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders }) => {
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-center">
                                             <div className="flex items-center justify-center gap-4 text-label font-black uppercase tracking-wider">
-                                                <button className="text-gray-800 hover:text-primary transition-colors flex items-center gap-1">
+                                                <button className="text-black hover:text-primary transition-colors flex items-center gap-1">
                                                     View
                                                 </button>
-                                                <span className="text-gray-200">|</span>
-                                                <button className="text-gray-800 hover:text-primary transition-colors flex items-center gap-1">
+                                                <span className="text-black/30">|</span>
+                                                <button className="text-black hover:text-primary transition-colors flex items-center gap-1">
                                                     Reorder
                                                 </button>
                                             </div>
@@ -77,7 +77,7 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders }) => {
                             ) : (
                                 <tr>
                                     <td colSpan={7} className="px-6 py-24 text-center">
-                                        <p className="text-gray-400 text-xs italic tracking-[0.2em] uppercase font-black">
+                                        <p className="text-black/50 text-xs italic tracking-[0.2em] uppercase font-black">
                                             We couldn&apos;t find any records.
                                         </p>
                                     </td>
@@ -101,7 +101,7 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders }) => {
                                 <span className="text-body font-black text-black">
                                     #{order.id}
                                 </span>
-                                <span className="text-body-sm text-gray-500 font-mono">
+                                <span className="text-body-sm text-black/60 font-mono">
                                     {order.date}
                                 </span>
                             </div>
@@ -116,34 +116,34 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders }) => {
                             {/* SAP Order Number */}
                             {order.sapOrderNumber && (
                                 <div className="flex justify-between text-body-sm">
-                                    <span className="text-gray-400 uppercase tracking-wider font-bold">SAP Order</span>
-                                    <span className="text-gray-600 font-medium">{order.sapOrderNumber}</span>
+                                    <span className="text-black/50 uppercase tracking-wider font-bold">SAP Order</span>
+                                    <span className="text-black/70 font-medium">{order.sapOrderNumber}</span>
                                 </div>
                             )}
 
                             {/* Ordered By */}
                             {order.orderedBy && (
                                 <div className="flex justify-between text-body-sm">
-                                    <span className="text-gray-400 uppercase tracking-wider font-bold">Ordered By</span>
-                                    <span className="text-gray-600 font-medium">{order.orderedBy}</span>
+                                    <span className="text-black/50 uppercase tracking-wider font-bold">Ordered By</span>
+                                    <span className="text-black/70 font-medium">{order.orderedBy}</span>
                                 </div>
                             )}
 
                             {/* Grand Total */}
                             <div className="flex justify-between text-body-sm">
-                                <span className="text-gray-400 uppercase tracking-wider font-bold">Grand Total</span>
-                                <span className="text-gray-800 font-black">
+                                <span className="text-black/50 uppercase tracking-wider font-bold">Grand Total</span>
+                                <span className="text-black font-black">
                                     <Price amount={order.grandTotal} />
                                 </span>
                             </div>
 
                             {/* Actions */}
                             <div className="flex items-center gap-3 pt-2 border-t border-gray-100 text-label font-black uppercase tracking-wider">
-                                <button className="text-gray-800 hover:text-primary transition-colors">
+                                <button className="text-black hover:text-primary transition-colors">
                                     View
                                 </button>
-                                <span className="text-gray-200">|</span>
-                                <button className="text-gray-800 hover:text-primary transition-colors">
+                                <span className="text-black/30">|</span>
+                                <button className="text-black hover:text-primary transition-colors">
                                     Reorder
                                 </button>
                             </div>
@@ -151,7 +151,7 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders }) => {
                     ))
                 ) : (
                     <div className="bg-white border border-[#ebebeb] rounded-lg px-4 py-16 text-center">
-                        <p className="text-gray-400 text-xs italic tracking-[0.2em] uppercase font-black">
+                        <p className="text-black/50 text-xs italic tracking-[0.2em] uppercase font-black">
                             We couldn&apos;t find any records.
                         </p>
                     </div>

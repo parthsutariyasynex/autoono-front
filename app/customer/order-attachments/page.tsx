@@ -213,7 +213,7 @@ export default function OrderAttachmentsPage() {
     const handlePageSizeChange = (size: number) => { setPageSize(size); setCurrentPage(1); };
 
     return (
-        <div className="min-h-screen flex flex-col w-full bg-[#fcfcfc] font-rubik">
+        <div className="min-h-screen flex flex-col w-full bg-[#fcfcfc]">
             <div className="flex flex-col lg:flex-row flex-1 w-full">
                 <Sidebar />
 
@@ -230,7 +230,7 @@ export default function OrderAttachmentsPage() {
                                 value={searchText}
                                 onChange={(e) => setSearchText(e.target.value)}
                                 placeholder={t("m.search")}
-                                className="w-full bg-white border border-[#ebebeb] rounded-md px-4 py-2.5 text-xs text-black focus:outline-none focus:border-primary placeholder:text-gray-400 font-bold shadow-sm"
+                                className="w-full bg-white border border-[#ebebeb] rounded-md px-4 py-2.5 text-xs text-black focus:outline-none focus:border-primary placeholder:text-black/50 font-bold shadow-sm"
                             />
                         </div>
                         <button
@@ -288,7 +288,7 @@ export default function OrderAttachmentsPage() {
                     ) : isLoading ? (
                         <div className="bg-white p-16 flex flex-col items-center justify-center border border-[#ebebeb] rounded-md shadow-sm">
                             <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary mb-4"></div>
-                            <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">{t("common.loading")}</span>
+                            <span className="text-xs font-bold text-black/50 uppercase tracking-widest">{t("common.loading")}</span>
                         </div>
                     ) : attachments.length > 0 ? (
                         <>
@@ -317,7 +317,7 @@ export default function OrderAttachmentsPage() {
                                             const paymentStatus = attachment.payment || attachment.payment_status || "";
 
                                             return (
-                                                <tr key={attId} className={`${idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'} border-b border-[#ebebeb] hover:bg-primary/30 transition-colors text-xs`}>
+                                                <tr key={attId} className={`${idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'} border-b border-[#ebebeb] hover:bg-primary/5 transition-colors text-xs`}>
                                                     <td className="px-6 py-4 text-center font-black">
                                                         <button onClick={() => handleViewOrder(attachment.order_id)} className="text-black hover:text-primary hover:underline transition-all cursor-pointer focus:outline-none">{orderDisplay}</button>
                                                     </td>
@@ -327,9 +327,9 @@ export default function OrderAttachmentsPage() {
                                                             {isOpening && <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-primary"></div>}
                                                         </div>
                                                     </td>
-                                                    <td className="px-6 py-4 text-center font-bold text-gray-600 uppercase">{t(`m.${docTypeLabel.toLowerCase()}`) !== `m.${docTypeLabel.toLowerCase()}` ? t(`m.${docTypeLabel.toLowerCase()}`) : (t(`data.${docTypeLabel}`) !== `data.${docTypeLabel}` ? t(`data.${docTypeLabel}`) : docTypeLabel)}</td>
-                                                    <td className="px-6 py-4 ltr:text-left rtl:text-right font-bold text-gray-500">{createdAt}</td>
-                                                    <td className="px-6 py-4 ltr:text-left rtl:text-right font-bold text-gray-500">{invoiceDueVal}</td>
+                                                    <td className="px-6 py-4 text-center font-bold text-black/70 uppercase">{t(`m.${docTypeLabel.toLowerCase()}`) !== `m.${docTypeLabel.toLowerCase()}` ? t(`m.${docTypeLabel.toLowerCase()}`) : (t(`data.${docTypeLabel}`) !== `data.${docTypeLabel}` ? t(`data.${docTypeLabel}`) : docTypeLabel)}</td>
+                                                    <td className="px-6 py-4 ltr:text-left rtl:text-right font-bold text-black/60">{createdAt}</td>
+                                                    <td className="px-6 py-4 ltr:text-left rtl:text-right font-bold text-black/60">{invoiceDueVal}</td>
                                                     <td className="px-6 py-4 ltr:text-left rtl:text-right">
                                                         <span className={`px-2 py-1 rounded-md font-black uppercase text-caption ${paymentStatus.toLowerCase().includes('paid') ? 'bg-green-100 text-green-700' : 'bg-primary text-primary'}`}>{paymentStatus ? (t(`data.${paymentStatus}`) !== `data.${paymentStatus}` ? t(`data.${paymentStatus}`) : paymentStatus) : "-"}</span>
                                                     </td>
@@ -364,13 +364,13 @@ export default function OrderAttachmentsPage() {
                                                         {fileName}
                                                         {isOpening && <span className="inline-block ltr:ml-2 rtl:mr-2 animate-spin rounded-full h-3 w-3 border-b-2 border-primary align-middle"></span>}
                                                     </button>
-                                                    <p className="text-label text-gray-500 font-medium mt-1 uppercase tracking-wider">{t(`m.${docTypeLabel.toLowerCase()}`) !== `m.${docTypeLabel.toLowerCase()}` ? t(`m.${docTypeLabel.toLowerCase()}`) : (t(`data.${docTypeLabel}`) !== `data.${docTypeLabel}` ? t(`data.${docTypeLabel}`) : docTypeLabel)}</p>
+                                                    <p className="text-label text-black/60 font-medium mt-1 uppercase tracking-wider">{t(`m.${docTypeLabel.toLowerCase()}`) !== `m.${docTypeLabel.toLowerCase()}` ? t(`m.${docTypeLabel.toLowerCase()}`) : (t(`data.${docTypeLabel}`) !== `data.${docTypeLabel}` ? t(`data.${docTypeLabel}`) : docTypeLabel)}</p>
                                                 </div>
                                                 <span className={`px-2 py-1 rounded-md font-black uppercase text-caption flex-shrink-0 ${paymentStatus.toLowerCase().includes('paid') ? 'bg-green-100 text-green-700' : 'bg-primary text-primary'}`}>
                                                     {paymentStatus ? (t(`data.${paymentStatus}`) !== `data.${paymentStatus}` ? t(`data.${paymentStatus}`) : paymentStatus) : "-"}
                                                 </span>
                                             </div>
-                                            <div className="flex items-center justify-between text-label text-gray-500 font-medium border-t border-gray-100 pt-2.5">
+                                            <div className="flex items-center justify-between text-label text-black/60 font-medium border-t border-gray-100 pt-2.5">
                                                 <div className="flex items-center gap-1">
                                                     <span className="font-black text-black uppercase text-caption">{t("m.order")}:</span>
                                                     <button onClick={() => handleViewOrder(attachment.order_id)} className="text-black hover:text-primary font-bold">{orderDisplay}</button>
@@ -399,7 +399,7 @@ export default function OrderAttachmentsPage() {
                         </>
                     ) : (
                         <div className="border border-[#ebebeb] p-8 md:p-24 text-center rounded-md bg-white shadow-sm">
-                            <p className="text-gray-400 italic text-xs uppercase tracking-widest">{t("orderAttachments.noRecords")}</p>
+                            <p className="text-black/50 italic text-xs uppercase tracking-widest">{t("orderAttachments.noRecords")}</p>
                         </div>
                     )}
                 </main>

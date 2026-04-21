@@ -198,12 +198,12 @@ function LoginPageContent() {
   };
 
   return (
-    <div className="flex-1 w-full h-full bg-[#f4f4f4] flex flex-col font-rubik">
+    <div className="flex-1 w-full h-full bg-[#f4f4f4] flex flex-col">
       <main className="flex-1 flex justify-center items-start pt-8 md:pt-16 pb-12 px-4 md:px-0">
         <div className="w-full max-w-[440px] bg-white rounded-[3px] shadow-[0_10px_40px_rgba(0,0,0,0.08)] border border-gray-100 overflow-hidden">
           <div className="px-4 sm:px-6 md:px-8 pt-5 sm:pt-7 pb-4 sm:pb-5">
             <div className="text-left">
-              <h1 className="text-[17px] sm:text-[18px] font-black tracking-[0.5px] uppercase text-gray-900">
+              <h1 className="text-[17px] sm:text-[18px] font-black tracking-[0.5px] uppercase text-black">
                 {t("login.title")}
               </h1>
             </div>
@@ -213,14 +213,14 @@ function LoginPageContent() {
             <div className="flex w-full rounded-[3px] overflow-hidden border border-gray-200">
               <button
                 type="button"
-                className={`flex-1 py-[14px] text-body font-semibold uppercase tracking-wider transition-all cursor-pointer ${mode === 'otp' ? 'bg-primary text-black' : 'bg-white text-gray-900 hover:bg-gray-50'}`}
+                className={`flex-1 py-[14px] text-body font-semibold uppercase tracking-wider transition-all cursor-pointer ${mode === 'otp' ? 'bg-primary text-black' : 'bg-white text-black hover:bg-gray-50'}`}
                 onClick={() => { setMode("otp"); setOtpSent(false); setErrors({}); window.history.replaceState(null, "", lp("/login?mode=otp")); }}
               >
                 {t("login.modeOtp")}
               </button>
               <button
                 type="button"
-                className={`flex-1 py-[14px] text-body font-semibold uppercase tracking-wider transition-all cursor-pointer border-l border-gray-100 ${mode === 'password' ? 'bg-primary text-black' : 'bg-white text-gray-900 hover:bg-gray-50'}`}
+                className={`flex-1 py-[14px] text-body font-semibold uppercase tracking-wider transition-all cursor-pointer border-l border-gray-100 ${mode === 'password' ? 'bg-primary text-black' : 'bg-white text-black hover:bg-gray-50'}`}
                 onClick={() => { setMode("password"); setOtpSent(false); setErrors({}); window.history.replaceState(null, "", lp("/login?mode=password")); }}
               >
                 {t("login.modePassword")}
@@ -229,7 +229,7 @@ function LoginPageContent() {
           </div>
 
           <div className="px-4 sm:px-6 md:px-8 pt-4 sm:pt-5 pb-6 sm:pb-8">
-            <p className="text-body text-gray-500 font-semibold leading-relaxed mb-5">
+            <p className="text-body text-black/60 font-semibold leading-relaxed mb-5">
               {mode === 'password' ? t("login.signInWithEmail") : t("login.signInWithMobile")}
             </p>
 
@@ -237,7 +237,7 @@ function LoginPageContent() {
               {mode === 'password' && (
                 <>
                   <div className="flex flex-col gap-[5px]">
-                    <label className="block text-body font-semibold text-gray-900 uppercase tracking-widest cursor-pointer">
+                    <label className="block text-body font-semibold text-black uppercase tracking-widest cursor-pointer">
                       {t("login.emailLabel")} <span className="text-red-600 font-bold">*</span>
                     </label>
                     <input
@@ -252,7 +252,7 @@ function LoginPageContent() {
                   </div>
 
                   <div className="flex flex-col gap-[5px]">
-                    <label className="block text-body font-semibold text-gray-900 uppercase tracking-widest cursor-pointer">
+                    <label className="block text-body font-semibold text-black uppercase tracking-widest cursor-pointer">
                       {t("login.passwordLabel")} <span className="text-red-600 font-bold">*</span>
                     </label>
                     <input
@@ -271,7 +271,7 @@ function LoginPageContent() {
               {mode === 'otp' && (
                 <>
                   <div className="flex flex-col gap-[5px] relative">
-                    <label className="block text-body font-semibold text-gray-900 uppercase tracking-widest">
+                    <label className="block text-body font-semibold text-black uppercase tracking-widest">
                       {t("login.mobileNumberLabel")} <span className="text-red-600 font-bold">*</span>
                     </label>
                     <div
@@ -291,7 +291,7 @@ function LoginPageContent() {
                         >
                           {selectedCountry?.code}
                         </span>
-                        <span className="text-micro text-gray-400">▼</span>
+                        <span className="text-micro text-black/50">▼</span>
                       </div>
                       <input
                         id="mobile-input"
@@ -314,7 +314,7 @@ function LoginPageContent() {
                                 <span className={`${item.flagClass}`}></span>
                                 <span className="text-body" style={{ color: '#e02b27' }}>{item.country} ({item.arCountry})</span>
                               </div>
-                              <span className="text-body text-gray-500">{item.code}</span>
+                              <span className="text-body text-black/60">{item.code}</span>
                             </div>
                           ))}
                         </div>
@@ -325,7 +325,7 @@ function LoginPageContent() {
 
                   {otpSent && (
                     <div className="flex flex-col gap-[5px]">
-                      <label className="block text-body font-semibold text-gray-900 uppercase tracking-widest">
+                      <label className="block text-body font-semibold text-black uppercase tracking-widest">
                         {t("login.verificationCode")} <span className="text-red-600 font-bold">*</span>
                       </label>
                       <input
@@ -355,7 +355,7 @@ function LoginPageContent() {
 
                 <div className="text-right">
                   <Link href={lp("/forgot-password")}>
-                    <span className="text-body font-semibold text-gray-700 hover:text-black cursor-pointer hover:underline underline-offset-2 py-2 inline-block">
+                    <span className="text-body font-semibold text-black/80 hover:text-black cursor-pointer hover:underline underline-offset-2 py-2 inline-block">
                       {t("login.forgotPassword")}
                     </span>
                   </Link>

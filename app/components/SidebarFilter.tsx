@@ -46,11 +46,11 @@ const FilterItem = memo(({
                         <path d="M1 5L4.5 8.5L13 1" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                     </svg>
                 </div>
-                <span className={`text-body transition-colors leading-tight ${isChecked ? 'text-black font-semibold' : 'text-gray-600 font-medium group-hover/label:text-black'}`}>
+                <span className={`text-body transition-colors leading-tight ${isChecked ? 'text-black font-semibold' : 'text-black/70 font-medium group-hover/label:text-black'}`}>
                     {translatedLabel}
                 </span>
             </div>
-            <span className="text-caption font-semibold text-gray-400 bg-gray-50 px-1.5 py-0.5 rounded border border-gray-100 group-hover/label:bg-gray-100 transition-colors">
+            <span className="text-caption font-semibold text-black/50 bg-gray-50 px-1.5 py-0.5 rounded border border-gray-100 group-hover/label:bg-gray-100 transition-colors">
                 {option.count ?? 0}
             </span>
         </label>
@@ -89,9 +89,9 @@ const FilterGroup = memo(({
                 aria-expanded={isExpanded}
             >
                 <div className="flex items-center gap-2">
-                    <span className="font-semibold text-gray-900 text-[15px]">{t(`filter.${group.code}`) !== `filter.${group.code}` ? t(`filter.${group.code}`) : group.label}</span>
+                    <span className="font-semibold text-black text-[15px]">{t(`filter.${group.code}`) !== `filter.${group.code}` ? t(`filter.${group.code}`) : group.label}</span>
                 </div>
-                <div className={`text-gray-400 transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`}>
+                <div className={`text-black/50 transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`}>
                     <ChevronDown className="w-4 h-4" strokeWidth={2.5} />
                 </div>
             </button>
@@ -107,7 +107,7 @@ const FilterGroup = memo(({
                                 onChange={(e) => setSearchTerm(e.target.value)}
                                 className="w-full pl-8 pr-3 py-1.5 text-xs border border-gray-200 rounded-md outline-none"
                             />
-                            <X className="absolute right-2 top-1/2 -translate-y-1/2 w-3 h-3 text-gray-400 cursor-pointer" onClick={() => setSearchTerm("")} />
+                            <X className="absolute right-2 top-1/2 -translate-y-1/2 w-3 h-3 text-black/50 cursor-pointer" onClick={() => setSearchTerm("")} />
                         </div>
                     )}
 
@@ -123,7 +123,7 @@ const FilterGroup = memo(({
                                 />
                             ))
                         ) : (
-                            <div className="text-label text-gray-400 italic py-2 text-center">No matches found</div>
+                            <div className="text-label text-black/50 italic py-2 text-center">No matches found</div>
                         )}
                     </div>
                 </div>
@@ -300,7 +300,7 @@ function SidebarFilter({
             <div className="flex items-center w-full h-[60px] border-b border-gray-200 bg-white shadow-sm flex-shrink-0">
                 {!isCollapsed && (
                     <div className="flex-1 px-6 flex items-center overflow-hidden min-w-0">
-                        <h2 className="font-semibold text-gray-900 text-h3-sm whitespace-nowrap">{t("m.filter-options")}</h2>
+                        <h2 className="font-semibold text-black text-h3-sm whitespace-nowrap">{t("m.filter-options")}</h2>
                     </div>
                 )}
                 <div

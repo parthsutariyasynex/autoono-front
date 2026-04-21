@@ -344,7 +344,7 @@ const MultiShippingReviewPage: React.FC = () => {
                                     <p className="mb-0.5">{t("multi.saudiArabia")}</p>
                                     <p className="mt-3">T: {billingAddress.telephone}</p>
                                 </>
-                            ) : <p className="text-gray-400">{t("multi.loadingBilling")}</p>}
+                            ) : <p className="text-black/50">{t("multi.loadingBilling")}</p>}
                         </div>
                     </div>
 
@@ -366,8 +366,8 @@ const MultiShippingReviewPage: React.FC = () => {
                                 <div>
                                     <p className="text-label font-black text-black uppercase tracking-widest mb-2">{t("multi.paymentCommitment")}</p>
                                     <div className="border-2 border-dashed border-gray-300 bg-white p-6 md:p-10 flex flex-col items-center justify-center text-center cursor-pointer hover:border-gray-400 transition-colors">
-                                        <p className="text-body md:text-[15px] font-bold text-gray-800 mb-2">{t("multi.dropFiles")}</p>
-                                        <p className="text-micro md:text-caption text-gray-500 font-medium whitespace-pre-wrap">
+                                        <p className="text-body md:text-[15px] font-bold text-black mb-2">{t("multi.dropFiles")}</p>
+                                        <p className="text-micro md:text-caption text-black/60 font-medium whitespace-pre-wrap">
                                             {t("multi.allowedFiles")}
                                         </p>
                                     </div>
@@ -402,7 +402,7 @@ const MultiShippingReviewPage: React.FC = () => {
                     return (
                         <div key={group.address.id} className="mb-12 md:mb-24 last:mb-0">
                             <p className="text-body md:text-body-lg font-bold text-black text-center mb-6 md:mb-10 tracking-tight">
-                                {t("multi.address")} {index + 1} <span className="text-gray-400 font-normal">of {groups.length}</span>
+                                {t("multi.address")} {index + 1} <span className="text-black/50 font-normal">of {groups.length}</span>
                             </p>
 
                             <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 md:gap-4">
@@ -442,8 +442,8 @@ const MultiShippingReviewPage: React.FC = () => {
                                         <div>
                                             <p className="text-label font-black text-black uppercase mb-2">{t("multi.uploadPo")}</p>
                                             <div className="border-2 border-dashed border-gray-300 bg-white p-5 md:p-8 flex flex-col items-center justify-center text-center">
-                                                <p className="text-body md:text-body-lg font-bold text-gray-800 mb-2">{t("multi.dropFiles")}</p>
-                                                <p className="text-micro text-gray-400 font-medium uppercase tracking-tighter">
+                                                <p className="text-body md:text-body-lg font-bold text-black mb-2">{t("multi.dropFiles")}</p>
+                                                <p className="text-micro text-black/50 font-medium uppercase tracking-tighter">
                                                     {t("multi.allowedFiles")}
                                                 </p>
                                             </div>
@@ -474,7 +474,7 @@ const MultiShippingReviewPage: React.FC = () => {
                                             <tbody className="bg-transparent">
                                                 {group.items.map((item) => (
                                                     <tr key={item.itemId}>
-                                                        <td className="py-3 md:py-4 px-3 md:px-6 text-body-sm md:text-body font-medium text-gray-600 align-top uppercase leading-tight">
+                                                        <td className="py-3 md:py-4 px-3 md:px-6 text-body-sm md:text-body font-medium text-black/70 align-top uppercase leading-tight">
                                                             {item.name}
                                                         </td>
                                                         <td className="py-3 md:py-4 px-2 md:px-4 text-body-sm md:text-body font-black text-black text-right align-top">

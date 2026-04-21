@@ -239,7 +239,7 @@ const MultiLocationDeliveryPage: React.FC = () => {
                     <h1 className="text-[18px] sm:text-h3 md:text-[26px] font-black text-black uppercase tracking-normal mb-1">
                         {t("multi.shipToMultiple")}
                     </h1>
-                    {/* <p className="text-body-sm sm:text-body md:text-body-lg text-gray-800 font-medium italic">
+                    {/* <p className="text-body-sm sm:text-body md:text-body-lg text-black font-medium italic">
                         Please assign Qty against shipping address for applicable items.
                     </p> */}
                 </div>
@@ -299,7 +299,7 @@ const MultiLocationDeliveryPage: React.FC = () => {
                                             <td className="py-3 md:py-6 px-2 md:px-4 border-r border-gray-300 align-middle">
                                                 <div className="flex flex-col items-center">
                                                     <span className="text-caption md:text-label font-bold text-black mb-1.5 md:mb-2 uppercase tracking-tighter">{t("multi.qty")}</span>
-                                                    <div className="w-[40px] md:w-[50px] h-[34px] md:h-[38px] flex items-center justify-center border border-gray-300 text-gray-400 font-bold bg-white text-body md:text-body-lg">
+                                                    <div className="w-[40px] md:w-[50px] h-[34px] md:h-[38px] flex items-center justify-center border border-gray-300 text-black/50 font-bold bg-white text-body md:text-body-lg">
                                                         {item.qty}
                                                     </div>
                                                 </div>

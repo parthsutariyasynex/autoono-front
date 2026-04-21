@@ -4,6 +4,7 @@ import { X, Loader2 } from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useSession } from "next-auth/react";
 import toast from "react-hot-toast";
+import { useLockBodyScroll } from "@/hooks/useLockBodyScroll";
 
 interface MakePaymentModalProps {
     isOpen: boolean;
@@ -15,6 +16,8 @@ interface MakePaymentModalProps {
 }
 
 const MakePaymentModal: React.FC<MakePaymentModalProps> = ({ isOpen, onClose, order, customerName, onSave, receivablePayment }) => {
+    useLockBodyScroll(isOpen);
+
     const { t, locale } = useTranslation();
     const { data: session } = useSession();
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -113,40 +116,40 @@ const MakePaymentModal: React.FC<MakePaymentModalProps> = ({ isOpen, onClose, or
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                         {/* Order # */}
                         <div className="space-y-1.5">
-                            <label className="text-label font-black text-gray-700 uppercase tracking-widest">{t("orders.orderId")}</label>
+                            <label className="text-label font-black text-black/80 uppercase tracking-widest">{t("orders.orderId")}</label>
                             <input
                                 type="text"
                                 readOnly
                                 value={order.id || order.increment_id}
-                                className="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-sm text-body text-gray-500 outline-none"
+                                className="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-sm text-body text-black/60 outline-none"
                             />
                         </div>
 
                         {/* Customer Name */}
                         <div className="space-y-1.5">
-                            <label className="text-label font-black text-gray-700 uppercase tracking-widest">{t("m.customer-name") || "Customer Name"}</label>
+                            <label className="text-label font-black text-black/80 uppercase tracking-widest">{t("m.customer-name") || "Customer Name"}</label>
                             <input
                                 type="text"
                                 readOnly
                                 value={customerName}
-                                className="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-sm text-body text-gray-500 outline-none"
+                                className="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-sm text-body text-black/60 outline-none"
                             />
                         </div>
 
                         {/* Customer Code */}
                         <div className="space-y-1.5">
-                            <label className="text-label font-black text-gray-700 uppercase tracking-widest">{t("m.customer-code")}</label>
+                            <label className="text-label font-black text-black/80 uppercase tracking-widest">{t("m.customer-code")}</label>
                             <input
                                 type="text"
                                 readOnly
                                 value={order.customer_code || order.customerCode || "AD2404"}
-                                className="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-sm text-body text-gray-500 outline-none"
+                                className="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-sm text-body text-black/60 outline-none"
                             />
                         </div>
 
                         {/* SAP Invoice No */}
                         <div className="space-y-1.5">
-                            <label className="text-label font-black text-gray-700 uppercase tracking-widest">SAP Invoice No</label>
+                            <label className="text-label font-black text-black/80 uppercase tracking-widest">SAP Invoice No</label>
                             <input
                                 type="text"
                                 value={formData.sap_invoice_no}
@@ -157,7 +160,7 @@ const MakePaymentModal: React.FC<MakePaymentModalProps> = ({ isOpen, onClose, or
 
                         {/* Payment Date */}
                         <div className="space-y-1.5">
-                            <label className="text-label font-black text-gray-700 uppercase tracking-widest">Payment Date</label>
+                            <label className="text-label font-black text-black/80 uppercase tracking-widest">Payment Date</label>
                             <input
                                 type="date"
                                 value={formData.payment_date}
@@ -168,7 +171,7 @@ const MakePaymentModal: React.FC<MakePaymentModalProps> = ({ isOpen, onClose, or
 
                         {/* Payment Method */}
                         <div className="space-y-1.5">
-                            <label className="text-label font-black text-gray-700 uppercase tracking-widest">Payment Method</label>
+                            <label className="text-label font-black text-black/80 uppercase tracking-widest">Payment Method</label>
                             <select
                                 value={formData.payment_method}
                                 onChange={(e) => setFormData({ ...formData, payment_method: e.target.value })}
@@ -183,29 +186,29 @@ const MakePaymentModal: React.FC<MakePaymentModalProps> = ({ isOpen, onClose, or
 
                         {/* Invoice Amount */}
                         <div className="space-y-1.5">
-                            <label className="text-label font-black text-gray-700 uppercase tracking-widest">Invoice Amount</label>
+                            <label className="text-label font-black text-black/80 uppercase tracking-widest">Invoice Amount</label>
                             <input
                                 type="text"
                                 readOnly
                                 value={order.grand_total || order.grandTotal || "0.00"}
-                                className="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-sm text-body text-gray-500 outline-none font-bold"
+                                className="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-sm text-body text-black/60 outline-none font-bold"
                             />
                         </div>
 
                         {/* Receivable Payment */}
                         <div className="space-y-1.5">
-                            <label className="text-label font-black text-gray-700 uppercase tracking-widest">Receivable Payment</label>
+                            <label className="text-label font-black text-black/80 uppercase tracking-widest">Receivable Payment</label>
                             <input
                                 type="text"
                                 readOnly
                                 value={receivablePayment?.toFixed(2) || "0.00"}
-                                className="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-sm text-body text-gray-500 outline-none font-bold"
+                                className="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-sm text-body text-black/60 outline-none font-bold"
                             />
                         </div>
 
                         {/* Paid Payment */}
                         <div className="space-y-1.5">
-                            <label className="text-label font-black text-gray-700 uppercase tracking-widest">Paid Payment <span className="text-red-500 inline">*</span></label>
+                            <label className="text-label font-black text-black/80 uppercase tracking-widest">Paid Payment <span className="text-red-500 inline">*</span></label>
                             <input
                                 type="number"
                                 required
@@ -217,7 +220,7 @@ const MakePaymentModal: React.FC<MakePaymentModalProps> = ({ isOpen, onClose, or
 
                         {/* Remarks */}
                         <div className="space-y-1.5">
-                            <label className="text-label font-black text-gray-700 uppercase tracking-widest">Remarks</label>
+                            <label className="text-label font-black text-black/80 uppercase tracking-widest">Remarks</label>
                             <textarea
                                 value={formData.remarks}
                                 onChange={(e) => setFormData({ ...formData, remarks: e.target.value })}

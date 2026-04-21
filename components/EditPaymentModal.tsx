@@ -4,6 +4,7 @@ import { X, Loader2 } from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useSession } from "next-auth/react";
 import toast from "react-hot-toast";
+import { useLockBodyScroll } from "@/hooks/useLockBodyScroll";
 
 interface EditPaymentModalProps {
     isOpen: boolean;
@@ -15,6 +16,8 @@ interface EditPaymentModalProps {
 }
 
 const EditPaymentModal: React.FC<EditPaymentModalProps> = ({ isOpen, onClose, payment, order, customerName, onSave }) => {
+    useLockBodyScroll(isOpen);
+
     const { t, locale } = useTranslation();
     const { data: session } = useSession();
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -126,51 +129,51 @@ const EditPaymentModal: React.FC<EditPaymentModalProps> = ({ isOpen, onClose, pa
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6 mb-8">
                         {/* Receipt No */}
                         <div className="space-y-1.5">
-                            <label className="text-label font-black text-gray-700 uppercase tracking-widest">Receipt No</label>
+                            <label className="text-label font-black text-black/80 uppercase tracking-widest">Receipt No</label>
                             <input
                                 type="text"
                                 readOnly
                                 value={payment.receipt_no || "N/A"}
-                                className="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-sm text-body text-gray-500 outline-none"
+                                className="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-sm text-body text-black/60 outline-none"
                             />
                         </div>
 
                         {/* Order ID */}
                         <div className="space-y-1.5">
-                            <label className="text-label font-black text-gray-700 uppercase tracking-widest">Order ID</label>
+                            <label className="text-label font-black text-black/80 uppercase tracking-widest">Order ID</label>
                             <input
                                 type="text"
                                 readOnly
                                 value={payment.order_increment_id || order.increment_id}
-                                className="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-sm text-body text-gray-500 outline-none"
+                                className="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-sm text-body text-black/60 outline-none"
                             />
                         </div>
 
                         {/* Customer Name */}
                         <div className="space-y-1.5">
-                            <label className="text-label font-black text-gray-700 uppercase tracking-widest">Customer Name</label>
+                            <label className="text-label font-black text-black/80 uppercase tracking-widest">Customer Name</label>
                             <input
                                 type="text"
                                 readOnly
                                 value={payment.customer_name || customerName}
-                                className="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-sm text-body text-gray-500 outline-none"
+                                className="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-sm text-body text-black/60 outline-none"
                             />
                         </div>
 
                         {/* Customer Code */}
                         <div className="space-y-1.5">
-                            <label className="text-label font-black text-gray-700 uppercase tracking-widest">{t("m.customer-code")}</label>
+                            <label className="text-label font-black text-black/80 uppercase tracking-widest">{t("m.customer-code")}</label>
                             <input
                                 type="text"
                                 readOnly
                                 value={payment.customer_code || order.customerCode || "N/A"}
-                                className="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-sm text-body text-gray-500 outline-none"
+                                className="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-sm text-body text-black/60 outline-none"
                             />
                         </div>
 
                         {/* SAP Invoice No */}
                         <div className="space-y-1.5">
-                            <label className="text-label font-black text-gray-700 uppercase tracking-widest">SAP Invoice No</label>
+                            <label className="text-label font-black text-black/80 uppercase tracking-widest">SAP Invoice No</label>
                             <input
                                 type="text"
                                 value={formData.sap_invoice_no}
@@ -181,7 +184,7 @@ const EditPaymentModal: React.FC<EditPaymentModalProps> = ({ isOpen, onClose, pa
 
                         {/* Payment Date */}
                         <div className="space-y-1.5">
-                            <label className="text-label font-black text-gray-700 uppercase tracking-widest">Payment Date</label>
+                            <label className="text-label font-black text-black/80 uppercase tracking-widest">Payment Date</label>
                             <input
                                 type="date"
                                 value={formData.payment_date}
@@ -192,7 +195,7 @@ const EditPaymentModal: React.FC<EditPaymentModalProps> = ({ isOpen, onClose, pa
 
                         {/* Payment Method */}
                         <div className="space-y-1.5">
-                            <label className="text-label font-black text-gray-700 uppercase tracking-widest">Payment Method</label>
+                            <label className="text-label font-black text-black/80 uppercase tracking-widest">Payment Method</label>
                             <select
                                 value={formData.payment_method}
                                 onChange={(e) => setFormData({ ...formData, payment_method: e.target.value })}
@@ -206,29 +209,29 @@ const EditPaymentModal: React.FC<EditPaymentModalProps> = ({ isOpen, onClose, pa
 
                         {/* Invoice Amount */}
                         <div className="space-y-1.5">
-                            <label className="text-label font-black text-gray-700 uppercase tracking-widest">Invoice Amount</label>
+                            <label className="text-label font-black text-black/80 uppercase tracking-widest">Invoice Amount</label>
                             <input
                                 type="text"
                                 readOnly
                                 value={payment.invoice_amount || order.grand_total}
-                                className="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-sm text-body text-gray-500 outline-none"
+                                className="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-sm text-body text-black/60 outline-none"
                             />
                         </div>
 
                         {/* Receivable Payment */}
                         <div className="space-y-1.5">
-                            <label className="text-label font-black text-gray-700 uppercase tracking-widest">Receivable Payment</label>
+                            <label className="text-label font-black text-black/80 uppercase tracking-widest">Receivable Payment</label>
                             <input
                                 type="text"
                                 readOnly
                                 value={payment.receivable_payment || order.receivable_payment}
-                                className="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-sm text-body text-gray-500 outline-none"
+                                className="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-sm text-body text-black/60 outline-none"
                             />
                         </div>
 
                         {/* Paid Payment */}
                         <div className="space-y-1.5">
-                            <label className="text-label font-black text-gray-700 uppercase tracking-widest">Paid Payment</label>
+                            <label className="text-label font-black text-black/80 uppercase tracking-widest">Paid Payment</label>
                             <input
                                 type="number"
                                 value={formData.paid_payment}
@@ -239,7 +242,7 @@ const EditPaymentModal: React.FC<EditPaymentModalProps> = ({ isOpen, onClose, pa
 
                         {/* Receiver Name */}
                         <div className="space-y-1.5">
-                            <label className="text-label font-black text-gray-700 uppercase tracking-widest">Receiver Name</label>
+                            <label className="text-label font-black text-black/80 uppercase tracking-widest">Receiver Name</label>
                             <input
                                 type="text"
                                 value={formData.receiver_name}
@@ -250,20 +253,20 @@ const EditPaymentModal: React.FC<EditPaymentModalProps> = ({ isOpen, onClose, pa
 
                         {/* Proof Upload */}
                         <div className="space-y-1.5">
-                            <label className="text-label font-black text-gray-700 uppercase tracking-widest">Upload Proof (Image/PDF)</label>
+                            <label className="text-label font-black text-black/80 uppercase tracking-widest">Upload Proof (Image/PDF)</label>
                             <div className="flex flex-col gap-1">
                                 <input
                                     type="file"
                                     onChange={handleFileChange}
-                                    className="text-label text-gray-500 file:mr-4 file:py-1 file:px-2 file:rounded-sm file:border-0 file:text-label file:font-bold file:bg-gray-100 file:text-gray-700 hover:file:bg-gray-200 cursor-pointer"
+                                    className="text-label text-black/60 file:mr-4 file:py-1 file:px-2 file:rounded-sm file:border-0 file:text-label file:font-bold file:bg-gray-100 file:text-black/80 hover:file:bg-gray-200 cursor-pointer"
                                 />
-                                <p className="text-caption text-gray-400">No proof uploaded yet.</p>
+                                <p className="text-caption text-black/50">No proof uploaded yet.</p>
                             </div>
                         </div>
 
                         {/* Remarks */}
                         <div className="space-y-1.5 md:col-span-2">
-                            <label className="text-label font-black text-gray-700 uppercase tracking-widest">Remarks</label>
+                            <label className="text-label font-black text-black/80 uppercase tracking-widest">Remarks</label>
                             <textarea
                                 value={formData.remarks}
                                 onChange={(e) => setFormData({ ...formData, remarks: e.target.value })}
@@ -274,7 +277,7 @@ const EditPaymentModal: React.FC<EditPaymentModalProps> = ({ isOpen, onClose, pa
 
                         {/* Comment 1 */}
                         <div className="space-y-1.5">
-                            <label className="text-label font-black text-gray-700 uppercase tracking-widest">Comment 1</label>
+                            <label className="text-label font-black text-black/80 uppercase tracking-widest">Comment 1</label>
                             <input
                                 type="text"
                                 value={formData.comment1}
@@ -285,7 +288,7 @@ const EditPaymentModal: React.FC<EditPaymentModalProps> = ({ isOpen, onClose, pa
 
                         {/* Comment 2 */}
                         <div className="space-y-1.5">
-                            <label className="text-label font-black text-gray-700 uppercase tracking-widest">Comment 2</label>
+                            <label className="text-label font-black text-black/80 uppercase tracking-widest">Comment 2</label>
                             <input
                                 type="text"
                                 value={formData.comment2}

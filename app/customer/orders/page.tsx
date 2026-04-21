@@ -175,7 +175,7 @@ export default function MyOrdersPage() {
     };
 
     return (
-        <div className="min-h-screen bg-white font-['Rubik'] pb-20">
+        <div className="min-h-screen bg-white pb-20">
 
 
             <div className="flex flex-1 min-h-0 w-full px-4 md:px-8 py-6 md:py-10">
@@ -189,7 +189,7 @@ export default function MyOrdersPage() {
                                 {t("nav.myOrders")}
                             </h1>
                             <div className="h-[2px] flex-1 bg-gradient-to-r from-primary to-transparent"></div>
-                            <button className="hidden sm:flex items-center justify-center gap-2 bg-primary text-black text-label font-black px-6 py-3 uppercase tracking-widest hover:bg-[#e6950f] transition-all rounded-lg shadow-sm active:scale-95">
+                            <button className="hidden sm:flex items-center justify-center gap-2 bg-primary text-black text-label font-black px-6 py-3 uppercase tracking-widest hover:bg-primaryHover transition-all rounded-lg shadow-sm active:scale-95">
                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                 </svg>

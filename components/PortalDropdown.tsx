@@ -80,7 +80,7 @@ export default function PortalDropdown({
                 style={{ minWidth }}
             >
                 <span className="truncate">{selected ? selected.label : placeholder}</span>
-                <ChevronDown size={13} className={`text-gray-400 transition-transform flex-shrink-0 ${isOpen ? "rotate-180" : ""}`} />
+                <ChevronDown size={13} className={`text-black/50 transition-transform flex-shrink-0 ${isOpen ? "rotate-180" : ""}`} />
             </button>
 
             {isOpen && mounted && createPortal(
@@ -104,7 +104,7 @@ export default function PortalDropdown({
                                 key={opt.value}
                                 type="button"
                                 onClick={() => { onChange(opt.value); setIsOpen(false); }}
-                                className={`w-full text-left px-3 py-2.5 text-body font-bold cursor-pointer transition-colors border-b last:border-0 border-gray-50 whitespace-nowrap ${String(opt.value) === String(value) ? "bg-primary text-black" : "text-gray-700 hover:bg-gray-50 hover:text-primary"}`}
+                                className={`w-full text-left px-3 py-2.5 text-body font-bold cursor-pointer transition-colors border-b last:border-0 border-gray-50 whitespace-nowrap ${String(opt.value) === String(value) ? "bg-primary text-black" : "text-black/80 hover:bg-gray-50 hover:text-primary"}`}
                             >
                                 {opt.label}
                             </button>
