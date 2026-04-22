@@ -302,7 +302,8 @@ export function useCheckout(options: UseCheckoutOptions = {}) {
                 console.warn("[useCheckout] 401 Unauthorized for pickup stores");
                 const { signOut } = await import("next-auth/react");
                 const locale = typeof window !== "undefined" && window.location.pathname.startsWith("/ar") ? "ar" : "en";
-                signOut({ callbackUrl: `${window.location.origin}/${locale}/login` });
+                await signOut({ redirect: false });
+                window.location.href = `/${locale}/login`;
                 return;
             }
 

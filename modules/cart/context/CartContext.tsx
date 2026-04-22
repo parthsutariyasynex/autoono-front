@@ -72,8 +72,11 @@ function isAuthError(status: number): boolean {
 function handleAuthError() {
   console.warn("Cart: token expired or unauthorized — signing out");
   const locale = typeof window !== "undefined" && window.location.pathname.startsWith("/ar") ? "ar" : "en";
-  const origin = typeof window !== "undefined" ? window.location.origin : "";
-  signOut({ callbackUrl: `${origin}/${locale}/login` });
+  // redirect:false + manual navigation keeps us on the current origin;
+  // NextAuth's internal redirect falls back to http://localhost:3000.
+  signOut({ redirect: false }).finally(() => {
+    if (typeof window !== "undefined") window.location.href = `/${locale}/login`;
+  });
 }
 
 export function CartProvider({ children }: { children: ReactNode }) {

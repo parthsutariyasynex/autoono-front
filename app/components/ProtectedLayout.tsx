@@ -40,7 +40,9 @@ export default function ProtectedLayout({ children }: ProtectedLayoutProps) {
       if ((session as any)?.error === 'MagentoTokenExpired') {
         localStorage.removeItem('token');
         dispatch({ type: 'LOGOUT' });
-        signOut({ callbackUrl: `${window.location.origin}/${locale}/login` });
+        signOut({ redirect: false }).finally(() => {
+          window.location.href = `/${locale}/login`;
+        });
         return;
       }
 

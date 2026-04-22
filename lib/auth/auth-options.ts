@@ -1,6 +1,7 @@
 import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { getMagentoBaseUrl, isValidLocale, defaultLocale, type Locale } from "@/lib/i18n/config";
+import { SESSION_COOKIE_NAME, CSRF_COOKIE_NAME, CALLBACK_URL_COOKIE_NAME } from "./constants";
 
 /**
  * Decode a Magento JWT token to read its expiry time.
@@ -132,6 +133,19 @@ export const authOptions: NextAuthOptions = {
             (session as any).error = token.error;
             return session;
         },
+        /**
+         * Strict same-origin redirect policy — prevents logout/login from
+         * bouncing to another localhost project. Without this, NextAuth's
+         * default falls back to baseUrl when origins don't match, which on
+         * shared-cookie localhost setups can land on the wrong port.
+         */
+        async redirect({ url, baseUrl }) {
+            if (url.startsWith("/")) return `${baseUrl}${url}`;
+            try {
+                if (new URL(url).origin === baseUrl) return url;
+            } catch { }
+            return baseUrl;
+        },
     },
     pages: {
         signIn: "/login",
@@ -141,7 +155,7 @@ export const authOptions: NextAuthOptions = {
     },
     cookies: {
         sessionToken: {
-            name: "autoono.session-token",
+            name: SESSION_COOKIE_NAME,
             options: {
                 httpOnly: true,
                 sameSite: "lax",
@@ -150,7 +164,7 @@ export const authOptions: NextAuthOptions = {
             },
         },
         callbackUrl: {
-            name: "autoono.callback-url",
+            name: CALLBACK_URL_COOKIE_NAME,
             options: {
                 sameSite: "lax",
                 path: "/",
@@ -158,7 +172,7 @@ export const authOptions: NextAuthOptions = {
             },
         },
         csrfToken: {
-            name: "autoono.csrf-token",
+            name: CSRF_COOKIE_NAME,
             options: {
                 httpOnly: true,
                 sameSite: "lax",

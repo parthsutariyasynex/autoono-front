@@ -9,6 +9,7 @@ import {
 import { defaultLocale, localeNames } from "@/lib/i18n/config";
 
 import { useRouter, usePathname } from "next/navigation";
+import { useTranslation } from "@/hooks/useTranslation";
 
 /**
  * Language Switcher Component
@@ -22,6 +23,7 @@ import { useRouter, usePathname } from "next/navigation";
 export default function LanguageSwitcher() {
     const router = useRouter();
     const pathname = usePathname();
+    const { i18n } = useTranslation();
     // Start with default locale to match server render (prevents hydration mismatch)
     const [currentLocale, setCurrentLocale] = useState<Locale>(defaultLocale);
 
@@ -29,7 +31,7 @@ export default function LanguageSwitcher() {
     useEffect(() => {
         const locale = window.location.pathname.startsWith("/ar") ? "ar" : "en";
         setCurrentLocale(locale);
-    }, [pathname]);
+    }, [pathname, i18n.language]);
 
     const handleSwitch = (newLocale: Locale) => {
         if (newLocale === currentLocale) return;
@@ -38,7 +40,7 @@ export default function LanguageSwitcher() {
         setLocaleCookie(newLocale);
 
         // 2. Notify DirectionSync + data-fetching components instantly
-        window.dispatchEvent(new CustomEvent("locale-changed", { detail: newLocale }));
+        i18n.changeLanguage(newLocale);
 
         // 3. Dynamic navigation — ensures seamless transition
         const currentPath = window.location.pathname;
@@ -46,6 +48,8 @@ export default function LanguageSwitcher() {
         const targetUrl = `/${newLocale}${stripped === "/" ? "" : stripped}${window.location.search || ""}`;
 
         router.push(targetUrl);
+        // Force refresh to ensure all components (Navbar, etc.) re-render with new locale
+        router.refresh();
     };
 
     return (

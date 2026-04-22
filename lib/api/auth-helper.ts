@@ -1,5 +1,6 @@
 import { NextRequest } from "next/server";
 import { getToken } from "next-auth/jwt";
+import { SESSION_COOKIE_NAME } from "@/lib/auth/constants";
 
 /**
  * Robust token extraction for API route handlers.
@@ -24,9 +25,15 @@ export async function getRequestToken(req: Request | NextRequest): Promise<strin
             const jwt = await getToken({
                 req: req as any,
                 secret: process.env.NEXTAUTH_SECRET,
-                cookieName: "autoono.session-token",
+                cookieName: SESSION_COOKIE_NAME,
             });
-            token = (jwt as any)?.accessToken || null;
+
+            // Reject if token is expired or has error
+            if (jwt?.error === "MagentoTokenExpired" || !jwt?.accessToken) {
+                token = null;
+            } else {
+                token = (jwt as any).accessToken;
+            }
         } catch (e) {
             console.error("[auth-helper] NextAuth getToken error:", e);
         }

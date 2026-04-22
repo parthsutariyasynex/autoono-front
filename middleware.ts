@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getToken } from "next-auth/jwt";
+import { SESSION_COOKIE_NAME } from "./lib/auth/constants";
 
 // ─── i18n config ────────────────────────────────────────────────────────────
 const LOCALES = ["en", "ar"] as const;
@@ -120,7 +121,7 @@ async function checkAuth(request: NextRequest): Promise<boolean> {
             req: request,
             secret: process.env.NEXTAUTH_SECRET,
             secureCookie: process.env.NODE_ENV === "production",
-            cookieName: "autoono.session-token",
+            cookieName: SESSION_COOKIE_NAME,
         });
 
         // Must have accessToken and not be expired

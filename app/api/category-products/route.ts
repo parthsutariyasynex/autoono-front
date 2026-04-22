@@ -3,6 +3,7 @@ import { getToken } from "next-auth/jwt";
 import { authOptions } from "@/lib/auth/auth-options";
 import { NextRequest } from "next/server";
 import { getBaseUrl, getLocaleFromRequest, getV101BaseUrl, getStoreBaseUrl } from "@/lib/api/magento-url";
+import { SESSION_COOKIE_NAME } from "@/lib/auth/constants";
 
 export async function GET(request: NextRequest) {
     try {
@@ -22,7 +23,7 @@ export async function GET(request: NextRequest) {
                 const jwtToken = await getToken({
                     req: request,
                     secret: process.env.NEXTAUTH_SECRET,
-                    cookieName: "autoono.session-token",
+                    cookieName: SESSION_COOKIE_NAME,
                 });
                 token = (jwtToken as any)?.accessToken || null;
                 console.log("[category-products] Token from JWT cookie:", token ? "found" : "missing");

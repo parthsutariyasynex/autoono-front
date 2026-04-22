@@ -13,6 +13,13 @@ function getLocale(): string {
 }
 
 function getResponse(response: any) {
+    if (response && response.status === 401) {
+        console.warn("[axiosHelper] 401 Unauthorized detected. Clearing token.");
+        if (typeof window !== "undefined") {
+            localStorage.removeItem("token");
+        }
+    }
+
     if (response && response.data) {
         // Don't immediately redirect on 401 — let the caller handle retry
         return {

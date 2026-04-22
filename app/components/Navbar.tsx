@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useSession, signOut } from "next-auth/react";
+import { useSession } from "next-auth/react";
+import { handleGlobalLogout } from "@/lib/auth/logout-helper";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "@/store/store";
@@ -26,7 +27,6 @@ import { useNotifications } from "@/modules/notifications/hooks/useNotifications
 import { fetchCustomerInfo } from "@/store/actions/customerActions";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { useTranslation } from "@/hooks/useTranslation";
-import { useLocale } from "@/lib/i18n/client";
 import { useLocalePath } from "@/hooks/useLocalePath";
 
 interface NavLink {
@@ -71,14 +71,28 @@ const CODE_TO_TRANSLATION_KEY: Record<string, string> = {
   product_catalogue: "nav.productCatalogue",
 };
 
+// Secondary href → translation-key lookup. Used when the Magento menu API
+// returns items WITHOUT a `code` field (or with codes we don't recognize).
+// Without this secondary lookup, the Navbar would render the raw Arabic label
+// returned by the previous fetch even after the user switched to EN, because
+// resolveLabel falls back to item.label.
+const HREF_TO_TRANSLATION_KEY: Record<string, string> = {
+  "/products": "nav.allTyres",
+  "/quick-order": "nav.quickOrder",
+  "/about": "nav.aboutUs",
+  "/locations": "nav.branchLocations",
+  "/guides": "nav.userGuides",
+  "/catalogue": "nav.productCatalogue",
+};
+
 export default function Navbar() {
   const { data: session, status } = useSession();
   const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
   const currentStore = searchParams?.get("store") || "";
-  const { t, isRtl } = useTranslation();
-  const locale = useLocale();
+  const { t, isRtl, i18n } = useTranslation();
+  const locale = i18n.language;
   const lp = useLocalePath();
   const isAuthenticated = status === "authenticated";
   const { cart, refetchCart } = useCart();
@@ -112,8 +126,7 @@ export default function Navbar() {
   const cartCount = cart?.items_count || 0;
 
   const handleLogout = async () => {
-    localStorage.removeItem("token");
-    await signOut({ callbackUrl: `${window.location.origin}${lp("/login")}` });
+    await handleGlobalLogout(lp("/login"));
   };
 
   useEffect(() => {
@@ -122,6 +135,16 @@ export default function Navbar() {
       setIsSubAccount(localStorage.getItem("isSubAccount") === "true");
     }
   }, [pathname]);
+
+  useEffect(() => {
+    if (status === "authenticated") {
+      const sess = session as any;
+      if (sess?.error === "MagentoTokenExpired" || !sess?.accessToken) {
+        console.warn("[Navbar] Session has expired Magento token. Logging out.");
+        handleLogout();
+      }
+    }
+  }, [status, session]);
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -174,16 +197,22 @@ export default function Navbar() {
     const fetchMenu = async () => {
       try {
         setNavLoading(true);
-        const fetchLocale = window.location.pathname.startsWith("/ar") ? "ar" : "en";
+        // Use the `locale` React state directly. Reading window.location.pathname
+        // here caused stale values when the locale-changed event fired before
+        // router.push committed the new URL — which left the Navbar stuck in
+        // the previous locale until manual refresh (esp. noticeable on AR→EN).
         const res = await fetch("/api/kleverapi/menu", {
           headers: {
             "Content-Type": "application/json",
             "Authorization": `Bearer ${token}`,
-            "x-locale": fetchLocale,
+            "x-locale": locale,
           },
         });
         if (cancelled) return;
-        if (!res.ok) throw new Error("Menu fetch failed");
+        if (!res.ok) {
+          if (res.status === 401) handleLogout();
+          throw new Error("Menu fetch failed");
+        }
         const data = await res.json();
         if (cancelled) return;
 
@@ -223,15 +252,18 @@ export default function Navbar() {
     let cancelled = false;
     (async () => {
       try {
-        const fetchLocale = window.location.pathname.startsWith("/ar") ? "ar" : "en";
+        // Use `locale` state directly — see menu-fetch comment above.
         const res = await fetch("/api/kleverapi/source-permission", {
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
-            "x-locale": fetchLocale,
+            "x-locale": locale,
           },
         });
-        if (!res.ok) throw new Error("source-permission fetch failed");
+        if (!res.ok) {
+          if (res.status === 401) handleLogout();
+          throw new Error("source-permission fetch failed");
+        }
         const data = await res.json();
         if (cancelled) return;
         if (process.env.NODE_ENV !== "production") {
@@ -276,14 +308,22 @@ export default function Navbar() {
     return () => { cancelled = true; };
   }, [isAuthenticated, locale]);
 
-  // Resolve the display label for a menu item using the current locale's translations
-  // if the item has a known `code`, else fall back to whatever the API returned.
-  // This runs at render time, so switching /en ↔ /ar re-renders labels instantly.
-  const resolveLabel = (item: { code?: string; label?: string }): string => {
-    const knownKey = item.code ? CODE_TO_TRANSLATION_KEY[item.code] : undefined;
-    if (knownKey) {
-      const translated = t(knownKey);
-      if (translated && translated !== knownKey) return translated;
+  // Resolve the display label for a menu item in the following precedence:
+  //   1. code → CODE_TO_TRANSLATION_KEY (most stable across locales)
+  //   2. href → HREF_TO_TRANSLATION_KEY (fallback for APIs that don't return code)
+  //   3. raw item.label from the API (may be stale-locale text)
+  // This runs at render time, so toggling /en ↔ /ar re-renders labels instantly
+  // without waiting for the menu re-fetch to complete.
+  const resolveLabel = (item: { code?: string; href?: string; label?: string }): string => {
+    const byCode = item.code ? CODE_TO_TRANSLATION_KEY[item.code] : undefined;
+    if (byCode) {
+      const translated = t(byCode);
+      if (translated && translated !== byCode) return translated;
+    }
+    const hrefKey = item.href ? HREF_TO_TRANSLATION_KEY[item.href.replace(/^\/(en|ar)/, "")] : undefined;
+    if (hrefKey) {
+      const translated = t(hrefKey);
+      if (translated && translated !== hrefKey) return translated;
     }
     return item.label || "";
   };

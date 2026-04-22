@@ -101,5 +101,13 @@ export function useTranslation() {
   );
 
   const isRtl = locale === "ar";
-  return { t, locale, isRtl };
+
+  const i18n = {
+    language: locale,
+    changeLanguage: (newLocale: string) => {
+      window.dispatchEvent(new CustomEvent("locale-changed", { detail: newLocale }));
+    }
+  };
+
+  return { t, locale, isRtl, i18n };
 }
