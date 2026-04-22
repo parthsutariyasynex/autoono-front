@@ -311,7 +311,7 @@ export default function ForgotPasswordPage() {
                       </div>
                       <div
                         dir="ltr"
-                        className={`flex flex-row items-center h-10 sm:h-11 bg-white rounded-[1px] outline outline-1 transition-all overflow-visible ${errors.mobile ? 'outline-red-500' : 'outline-neutral-200 focus-within:outline-black focus-within:outline-2'}`}
+                        className={`relative flex flex-row items-stretch h-10 sm:h-11 bg-white rounded-[1px] outline outline-1 transition-all ${errors.mobile ? 'outline-red-500' : 'outline-neutral-200 focus-within:outline-black focus-within:outline-2'}`}
                       >
                         <CountryDropdown
                           selectedCountryCode={countryCode}

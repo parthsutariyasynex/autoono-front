@@ -509,17 +509,20 @@ export default function ProductsPage() {
                 {Object.keys(selectedFilters).length > 0 && <span className="w-5 h-5 bg-primary rounded-full text-caption font-semibold flex items-center justify-center">{Object.keys(selectedFilters).length}</span>}
               </button>
             </div>
-            {/* Active filter chips */}
-            {Object.keys(selectedFilterLabels).length > 0 && (
-              <div className="flex items-center gap-1.5 overflow-x-auto custom-scrollbar-hide py-1">
-                {Object.entries(selectedFilterLabels).flatMap(([code, items]) => items.map((item) => (
-                  <div key={`${code}-${item.value}`} className="flex items-center gap-1 bg-gray-100 px-2.5 py-1 rounded-full text-caption font-semibold text-black/80 whitespace-nowrap flex-shrink-0">
-                    {item.label} <button onClick={() => removeSpecificFilter(code, item.value)} className="text-black/50"><X size={12} /></button>
-                  </div>
-                )))}
-                <button onClick={clearAllFilters} className="text-caption font-semibold text-red-500 uppercase whitespace-nowrap flex-shrink-0 px-2">{t("m.clear-all")}</button>
-              </div>
-            )}
+            {/* Active filter chips — wrapped in a stable-height slot so the
+                grid below doesn't jump when chips appear/disappear. */}
+            <div className="min-h-[38px] flex items-center">
+              {Object.keys(selectedFilterLabels).length > 0 && (
+                <div className="flex items-center gap-1.5 overflow-x-auto custom-scrollbar-hide py-1 w-full">
+                  {Object.entries(selectedFilterLabels).flatMap(([code, items]) => items.map((item) => (
+                    <div key={`${code}-${item.value}`} className="flex items-center gap-1 bg-gray-100 px-2.5 py-1 rounded-full text-caption font-semibold text-black/80 whitespace-nowrap flex-shrink-0">
+                      {item.label} <button onClick={() => removeSpecificFilter(code, item.value)} className="text-black/50"><X size={12} /></button>
+                    </div>
+                  )))}
+                  <button onClick={clearAllFilters} className="text-caption font-semibold text-red-500 uppercase whitespace-nowrap flex-shrink-0 px-2">{t("m.clear-all")}</button>
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Mobile Sort Bottom Sheet */}

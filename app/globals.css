@@ -69,11 +69,15 @@
 
   /* Hide scrollbar cross-browser (used by country dropdowns etc.) */
   .scrollbar-hide {
-    -ms-overflow-style: none;  /* IE / Edge legacy */
-    scrollbar-width: none;     /* Firefox */
+    -ms-overflow-style: none;
+    /* IE / Edge legacy */
+    scrollbar-width: none;
+    /* Firefox */
   }
+
   .scrollbar-hide::-webkit-scrollbar {
-    display: none;              /* Chrome, Safari, newer Edge */
+    display: none;
+    /* Chrome, Safari, newer Edge */
   }
 
   /* Custom Scrollbars */

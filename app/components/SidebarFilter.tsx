@@ -279,18 +279,10 @@ function SidebarFilter({
         setExpandedGroups(prev => ({ ...prev, [code]: !prev[code] }));
     }, []);
 
-    // Matches logic we had before for relevant codes
-    const RELEVANT_CODES = useMemo(() => new Set([
-        "brand", "tyre_size", "pattern", "year", "origin", "manufacturer", "manufacturer_label", "offers", "new_arrivals", "product_group", "itemcode", "types", "oemmarking", "warranty_period",
-        "oil_type", "grade", "liters", "parts_category", "lubricants_category"
-    ]), []);
-
-    const visibleFilterGroups = useMemo(() => {
-        if (Object.keys(selectedFilters).length === 0) return filterGroups;
-        return filterGroups.filter(g =>
-            selectedFilters[g.code] || RELEVANT_CODES.has(g.code.toLowerCase())
-        );
-    }, [filterGroups, selectedFilters, RELEVANT_CODES]);
+    // Always show every filter group — previously we hid "irrelevant"
+    // groups once the user selected anything, which made the sidebar
+    // suddenly shrink and shifted the whole layout on every click.
+    const visibleFilterGroups = filterGroups;
 
     return (
         <aside

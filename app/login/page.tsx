@@ -58,6 +58,9 @@ function LoginPageContent() {
   const [otp, setOtp] = useState("");
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
+  // Hide the scrollbar visually on the login page only, without locking
+  // scroll itself (mobile viewports often can't fit the form vertically,
+  // so the user MUST be able to scroll).
   useEffect(() => {
     document.body.classList.add('scrollbar-hide');
     return () => document.body.classList.remove('scrollbar-hide');
@@ -196,20 +199,9 @@ function LoginPageContent() {
   };
 
   return (
-    <div className="flex-1 w-full h-full bg-[#f4f4f4] flex flex-col scrollbar-hide">
-      <style dangerouslySetInnerHTML={{
-        __html: `
-        html, body {
-          overflow: hidden !important;
-          scrollbar-width: none !important;
-          -ms-overflow-style: none !important;
-        }
-        html::-webkit-scrollbar, body::-webkit-scrollbar {
-          display: none !important;
-        }
-      ` }} />
-      <main className="flex-1 flex justify-center items-start pt-8 md:pt-16 pb-12 px-4 md:px-0">
-        <div className="w-full max-w-[440px] bg-white rounded-[3px] shadow-[0_10px_40px_rgba(0,0,0,0.08)] border border-gray-100 overflow-hidden">
+    <div className="flex-1 w-full min-h-full bg-[#f4f4f4] flex flex-col">
+      <main className="flex-1 w-full flex justify-center items-start pt-6 sm:pt-8 md:pt-16 pb-8 sm:pb-12 px-4 md:px-0">
+        <div className="w-full max-w-[440px] bg-white rounded-[3px] shadow-[0_10px_40px_rgba(0,0,0,0.08)] border border-gray-100">
           <div className="px-4 sm:px-6 md:px-8 pt-5 sm:pt-7 pb-4 sm:pb-5">
             <div className="text-left">
               <h1 className="text-[17px] sm:text-[18px] font-black tracking-[0.5px] uppercase text-black">
@@ -222,14 +214,14 @@ function LoginPageContent() {
             <div className="flex w-full rounded-[3px] overflow-hidden border border-gray-200">
               <button
                 type="button"
-                className={`flex-1 py-[14px] text-body font-semibold uppercase tracking-wider transition-all cursor-pointer ${mode === 'otp' ? 'bg-primary text-black' : 'bg-white text-black hover:bg-gray-50'}`}
+                className={`flex-1 min-w-0 px-2 py-2.5 sm:py-[14px] text-center text-[11px] sm:text-body font-semibold uppercase tracking-normal sm:tracking-wider leading-tight break-words transition-all cursor-pointer ${mode === 'otp' ? 'bg-primary text-black' : 'bg-white text-black hover:bg-gray-50'}`}
                 onClick={() => { setMode("otp"); setOtpSent(false); setErrors({}); window.history.replaceState(null, "", lp("/login?mode=otp")); }}
               >
                 {t("login.modeOtp")}
               </button>
               <button
                 type="button"
-                className={`flex-1 py-[14px] text-body font-semibold uppercase tracking-wider transition-all cursor-pointer border-l border-gray-100 ${mode === 'password' ? 'bg-primary text-black' : 'bg-white text-black hover:bg-gray-50'}`}
+                className={`flex-1 min-w-0 px-2 py-2.5 sm:py-[14px] text-center text-[11px] sm:text-body font-semibold uppercase tracking-normal sm:tracking-wider leading-tight break-words transition-all cursor-pointer border-l border-gray-100 ${mode === 'password' ? 'bg-primary text-black' : 'bg-white text-black hover:bg-gray-50'}`}
                 onClick={() => { setMode("password"); setOtpSent(false); setErrors({}); window.history.replaceState(null, "", lp("/login?mode=password")); }}
               >
                 {t("login.modePassword")}
@@ -283,7 +275,7 @@ function LoginPageContent() {
                     </label>
                     <div
                       dir="ltr"
-                      className={`flex flex-row items-center h-[48px] bg-white border transition-all ${errors.mobile ? 'border-red-500' : 'border-gray-300 focus-within:border-gray-600'}`}
+                      className={`relative flex flex-row items-stretch w-full h-[46px] sm:h-[48px] bg-white border transition-all ${errors.mobile ? 'border-red-500' : 'border-gray-300 focus-within:border-gray-600'}`}
                     >
                       <CountryDropdown
                         selectedCountryCode={countryCode}
@@ -293,10 +285,11 @@ function LoginPageContent() {
                         id="mobile-input-login"
                         type="tel"
                         dir="ltr"
+                        inputMode="numeric"
                         placeholder={t("login.mobilePlaceholder")}
                         value={mobileNumber}
                         onChange={(e) => { setMobileNumber(e.target.value.replace(/\D/g, "")); if (errors.mobile) setErrors({ ...errors, mobile: '' }); }}
-                        className={`flex-1 px-3 text-body outline-none bg-transparent cursor-text font-semibold placeholder:font-normal ${isRtl ? 'text-right' : 'text-left'}`}
+                        className={`flex-1 min-w-0 px-3 text-body outline-none bg-transparent cursor-text font-semibold placeholder:font-normal ${isRtl ? 'text-right' : 'text-left'}`}
                       />
                     </div>
                     {errors.mobile && <span className="text-red-500 text-label font-bold text-[13px]">{errors.mobile}</span>}
