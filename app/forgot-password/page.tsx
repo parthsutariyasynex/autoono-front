@@ -15,7 +15,7 @@ import CountryDropdown from "@/app/components/CountryDropdown";
 
 export default function ForgotPasswordPage() {
   const router = useRouter();
-  const { t } = useTranslation();
+  const { t, isRtl } = useTranslation();
   const lp = useLocalePath();
   const dispatch = useAppDispatch();
   const { loading: reduxLoading } = useAppSelector((state: RootState) => state.auth);
@@ -310,6 +310,7 @@ export default function ForgotPasswordPage() {
                         <span className="text-red-600 text-xl font-semibold leading-none mt-1">*</span>
                       </div>
                       <div
+                        dir="ltr"
                         className={`flex flex-row items-center h-10 sm:h-11 bg-white rounded-[1px] outline outline-1 transition-all overflow-visible ${errors.mobile ? 'outline-red-500' : 'outline-neutral-200 focus-within:outline-black focus-within:outline-2'}`}
                       >
                         <CountryDropdown
@@ -323,7 +324,7 @@ export default function ForgotPasswordPage() {
                           placeholder={t("login.mobilePlaceholder")}
                           value={mobileNumber}
                           onChange={(e) => { setMobileNumber(e.target.value.replace(/\D/g, "")); if (errors.mobile) setErrors({ ...errors, mobile: '' }); }}
-                          className="flex-1 px-3 text-sm outline-none cursor-text font-semibold placeholder:font-normal ltr:text-left rtl:text-right"
+                          className={`flex-1 px-3 text-sm outline-none cursor-text font-semibold placeholder:font-normal ${isRtl ? 'text-right' : 'text-left'}`}
                         />
                       </div>
                       {errors.mobile && <span className="text-red-500 text-label font-medium leading-none">{errors.mobile}</span>}

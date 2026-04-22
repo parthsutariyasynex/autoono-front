@@ -56,24 +56,29 @@ const CountryDropdown: React.FC<CountryDropdownProps> = ({ selectedCountryCode, 
     }, []);
 
     return (
-        <div className="relative h-full" ref={dropdownRef}>
+        // Force LTR for the whole country selector (trigger + dropdown).
+        // In RTL documents, flex + justify-between reverses the visual
+        // order, which made the dropdown show `+CODE` on the far left and
+        // flag/name on the right — inconsistent with the selected
+        // trigger. Forcing LTR gives the same layout in both languages:
+        // [flag] [code] [▼]   |   [flag + name] ... [+code]
+        <div dir="ltr" className="relative h-full" ref={dropdownRef}>
             <div
-                className="px-4 flex items-center gap-2 border-r rtl:border-r-0 rtl:border-l border-gray-100 cursor-pointer min-w-[110px] sm:min-w-[125px] hover:bg-gray-50 transition-colors h-full"
+                className="px-4 flex items-center gap-2 border-r border-gray-100 cursor-pointer min-w-[110px] sm:min-w-[125px] hover:bg-gray-50 transition-colors h-full"
                 onClick={() => setIsOpen(!isOpen)}
             >
-                <span className={`${selectedCountry.flagClass}`}></span>
+                <span className={selectedCountry.flagClass}></span>
                 <span
-                    dir="ltr"
                     className="font-semibold text-[15px]"
                     style={{ color: '#e02b27' }}
                 >
                     {selectedCountry.code}
                 </span>
-                <span className="text-[10px] text-black/40 ltr:ml-auto rtl:mr-auto pt-[2px]">▼</span>
+                <span className="text-[10px] text-black/40 ml-auto pt-[2px]">▼</span>
             </div>
 
             {isOpen && (
-                <div className="absolute top-[calc(100%+4px)] ltr:left-0 rtl:right-0 w-[400px] max-w-[calc(100vw-32px)] bg-white border border-gray-100 rounded-[2px] shadow-[0_15px_35px_rgba(0,0,0,0.12)] z-[100] max-h-[300px] overflow-y-auto scrollbar-hide">
+                <div className="absolute top-[calc(100%+4px)] left-0 w-[400px] max-w-[calc(100vw-32px)] bg-white border border-gray-100 rounded-[2px] shadow-[0_15px_35px_rgba(0,0,0,0.12)] z-[100] max-h-[300px] overflow-y-auto scrollbar-hide">
                     {COUNTRY_CODES.map((item) => (
                         <div
                             key={item.code}
@@ -83,13 +88,13 @@ const CountryDropdown: React.FC<CountryDropdownProps> = ({ selectedCountryCode, 
                             }}
                             className="flex items-center justify-between px-5 py-4 hover:bg-gray-50 cursor-pointer border-b last:border-0 border-gray-50 transition-colors group"
                         >
-                            <div className="flex items-center gap-4">
-                                <span className={`${item.flagClass} scale-110`}></span>
-                                <span className="text-body font-semibold text-[#e02b27] group-hover:text-black transition-colors">
+                            <div className="flex items-center gap-4 min-w-0">
+                                <span className={`${item.flagClass} scale-110 flex-shrink-0`}></span>
+                                <span className="text-body font-semibold text-[#e02b27] group-hover:text-black transition-colors truncate">
                                     {item.country} ({item.nativeName})
                                 </span>
                             </div>
-                            <span className="text-body font-bold text-black group-hover:text-[#e02b27] transition-colors">
+                            <span className="text-body font-bold text-black group-hover:text-[#e02b27] transition-colors flex-shrink-0 ml-3">
                                 {item.code}
                             </span>
                         </div>

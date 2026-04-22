@@ -29,7 +29,7 @@ export default function LoginPage() {
 function LoginPageContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const { t } = useTranslation();
+  const { t, isRtl } = useTranslation();
   const lp = useLocalePath();
   const [mode, setMode] = useState<"password" | "otp">("password");
 
@@ -282,6 +282,7 @@ function LoginPageContent() {
                       {t("login.mobileNumberLabel")} <span className="text-red-600 font-bold">*</span>
                     </label>
                     <div
+                      dir="ltr"
                       className={`flex flex-row items-center h-[48px] bg-white border transition-all ${errors.mobile ? 'border-red-500' : 'border-gray-300 focus-within:border-gray-600'}`}
                     >
                       <CountryDropdown
@@ -295,7 +296,7 @@ function LoginPageContent() {
                         placeholder={t("login.mobilePlaceholder")}
                         value={mobileNumber}
                         onChange={(e) => { setMobileNumber(e.target.value.replace(/\D/g, "")); if (errors.mobile) setErrors({ ...errors, mobile: '' }); }}
-                        className="flex-1 px-3 text-body outline-none bg-transparent cursor-text font-semibold placeholder:font-normal ltr:text-left rtl:text-right"
+                        className={`flex-1 px-3 text-body outline-none bg-transparent cursor-text font-semibold placeholder:font-normal ${isRtl ? 'text-right' : 'text-left'}`}
                       />
                     </div>
                     {errors.mobile && <span className="text-red-500 text-label font-bold text-[13px]">{errors.mobile}</span>}
