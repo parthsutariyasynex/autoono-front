@@ -10,11 +10,11 @@ export default function UserGuidesPage() {
 
             {/* Banner Section */}
             <div className="w-full">
-                <img
+                {/* <img
                     src="/images/about-tyresonline-uae.jpg"
                     alt="Al-Talayi Warehouse Banner"
                     className="w-full h-auto object-cover max-h-[500px]"
-                />
+                /> */}
             </div>
 
             {/* Content Section */}
@@ -27,7 +27,7 @@ export default function UserGuidesPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 md:gap-8 w-full max-w-[1000px] mx-auto">
 
                     {/* Guide 1 */}
-                    <div className="w-full flex justify-center">
+                    {/* <div className="w-full flex justify-center">
                         <div className="w-full border-[2px] border-gray-200 bg-white hover:border-gray-300 transition-colors duration-300 flex flex-col group cursor-pointer shadow-sm">
                             <div className="relative w-full aspect-[16/9] bg-[#1a1a1e] flex items-center justify-center overflow-hidden">
                                 <img src="/images/Why-Btire-English.jpg" alt={t("guides.whyBtire")} className="w-full h-full object-cover" />
@@ -41,10 +41,10 @@ export default function UserGuidesPage() {
                                 <span className="text-black font-bold text-[15px]">{t("guides.whyBtire")}</span>
                             </div>
                         </div>
-                    </div>
+                    </div> */}
 
                     {/* Guide 2 */}
-                    <div className="w-full flex justify-center">
+                    {/* <div className="w-full flex justify-center">
                         <div className="w-full border-[2px] border-gray-200 bg-white hover:border-gray-300 transition-colors duration-300 flex flex-col group cursor-pointer shadow-sm">
                             <div className="relative w-full aspect-[16/9] bg-[#1a1a1e] flex items-center justify-center overflow-hidden">
                                 <img src="/images/What-is-Btire-English.jpg" alt={t("guides.whatIsBtire")} className="w-full h-full object-cover" />
@@ -61,7 +61,7 @@ export default function UserGuidesPage() {
                     </div>
 
                     {/* Guide 3 */}
-                    <div className="w-full flex justify-center">
+                    {/* <div className="w-full flex justify-center">
                         <div className="w-full border-[2px] border-gray-200 bg-white hover:border-gray-300 transition-colors duration-300 flex flex-col group cursor-pointer shadow-sm">
                             <div className="relative w-full aspect-[16/9] bg-[#1a1a1e] flex items-center justify-center overflow-hidden">
                                 <img src="/images/My-account-information-English.jpg" alt={t("guides.myAccountProfile")} className="w-full h-full object-cover" />
@@ -75,10 +75,10 @@ export default function UserGuidesPage() {
                                 <span className="text-black font-bold text-[15px]">{t("guides.myAccountProfile")}</span>
                             </div>
                         </div>
-                    </div>
+                    </div> */}
 
                     {/* Guide 4 */}
-                    <div className="w-full flex justify-center">
+                    {/* <div className="w-full flex justify-center">
                         <div className="w-full border-[2px] border-gray-200 bg-white hover:border-gray-300 transition-colors duration-300 flex flex-col group cursor-pointer shadow-sm">
                             <div className="relative w-full aspect-[16/9] bg-[#1a1a1e] flex items-center justify-center overflow-hidden">
                                 <img src="/images/Create-an-order-english.jpg" alt={t("guides.btireOrderCycle")} className="w-full h-full object-cover" />
@@ -92,7 +92,7 @@ export default function UserGuidesPage() {
                                 <span className="text-black font-bold text-[15px]">{t("guides.btireOrderCycle")}</span>
                             </div>
                         </div>
-                    </div>
+                    </div> */}
 
                 </div>
             </div>

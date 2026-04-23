@@ -76,7 +76,7 @@ const ContactForm: React.FC = () => {
                         <input
                             name="name"
                             type="text"
-                            placeholder="Name"
+                            placeholder={t("contact.namePlaceholder")}
                             value={formData.name}
                             onChange={handleChange}
                             className={`w-full px-4 py-3 border ${errors.name ? 'border-red-400' : 'border-gray-100'} focus:outline-none focus:border-primary bg-white text-black text-body-lg rounded-sm transition-colors`}
@@ -87,7 +87,7 @@ const ContactForm: React.FC = () => {
                         <input
                             name="phone"
                             type="tel"
-                            placeholder="Phone"
+                            placeholder={t("contact.phonePlaceholder")}
                             value={formData.phone}
                             onChange={handleChange}
                             className={`w-full px-4 py-3 border ${errors.phone ? 'border-red-400' : 'border-gray-100'} focus:outline-none focus:border-primary bg-white text-black text-body-lg rounded-sm transition-colors`}
@@ -101,7 +101,7 @@ const ContactForm: React.FC = () => {
                     <input
                         name="email"
                         type="email"
-                        placeholder="Email"
+                        placeholder={t("contact.emailPlaceholder")}
                         value={formData.email}
                         onChange={handleChange}
                         className={`w-full px-4 py-3 border ${errors.email ? 'border-red-400' : 'border-gray-100'} focus:outline-none focus:border-primary bg-white text-black text-body-lg rounded-sm transition-colors`}
@@ -112,11 +112,11 @@ const ContactForm: React.FC = () => {
                 {/* Row 3: Message / Comment */}
                 <div className="relative border border-gray-100 rounded-sm">
                     <div className="px-4 pt-3 pb-0 text-body text-black/50 font-medium">
-                        Comment
+                        {t("contact.messagePlaceholder")}
                     </div>
                     <textarea
                         name="comment"
-                        placeholder="What's on your mind?"
+                        placeholder={t("contact.messagePlaceholder")}
                         rows={6}
                         value={formData.comment}
                         onChange={handleChange}
