@@ -193,7 +193,7 @@ export default function SubAccountMyAccountPage() {
                                         <p><span className="text-black font-bold">Company Name:</span> {companyName}</p>
                                         <p><span className="text-black font-bold">Company Contact Name:</span> {companyContactName}</p>
                                         <p><span className="text-black font-bold">Company Email:</span> {companyEmail}</p>
-                                        <p><span className="text-black font-bold">Customer Mobile:</span> {customerMobile}</p>
+                                        <p><span className="text-black font-bold">{t("account.customerMobile")}:</span> <bdi dir="ltr">{customerMobile}</bdi></p>
                                         <p><span className="text-black font-bold">Customer Code:</span> {customerCode}</p>
                                     </div>
                                 </div>
@@ -217,10 +217,10 @@ export default function SubAccountMyAccountPage() {
                                                 <p>{defaultBilling.firstname} {defaultBilling.lastname}</p>
                                                 <p>{defaultBilling.company}</p>
                                                 {defaultBilling.street?.map((s: string, i: number) => <p key={i}>{s}</p>)}
-                                                <p>{defaultBilling.city}, {defaultBilling.postcode}</p>
+                                                <p><bdi dir="ltr">{defaultBilling.city}, {defaultBilling.postcode}</bdi></p>
                                                 <p>{defaultBilling.country_id === 'SA' ? 'Saudi Arabia' : defaultBilling.country_id}</p>
-                                                <p>T: {defaultBilling.telephone}</p>
-                                                {defaultBilling.vat_id && <p>VAT: {defaultBilling.vat_id}</p>}
+                                                <p>T: <bdi dir="ltr">{defaultBilling.telephone}</bdi></p>
+                                                {defaultBilling.vat_id && <p>{t("m.vat")}: {defaultBilling.vat_id}</p>}
                                             </div>
                                         ) : (
                                             <p className="text-body text-black/60 italic flex-1">No default billing address set.</p>
@@ -239,10 +239,10 @@ export default function SubAccountMyAccountPage() {
                                                 <p>{defaultShipping.firstname} {defaultShipping.lastname}</p>
                                                 <p>{defaultShipping.company}</p>
                                                 {defaultShipping.street?.map((s: string, i: number) => <p key={i}>{s}</p>)}
-                                                <p>{defaultShipping.city}, {defaultShipping.postcode}</p>
+                                                <p><bdi dir="ltr">{defaultShipping.city}, {defaultShipping.postcode}</bdi></p>
                                                 <p>{defaultShipping.country_id === 'SA' ? 'Saudi Arabia' : defaultShipping.country_id}</p>
-                                                <p>T: {defaultShipping.telephone}</p>
-                                                {defaultShipping.vat_id && <p>VAT: {defaultShipping.vat_id}</p>}
+                                                <p>T: <bdi dir="ltr">{defaultShipping.telephone}</bdi></p>
+                                                {defaultShipping.vat_id && <p>{t("m.vat")}: {defaultShipping.vat_id}</p>}
                                             </div>
                                         ) : (
                                             <p className="text-body text-black/60 italic flex-1">No default shipping address set.</p>

@@ -32,7 +32,6 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders, onViewOrder, onReorde
                     <thead>
                         <tr className="bg-primary text-black text-label uppercase font-bold tracking-widest">
                             <th className="px-2 lg:px-4 py-4 border border-[#e6950f]/30">{t("orders.orderId")}</th>
-                            <th className="px-2 lg:px-4 py-4 border border-[#e6950f]/30">{t("orders.sapOrder")}</th>
                             <th className="px-2 lg:px-4 py-4 border border-[#e6950f]/30 whitespace-nowrap text-center">{t("orders.date")}</th>
                             <th className="px-2 lg:px-4 py-4 border border-[#e6950f]/30 whitespace-nowrap text-right">{t("orders.grandTotal")}</th>
                             <th className="px-2 lg:px-4 py-4 border border-[#e6950f]/30 text-center">{t("orders.orderedBy")}</th>
@@ -52,9 +51,6 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders, onViewOrder, onReorde
                                         onClick={() => onViewOrder(order.entity_id)}
                                     >
                                         {order.id}
-                                    </td>
-                                    <td className="px-2 lg:px-4 py-4 border-r border-gray-200 text-black/70 text-body">
-                                        {order.sapOrderNumber}
                                     </td>
                                     <td className="px-2 lg:px-4 py-4 border-r border-gray-200 text-black/70 text-body whitespace-nowrap text-center">
                                         {order.date}
@@ -96,7 +92,7 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders, onViewOrder, onReorde
                                                     onClick={() => onViewOrder(order.entity_id)}
                                                     className="bg-green-600 hover:bg-green-700 text-white px-4 py-1.5 rounded-[2px] font-bold transition-colors shadow-sm"
                                                 >
-                                                    View Payment
+                                                    {t("orders.viewPayment")}
                                                 </button>
                                             ) : (
                                                 <button
@@ -112,7 +108,7 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders, onViewOrder, onReorde
                             ))
                         ) : (
                             <tr>
-                                <td colSpan={7} className="px-4 py-10 text-center text-black/50 italic">
+                                <td colSpan={6} className="px-4 py-10 text-center text-black/50 italic">
                                     {t("orders.noRecords")}
                                 </td>
                             </tr>
@@ -152,12 +148,6 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders, onViewOrder, onReorde
                             </div>
 
                             {/* SAP Order Number */}
-                            {order.sapOrderNumber && (
-                                <div className="flex justify-between text-body-sm">
-                                    <span className="text-black/50">{t("orders.sapOrder")}</span>
-                                    <span className="text-black/70">{order.sapOrderNumber}</span>
-                                </div>
-                            )}
 
                             {/* Ordered By (Ship To) */}
                             <div className="flex justify-between text-body-sm">
@@ -192,7 +182,7 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders, onViewOrder, onReorde
                                         onClick={() => onViewOrder(order.entity_id)}
                                         className="bg-green-600 text-white px-3 py-1 rounded-[2px] font-bold"
                                     >
-                                        View Payment
+                                        {t("orders.viewPayment")}
                                     </button>
                                 ) : (
                                     <button

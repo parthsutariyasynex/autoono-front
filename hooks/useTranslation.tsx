@@ -91,13 +91,19 @@ export function TranslationProvider({ children }: { children: ReactNode }) {
  * useTranslation — reads from context. Always has data when rendered
  * (TranslationProvider blocks until loaded).
  */
-export function useTranslation() {
+export function useTranslation(prefix?: string) {
   const locale = useLocale();
   const translations = useContext(TranslationContext);
 
   const t = useCallback(
-    (key: string): string => translations[key] || key,
-    [translations]
+    (key: string): string => {
+      if (prefix) {
+        const prefixedKey = `${prefix}.${key}`;
+        if (translations[prefixedKey]) return translations[prefixedKey];
+      }
+      return translations[key] || key;
+    },
+    [translations, prefix]
   );
 
   const isRtl = locale === "ar";

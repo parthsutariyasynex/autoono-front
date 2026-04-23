@@ -23,25 +23,52 @@ import Sidebar from "@/components/Sidebar";
 function translateNotificationText(text: string, locale: string): string {
     if (locale !== "ar" || !text) return text;
 
+    // Any order-number token like BT00028701 or AUT0000091
+    const ORDER_RE = /([A-Z]{2,}\d+)/i;
+
     // "New Order# XXXXX placed successfully"
-    const placedMatch = text.match(/^New Order#?\s*(BT\d+)\s*placed successfully$/i);
+    const placedMatch = text.match(/^New Order#?\s*([A-Z0-9]+)\s*placed successfully$/i);
     if (placedMatch) return `تم عمل الطلب رقم ${placedMatch[1]} بنجاح`;
 
     // "New Order# XXXXX"
-    const orderMatch = text.match(/^New Order#?\s*(BT\d+)$/i);
+    const orderMatch = text.match(/^New Order#?\s*([A-Z0-9]+)$/i);
     if (orderMatch) return `طلب جديد رقم ${orderMatch[1]}`;
 
     // "Order# XXXXX has been shipped"
-    const shippedMatch = text.match(/^Order#?\s*(BT\d+)\s*has been shipped$/i);
+    const shippedMatch = text.match(/^Order#?\s*([A-Z0-9]+)\s*has been shipped$/i);
     if (shippedMatch) return `تم شحن الطلب رقم ${shippedMatch[1]}`;
 
     // "Order# XXXXX has been invoiced"
-    const invoicedMatch = text.match(/^Order#?\s*(BT\d+)\s*has been invoiced$/i);
+    const invoicedMatch = text.match(/^Order#?\s*([A-Z0-9]+)\s*has been invoiced$/i);
     if (invoicedMatch) return `تمت فوترة الطلب رقم ${invoicedMatch[1]}`;
 
-    // "Order# XXXXX has been canceled"
-    const canceledMatch = text.match(/^Order#?\s*(BT\d+)\s*has been cancel/i);
+    // "Order# XXXXX has been canceled / cancelled"
+    const canceledMatch = text.match(/^Order#?\s*([A-Z0-9]+)\s*has been cancel/i);
     if (canceledMatch) return `تم إلغاء الطلب رقم ${canceledMatch[1]}`;
+
+    // "Order# XXXXX has been delivered"
+    const deliveredMatch = text.match(/^Order#?\s*([A-Z0-9]+)\s*has been delivered$/i);
+    if (deliveredMatch) return `تم تسليم الطلب رقم ${deliveredMatch[1]}`;
+
+    // "Order# XXXXX has been confirmed / approved"
+    const confirmedMatch = text.match(/^Order#?\s*([A-Z0-9]+)\s*has been (confirmed|approved)$/i);
+    if (confirmedMatch) return `تم تأكيد الطلب رقم ${confirmedMatch[1]}`;
+
+    // "Order# XXXXX has been completed"
+    const completedMatch = text.match(/^Order#?\s*([A-Z0-9]+)\s*has been completed$/i);
+    if (completedMatch) return `تم إكمال الطلب رقم ${completedMatch[1]}`;
+
+    // "Order# XXXXX is pending"
+    const pendingMatch = text.match(/^Order#?\s*([A-Z0-9]+)\s*is pending$/i);
+    if (pendingMatch) return `الطلب رقم ${pendingMatch[1]} قيد الانتظار`;
+
+    // "Order# XXXXX status changed to YYY"
+    const statusMatch = text.match(/^Order#?\s*([A-Z0-9]+)\s*status changed to\s*(.+)$/i);
+    if (statusMatch) return `تم تغيير حالة الطلب رقم ${statusMatch[1]} إلى ${statusMatch[2]}`;
+
+    // "Payment received for Order# XXXXX"
+    const paymentMatch = text.match(/^Payment received for Order#?\s*([A-Z0-9]+)$/i);
+    if (paymentMatch) return `تم استلام دفعة للطلب رقم ${paymentMatch[1]}`;
 
     return text;
 }
@@ -240,7 +267,7 @@ export default function NotificationsPage() {
                             {/* PAGINATION PANEL */}
                             <div className="bg-[#e8e8e8] px-4 md:px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-4 md:gap-6 border-t border-[#dddddd]">
                                 <div className="text-body text-black font-medium order-2 lg:order-1">
-                                    {t('favorites.items')} {((currentPage - 1) * pageSize) + 1} {t('m.to')} {Math.min(currentPage * pageSize, totalCount)} {t('favorites.of')} {totalCount} {t('favorites.total')}
+                                    {t('favorites.items')} <bdi dir="ltr">{((currentPage - 1) * pageSize) + 1} {t('m.to')} {Math.min(currentPage * pageSize, totalCount)}</bdi> {t('favorites.of')} <bdi dir="ltr">{totalCount}</bdi> {t('favorites.total')}
                                 </div>
 
                                 <div className="flex items-center gap-3 order-1 lg:order-2">

@@ -531,7 +531,7 @@ export default function ProductsPage() {
               <div className="absolute inset-0 bg-black/40" onClick={() => setIsMobileSortOpen(false)} />
               <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-2xl shadow-2xl animate-in slide-in-from-bottom duration-300">
                 <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
-                  <h3 className="text-body-lg font-semibold uppercase tracking-tight">Sort By</h3>
+                  <h3 className="text-body-lg font-semibold uppercase tracking-tight">{t("products.sortByDefault")}</h3>
                   <button onClick={() => setIsMobileSortOpen(false)} className="p-1 text-black/50 hover:text-black"><X size={20} /></button>
                 </div>
                 <div className="flex flex-col py-2">
@@ -543,7 +543,7 @@ export default function ProductsPage() {
                     <button
                       key={opt.value}
                       onClick={() => { setSortBy(opt.value); setIsMobileSortOpen(false); }}
-                      className={`px-5 py-3.5 text-body font-semibold text-left flex items-center justify-between transition-colors ${sortBy === opt.value ? "bg-primary/10 text-black" : "text-black/80 hover:bg-gray-50"}`}
+                      className={`px-5 py-3.5 text-body font-semibold text-start flex items-center justify-between transition-colors ${sortBy === opt.value ? "bg-primary/10 text-black" : "text-black/80 hover:bg-gray-50"}`}
                     >
                       {opt.label}
                       {sortBy === opt.value && <Check size={18} className="text-primary" strokeWidth={3} />}
@@ -592,7 +592,7 @@ export default function ProductsPage() {
                 onChange={setSortBy}
                 options={[{ label: t("products.sortByDefault"), value: "none" }, { label: t("products.sortByLowToHigh"), value: "price-asc" }, { label: t("products.sortByHighToLow"), value: "price-desc" }]}
                 buttonClassName="bg-gray-50 px-4 py-2 rounded-xl border border-gray-200 text-xs font-medium text-black cursor-pointer shadow-sm hover:border-gray-300 whitespace-nowrap"
-                minWidth={150}
+                minWidth={190}
               />
             </div>
 

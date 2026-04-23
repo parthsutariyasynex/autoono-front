@@ -15,9 +15,12 @@
 @layer base {
 
 
-  /* Prevent scrollbar-caused layout shift — must be in @layer base to override preflight */
+  /* Prevent scrollbar-caused layout shift — must be in @layer base to override preflight.
+     scrollbar-gutter: stable reserves space for the vertical scrollbar whether or not
+     it's visible, so pages don't jump when a drawer/modal locks body scroll. */
   html {
     scroll-behavior: smooth;
+    scrollbar-gutter: stable;
     --scrollbar-width: 0px;
     /* Keep in sync with tailwind.config.js theme.extend.colors */
     --color-primary: #4E81C2;

@@ -16,7 +16,18 @@ import EditPaymentModal from "@/components/EditPaymentModal";
 export default function OrderDetailsPage() {
     const { data: session, status: authStatus } = useSession();
     const router = useRouter();
-    const { t, locale } = useTranslation();
+    const { t, locale } = useTranslation("orderDetails");
+
+    const safeTranslate = (key: string, fallback: string) => {
+        // Translation files store flat keys like "orderDetails.productName".
+        // Try the prefixed form first, then a bare key, then fall back to English.
+        const prefixed = `orderDetails.${key}`;
+        const prefixedVal = t(prefixed);
+        if (prefixedVal && prefixedVal !== prefixed) return prefixedVal;
+        const val = t(key);
+        if (val && val !== key) return val;
+        return fallback;
+    };
 
     const lp = useLocalePath();
     const { orderId } = useParams();
@@ -82,7 +93,7 @@ export default function OrderDetailsPage() {
             return;
         }
 
-        const toastId = toast.loading("Downloading receipt...");
+        const toastId = toast.loading(safeTranslate("downloadingReceipt", "Downloading receipt..."));
 
         try {
             // Hits the Next.js proxy at /api/kleverapi/payment-history/[id]/download
@@ -133,9 +144,9 @@ export default function OrderDetailsPage() {
             link.remove();
             window.URL.revokeObjectURL(url);
 
-            toast.success("Receipt downloaded!", { id: toastId });
+            toast.success(safeTranslate("receiptDownloaded", "Receipt downloaded"), { id: toastId });
         } catch (error: any) {
-            toast.error(error.message || "Failed to download receipt", { id: toastId });
+            toast.error(error.message || t("orderDetails.downloadFailed"), { id: toastId });
         }
     };
 
@@ -472,7 +483,9 @@ export default function OrderDetailsPage() {
     // Helpers
     const formatStatus = (status: string) => {
         if (!status) return "";
-        return status;
+        const key = `data.${status}`;
+        const translated = t(key);
+        return translated !== key ? translated : status;
     };
 
 
@@ -563,7 +576,7 @@ export default function OrderDetailsPage() {
                         <div className="flex flex-col border-b border-gray-100 pb-6">
                             <div className="flex items-center gap-3 md:gap-5 mb-1.5 flex-wrap">
                                 <h1 className="text-h3 md:text-h1-sm font-[900] text-black uppercase tracking-tight leading-none">
-                                    {t("orderDetails.orderHash")} {order.increment_id}
+                                    {safeTranslate("orderHash", "ORDER #")} {order.increment_id}
                                 </h1>
 
                                 <span className={`inline-flex px-4 py-1.5 border rounded-sm text-caption md:text-label font-bold uppercase tracking-widest bg-white ${order.status?.toLowerCase().includes('pending') ? 'border-[#d1d1d1] text-black' :
@@ -585,7 +598,7 @@ export default function OrderDetailsPage() {
                                 onClick={handleReorder}
                                 className="bg-primary hover:bg-primary text-black font-black py-2.5 px-6 md:px-8 rounded-md text-body-sm uppercase tracking-widest transition-all shadow-sm active:scale-95 border border-primary w-full sm:w-auto"
                             >
-                                {t("orderDetails.reorder")}
+                                {safeTranslate("reorder", "REORDER")}
 
                             </button>
 
@@ -619,9 +632,7 @@ export default function OrderDetailsPage() {
                                                 <line x1="6" y1="6" x2="18" y2="18"></line>
                                             </svg>
                                         )}
-                                        {t("orderDetails.cancelOrder") !== "orderDetails.cancelOrder"
-                                            ? t("orderDetails.cancelOrder")
-                                            : "Cancel Order"}
+                                        {safeTranslate("cancelOrder", "Cancel Order")}
                                     </button>
                                 );
                             })()}
@@ -639,7 +650,7 @@ export default function OrderDetailsPage() {
                                         <rect x="6" y="14" width="12" height="8"></rect>
                                     </svg>
                                 )}
-                                {isPrinting ? t("orderDetails.printing") : t("orderDetails.printOrder")}
+                                {isPrinting ? safeTranslate("printing", "PRINTING...") : safeTranslate("printOrder", "PRINT ORDER")}
 
                             </button>
                         </div>
@@ -649,27 +660,25 @@ export default function OrderDetailsPage() {
                     <div className="bg-white rounded-md border border-[#ebebeb] overflow-hidden mb-10 shadow-sm">
                         <div className="border-b border-[#ebebeb] px-3 md:px-6 py-3 md:py-4 bg-gray-50">
                             <h2 className="text-xs font-black text-black uppercase tracking-widest">
-                                {t("orderDetails.itemsOrdered")}
-
+                                {safeTranslate("itemsOrdered", "Items Ordered")}
                             </h2>
                         </div>
                         {/* Desktop Table */}
                         <div className="hidden md:block overflow-x-auto">
-                            <table className="w-full text-left min-w-[500px]">
+                            <table className="w-full text-start min-w-[500px]">
                                 <thead className="bg-gray-50/50 text-label font-black text-black uppercase border-b border-[#ebebeb]">
                                     <tr>
-                                        <th className="px-3 md:px-6 py-3 md:py-4 tracking-widest">{t("orderDetails.productName")}</th>
-                                        <th className="px-3 md:px-6 py-3 md:py-4 tracking-widest text-center">{t("orderDetails.sku")}</th>
-                                        <th className="px-3 md:px-6 py-3 md:py-4 tracking-widest text-center">{t("orderDetails.price")}</th>
-                                        <th className="px-3 md:px-6 py-3 md:py-4 tracking-widest text-center">{t("orderDetails.qty")}</th>
-                                        <th className="px-3 md:px-6 py-3 md:py-4 tracking-widest text-right">{t("orderDetails.subtotal")}</th>
-
+                                        <th className="px-3 md:px-6 py-3 md:py-4 tracking-widest text-start">{safeTranslate("productName", "Product Name")}</th>
+                                        <th className="px-3 md:px-6 py-3 md:py-4 tracking-widest text-center">{safeTranslate("sku", "SKU")}</th>
+                                        <th className="px-3 md:px-6 py-3 md:py-4 tracking-widest text-center">{safeTranslate("price", "Price")}</th>
+                                        <th className="px-3 md:px-6 py-3 md:py-4 tracking-widest text-center">{safeTranslate("qty", "Qty")}</th>
+                                        <th className="px-3 md:px-6 py-3 md:py-4 tracking-widest text-end">{safeTranslate("subtotal", "Subtotal")}</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-[#ebebeb]">
                                     {order.items?.map((item: any, idx: number) => (
                                         <tr key={item.item_id || item.id} className={`text-xs hover:bg-primary/5 transition-colors ${idx % 2 !== 0 ? 'bg-gray-50' : 'bg-white'}`}>
-                                            <td className="px-3 md:px-6 py-3 md:py-5 text-black font-bold">
+                                            <td className="px-3 md:px-6 py-3 md:py-5 text-black font-bold text-start">
                                                 {item.name}
                                             </td>
                                             <td className="px-3 md:px-6 py-3 md:py-5 text-black/50 font-bold text-center">
@@ -696,20 +705,20 @@ export default function OrderDetailsPage() {
                             {order.items?.map((item: any, idx: number) => (
                                 <div key={item.item_id || item.id} className={`p-4 text-xs ${idx % 2 !== 0 ? 'bg-gray-50' : 'bg-white'}`}>
                                     <p className="text-black font-black text-sm mb-2">{item.name}</p>
-                                    <p className="text-black/50 font-bold uppercase tracking-widest text-caption mb-3">{t("orderDetails.sku")}: {item.sku}</p>
+                                    <p className="text-black/50 font-bold uppercase tracking-widest text-caption mb-3">{safeTranslate("sku", "SKU")}: {item.sku}</p>
 
                                     <div className="flex justify-between items-center mb-1">
-                                        <span className="text-black/60 font-bold uppercase tracking-widest">{t("orderDetails.price")}</span>
+                                        <span className="text-black/60 font-bold uppercase tracking-widest">{safeTranslate("price", "Price")}</span>
 
                                         <span className="text-black font-bold">{formatCurrency(item.price)}</span>
                                     </div>
                                     <div className="flex justify-between items-center mb-1">
-                                        <span className="text-black/60 font-bold uppercase tracking-widest">{t("orderDetails.qty")}</span>
+                                        <span className="text-black/60 font-bold uppercase tracking-widest">{safeTranslate("qty", "Qty")}</span>
 
                                         <span className="text-black/60 font-bold">{Math.round(item.qty_ordered)}</span>
                                     </div>
                                     <div className="flex justify-between items-center pt-2 border-t border-gray-100">
-                                        <span className="text-black font-black uppercase tracking-widest">{t("orderDetails.subtotal")}</span>
+                                        <span className="text-black font-black uppercase tracking-widest">{safeTranslate("subtotal", "Subtotal")}</span>
 
                                         <span className="text-black font-black">{formatCurrency(item.row_total)}</span>
                                     </div>
@@ -718,41 +727,35 @@ export default function OrderDetailsPage() {
                         </div>
 
                         {/* Order Summary */}
-                        <div className="flex justify-end p-4 md:p-8 bg-gray-50/30 border-t border-[#ebebeb]">
+                        <div className="flex ltr:justify-end rtl:justify-start p-4 md:p-8 bg-gray-50/30 border-t border-[#ebebeb]">
                             <div className="w-full max-w-[340px] space-y-3">
                                 <div className="flex justify-between items-center text-xs">
-                                    <span className="text-black/50 font-bold uppercase tracking-widest flex-1 text-end me-10">{t("orderDetails.itemsTotal")}</span>
-
+                                    <span className="text-black/50 font-bold uppercase tracking-widest flex-1 text-end me-10">{safeTranslate("itemsTotal", "Items Total")}</span>
 
                                     <span className="font-black text-black w-[110px] text-end">
-
                                         {formatCurrency(order.subtotal)}
                                     </span>
                                 </div>
 
                                 <div className="flex justify-between items-center text-xs">
-                                    <span className="text-black/50 font-bold uppercase tracking-widest flex-1 text-end me-10">{t("orderDetails.vat")}</span>
-
+                                    <span className="text-black/50 font-bold uppercase tracking-widest flex-1 text-end me-10">{safeTranslate("vat", "VAT (15%)")}</span>
 
                                     <span className="font-black text-black w-[110px] text-end">
-
                                         {formatCurrency(order.tax_amount)}
                                     </span>
                                 </div>
 
                                 <div className="flex justify-between items-center text-black pt-4 border-t border-gray-200">
-                                    <span className="font-black uppercase tracking-tighter flex-1 text-end me-10 text-[15px]">{t("orderDetails.grandTotal")}</span>
+                                    <span className="font-black uppercase tracking-tighter flex-1 text-end me-10 text-[15px]">{safeTranslate("grandTotal", "Grand Total")}</span>
                                     <span className="font-black w-[110px] text-end text-[15px]">
-
                                         {formatCurrency(order.grand_total)}
                                     </span>
                                 </div>
 
                                 <div className="flex justify-between items-center text-label pt-1 pt-4 opacity-50">
-                                    <span className="text-black/60 font-black uppercase tracking-widest flex-1 text-end me-10">{t("orderDetails.totalQty")}</span>
+                                    <span className="text-black/60 font-black uppercase tracking-widest flex-1 text-end me-10">{safeTranslate("totalQty", "Total Qty")}</span>
 
                                     <span className="font-black text-black w-[110px] text-end">
-
                                         {Math.round(order.total_item_count || order.items?.reduce((acc: number, item: any) => acc + (item.qty_ordered || 0), 0))}
                                     </span>
                                 </div>
@@ -764,8 +767,7 @@ export default function OrderDetailsPage() {
                     <div className="mb-10">
                         <div className="border-b-2 border-primary inline-block pb-1 mb-10">
                             <h2 className="text-h3-sm md:text-[18px] font-black text-black uppercase tracking-tight">
-                                {t("orderDetails.orderInfo")}
-
+                                {safeTranslate("orderInfo", "Order Information")}
                             </h2>
                         </div>
 
@@ -773,8 +775,7 @@ export default function OrderDetailsPage() {
                             {/* Shipping Address */}
                             <div className="bg-white border border-[#ebebeb] rounded-md shadow-sm overflow-hidden">
                                 <div className="bg-gray-50 px-5 py-3 border-b border-[#ebebeb]">
-                                    <h3 className="text-xs font-black text-black uppercase tracking-widest">{t("orderDetails.shippingAddress")}</h3>
-
+                                    <h3 className="text-xs font-black text-black uppercase tracking-widest">{safeTranslate("shippingAddress", "Shipping Address")}</h3>
                                 </div>
                                 <div className="p-4 md:p-6 text-xs text-black/70 leading-relaxed min-h-[140px]">
                                     {shippingAddress ? (
@@ -782,13 +783,13 @@ export default function OrderDetailsPage() {
                                             <p className="font-black text-black uppercase mb-2">{shippingAddress.firstname} {shippingAddress.lastname}</p>
                                             {shippingAddress.company && <p className="font-medium">{shippingAddress.company}</p>}
                                             <p className="font-medium">{shippingAddress.street?.join(", ")}</p>
-                                            <p className="font-medium">{shippingAddress.city}, {shippingAddress.postcode}</p>
+                                            <p className="font-medium"><bdi dir="ltr">{shippingAddress.city}, {shippingAddress.postcode}</bdi></p>
                                             <p className="font-medium">{shippingAddress.country_id === "SA" ? t("data.Saudi Arabia") : shippingAddress.country_id}</p>
 
                                             <p className="pt-2 text-black font-black">T: <span className="text-black/70 font-medium">{shippingAddress.telephone}</span></p>
                                         </div>
                                     ) : (
-                                        <p className="text-black/50 italic">{t("orderDetails.noShippingAddress")}</p>
+                                        <p className="text-black/50 italic">{safeTranslate("noShippingAddress", "No shipping address available")}</p>
 
                                     )}
                                 </div>
@@ -797,14 +798,14 @@ export default function OrderDetailsPage() {
                             {/* Shipping Method */}
                             <div className="bg-white border border-[#ebebeb] rounded-md shadow-sm overflow-hidden">
                                 <div className="bg-gray-50 px-5 py-3 border-b border-[#ebebeb]">
-                                    <h3 className="text-xs font-black text-black uppercase tracking-widest">{t("orderDetails.shippingMethod")}</h3>
+                                    <h3 className="text-xs font-black text-black uppercase tracking-widest">{safeTranslate("shippingMethod", "Shipping Method")}</h3>
 
                                 </div>
                                 <div className="p-4 md:p-6 text-xs text-black/70 leading-relaxed min-h-[140px]">
                                     <p className="font-black text-black uppercase mb-2">{translateDynamic(order.shipping_description || "Pickup from Warehouse")}</p>
 
                                     <div className="mt-4 pt-4 border-t border-gray-100">
-                                        <p className="text-caption font-black text-black/50 uppercase tracking-widest mb-1">{t("orderDetails.expectedDelivery")}</p>
+                                        <p className="text-caption font-black text-black/50 uppercase tracking-widest mb-1">{safeTranslate("expectedDelivery", "Expected Delivery")}</p>
 
                                         <p className="font-bold text-black">N/A</p>
                                     </div>
@@ -814,7 +815,7 @@ export default function OrderDetailsPage() {
                             {/* Billing Address */}
                             <div className="bg-white border border-[#ebebeb] rounded-md shadow-sm overflow-hidden">
                                 <div className="bg-gray-50 px-5 py-3 border-b border-[#ebebeb]">
-                                    <h3 className="text-xs font-black text-black uppercase tracking-widest">{t("orderDetails.billingAddress")}</h3>
+                                    <h3 className="text-xs font-black text-black uppercase tracking-widest">{safeTranslate("billingAddress", "Billing Address")}</h3>
 
                                 </div>
                                 <div className="p-4 md:p-6 text-xs text-black/70 leading-relaxed min-h-[140px]">
@@ -823,13 +824,13 @@ export default function OrderDetailsPage() {
                                             <p className="font-black text-black uppercase mb-2">{billingAddress.firstname} {billingAddress.lastname}</p>
                                             {billingAddress.company && <p className="font-medium">{billingAddress.company}</p>}
                                             <p className="font-medium">{billingAddress.street?.join(", ")}</p>
-                                            <p className="font-medium">{billingAddress.city}, {billingAddress.postcode}</p>
+                                            <p className="font-medium"><bdi dir="ltr">{billingAddress.city}, {billingAddress.postcode}</bdi></p>
                                             <p className="font-medium">{billingAddress.country_id === "SA" ? t("data.Saudi Arabia") : billingAddress.country_id}</p>
 
                                             <p className="pt-2 text-black font-black">T: <span className="text-black/70 font-medium">{billingAddress.telephone}</span></p>
                                         </div>
                                     ) : (
-                                        <p className="text-black/50 italic">{t("orderDetails.noBillingAddress")}</p>
+                                        <p className="text-black/50 italic">{safeTranslate("noBillingAddress", "No billing address available")}</p>
 
                                     )}
                                 </div>
@@ -838,7 +839,7 @@ export default function OrderDetailsPage() {
                             {/* Payment Method */}
                             <div className="bg-white border border-[#ebebeb] rounded-md shadow-sm overflow-hidden">
                                 <div className="bg-gray-50 px-5 py-3 border-b border-[#ebebeb]">
-                                    <h3 className="text-xs font-black text-black uppercase tracking-widest">{t("orderDetails.paymentMethod")}</h3>
+                                    <h3 className="text-xs font-black text-black uppercase tracking-widest">{safeTranslate("paymentMethod", "Payment Method")}</h3>
 
                                 </div>
                                 <div className="p-4 md:p-6 text-xs text-black/70 leading-relaxed min-h-[140px]">
@@ -846,8 +847,7 @@ export default function OrderDetailsPage() {
 
                                     <div className="mt-4 pt-4 border-t border-gray-100 flex items-center gap-2">
                                         <div className="w-2 h-2 rounded-full bg-green-500"></div>
-                                        <span className="text-caption font-black text-black/50 uppercase tracking-widest">{t("orderDetails.paymentConfirmed")}</span>
-
+                                        <span className="text-caption font-black text-black/50 uppercase tracking-widest">{safeTranslate("paymentConfirmed", "Payment Confirmed")}</span>
                                     </div>
                                 </div>
                             </div>
@@ -858,8 +858,7 @@ export default function OrderDetailsPage() {
                     <div className="mb-12">
                         <div className="border-b-2 border-primary inline-block pb-1 mb-10">
                             <h2 className="text-h3-sm md:text-[18px] font-black text-black uppercase tracking-tight">
-                                {t("orderDetails.orderAttachments")}
-
+                                {safeTranslate("orderAttachments", "Order Attachments")}
                             </h2>
                         </div>
 
@@ -878,12 +877,11 @@ export default function OrderDetailsPage() {
                                     <table className="w-full text-xs border-collapse">
                                         <thead className="bg-gray-50 border-b border-[#ebebeb]">
                                             <tr className="h-[50px]">
-                                                <th className="px-3 md:px-6 py-3 md:py-4 font-black text-black text-left tracking-widest uppercase">{t("orderDetails.fileName")}</th>
-                                                <th className="px-3 md:px-6 py-3 md:py-4 font-black text-black text-center tracking-widest uppercase">{t("orderDetails.type")}</th>
-                                                <th className="px-3 md:px-6 py-3 md:py-4 font-black text-black text-center tracking-widest uppercase">{t("orderDetails.createdOn")}</th>
-                                                <th className="px-3 md:px-6 py-3 md:py-4 font-black text-black text-center tracking-widest uppercase">{t("orderDetails.dueDate")}</th>
-                                                <th className="px-3 md:px-6 py-3 md:py-4 font-black text-black text-center tracking-widest uppercase">{t("orderDetails.payment")}</th>
-
+                                                <th className="px-3 md:px-6 py-3 md:py-4 font-black text-black text-left tracking-widest uppercase">{safeTranslate("fileName", "File Name")}</th>
+                                                <th className="px-3 md:px-6 py-3 md:py-4 font-black text-black text-center tracking-widest uppercase">{safeTranslate("type", "Type")}</th>
+                                                <th className="px-3 md:px-6 py-3 md:py-4 font-black text-black text-center tracking-widest uppercase">{safeTranslate("createdOn", "Created On")}</th>
+                                                <th className="px-3 md:px-6 py-3 md:py-4 font-black text-black text-center tracking-widest uppercase">{safeTranslate("dueDate", "Due Date")}</th>
+                                                <th className="px-3 md:px-6 py-3 md:py-4 font-black text-black text-center tracking-widest uppercase">{safeTranslate("payment", "Payment")}</th>
                                             </tr>
                                         </thead>
                                         <tbody className="divide-y divide-[#ebebeb]">
@@ -942,8 +940,7 @@ export default function OrderDetailsPage() {
                             </div>
                         ) : (
                             <div className="bg-white border border-[#ebebeb] p-10 md:p-20 text-center text-black/50 italic rounded-md shadow-sm text-xs font-bold uppercase tracking-widest">
-                                {t("orderDetails.noAttachments")}
-
+                                {safeTranslate("noAttachments", "No attachments available for this order")}
                             </div>
                         )}
                     </div>
@@ -961,7 +958,7 @@ export default function OrderDetailsPage() {
                                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
                                         <polyline points="20 6 9 17 4 12"></polyline>
                                     </svg>
-                                    Payment Completed
+                                    {safeTranslate("paymentCompleted", "Payment Completed")}
                                 </div>
                             ) : (
                                 <button
@@ -978,15 +975,15 @@ export default function OrderDetailsPage() {
                                 <table className="w-full text-xs border-collapse">
                                     <thead className="bg-gray-50 border-b border-[#ebebeb]">
                                         <tr className="h-[50px]">
-                                            <th className="px-3 md:px-4 py-3 md:py-4 font-black text-black text-center tracking-widest uppercase">Receipt No</th>
-                                            <th className="px-3 md:px-4 py-3 md:py-4 font-black text-black text-center tracking-widest uppercase">Payment Date</th>
-                                            <th className="px-3 md:px-4 py-3 md:py-4 font-black text-black text-center tracking-widest uppercase">Payment Method</th>
-                                            <th className="px-3 md:px-4 py-3 md:py-4 font-black text-black text-center tracking-widest uppercase">Invoice Amount</th>
-                                            <th className="px-3 md:px-4 py-3 md:py-4 font-black text-black text-center tracking-widest uppercase">Paid Amount</th>
-                                            <th className="px-3 md:px-4 py-3 md:py-4 font-black text-black text-center tracking-widest uppercase">Due Amount</th>
-                                            <th className="px-3 md:px-4 py-3 md:py-4 font-black text-black text-center tracking-widest uppercase">Status</th>
-                                            <th className="px-3 md:px-4 py-3 md:py-4 font-black text-black text-center tracking-widest uppercase">Proof</th>
-                                            <th className="px-3 md:px-4 py-3 md:py-4 font-black text-black text-center tracking-widest uppercase">Action</th>
+                                            <th className="px-3 md:px-4 py-3 md:py-4 font-black text-black text-center tracking-widest uppercase">{safeTranslate("receiptNo", "Receipt No")}</th>
+                                            <th className="px-3 md:px-4 py-3 md:py-4 font-black text-black text-center tracking-widest uppercase">{safeTranslate("paymentDate", "Payment Date")}</th>
+                                            <th className="px-3 md:px-4 py-3 md:py-4 font-black text-black text-center tracking-widest uppercase">{safeTranslate("paymentMethod", "Payment Method")}</th>
+                                            <th className="px-3 md:px-4 py-3 md:py-4 font-black text-black text-center tracking-widest uppercase">{safeTranslate("invoiceAmount", "Invoice Amount")}</th>
+                                            <th className="px-3 md:px-4 py-3 md:py-4 font-black text-black text-center tracking-widest uppercase">{safeTranslate("paidAmount", "Paid Amount")}</th>
+                                            <th className="px-3 md:px-4 py-3 md:py-4 font-black text-black text-center tracking-widest uppercase">{safeTranslate("dueAmount", "Due Amount")}</th>
+                                            <th className="px-3 md:px-4 py-3 md:py-4 font-black text-black text-center tracking-widest uppercase">{t("orders.status")}</th>
+                                            <th className="px-3 md:px-4 py-3 md:py-4 font-black text-black text-center tracking-widest uppercase">{safeTranslate("proof", "Proof")}</th>
+                                            <th className="px-3 md:px-4 py-3 md:py-4 font-black text-black text-center tracking-widest uppercase">{safeTranslate("action", "Action")}</th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-[#ebebeb] text-center">
@@ -1011,7 +1008,7 @@ export default function OrderDetailsPage() {
                                                         ? "bg-[#E7F6EC] text-[#038E42] border-[#D1EBD9]"
                                                         : "bg-[#FFF4E5] text-[#FA8C16] border-[#FFE7BA]"
                                                         }`}>
-                                                        {payment.payment_status}
+                                                        {t(`data.${payment.payment_status}`) !== `data.${payment.payment_status}` ? t(`data.${payment.payment_status}`) : payment.payment_status}
                                                     </span>
                                                 </td>
                                                 <td className="px-3 md:px-4 py-4 text-black/50 font-medium">-</td>
@@ -1021,14 +1018,14 @@ export default function OrderDetailsPage() {
                                                             onClick={() => fetchSinglePayment(payment.id)}
                                                             className="bg-[#EFA73F] text-white px-3 py-1.5 rounded-sm font-bold text-caption uppercase tracking-wide hover:bg-primaryHover transition-colors shadow-sm"
                                                         >
-                                                            Edit
+                                                            {safeTranslate("edit", "Edit")}
                                                         </button>
                                                         <span className="text-black/40 font-light">|</span>
                                                         <button
                                                             onClick={() => handleDownloadReceipt(payment)}
                                                             className="bg-primary text-white px-3 py-1.5 rounded-sm font-bold text-caption uppercase tracking-wide hover:bg-primaryHover transition-colors shadow-sm"
                                                         >
-                                                            Download
+                                                            {safeTranslate("download", "Download")}
                                                         </button>
                                                     </div>
                                                 </td>
@@ -1072,25 +1069,23 @@ export default function OrderDetailsPage() {
                         <p className="font-bold">Btire.com</p>
                         <p>{t("data.Jeddah")}</p>
                         <p>{t("data.Saudi Arabia")}</p>
-                        <p>{t("orderDetails.trn")}: </p>
-                        <p>{t("orderDetails.phone")}: {shippingAddress?.telephone || "-"}</p>
-                        <p>{t("orderDetails.website")}: https://autoono-demo.btire.com/</p>
+                        <p>{safeTranslate("trn", "TRN")}: </p>
+                        <p>{safeTranslate("phone", "Phone")}: {shippingAddress?.telephone || "-"}</p>
+                        <p>{safeTranslate("website", "Website")}: https://autoono-demo.btire.com/</p>
 
                     </div>
                     <div className="order-title-box">
-                        <h1 className="order-summary-title">{t("orderDetails.orderSummary")}</h1>
+                        <h1 className="order-summary-title">{safeTranslate("orderSummary", "ORDER SUMMARY")}</h1>
 
                     </div>
                     <div className="order-meta">
                         <img src="/logo/auttono-logo.jpg" alt="Logo" className="print-logo" />
                         <div className="meta-row">
-                            <span className="label">{t("orderDetails.orderHash")}</span>
-
+                            <span className="label">{safeTranslate("orderHash", "ORDER #")}</span>
                             <span className="value">{order.increment_id}</span>
                         </div>
                         <div className="meta-row">
-                            <span className="label">{t("orderDetails.createdOn")}</span>
-
+                            <span className="label">{safeTranslate("createdOn", "Created On")}</span>
                             <span className="value">{formatDate(order.created_at)}</span>
                         </div>
                     </div>
@@ -1098,8 +1093,8 @@ export default function OrderDetailsPage() {
 
                 <div className="address-box-container">
                     <div className="address-header-row">
-                        <div className="header-cell">{t("orderDetails.billingAddress")}</div>
-                        <div className="header-cell">{t("orderDetails.shipTo")}</div>
+                        <div className="header-cell">{safeTranslate("billingAddress", "Billing Address")}</div>
+                        <div className="header-cell">{safeTranslate("shipTo", "SHIP TO")}</div>
 
                     </div>
                     <div className="address-content-row">
@@ -1108,17 +1103,17 @@ export default function OrderDetailsPage() {
                             <p className="font-bold">{billingAddress?.firstname} {billingAddress?.lastname}</p>
                             <p>{billingAddress?.company || "-"}</p>
                             <p>{billingAddress?.street?.join(", ")}</p>
-                            <p>{billingAddress?.city}, {billingAddress?.postcode}</p>
+                            <p><bdi dir="ltr">{billingAddress?.city}, {billingAddress?.postcode}</bdi></p>
                             <p>{billingAddress?.country_id === "SA" ? t("data.Saudi Arabia") : billingAddress?.country_id}</p>
                             <p>{t("orderDetails.phone")}: {billingAddress?.telephone}</p>
-                            <p>Email: {order.customer_email || "-"}</p>
+                            <p>{t("m.email")}: <bdi dir="ltr">{order.customer_email || "-"}</bdi></p>
 
                         </div>
                         <div className="content-cell">
                             <p className="font-bold">{shippingAddress?.firstname} {shippingAddress?.lastname}</p>
                             <p>{shippingAddress?.company || "-"}</p>
                             <p>{shippingAddress?.street?.join(", ")}</p>
-                            <p>{shippingAddress?.city}, {shippingAddress?.postcode}</p>
+                            <p><bdi dir="ltr">{shippingAddress?.city}, {shippingAddress?.postcode}</bdi></p>
                             <p>{shippingAddress?.country_id === "SA" ? t("data.Saudi Arabia") : shippingAddress?.country_id}</p>
                             <p>{t("orderDetails.phone")}: {shippingAddress?.telephone}</p>
 
@@ -1129,11 +1124,10 @@ export default function OrderDetailsPage() {
                 <table className="items-print-table">
                     <thead>
                         <tr>
-                            <th className="text-left">{t("orderDetails.description")}</th>
-                            <th className="text-center">{t("orderDetails.qty")}</th>
-                            <th className="text-right">{t("orderDetails.unitPrice")}</th>
-                            <th className="text-right">{t("orderDetails.total")}</th>
-
+                            <th className="text-left">{safeTranslate("description", "DESCRIPTION")}</th>
+                            <th className="text-center">{safeTranslate("qty", "Qty")}</th>
+                            <th className="text-right">{safeTranslate("unitPrice", "UNIT PRICE")}</th>
+                            <th className="text-right">{safeTranslate("total", "TOTAL")}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -1154,18 +1148,15 @@ export default function OrderDetailsPage() {
                 <div className="totals-print-container">
                     <div className="totals-wrapper">
                         <div className="total-row">
-                            <span>{t("orderDetails.subtotal")}</span>
-
+                            <span>{safeTranslate("subtotal", "Subtotal")}</span>
                             <span>{formatCurrency(order.subtotal)}</span>
                         </div>
                         <div className="total-row">
-                            <span>{t("orderDetails.vat")}</span>
-
+                            <span>{safeTranslate("vat", "VAT (15%)")}</span>
                             <span>{formatCurrency(order.tax_amount)}</span>
                         </div>
                         <div className="total-row grand-total-row">
-                            <span>{t("orderDetails.grandTotal")}</span>
-
+                            <span>{safeTranslate("grandTotal", "Grand Total")}</span>
                             <span>{formatCurrency(order.grand_total)}</span>
                         </div>
                     </div>

@@ -4,9 +4,11 @@ import { useState, useCallback, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { NotificationsResponse, NotificationItem } from "../types";
 import toast from "react-hot-toast";
+import { useTranslation } from "@/hooks/useTranslation";
 
 export function useNotifications() {
     const { data: session } = useSession();
+    const { t, isRtl } = useTranslation();
     const [notifications, setNotifications] = useState<NotificationItem[]>([]);
     const [unreadCount, setUnreadCount] = useState(0);
     const [totalCount, setTotalCount] = useState(0);
@@ -96,18 +98,20 @@ export function useNotifications() {
 
                 // Sync navbar bell icon
                 window.dispatchEvent(new CustomEvent("notifications-updated"));
-                toast.success(resData?.message || "Notification marked as read");
+                // Prefer the translated string in AR mode; the backend
+                // message comes back in English regardless of locale.
+                toast.success(isRtl ? t("notifications.markedAsRead") : (resData?.message || t("notifications.markedAsRead")));
                 return true;
             } else {
                 console.warn("[markAsRead] Failed for ID:", notificationId, resData);
-                toast.error(resData?.message || "Failed to mark as read");
+                toast.error(isRtl ? t("notifications.markReadFailed") : (resData?.message || t("notifications.markReadFailed")));
             }
         } catch (err) {
             console.error("Error marking notification as read:", err);
-            toast.error("An error occurred");
+            toast.error(t("notifications.errorOccurred"));
         }
         return false;
-    }, [session]);
+    }, [session, t, isRtl]);
 
     const removeNotification = useCallback(async (notificationId: number, isRead: boolean) => {
         const token = (session as any)?.accessToken;
@@ -140,18 +144,18 @@ export function useNotifications() {
 
                 // Sync navbar bell icon
                 window.dispatchEvent(new CustomEvent("notifications-updated"));
-                toast.success(resData?.message || "Notification deleted successfully");
+                toast.success(isRtl ? t("notifications.deleted") : (resData?.message || t("notifications.deleted")));
             } else {
                 console.warn("Server-side removal failed for notification:", notificationId, resData);
-                toast.error(resData?.message || "Failed to delete notification");
+                toast.error(isRtl ? t("notifications.deleteFailed") : (resData?.message || t("notifications.deleteFailed")));
             }
         } catch (err) {
             console.error("Error removing notification:", err);
-            toast.error("An error occurred during deletion");
+            toast.error(t("notifications.errorDuringDeletion"));
         } finally {
             setDeletingIds(prev => prev.filter(id => id !== notificationId));
         }
-    }, [session, markAsRead]);
+    }, [session, markAsRead, t, isRtl]);
 
     return {
         notifications,

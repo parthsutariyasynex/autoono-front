@@ -344,7 +344,7 @@ const Filters: React.FC<FiltersProps> = ({
                         </button>
 
                         {isStatusOpen && (
-                            <ul className="absolute top-[calc(100%+4px)] left-0 w-full bg-white z-[100] shadow-xl rounded-md border border-gray-200 py-1 max-h-[300px] overflow-y-auto animate-in fade-in zoom-in-95 duration-100">
+                            <ul className="absolute top-[calc(100%+4px)] start-0 w-full bg-white z-[100] shadow-xl rounded-md border border-gray-200 py-1 max-h-[300px] overflow-y-auto animate-in fade-in zoom-in-95 duration-100">
                                 {statusOptions.map((opt: any, idx: number) => {
                                     const optionLabel = typeof opt === 'string' ? opt : (opt.label || opt.name || opt.status || String(idx));
                                     const optionValue = typeof opt === 'string' ? opt : (opt.value || opt.id || optionLabel);
@@ -357,12 +357,12 @@ const Filters: React.FC<FiltersProps> = ({
                                                     onStatusChange(optionValue);
                                                     setIsStatusOpen(false);
                                                 }}
-                                                className={`w-full text-left px-4 py-2 text-xs transition-colors truncate ${status === optionValue
-                                                        ? "bg-primary text-black font-bold"
-                                                        : "text-black/80 hover:bg-primary hover:text-primary"
+                                                className={`w-full text-start px-4 py-2 text-xs transition-colors truncate ${status === optionValue
+                                                    ? "bg-primary text-black font-bold"
+                                                    : "text-black/80 hover:bg-primary hover:text-black"
                                                     }`}
                                             >
-                                                {t(`data.${optionLabel}`) !== `data.${optionLabel}` ? t(`data.${optionLabel}`) : optionLabel}
+                                                {t(`data.${optionLabel.trim()}`) !== `data.${optionLabel.trim()}` ? t(`data.${optionLabel.trim()}`) : optionLabel}
                                             </button>
                                         </li>
                                     );

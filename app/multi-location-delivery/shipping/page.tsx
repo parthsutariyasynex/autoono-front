@@ -23,7 +23,7 @@ interface AddressGroup {
 
 const MultiShippingShippingPage: React.FC = () => {
     const router = useRouter();
-    const { t } = useTranslation();
+    const { t, isRtl } = useTranslation();
     const lp = useLocalePath();
     const { cart, isLoading: isCartLoading } = useCart();
     const {
@@ -183,7 +183,7 @@ const MultiShippingShippingPage: React.FC = () => {
                         return (
                             <div key={group.address.id} className="space-y-4">
                                 <p className="text-body-sm sm:text-body md:text-body-lg font-[900] text-black text-center tracking-tight">
-                                    {t("multi.address")} {index + 1} <span className="text-black/30 font-medium">of {groups.length}</span>
+                                    {t("multi.address")} {index + 1} <span className="text-black/30 font-medium">{t("multi.of")} {groups.length}</span>
                                 </p>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
                                     {/* Shipping To Section */}
@@ -197,9 +197,12 @@ const MultiShippingShippingPage: React.FC = () => {
                                             <p className="mb-0.5">{group.address.firstname} {group.address.lastname}</p>
                                             {/* <p className="mb-0.5">{group.address.company || "Company Name"}</p> */}
                                             <p className="mb-0.5">{group.address.street}</p>
-                                            <p className="mb-0.5">{group.address.city}, {group.address.postcode}</p>
+                                            <p className="mb-0.5" dir={isRtl ? "rtl" : "ltr"}>
+                                                {group.address.city}
+                                                {group.address.postcode ? `${isRtl ? "،" : ","} ${group.address.postcode}` : ""}
+                                            </p>
                                             <p className="mb-4">{t("multi.saudiArabia")}</p>
-                                            <p className="">T: {group.address.telephone}</p>
+                                            <p className="">T: <bdi dir="ltr">{group.address.telephone}</bdi></p>
                                         </div>
                                     </div>
 

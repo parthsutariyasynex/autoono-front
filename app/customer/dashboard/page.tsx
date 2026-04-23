@@ -483,7 +483,7 @@ function ValueCard({ label, value, isRtl }: { label: string; value: string; isRt
                 <div className="w-1.5 h-1.5 rounded-full bg-primary"></div>
             </div>
             <div className="py-10 px-4 text-center">
-                <p className="text-2xl font-black text-black tracking-tight">{value} <span className="text-label font-black text-black/50 uppercase ml-1">SAR</span></p>
+                <p className="text-2xl font-black text-black tracking-tight">{value}</p>
             </div>
         </div>
     );

@@ -23,8 +23,9 @@ const SelectedAddressCard: React.FC<SelectedAddressCardProps> = ({ address, onEd
             <div className="flex-1 pr-4">
                 <p className="text-body-sm text-black leading-relaxed font-medium">
                     <span className="font-bold text-black">{address.firstname} {address.lastname}</span>{" "}
-                    {address.street} {address.city}, {address.postcode}{" "}
-                    {address.country_id === 'SA' ? t("data.Saudi Arabia") : address.country_id} {address.telephone}
+                    {address.street} <bdi dir="ltr">{address.city}, {address.postcode}</bdi>{" "}
+                    {address.country_id === 'SA' ? t("data.Saudi Arabia") : address.country_id}{" "}
+                    <bdi dir="ltr">{address.telephone}</bdi>
                     {[
                         address.custom_attributes?.find(ca => ca.attribute_code === 'store_view')?.value,
                         address.custom_attributes?.find(ca => ca.attribute_code === 'region_ship_to_party')?.value

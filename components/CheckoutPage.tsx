@@ -643,7 +643,7 @@ const CheckoutPageUI: React.FC = () => {
             <div className="min-h-screen flex items-center justify-center bg-[#f9f9f9]">
                 <div className="flex flex-col items-center gap-4">
                     <div className="w-12 h-12 border-4 border-gray-200 border-t-primary rounded-full animate-spin" />
-                    <p className="text-label font-black text-black/50 uppercase tracking-widest italic">Preparing Checkout...</p>
+                    <p className="text-label font-black text-black/50 uppercase tracking-widest italic">{t("checkout.preparing")}</p>
                 </div>
             </div>
         );
@@ -653,7 +653,7 @@ const CheckoutPageUI: React.FC = () => {
         return (
             <div className="min-h-screen bg-white flex flex-col items-center justify-center">
                 <Loader2 size={48} className="text-primary animate-spin mb-4" />
-                <p className="text-body-sm font-black uppercase tracking-widest text-black/60">Loading your cart...</p>
+                <p className="text-body-sm font-black uppercase tracking-widest text-black/60">{t("checkout.loadingCart")}</p>
             </div>
         );
     }
@@ -693,7 +693,7 @@ const CheckoutPageUI: React.FC = () => {
                     </Link>
 
                     <div className="flex flex-col items-center gap-4">
-                        <h1 className="text-h3 sm:text-h2 md:text-[26px] font-black text-black uppercase tracking-tight">Checkout</h1>
+                        <h1 className="text-h3 sm:text-h2 md:text-[26px] font-black text-black uppercase tracking-tight">{t("checkout.title")}</h1>
                         <div className="h-[2px] w-full max-w-[400px] bg-gradient-to-r from-transparent via-primary to-transparent"></div>
                     </div>
                 </div>
@@ -745,8 +745,9 @@ const CheckoutPageUI: React.FC = () => {
                                                     <div className="text-body-sm text-black/70 leading-relaxed mb-3">
                                                         <p className="font-medium text-body-sm sm:text-body text-black">
                                                             <span className="font-black">{addr.firstname} {addr.lastname}</span>{" "}
-                                                            {addr.street} {addr.city}, {addr.postcode}{" "}
-                                                            {addr.country_id === 'SA' ? t("data.Saudi Arabia") : addr.country_id} {addr.telephone}
+                                                            {addr.street} <bdi dir="ltr">{addr.city}, {addr.postcode}</bdi>{" "}
+                                                            {addr.country_id === 'SA' ? t("data.Saudi Arabia") : addr.country_id}{" "}
+                                                            <bdi dir="ltr">{addr.telephone}</bdi>
                                                             {[
                                                                 addr.custom_attributes?.find(ca => ca.attribute_code === 'store_view')?.value,
                                                                 addr.custom_attributes?.find(ca => ca.attribute_code === 'region_ship_to_party')?.value
@@ -941,7 +942,7 @@ const CheckoutPageUI: React.FC = () => {
                                                     {selectedWarehouse && (
                                                         <div className="flex items-center gap-2 px-3 py-1 bg-gray-100 rounded-sm">
                                                             <span className="text-body-sm font-bold text-black uppercase tracking-widest">
-                                                                Selected: <span className="text-black">{selectedWarehouse}</span>
+                                                                {t("m.selected")}: <span className="text-black">{selectedWarehouse}</span>
                                                             </span>
                                                             <button
                                                                 onClick={(e) => {
@@ -950,7 +951,7 @@ const CheckoutPageUI: React.FC = () => {
                                                                 }}
                                                                 className="text-caption text-primary font-bold hover:underline"
                                                             >
-                                                                Change
+                                                                {t("m.change")}
                                                             </button>
                                                             <div className="w-px h-3 bg-gray-300 mx-1" />
                                                             <button
@@ -960,7 +961,7 @@ const CheckoutPageUI: React.FC = () => {
                                                                 }}
                                                                 className="text-caption text-black font-bold hover:underline"
                                                             >
-                                                                {isPickupFormOpen ? t("m.close") : t("m.edit")} Details
+                                                                {isPickupFormOpen ? t("m.close") : t("m.edit")} {t("m.details")}
                                                             </button>
                                                         </div>
                                                     )}
@@ -972,7 +973,7 @@ const CheckoutPageUI: React.FC = () => {
                                                         {/* Row 1: Name & ID */}
                                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                                             <div className="flex items-center gap-3">
-                                                                <label className="text-label font-black text-black/50 uppercase tracking-widest whitespace-nowrap min-w-[110px]">Person Name *</label>
+                                                                <label className="text-label font-black text-black/50 uppercase tracking-widest whitespace-nowrap min-w-[110px]">{t("checkout.personName")} *</label>
                                                                 <input
                                                                     type="text"
                                                                     value={pickupName}
@@ -982,7 +983,7 @@ const CheckoutPageUI: React.FC = () => {
                                                                 />
                                                             </div>
                                                             <div className="flex items-center gap-3">
-                                                                <label className="text-label font-black text-black/50 uppercase tracking-widest whitespace-nowrap min-w-[90px] md:min-w-[80px]">Person ID *</label>
+                                                                <label className="text-label font-black text-black/50 uppercase tracking-widest whitespace-nowrap min-w-[90px] md:min-w-[80px]">{t("checkout.personId")} *</label>
                                                                 <input
                                                                     type="text"
                                                                     value={pickupId}
@@ -995,13 +996,13 @@ const CheckoutPageUI: React.FC = () => {
 
                                                         {/* Row 2: Mobile Number */}
                                                         <div className="flex items-center gap-3">
-                                                            <label className="text-label font-black text-black/50 uppercase tracking-widest whitespace-nowrap min-w-[110px]">Mobile Number *</label>
+                                                            <label className="text-label font-black text-black/50 uppercase tracking-widest whitespace-nowrap min-w-[110px]">{t("checkout.mobileNumber")} *</label>
                                                             <input
                                                                 type="tel"
                                                                 value={pickupMobile}
                                                                 onChange={(e) => setPickupMobile(e.target.value)}
                                                                 className="flex-1 px-4 py-2 bg-white border border-gray-300 outline-none text-body-lg font-medium transition-all focus:border-black hover:border-gray-400 h-10"
-                                                                placeholder="Enter Mobile Number"
+                                                                placeholder={t("checkout.enterMobile")}
                                                             />
                                                         </div>
 
@@ -1009,7 +1010,7 @@ const CheckoutPageUI: React.FC = () => {
                                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                                             {/* Calendar Date Picker */}
                                                             <div className="flex items-center gap-3">
-                                                                <label className="text-label font-black text-black/50 uppercase tracking-widest whitespace-nowrap min-w-[110px]">Pick Up Date *</label>
+                                                                <label className="text-label font-black text-black/50 uppercase tracking-widest whitespace-nowrap min-w-[110px]">{t("checkout.pickUpDate")} *</label>
                                                                 <div className="relative flex-1 pickup-datepicker">
                                                                     <DatePicker
                                                                         ref={datePickerRef}
@@ -1059,12 +1060,12 @@ const CheckoutPageUI: React.FC = () => {
 
                                                             {/* Scrollable Time Picker */}
                                                             <div className="flex items-center gap-3">
-                                                                <label className="text-label font-black text-black/50 uppercase tracking-widest whitespace-nowrap min-w-[90px] md:min-w-[80px]">Pick Up Time *</label>
+                                                                <label className="text-label font-black text-black/50 uppercase tracking-widest whitespace-nowrap min-w-[90px] md:min-w-[80px]">{t("checkout.pickUpTime")} *</label>
                                                                 <div className="relative flex-1">
                                                                     {isLoadingTimeSlots ? (
                                                                         <div className="w-full h-10 px-4 py-2 bg-white border border-gray-300 flex items-center gap-2">
                                                                             <Loader2 size={14} className="animate-spin text-black/50" />
-                                                                            <span className="text-body-sm text-black/50">Loading...</span>
+                                                                            <span className="text-body-sm text-black/50">{t("common.loading")}</span>
                                                                         </div>
                                                                     ) : (
                                                                         <div ref={timeRef} className="relative">
@@ -1100,7 +1101,7 @@ const CheckoutPageUI: React.FC = () => {
                                                                                             }}
                                                                                             className={`px-4 py-2 text-body font-medium cursor-pointer transition-colors ${pickupTime === "" ? "bg-primary text-white" : "hover:bg-gray-100 text-black/50"}`}
                                                                                         >
-                                                                                            Select Time
+                                                                                            {t("checkout.selectTime")}
                                                                                         </li>
                                                                                         {availableTimeSlots.map((slot: any) => (
                                                                                             <li
@@ -1406,17 +1407,17 @@ const CheckoutPageUI: React.FC = () => {
                                         <h4 className="text-h3-sm font-black text-black uppercase mb-3 tracking-wide">{wh.name}</h4>
                                         <div className="space-y-1 text-body">
                                             <p className="flex items-start gap-2">
-                                                <span className="font-bold text-black min-w-[80px]">Address:</span>
+                                                <span className="font-bold text-black min-w-[80px]">{t("m.address")}:</span>
                                                 <span className="text-black/80">{wh.address}</span>
                                             </p>
                                             <p className="flex items-start gap-2">
-                                                <span className="font-bold text-black min-w-[80px]">E-Mail:</span>
+                                                <span className="font-bold text-black min-w-[80px]">{t("m.email")}:</span>
                                                 <a href={`mailto:${wh.email}`} className="text-[#3b82f6] hover:underline" onClick={(e) => e.stopPropagation()}>{wh.email}</a>
                                             </p>
                                             <p className="flex items-start gap-2">
-                                                <span className="font-bold text-black min-w-[80px]">GPS Location:</span>
+                                                <span className="font-bold text-black min-w-[80px]">{t("checkout.gpsLocation")}:</span>
                                                 <a href={wh.gps_location} target="_blank" rel="noopener noreferrer" className="text-[#3b82f6] hover:underline flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
-                                                    {wh.gps_location.startsWith('http') ? wh.gps_location.replace('https://', '').replace('http://', '') : 'View on Maps'}
+                                                    {wh.gps_location.startsWith('http') ? wh.gps_location.replace('https://', '').replace('http://', '') : t("checkout.viewOnMaps")}
                                                 </a>
                                             </p>
                                         </div>
@@ -1425,7 +1426,7 @@ const CheckoutPageUI: React.FC = () => {
                             ) : (
                                 <div className="text-center py-12">
                                     <Loader2 className="animate-spin mx-auto text-primary mb-4" size={32} />
-                                    <p className="text-black/60 font-bold uppercase tracking-widest text-body-sm">Fetching Pickup Locations...</p>
+                                    <p className="text-black/60 font-bold uppercase tracking-widest text-body-sm">{t("checkout.fetchingPickup")}</p>
                                 </div>
                             )}
                         </div>

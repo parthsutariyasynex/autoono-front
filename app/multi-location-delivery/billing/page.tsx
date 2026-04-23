@@ -162,9 +162,9 @@ const MultiShippingBillingPage: React.FC = () => {
                                     <p className="font-black text-body-lg md:text-[15px] uppercase mb-1">{currentAddress.firstname} {currentAddress.lastname}</p>
                                     <p>{currentAddress.company}</p>
                                     <p>{currentAddress.street}</p>
-                                    <p>{currentAddress.city}, {currentAddress.postcode}</p>
+                                    <p><bdi dir="ltr">{currentAddress.city}, {currentAddress.postcode}</bdi></p>
                                     <p>{t("multi.saudiArabia")}</p>
-                                    <p className="mt-4">T: {currentAddress.telephone}</p>
+                                    <p className="mt-4">T: <bdi dir="ltr">{currentAddress.telephone}</bdi></p>
 
                                 </div>
                             ) : (

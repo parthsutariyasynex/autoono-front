@@ -49,22 +49,22 @@ const MakePaymentModal: React.FC<MakePaymentModalProps> = ({ isOpen, onClose, or
         const token = (session as any)?.accessToken;
 
         if (!token) {
-            toast.error("Please login to submit payment");
+            toast.error(t("orderDetails.loginToSubmit"));
             return;
         }
 
         if (!formData.paid_payment) {
-            toast.error("Please enter the paid payment amount");
+            toast.error(t("orderDetails.enterPaidAmount"));
             return;
         }
 
         if (!formData.payment_method) {
-            toast.error("Please select a payment method");
+            toast.error(t("orderDetails.selectPaymentMethod"));
             return;
         }
 
         setIsSubmitting(true);
-        const toastId = toast.loading("Submitting payment...");
+        const toastId = toast.loading(t("orderDetails.submittingPayment"));
 
         try {
             const response = await fetch("/api/kleverapi/payment-history", {
@@ -87,14 +87,14 @@ const MakePaymentModal: React.FC<MakePaymentModalProps> = ({ isOpen, onClose, or
             const result = await response.json();
 
             if (!response.ok) {
-                throw new Error(result.message || "Failed to submit payment");
+                throw new Error(result.message || t("orderDetails.paymentSubmitFailed"));
             }
 
-            toast.success("Payment submitted successfully!", { id: toastId });
+            toast.success(t("orderDetails.paymentSubmitSuccess"), { id: toastId });
             onSave?.(result);
             onClose();
         } catch (error: any) {
-            toast.error(error.message || "Something went wrong", { id: toastId });
+            toast.error(error.message || t("m.something-went-wrong"), { id: toastId });
         } finally {
             setIsSubmitting(false);
         }
@@ -149,7 +149,7 @@ const MakePaymentModal: React.FC<MakePaymentModalProps> = ({ isOpen, onClose, or
 
                         {/* SAP Invoice No */}
                         <div className="space-y-1.5">
-                            <label className="text-label font-black text-black/80 uppercase tracking-widest">SAP Invoice No</label>
+                            <label className="text-label font-black text-black/80 uppercase tracking-widest">{t("orderDetails.sapInvoiceNo")}</label>
                             <input
                                 type="text"
                                 value={formData.sap_invoice_no}
@@ -160,7 +160,7 @@ const MakePaymentModal: React.FC<MakePaymentModalProps> = ({ isOpen, onClose, or
 
                         {/* Payment Date */}
                         <div className="space-y-1.5">
-                            <label className="text-label font-black text-black/80 uppercase tracking-widest">Payment Date</label>
+                            <label className="text-label font-black text-black/80 uppercase tracking-widest">{t("orderDetails.paymentDate")}</label>
                             <input
                                 type="date"
                                 value={formData.payment_date}
@@ -171,22 +171,22 @@ const MakePaymentModal: React.FC<MakePaymentModalProps> = ({ isOpen, onClose, or
 
                         {/* Payment Method */}
                         <div className="space-y-1.5">
-                            <label className="text-label font-black text-black/80 uppercase tracking-widest">Payment Method</label>
+                            <label className="text-label font-black text-black/80 uppercase tracking-widest">{t("orderDetails.paymentMethod")}</label>
                             <select
                                 value={formData.payment_method}
                                 onChange={(e) => setFormData({ ...formData, payment_method: e.target.value })}
                                 className="w-full px-3 py-2.5 bg-white border border-gray-200 rounded-sm text-body text-black outline-none focus:border-black transition-colors"
                             >
-                                <option value="">-- Select --</option>
-                                <option value="Bank Transfer">Bank Transfer</option>
-                                <option value="Check">Check</option>
-                                <option value="Cash">Cash</option>
+                                <option value="">{t("orderDetails.selectOption")}</option>
+                                <option value="Bank Transfer">{t("orderDetails.bankTransfer")}</option>
+                                <option value="Check">{t("orderDetails.check")}</option>
+                                <option value="Cash">{t("orderDetails.cash")}</option>
                             </select>
                         </div>
 
                         {/* Invoice Amount */}
                         <div className="space-y-1.5">
-                            <label className="text-label font-black text-black/80 uppercase tracking-widest">Invoice Amount</label>
+                            <label className="text-label font-black text-black/80 uppercase tracking-widest">{t("orderDetails.invoiceAmount")}</label>
                             <input
                                 type="text"
                                 readOnly
@@ -197,7 +197,7 @@ const MakePaymentModal: React.FC<MakePaymentModalProps> = ({ isOpen, onClose, or
 
                         {/* Receivable Payment */}
                         <div className="space-y-1.5">
-                            <label className="text-label font-black text-black/80 uppercase tracking-widest">Receivable Payment</label>
+                            <label className="text-label font-black text-black/80 uppercase tracking-widest">{t("orderDetails.receivablePayment")}</label>
                             <input
                                 type="text"
                                 readOnly
@@ -208,7 +208,7 @@ const MakePaymentModal: React.FC<MakePaymentModalProps> = ({ isOpen, onClose, or
 
                         {/* Paid Payment */}
                         <div className="space-y-1.5">
-                            <label className="text-label font-black text-black/80 uppercase tracking-widest">Paid Payment <span className="text-red-500 inline">*</span></label>
+                            <label className="text-label font-black text-black/80 uppercase tracking-widest">{t("orderDetails.paidPayment")} <span className="text-red-500 inline">*</span></label>
                             <input
                                 type="number"
                                 required
@@ -220,7 +220,7 @@ const MakePaymentModal: React.FC<MakePaymentModalProps> = ({ isOpen, onClose, or
 
                         {/* Remarks */}
                         <div className="space-y-1.5">
-                            <label className="text-label font-black text-black/80 uppercase tracking-widest">Remarks</label>
+                            <label className="text-label font-black text-black/80 uppercase tracking-widest">{t("orderDetails.remarks")}</label>
                             <textarea
                                 value={formData.remarks}
                                 onChange={(e) => setFormData({ ...formData, remarks: e.target.value })}
@@ -237,7 +237,7 @@ const MakePaymentModal: React.FC<MakePaymentModalProps> = ({ isOpen, onClose, or
                             className="bg-primary hover:bg-primaryHover text-white px-8 py-2.5 rounded-sm font-bold text-body transition-all active:scale-95 shadow-sm disabled:opacity-70 disabled:cursor-not-allowed flex items-center gap-2"
                         >
                             {isSubmitting && <Loader2 size={16} className="animate-spin" />}
-                            Submit Payment
+                            {t("orderDetails.submitPayment")}
                         </button>
                     </div>
                 </form>

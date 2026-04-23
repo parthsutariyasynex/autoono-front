@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import Sidebar from "@/components/Sidebar";
 import PortalDropdown from "@/components/PortalDropdown";
 import { useSession } from "next-auth/react";
@@ -19,7 +19,17 @@ export default function MyStatementPage() {
     const [startDate, setStartDate] = useState(`${currentYear}-01-01`);
     const [endDate, setEndDate] = useState(today);
     const [statementType, setStatementType] = useState("account_statement");
-    const [statementTypes, setStatementTypes] = useState<{ value: string; label: string }[]>([]);
+    const [rawStatementTypes, setRawStatementTypes] = useState<{ value: string; rawLabel: string }[]>([]);
+
+    // Translate labels at render time so they update when locale changes without refetch.
+    const statementTypes = useMemo(
+        () => rawStatementTypes.map(({ value, rawLabel }) => {
+            const key = `data.${rawLabel}`;
+            const translated = t(key);
+            return { value, label: translated !== key ? translated : rawLabel };
+        }),
+        [rawStatementTypes, t]
+    );
 
     const [isDownloading, setIsDownloading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -39,15 +49,15 @@ export default function MyStatementPage() {
 
                     // Standardize response structure: handle [ {k:v}, ... ] or { types: [...] }
                     const rawTypes = Array.isArray(data) ? data : (data.types || []);
-                    const mapped = rawTypes.map((t: any) => ({
-                        value: t.value || t.code || t.id || t,
-                        label: t.label || t.name || t.type_name || t.value || t
+                    const mapped = rawTypes.map((item: any) => ({
+                        value: item.value || item.code || item.id || item,
+                        rawLabel: item.label || item.name || item.type_name || item.value || item,
                     }));
 
                     if (mapped.length > 0) {
-                        setStatementTypes(mapped);
+                        setRawStatementTypes(mapped);
                         // Optional: select first by default if not already set or current is invalid
-                        if (!mapped.find((m: { value: string; label: string }) => m.value === statementType)) {
+                        if (!mapped.find((m: { value: string; rawLabel: string }) => m.value === statementType)) {
                             setStatementType(mapped[0].value);
                         }
                     }

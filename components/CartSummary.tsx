@@ -17,7 +17,7 @@ interface CartSummaryProps {
 const CartSummary: React.FC<CartSummaryProps> = ({ subtotal, taxAmount, taxLabel, grandTotal, currencyCode }) => {
     const router = useRouter();
     const lp = useLocalePath();
-    const { t } = useTranslation();
+    const { t, isRtl } = useTranslation();
 
     return (
         <div className="lg:sticky lg:top-28 self-start bg-white border border-gray-100 rounded-sm shadow-[0_10px_40px_rgba(0,0,0,0.05)] overflow-hidden">
@@ -40,7 +40,7 @@ const CartSummary: React.FC<CartSummaryProps> = ({ subtotal, taxAmount, taxLabel
 
                     <div className="flex justify-between items-center">
                         <span className="text-black font-medium text-caption uppercase tracking-wider">
-                            {taxLabel || t("m.tax")}
+                            {isRtl ? t("m.tax") : (taxLabel || t("m.tax"))}
                         </span>
                         <span className="font-semibold text-black text-body-sm">
                             <Price amount={taxAmount} />

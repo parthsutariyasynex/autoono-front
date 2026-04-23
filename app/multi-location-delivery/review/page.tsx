@@ -26,7 +26,7 @@ interface AddressGroup {
 
 const MultiShippingReviewPage: React.FC = () => {
     const router = useRouter();
-    const { t } = useTranslation();
+    const { t, isRtl } = useTranslation();
     const lp = useLocalePath();
     const { cart, isLoading: isCartLoading, clearCart } = useCart();
     const {
@@ -340,9 +340,12 @@ const MultiShippingReviewPage: React.FC = () => {
                                     <p className="font-bold uppercase tracking-tight mb-0.5">{billingAddress.firstname} {billingAddress.lastname}</p>
                                     <p className="mb-0.5">{billingAddress.company}</p>
                                     <p className="mb-0.5">{billingAddress.street}</p>
-                                    <p className="mb-0.5">{billingAddress.city}, {billingAddress.postcode}</p>
+                                    <p className="mb-0.5" dir={isRtl ? "rtl" : "ltr"}>
+                                        {billingAddress.city}
+                                        {billingAddress.postcode ? `${isRtl ? "،" : ","} ${billingAddress.postcode}` : ""}
+                                    </p>
                                     <p className="mb-0.5">{t("multi.saudiArabia")}</p>
-                                    <p className="mt-3">T: {billingAddress.telephone}</p>
+                                    <p className="mt-3">T: <bdi dir="ltr">{billingAddress.telephone}</bdi></p>
                                 </>
                             ) : <p className="text-black/50">{t("multi.loadingBilling")}</p>}
                         </div>
@@ -402,7 +405,7 @@ const MultiShippingReviewPage: React.FC = () => {
                     return (
                         <div key={group.address.id} className="mb-12 md:mb-24 last:mb-0">
                             <p className="text-body md:text-body-lg font-bold text-black text-center mb-6 md:mb-10 tracking-tight">
-                                {t("multi.address")} {index + 1} <span className="text-black/50 font-normal">of {groups.length}</span>
+                                {t("multi.address")} {index + 1} <span className="text-black/50 font-normal">{t("multi.of")} {groups.length}</span>
                             </p>
 
                             <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 md:gap-4">
@@ -415,11 +418,11 @@ const MultiShippingReviewPage: React.FC = () => {
                                         <p className="font-bold uppercase mb-0.5">{group.address.firstname} {group.address.lastname}</p>
                                         <p className="mb-0.5">{group.address.company}</p>
                                         <p className="mb-0.5">{group.address.street}</p>
-                                        <p className="mb-0.5">{group.address.city}, {group.address.postcode}</p>
+                                        <p className="mb-0.5"><bdi dir="ltr">{group.address.city}, {group.address.postcode}</bdi></p>
                                         <p className="mb-0.5">{t("multi.saudiArabia")}</p>
-                                        <p className="mt-3">T: {group.address.telephone}</p>
+                                        <p className="mt-3">T: <bdi dir="ltr">{group.address.telephone}</bdi></p>
                                         {group.address.custom_attributes?.find(a => a.attribute_code === 'vat_number')?.value && (
-                                            <p>VAT: {group.address.custom_attributes.find(a => a.attribute_code === 'vat_number')?.value}</p>
+                                            <p>{t("m.vat")}: {group.address.custom_attributes.find(a => a.attribute_code === 'vat_number')?.value}</p>
                                         )}
                                     </div>
                                 </div>
@@ -465,10 +468,10 @@ const MultiShippingReviewPage: React.FC = () => {
                                         <table className="w-full text-left border-collapse min-w-[320px]">
                                             <thead>
                                                 <tr className="border-b border-transparent">
-                                                    <th className="py-3 md:py-4 px-3 md:px-6 text-label md:text-body-sm font-black text-black uppercase w-[40%] md:w-[50%]">Item</th>
-                                                    <th className="py-3 md:py-4 px-2 md:px-4 text-label md:text-body-sm font-black text-black uppercase text-right">Price</th>
-                                                    <th className="py-3 md:py-4 px-2 md:px-4 text-label md:text-body-sm font-black text-black uppercase text-right">Qty</th>
-                                                    <th className="py-3 md:py-4 px-3 md:px-6 text-label md:text-body-sm font-black text-black uppercase text-right">Total</th>
+                                                    <th className="py-3 md:py-4 px-3 md:px-6 text-label md:text-body-sm font-black text-black uppercase w-[40%] md:w-[50%]">{t("m.item")}</th>
+                                                    <th className="py-3 md:py-4 px-2 md:px-4 text-label md:text-body-sm font-black text-black uppercase text-right">{t("common.price")}</th>
+                                                    <th className="py-3 md:py-4 px-2 md:px-4 text-label md:text-body-sm font-black text-black uppercase text-right">{t("multi.qty")}</th>
+                                                    <th className="py-3 md:py-4 px-3 md:px-6 text-label md:text-body-sm font-black text-black uppercase text-right">{t("common.total")}</th>
                                                 </tr>
                                             </thead>
                                             <tbody className="bg-transparent">

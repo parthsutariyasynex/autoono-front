@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import { createPortal } from "react-dom";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
 
 interface PaginationProps {
@@ -141,7 +141,7 @@ const Pagination: React.FC<PaginationProps> = ({
         <div className="flex flex-col md:flex-row items-center justify-between py-3 md:py-4 px-1 gap-4 mt-4 border-t border-gray-100">
             {/* Item count */}
             <div className="text-body md:text-body-lg text-black/60 font-medium order-2 md:order-1">
-                {t("favorites.show")} <span className="text-black font-extrabold">{t("favorites.items")} {startItem} - {endItem}</span> {t("favorites.of")} <span className="text-black font-extrabold">{totalItems}</span> {t("favorites.total")}
+                {t("favorites.show")} <span className="text-black font-extrabold">{t("favorites.items")} <bdi dir="ltr">{startItem} - {endItem}</bdi></span> {t("favorites.of")} <span className="text-black font-extrabold"><bdi dir="ltr">{totalItems}</bdi></span> {t("favorites.total")}
             </div>
 
             {/* Pagination Controls */}
@@ -149,9 +149,10 @@ const Pagination: React.FC<PaginationProps> = ({
                 {currentPage > 1 && (
                     <button
                         onClick={() => onPageChange(currentPage - 1)}
-                        className="h-9 md:h-10 w-9 md:w-10 flex items-center justify-center bg-white border border-gray-200 text-black font-extrabold rounded-full hover:bg-gray-50 hover:border-primary hover:text-primary transition-all duration-200 cursor-pointer shadow-sm"
+                        aria-label="Previous page"
+                        className="h-9 md:h-10 w-9 md:w-10 flex items-center justify-center bg-white border border-gray-200 text-black rounded-full hover:bg-gray-50 hover:border-primary hover:text-primary transition-all duration-200 cursor-pointer shadow-sm"
                     >
-                        {isRtl ? "›" : "‹"}
+                        {isRtl ? <ChevronRight size={18} strokeWidth={2.5} /> : <ChevronLeft size={18} strokeWidth={2.5} />}
                     </button>
                 )}
 
@@ -175,9 +176,10 @@ const Pagination: React.FC<PaginationProps> = ({
                 {currentPage < totalPages && (
                     <button
                         onClick={() => onPageChange(currentPage + 1)}
-                        className="h-9 md:h-10 w-9 md:w-10 flex items-center justify-center bg-white border border-gray-200 text-black font-extrabold rounded-full hover:bg-gray-50 hover:border-primary hover:text-primary transition-all duration-200 cursor-pointer shadow-sm"
+                        aria-label="Next page"
+                        className="h-9 md:h-10 w-9 md:w-10 flex items-center justify-center bg-white border border-gray-200 text-black rounded-full hover:bg-gray-50 hover:border-primary hover:text-primary transition-all duration-200 cursor-pointer shadow-sm"
                     >
-                        {isRtl ? "‹" : "›"}
+                        {isRtl ? <ChevronLeft size={18} strokeWidth={2.5} /> : <ChevronRight size={18} strokeWidth={2.5} />}
                     </button>
                 )}
             </div>

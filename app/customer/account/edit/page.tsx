@@ -71,16 +71,14 @@ function EditAccountPageContent() {
 
     const handleSave = async () => {
         if (!firstName || !lastName) {
-            toast.error("Required fields are missing");
+            toast.error(t("account.requiredFields"));
             return;
         }
 
         // Password-change validation (only when the section is enabled)
         if (changePassword) {
             if (!currentPassword || !newPassword || !confirmNewPassword) {
-                toast.error(t("changePassword.required") !== "changePassword.required"
-                    ? t("changePassword.required")
-                    : "All password fields are required");
+                toast.error(t("account.allPasswordRequired"));
                 return;
             }
             if (newPassword !== confirmNewPassword) {
@@ -90,7 +88,7 @@ function EditAccountPageContent() {
         }
 
         setIsSaving(true);
-        const toastId = toast.loading("Saving changes...");
+        const toastId = toast.loading(t("account.savingChanges"));
 
         try {
             // Change Password flow — hits the working endpoint:
@@ -109,15 +107,15 @@ function EditAccountPageContent() {
 
             toast.success(
                 changePassword
-                    ? (t("changePassword.success") || "Password changed successfully")
-                    : "Account information updated successfully",
+                    ? t("changePassword.success")
+                    : t("account.updateSuccess"),
                 { id: toastId }
             );
             dispatch(fetchCustomerInfo());
             router.push(lp("/my-account"));
         } catch (error: any) {
             console.error("Save Error:", error);
-            toast.error(error.message || "Failed to save changes", { id: toastId });
+            toast.error(error.message || t("account.saveFailed"), { id: toastId });
         } finally {
             setIsSaving(false);
         }
@@ -142,20 +140,20 @@ function EditAccountPageContent() {
             <main className="flex-1 p-6 md:p-12 min-h-0 bg-[#FDFDFD]">
                 <div className="w-full">
                     <h1 className="text-h3 sm:text-h2 md:text-h1-sm font-black text-black mb-6 md:mb-10 uppercase tracking-tight">
-                        Edit Account Information
+                        {t("account.editTitle")}
                     </h1>
 
                     <div className="space-y-6 md:space-y-10">
                         {/* ACCOUNT INFORMATION SECTION - MATCHING SCREENSHOT */}
                         <div className="bg-white border border-gray-200 shadow-sm rounded-sm overflow-hidden">
                             <div className={sectionHeader}>
-                                ACCOUNT INFORMATION
+                                {t("account.accountInformation")}
                             </div>
 
                             <div className="p-8 space-y-6">
                                 <div className="space-y-2">
                                     <label className={labelClass}>
-                                        First Name <span className="text-red-500">*</span>
+                                        {t("m.first-name")} <span className="text-red-500">*</span>
                                     </label>
                                     <input
                                         type="text"
@@ -167,7 +165,7 @@ function EditAccountPageContent() {
 
                                 <div className="space-y-2">
                                     <label className={labelClass}>
-                                        Last Name <span className="text-red-500">*</span>
+                                        {t("m.last-name")} <span className="text-red-500">*</span>
                                     </label>
                                     <input
                                         type="text"
@@ -188,7 +186,7 @@ function EditAccountPageContent() {
                                                 onChange={(e) => setChangeEmail(e.target.checked)}
                                             />
                                             <span className="text-body-lg font-bold text-black/80 group-hover:text-black transition-colors select-none">
-                                                Change Email
+                                                {t("m.change-email")}
                                             </span>
                                         </label>
                                     </div>
@@ -203,7 +201,7 @@ function EditAccountPageContent() {
                                                 onChange={(e) => setChangePassword(e.target.checked)}
                                             />
                                             <span className="text-body-lg font-bold text-black/80 group-hover:text-black transition-colors select-none">
-                                                Change Password
+                                                {t("m.change-password")}
                                             </span>
                                         </label>
                                     </div>
@@ -215,13 +213,13 @@ function EditAccountPageContent() {
                         {changeEmail && (
                             <div className="bg-white border border-gray-200 shadow-sm rounded-sm overflow-hidden animate-in fade-in slide-in-from-top-4 duration-300">
                                 <div className={sectionHeader}>
-                                    CHANGE EMAIL
+                                    {t("account.changeEmailHeading")}
                                 </div>
 
                                 <div className="p-4 md:p-8 space-y-4 md:space-y-6">
                                     <div className="space-y-2">
                                         <label className={labelClass}>
-                                            Email <span className="text-red-500">*</span>
+                                            {t("m.email")} <span className="text-red-500">*</span>
                                         </label>
                                         <input
                                             type="email"
@@ -234,7 +232,7 @@ function EditAccountPageContent() {
 
                                     <div className="space-y-2">
                                         <label className={labelClass}>
-                                            Current Password <span className="text-red-500">*</span>
+                                            {t("m.current-password")} <span className="text-red-500">*</span>
                                         </label>
                                         <input
                                             type="password"
@@ -250,13 +248,13 @@ function EditAccountPageContent() {
                         {changePassword && (
                             <div className="bg-white border border-gray-200 shadow-sm rounded-sm overflow-hidden animate-in fade-in slide-in-from-top-4 duration-300">
                                 <div className={sectionHeader}>
-                                    CHANGE PASSWORD
+                                    {t("account.changePasswordHeading")}
                                 </div>
 
                                 <div className="p-4 md:p-8 space-y-4 md:space-y-6">
                                     <div className="space-y-2">
                                         <label className={labelClass}>
-                                            Current Password <span className="text-red-500">*</span>
+                                            {t("m.current-password")} <span className="text-red-500">*</span>
                                         </label>
                                         <input
                                             type="password"
@@ -270,7 +268,7 @@ function EditAccountPageContent() {
 
                                     <div className="space-y-2">
                                         <label className={labelClass}>
-                                            New Password <span className="text-red-500">*</span>
+                                            {t("m.new-password")} <span className="text-red-500">*</span>
                                         </label>
                                         <input
                                             type="password"
@@ -281,13 +279,13 @@ function EditAccountPageContent() {
                                             autoComplete="new-password"
                                         />
                                         <div className="bg-[#f4f4f4] px-4 py-2 text-body-sm font-bold text-black/70 border border-gray-100 italic">
-                                            Password Strength: {newPassword.length === 0 ? "No Password" : newPassword.length < 8 ? "Weak" : newPassword.length < 12 ? "Medium" : "Strong"}
+                                            {t("account.passwordStrength")}: {newPassword.length === 0 ? t("account.noPassword") : newPassword.length < 8 ? t("account.weak") : newPassword.length < 12 ? t("account.medium") : t("account.strong")}
                                         </div>
                                     </div>
 
                                     <div className="space-y-2">
                                         <label className={labelClass}>
-                                            Confirm New Password <span className="text-red-500">*</span>
+                                            {t("m.confirm-new-password")} <span className="text-red-500">*</span>
                                         </label>
                                         <input
                                             type="password"
@@ -314,7 +312,7 @@ function EditAccountPageContent() {
                                 disabled={isSaving}
                                 className="bg-primary hover:bg-black hover:text-white text-black text-body md:text-[15px] font-black px-8 md:px-12 py-3 md:py-3.5 uppercase transition-all rounded-sm shadow-md tracking-wider active:scale-95 w-full sm:w-auto"
                             >
-                                {isSaving ? "Saving..." : "Save"}
+                                {isSaving ? t("account.saving") : t("common.save")}
                             </button>
                         </div>
                     </div>

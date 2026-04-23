@@ -90,19 +90,23 @@ export default function OrderAttachmentsPage() {
     const invoiceDueOptions = filterOptionsData?.invoice_due_options || filterOptionsData?.invoice_due || [];
 
     // Helper to ensure "All" is present and at the start, translate labels
+    // via the `data.<label>` convention (falls back to the raw label).
+    const translateLabel = (label: string) => {
+        const key = `data.${label}`;
+        const translated = t(key);
+        return translated !== key ? translated : label;
+    };
+
     const getOptionsWithAll = (options: any[]) => {
         const allOption = { label: t("m.all") || "All", value: "All" };
         if (!options || options.length === 0) return [allOption];
         const normalized = normalizeOptions(options);
         const hasAll = normalized.some(opt => opt.value.toLowerCase() === "all" || opt.label.toLowerCase() === "all");
-        if (hasAll) {
-            return normalized.map(opt =>
-                opt.value.toLowerCase() === "all" || opt.label.toLowerCase() === "all"
-                    ? { ...opt, label: t("m.all") || "All" }
-                    : opt
-            );
-        }
-        return [allOption, ...normalized];
+        const localized = normalized.map(opt => {
+            const isAll = opt.value.toLowerCase() === "all" || opt.label.toLowerCase() === "all";
+            return { ...opt, label: isAll ? (t("m.all") || "All") : translateLabel(opt.label) };
+        });
+        return hasAll ? localized : [allOption, ...localized];
     };
 
     const finalDocTypes = getOptionsWithAll(docTypeOptions);

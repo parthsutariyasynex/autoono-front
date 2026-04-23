@@ -130,7 +130,7 @@ const Popup: React.FC<PopupProps> = ({
         switch (animation) {
             case "slide-right":
             case "slide-left":
-                return "h-full w-full sm:w-[480px]";
+                return "h-full w-full sm:w-[440px] md:w-[520px] lg:w-[560px] overflow-x-hidden";
             case "slide-bottom":
                 return "w-full sm:max-w-2xl rounded-t-2xl";
             default: // centered modal

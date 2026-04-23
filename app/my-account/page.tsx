@@ -203,12 +203,12 @@ export default function MyAccountPage() {
                                         <div className="p-3 md:p-5 text-body text-black/80 space-y-2.5 font-medium leading-relaxed">
                                             <p>{t("account.contactName")}: {(customer as any).firstname} {(customer as any).lastname}</p>
                                             <p>{t("account.email")}: {(customer as any).email}</p>
-                                            <p>{t("account.customerMobile")}: {customerMobile}</p>
+                                            <p>{t("account.customerMobile")}: <bdi dir="ltr">{customerMobile}</bdi></p>
                                             <p>{t("account.companyName")}: {customerCompany}</p>
                                             <p>{t("account.customerCode")}: {getAttr("customer_code")}</p>
                                             <p>{t("m.industry")}: {getAttr("industry") !== "N/A" ? getAttr("industry") : "N/A"}</p>
                                             <p>{t("m.location")}: {customerLocation}</p>
-                                            <p>{t("account.contactInformation")}: {(customer as any).email} ,{customerMobile}</p>
+                                            <p>{t("account.contactInformation")}: <bdi dir="ltr">{(customer as any).email}</bdi> ,<bdi dir="ltr">{customerMobile}</bdi></p>
 
                                             <div className="flex flex-col md:flex-row gap-3 pt-4 md:pt-6">
                                                 <Link href={lp("/customer/account/edit")} className="w-full md:w-auto text-center bg-primary hover:bg-primaryHover text-black text-body-sm font-bold px-6 py-2 uppercase transition-all rounded-sm">
@@ -312,9 +312,9 @@ export default function MyAccountPage() {
                                                     <p>{defaultBilling.firstname} {defaultBilling.lastname}</p>
                                                     <p>{defaultBilling.company}</p>
                                                     {defaultBilling.street?.map((s: string, i: number) => <p key={i}>{s}</p>)}
-                                                    <p>{defaultBilling.city}, {defaultBilling.postcode}</p>
+                                                    <p><bdi dir="ltr">{defaultBilling.city}, {defaultBilling.postcode}</bdi></p>
                                                     <p>{defaultBilling.country_id === 'SA' ? t("data.Saudi Arabia") : defaultBilling.country_id}</p>
-                                                    <p>T: {defaultBilling.telephone}</p>
+                                                    <p>T: <bdi dir="ltr">{defaultBilling.telephone}</bdi></p>
                                                 </div>
                                             ) : (
                                                 <p className="text-body text-black/60 italic flex-1">{t("addressBook.noBillingAddress")}</p>
@@ -333,9 +333,9 @@ export default function MyAccountPage() {
                                                     <p>{defaultShipping.firstname} {defaultShipping.lastname}</p>
                                                     <p>{defaultShipping.company}</p>
                                                     {defaultShipping.street?.map((s: string, i: number) => <p key={i}>{s}</p>)}
-                                                    <p>{defaultShipping.city}, {defaultShipping.postcode}</p>
+                                                    <p><bdi dir="ltr">{defaultShipping.city}, {defaultShipping.postcode}</bdi></p>
                                                     <p>{defaultShipping.country_id === 'SA' ? t("data.Saudi Arabia") : defaultShipping.country_id}</p>
-                                                    <p>T: {defaultShipping.telephone}</p>
+                                                    <p>T: <bdi dir="ltr">{defaultShipping.telephone}</bdi></p>
                                                 </div>
                                             ) : (
                                                 <p className="text-body text-black/60 italic flex-1">{t("addressBook.noShippingAddress")}</p>

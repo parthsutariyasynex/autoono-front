@@ -142,7 +142,7 @@ export default function MyAccountPage() {
                                         </div>
                                         <div className="flex items-center gap-4 group">
                                             <span className="w-1.5 h-1.5 rounded-full bg-primary"></span>
-                                            <p className="flex-1">Mobile: <span className="font-black text-black">{getAttr("mobile") !== "N/A" ? getAttr("mobile") : getAttr("mobile_number")}</span></p>
+                                            <p className="flex-1">{t("m.mobile")}: <bdi dir="ltr" className="font-black text-black">{getAttr("mobile") !== "N/A" ? getAttr("mobile") : getAttr("mobile_number")}</bdi></p>
                                         </div>
 
                                         <div className="flex flex-col sm:flex-row gap-8 pt-8">
@@ -241,9 +241,9 @@ export default function MyAccountPage() {
                                                     <div className="text-body text-black/80 leading-relaxed font-medium space-y-1">
                                                         <p className="font-black text-black text-sm mb-2">{(customer as any).firstname} {(customer as any).lastname}</p>
                                                         {defaultBilling.street?.map((s: string, i: number) => <p key={i}>{s}</p>)}
-                                                        <p>{defaultBilling.city}, {defaultBilling.postcode}</p>
+                                                        <p><bdi dir="ltr">{defaultBilling.city}, {defaultBilling.postcode}</bdi></p>
                                                         <p className="uppercase text-label text-black/50">{defaultBilling.country_id}</p>
-                                                        <p className="pt-4 text-black/60 font-mono text-xs">T: {defaultBilling.telephone}</p>
+                                                        <p className="pt-4 text-black/60 font-mono text-xs">T: <bdi dir="ltr">{defaultBilling.telephone}</bdi></p>
                                                     </div>
                                                 ) : (
                                                     <p className="text-body text-black/50 italic">No default billing address set.</p>
@@ -258,9 +258,9 @@ export default function MyAccountPage() {
                                                     <div className="text-body text-black/80 leading-relaxed font-medium space-y-1">
                                                         <p className="font-black text-black text-sm mb-2">{(customer as any).firstname} {(customer as any).lastname}</p>
                                                         {defaultShipping.street?.map((s: string, i: number) => <p key={i}>{s}</p>)}
-                                                        <p>{defaultShipping.city}, {defaultShipping.postcode}</p>
+                                                        <p><bdi dir="ltr">{defaultShipping.city}, {defaultShipping.postcode}</bdi></p>
                                                         <p className="uppercase text-label text-black/50">{defaultShipping.country_id}</p>
-                                                        <p className="pt-4 text-black/60 font-mono text-xs">T: {defaultShipping.telephone}</p>
+                                                        <p className="pt-4 text-black/60 font-mono text-xs">T: <bdi dir="ltr">{defaultShipping.telephone}</bdi></p>
                                                     </div>
                                                 ) : (
                                                     <p className="text-body text-black/50 italic">No default shipping address set.</p>

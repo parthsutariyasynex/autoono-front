@@ -2,6 +2,7 @@
 
 import React from "react";
 import Price from "@/app/components/Price";
+import { useTranslation } from "@/hooks/useTranslation";
 
 export interface Order {
     id: string;
@@ -17,6 +18,7 @@ interface OrdersTableProps {
 }
 
 const OrdersTable: React.FC<OrdersTableProps> = ({ orders }) => {
+    const { t } = useTranslation();
     return (
         <div className="w-full">
             {/* Desktop Table */}
@@ -25,13 +27,13 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders }) => {
                     <table className="w-full text-body text-left border-collapse min-w-[900px]">
                         <thead>
                             <tr className="bg-gray-50/80 text-black text-label font-black uppercase tracking-widest h-[60px] border-b border-[#ebebeb]">
-                                <th className="px-6 py-4 ltr:text-left rtl:text-right">Order #</th>
-                                <th className="px-6 py-4 ltr:text-left rtl:text-right">SAP Order Number</th>
-                                <th className="px-6 py-4 text-center whitespace-nowrap">Date</th>
-                                <th className="px-6 py-4 text-right whitespace-nowrap">Grand Total</th>
-                                <th className="px-6 py-4 text-center">Ordered By</th>
-                                <th className="px-6 py-4 text-center">Status</th>
-                                <th className="px-6 py-4 text-center">Action</th>
+                                <th className="px-6 py-4 ltr:text-left rtl:text-right">{t("orders.orderId")}</th>
+                                <th className="px-6 py-4 ltr:text-left rtl:text-right">{t("orders.sapOrder")}</th>
+                                <th className="px-6 py-4 text-center whitespace-nowrap">{t("orders.date")}</th>
+                                <th className="px-6 py-4 text-right whitespace-nowrap">{t("orders.grandTotal")}</th>
+                                <th className="px-6 py-4 text-center">{t("orders.orderedBy")}</th>
+                                <th className="px-6 py-4 text-center">{t("orders.status")}</th>
+                                <th className="px-6 py-4 text-center">{t("orders.action")}</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-50">
@@ -58,17 +60,17 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders }) => {
                                         </td>
                                         <td className="px-6 py-4 text-center">
                                             <span className={`px-3 py-1 rounded-full text-caption font-black uppercase tracking-widest ${order.status?.toLowerCase() === 'complete' ? 'bg-green-100 text-green-700' : 'bg-primary/10 text-primary'}`}>
-                                                {order.status}
+                                                {t(`data.${order.status}`) !== `data.${order.status}` ? t(`data.${order.status}`) : order.status}
                                             </span>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-center">
                                             <div className="flex items-center justify-center gap-4 text-label font-black uppercase tracking-wider">
                                                 <button className="text-black hover:text-primary transition-colors flex items-center gap-1">
-                                                    View
+                                                    {t("orders.viewOrder")}
                                                 </button>
                                                 <span className="text-black/30">|</span>
                                                 <button className="text-black hover:text-primary transition-colors flex items-center gap-1">
-                                                    Reorder
+                                                    {t("orders.reorder")}
                                                 </button>
                                             </div>
                                         </td>
@@ -78,7 +80,7 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders }) => {
                                 <tr>
                                     <td colSpan={7} className="px-6 py-24 text-center">
                                         <p className="text-black/50 text-xs italic tracking-[0.2em] uppercase font-black">
-                                            We couldn&apos;t find any records.
+                                            {t("orders.noRecords")}
                                         </p>
                                     </td>
                                 </tr>
@@ -109,14 +111,14 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders }) => {
                             {/* Status */}
                             <div>
                                 <span className={`inline-block px-3 py-1 rounded-full text-caption font-black uppercase tracking-widest ${order.status?.toLowerCase() === 'complete' ? 'bg-green-100 text-green-700' : 'bg-primary/10 text-primary'}`}>
-                                    {order.status}
+                                    {t(`data.${order.status}`) !== `data.${order.status}` ? t(`data.${order.status}`) : order.status}
                                 </span>
                             </div>
 
                             {/* SAP Order Number */}
                             {order.sapOrderNumber && (
                                 <div className="flex justify-between text-body-sm">
-                                    <span className="text-black/50 uppercase tracking-wider font-bold">SAP Order</span>
+                                    <span className="text-black/50 uppercase tracking-wider font-bold">{t("orders.sapOrder")}</span>
                                     <span className="text-black/70 font-medium">{order.sapOrderNumber}</span>
                                 </div>
                             )}
@@ -124,14 +126,14 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders }) => {
                             {/* Ordered By */}
                             {order.orderedBy && (
                                 <div className="flex justify-between text-body-sm">
-                                    <span className="text-black/50 uppercase tracking-wider font-bold">Ordered By</span>
+                                    <span className="text-black/50 uppercase tracking-wider font-bold">{t("orders.orderedBy")}</span>
                                     <span className="text-black/70 font-medium">{order.orderedBy}</span>
                                 </div>
                             )}
 
                             {/* Grand Total */}
                             <div className="flex justify-between text-body-sm">
-                                <span className="text-black/50 uppercase tracking-wider font-bold">Grand Total</span>
+                                <span className="text-black/50 uppercase tracking-wider font-bold">{t("orders.grandTotal")}</span>
                                 <span className="text-black font-black">
                                     <Price amount={order.grandTotal} />
                                 </span>
@@ -140,11 +142,11 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders }) => {
                             {/* Actions */}
                             <div className="flex items-center gap-3 pt-2 border-t border-gray-100 text-label font-black uppercase tracking-wider">
                                 <button className="text-black hover:text-primary transition-colors">
-                                    View
+                                    {t("orders.viewOrder")}
                                 </button>
                                 <span className="text-black/30">|</span>
                                 <button className="text-black hover:text-primary transition-colors">
-                                    Reorder
+                                    {t("orders.reorder")}
                                 </button>
                             </div>
                         </div>

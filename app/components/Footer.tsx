@@ -27,7 +27,7 @@ const Footer: React.FC = () => {
                         <div className="mb-4 text-white">
                             <Phone className="w-10 h-10" strokeWidth={1} />
                         </div>
-                        <h3 className="text-[20px] font-semibold mb-3 tracking-tight">Call us now</h3>
+                        <h3 className="text-[20px] font-semibold mb-3 tracking-tight">{t("footer.call")}</h3>
                         <a
                             href="tel:8003040001"
                             className="text-white text-[15px] font-medium tracking-wider"
@@ -41,7 +41,7 @@ const Footer: React.FC = () => {
                         <div className="mb-4 text-white">
                             <Mail className="w-10 h-10" strokeWidth={1} />
                         </div>
-                        <h3 className="text-[20px] font-semibold mb-3 tracking-tight">Send us an email</h3>
+                        <h3 className="text-[20px] font-semibold mb-3 tracking-tight">{t("footer.email")}</h3>
                         <a
                             href="mailto:info@autoono.sa"
                             className="text-white text-[15px] font-medium tracking-wider"
@@ -54,9 +54,9 @@ const Footer: React.FC = () => {
                 {/* Bottom Bar */}
                 <div className="mt-16 md:mt-24 pt-8 border-t border-white/10">
                     <div className="flex flex-wrap items-center justify-center gap-x-10 gap-y-4 text-[13px] font-medium text-center uppercase tracking-wide">
-                        <Link href={lp("/privacy-policy")} className="text-white hover:text-primary transition-colors">Privacy Policy</Link>
-                        <Link href={lp("/return-exchange-policy")} className="text-white hover:text-primary transition-colors">Return Exchange Policy</Link>
-                        <Link href={lp("/terms-conditions")} className="text-white hover:text-primary transition-colors">Terms & Conditions</Link>
+                        <Link href={lp("/privacy-policy")} className="text-white hover:text-primary transition-colors">{t("footer.privacyPolicy")}</Link>
+                        <Link href={lp("/return-exchange-policy")} className="text-white hover:text-primary transition-colors">{t("footer.returnExchangePolicy")}</Link>
+                        <Link href={lp("/terms-conditions")} className="text-white hover:text-primary transition-colors">{t("footer.termsConditions")}</Link>
                     </div>
                 </div>
             </div>

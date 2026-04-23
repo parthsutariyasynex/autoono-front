@@ -25,10 +25,13 @@ export default function Drawer({ isOpen, onClose, children, title, scrollable = 
             className="flex flex-col"
             scrollable={scrollable}
         >
-            {/* Close Button Overlay */}
+            {/* Close Button Overlay — sits on the far end of the header.
+                In LTR it lives on the right; in RTL the drawer slides in from
+                the left edge and the title pins to the right, so the close
+                button needs to flip to the left to avoid overlapping the title. */}
             <button
                 onClick={onClose}
-                className="absolute right-4 top-4 z-[110] p-2 bg-white/80 backdrop-blur-sm rounded-full shadow-sm hover:bg-gray-100 transition-colors text-black/60 hover:text-black"
+                className="absolute ltr:right-4 rtl:left-4 top-4 z-[110] p-2 bg-white/80 backdrop-blur-sm rounded-full shadow-sm hover:bg-gray-100 transition-colors text-black/60 hover:text-black"
                 aria-label="Close drawer"
             >
                 <X size={22} strokeWidth={2.5} />
@@ -42,7 +45,7 @@ export default function Drawer({ isOpen, onClose, children, title, scrollable = 
             )}
 
             {/* Content Area */}
-            <div className="flex-1 overflow-y-auto custom-scrollbar">
+            <div className="flex-1 overflow-y-auto overflow-x-hidden">
                 {children}
             </div>
         </Popup>
