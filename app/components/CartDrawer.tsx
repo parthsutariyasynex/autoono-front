@@ -58,7 +58,7 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                 onClose={onClose}
                 title={`${cart?.items_count || 0} ${t("cart.itemsInCart")}`}
             >
-                <div className="flex flex-col h-full bg-white">
+                <div className="flex flex-col flex-1 min-h-0 bg-white">
                     {/* Header Sub-info */}
                     <div className="px-6 py-4 bg-gray-50/50 border-b border-gray-100">
                         <div className="flex justify-between items-center">

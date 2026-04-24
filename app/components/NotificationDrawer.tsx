@@ -81,7 +81,7 @@ export default function NotificationDrawer({ isOpen, onClose }: NotificationDraw
             onClose={onClose}
             title={`${t("nav.notifications")} (${unreadCount})`}
         >
-            <div className="flex flex-col h-full bg-white" dir={isRtl ? "rtl" : "ltr"}>
+            <div className="flex flex-col flex-1 min-h-0 bg-white" dir={isRtl ? "rtl" : "ltr"}>
                 {/* Notifications List */}
                 <div className="flex-1 overflow-y-auto custom-scrollbar">
                     {isLoading && notifications.length === 0 ? (
