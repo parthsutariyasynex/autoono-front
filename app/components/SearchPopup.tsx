@@ -52,12 +52,17 @@ const SearchPopup: React.FC<SearchPopupProps> = ({ isOpen, onClose }) => {
         if (!searchVal.trim()) return;
 
         const parsed = parseTyreSize(searchVal.trim());
-
-        // Build URL with width/height/rim params for the products page
         const params = new URLSearchParams();
-        if (parsed.width) params.set("width", parsed.width);
-        if (parsed.height) params.set("height", parsed.height);
-        if (parsed.rim) params.set("rim", parsed.rim);
+
+        // If the input looks like a tyre size, use width/height/rim filters.
+        // Otherwise treat it as a product-name / SKU search.
+        if (parsed.width) {
+            params.set("width", parsed.width);
+            if (parsed.height) params.set("height", parsed.height);
+            if (parsed.rim) params.set("rim", parsed.rim);
+        } else {
+            params.set("search", searchVal.trim());
+        }
 
         router.push(lp(`/products?${params.toString()}`));
         onClose();
@@ -66,12 +71,16 @@ const SearchPopup: React.FC<SearchPopupProps> = ({ isOpen, onClose }) => {
     };
 
     const handleSuggestionClick = (suggestion: { label: string; sku: string }) => {
-        const parsed = parseTyreSize(suggestion.label);
         const params = new URLSearchParams();
-        if (parsed.width) params.set("width", parsed.width);
-        if (parsed.height) params.set("height", parsed.height);
-        if (parsed.rim) params.set("rim", parsed.rim);
-        if (!parsed.width && suggestion.sku) params.set("search", suggestion.sku);
+        const parsed = parseTyreSize(suggestion.label);
+
+        if (parsed.width) {
+            params.set("width", parsed.width);
+            if (parsed.height) params.set("height", parsed.height);
+            if (parsed.rim) params.set("rim", parsed.rim);
+        } else {
+            params.set("search", suggestion.sku || suggestion.label);
+        }
 
         router.push(lp(`/products?${params.toString()}`));
         onClose();
@@ -80,7 +89,7 @@ const SearchPopup: React.FC<SearchPopupProps> = ({ isOpen, onClose }) => {
         setNoResults(false);
     };
 
-    // Fetch tyre size suggestions
+    // Fetch product suggestions
     React.useEffect(() => {
         if (query.length < 2) {
             setSuggestions([]);
@@ -94,44 +103,35 @@ const SearchPopup: React.FC<SearchPopupProps> = ({ isOpen, onClose }) => {
             setNoResults(false);
             try {
                 const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
-                const res = await fetch(`/api/kleverapi/quick-order/search?query=${encodeURIComponent(query)}&pageSize=20`, {
+                const res = await fetch(`/api/kleverapi/product-search?query=${encodeURIComponent(query)}&pageSize=10`, {
                     headers: token ? { "Authorization": `Bearer ${token}` } : {},
                     signal: abortController.signal,
                 });
 
                 if (res.ok) {
                     const data = await res.json();
-                    console.log("[SearchPopup] API Response:", data);
-                    const items = data.items || data || [];
+                    const items = Array.isArray(data) ? data : (data.items || data.products || data.data || []);
                     const results: { label: string; sku: string }[] = [];
                     const seen = new Set<string>();
 
                     items.forEach((item: any) => {
-                        let size = item.tyre_size || item.size || item.color || "";
-
-                        // If no tyre_size field, try to extract size from product name
-                        // Matches patterns like: 265/70 R195, 195/65R15, 195 R15, 205/55 R16
-                        if (!size && item.name) {
-                            const match = item.name.match(/(\d{3}\/?\d{0,2}\s*R\s*\d{2,3})/i);
-                            if (match) size = match[1].trim();
-                        }
-
-                        if (size && !seen.has(size)) {
-                            seen.add(size);
-                            results.push({ label: size, sku: item.sku || "" });
+                        const name = item.name || item.label || item.title || "";
+                        const sku = item.sku || item.product_sku || "";
+                        const key = sku || name;
+                        if (name && !seen.has(key)) {
+                            seen.add(key);
+                            results.push({ label: name, sku });
                         }
                     });
 
                     setSuggestions(results);
                     setNoResults(results.length === 0);
                 } else {
-                    console.error("[SearchPopup] API Error:", res.status);
                     setSuggestions([]);
                     setNoResults(true);
                 }
             } catch (err: any) {
                 if (err.name !== "AbortError") {
-                    console.error("Search error:", err);
                     setSuggestions([]);
                     setNoResults(true);
                 }
@@ -202,7 +202,12 @@ const SearchPopup: React.FC<SearchPopupProps> = ({ isOpen, onClose }) => {
                                     onClick={() => handleSuggestionClick(item)}
                                     className="px-6 md:px-10 py-3.5 hover:bg-gray-50 cursor-pointer border-b border-gray-50 last:border-0 transition-colors"
                                 >
-                                    <span className="text-[15px] font-bold text-black">{item.label}</span>
+                                    <div className="flex items-center justify-between gap-3">
+                                        <span className="text-[14px] md:text-[15px] font-bold text-black truncate">{item.label}</span>
+                                        {item.sku && (
+                                            <span className="text-caption text-black/50 font-medium uppercase tracking-wider flex-shrink-0">{item.sku}</span>
+                                        )}
+                                    </div>
                                 </div>
                             ))}
                         </div>

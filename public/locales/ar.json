@@ -258,7 +258,7 @@
   "nav.welcomeBack": "مرحباً بعودتك",
   "nav.search": "بحث",
   "nav.searchProducts": "البحث عن المنتجات",
-  "nav.searchPlaceholder": "ابحث عن مقاس الإطارات مثل 1956515 أو 195/65 R15",
+  "nav.searchPlaceholder": "ابحث باسم المنتج أو رمز SKU",
   "products.loading": "جارٍ تحميل المنتجات...",
   "products.noProducts": "لم يتم العثور على منتجات في هذه الفئة.",
   "products.categoryTitle": "الفئة",
