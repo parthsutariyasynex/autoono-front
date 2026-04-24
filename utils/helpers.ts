@@ -110,7 +110,7 @@ export function parseMagentoQueryParams(
   const filters: Record<string, string[]> = {};
   let page = 1;
   let sortBy = "none";
-  const reserved = ["categoryId", "page", "pageSize", "sortBy", "is_ajax", "storeId", "store", "storeCode", "category"];
+  const reserved = ["categoryId", "page", "pageSize", "sortBy", "is_ajax", "storeId", "store", "storeCode", "category", "searchBy"];
 
   searchParams.forEach((value, key) => {
     if (key === "page") {

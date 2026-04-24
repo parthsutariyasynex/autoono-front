@@ -13,28 +13,32 @@ interface SearchPopupProps {
 }
 
 // Parse tyre size string like "195", "19565", "1956515", "195/65R15", "195/65 R15"
-function parseTyreSize(input: string): { width: string; height: string; rim: string } {
+function parseTyreSize(input: string): { width: string; height: string; rim: string } | null {
     const cleaned = input.replace(/\s+/g, "").toUpperCase();
 
-    // Format: 195/65R15 or 195/65 R 15
-    const slashMatch = cleaned.match(/^(\d{3})\/?(\d{2})?R?(\d{2,3})?$/i);
-    if (slashMatch) {
-        return { width: slashMatch[1] || "", height: slashMatch[2] || "", rim: slashMatch[3] || "" };
+    // Stricter pattern: Needs 3 digits for width, optional 2 digits for height, optional R, then 2-3 digits for rim
+    // Example: 225/55R17, 225 55 17, 1956515
+    const patterns = [
+        /^(\d{3})\/(\d{2})R(\d{2,3})$/i,  // 225/55R17
+        /^(\d{3})\/(\d{2})(\d{1,2})$/i,   // 225/55 17
+        /^(\d{3})(\d{2})R(\d{2})$/i,      // 22555R17
+        /^(\d{3})(\d{2})(\d{2})$/i,       // 2256515
+    ];
+
+    for (const pattern of patterns) {
+        const match = cleaned.match(pattern);
+        if (match) {
+            return { width: match[1], height: match[2], rim: match[3] };
+        }
     }
 
-    // Pure digits: 195 → width, 19565 → width+height, 1956515 → width+height+rim
-    const digits = cleaned.replace(/\D/g, "");
-    if (digits.length >= 7) {
-        return { width: digits.slice(0, 3), height: digits.slice(3, 5), rim: digits.slice(5) };
-    }
-    if (digits.length >= 5) {
-        return { width: digits.slice(0, 3), height: digits.slice(3, 5), rim: "" };
-    }
-    if (digits.length >= 3) {
-        return { width: digits.slice(0, 3), height: "", rim: "" };
+    // Single width match (must be 3 digits exactly to avoid matching names like 10W40)
+    const widthOnlyMatch = cleaned.match(/^(\d{3})$/);
+    if (widthOnlyMatch) {
+        return { width: widthOnlyMatch[1], height: "", rim: "" };
     }
 
-    return { width: digits, height: "", rim: "" };
+    return null;
 }
 
 const SearchPopup: React.FC<SearchPopupProps> = ({ isOpen, onClose }) => {
@@ -54,14 +58,14 @@ const SearchPopup: React.FC<SearchPopupProps> = ({ isOpen, onClose }) => {
         const parsed = parseTyreSize(searchVal.trim());
         const params = new URLSearchParams();
 
-        // If the input looks like a tyre size, use width/height/rim filters.
-        // Otherwise treat it as a product-name / SKU search.
-        if (parsed.width) {
+        // Tyre size input → width/height/rim filters; otherwise use Magento's
+        // `searchBy` param (matches the live site behaviour — filters by name).
+        if (parsed) {
             params.set("width", parsed.width);
             if (parsed.height) params.set("height", parsed.height);
             if (parsed.rim) params.set("rim", parsed.rim);
         } else {
-            params.set("search", searchVal.trim());
+            params.set("searchBy", searchVal.trim());
         }
 
         router.push(lp(`/products?${params.toString()}`));
@@ -72,14 +76,20 @@ const SearchPopup: React.FC<SearchPopupProps> = ({ isOpen, onClose }) => {
 
     const handleSuggestionClick = (suggestion: { label: string; sku: string }) => {
         const params = new URLSearchParams();
-        const parsed = parseTyreSize(suggestion.label);
 
-        if (parsed.width) {
-            params.set("width", parsed.width);
-            if (parsed.height) params.set("height", parsed.height);
-            if (parsed.rim) params.set("rim", parsed.rim);
+        // If we have a SKU, use it to filter for that exact product
+        if (suggestion.sku) {
+            params.set("item_code", suggestion.sku);
         } else {
-            params.set("search", suggestion.sku || suggestion.label);
+            // Fallback to name search if for some reason SKU is missing
+            const parsed = parseTyreSize(suggestion.label);
+            if (parsed) {
+                params.set("width", parsed.width);
+                if (parsed.height) params.set("height", parsed.height);
+                if (parsed.rim) params.set("rim", parsed.rim);
+            } else {
+                params.set("searchBy", suggestion.label);
+            }
         }
 
         router.push(lp(`/products?${params.toString()}`));

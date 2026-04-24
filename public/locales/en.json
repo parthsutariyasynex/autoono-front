@@ -261,6 +261,8 @@
   "products.sortByDefault": "Sort By",
   "products.sortByLowToHigh": "Price: Low to High",
   "products.sortByHighToLow": "Price: High to Low",
+  "products.yourSelections": "Your Selections",
+  "products.clearAll": "Clear All",
   "cart.added_to_cart": "ADDED TO CART",
   "cart.recently_added_msg": "You have recently added this product to your Cart",
   "cart.proceed_to_cart": "PROCEED TO CART",

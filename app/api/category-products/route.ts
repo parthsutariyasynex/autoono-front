@@ -69,16 +69,23 @@ export async function GET(request: NextRequest) {
             if (!groupedParams[baseKey].includes(value)) groupedParams[baseKey].push(value);
         });
 
+        const searchByParam = searchParams.get("searchBy") || "";
+        const itemCodeParam = searchParams.get("item_code") || searchParams.get("itemCode") || "";
+        const isSearching = !!(searchByParam || itemCodeParam);
+
         // Step 3: Construct Magento URL with simple params (matching live API format)
         const queryParts: string[] = [
-            `categoryId=${encodeURIComponent(categoryId)}`,
             `currentPage=${encodeURIComponent(page)}`,
             `pageSize=${encodeURIComponent(pageSize)}`,
             `is_ajax=1`,
+            ...(isSearching
+                ? (searchByParam ? [`query=${encodeURIComponent(searchByParam)}`] : [])
+                : [`categoryId=${encodeURIComponent(categoryId)}`]
+            ),
         ];
 
         // Filters: mapping and joining grouped values
-        const reservedKeys = new Set(["categoryId", "page", "pageSize", "sortBy", "is_ajax", "storeCode", "store", "lang", "category"]);
+        const reservedKeys = new Set(["categoryId", "page", "pageSize", "sortBy", "is_ajax", "storeCode", "store", "lang", "category", "searchBy"]);
 
         Object.entries(groupedParams).forEach(([key, values]) => {
             if (reservedKeys.has(key)) return;
@@ -119,9 +126,10 @@ export async function GET(request: NextRequest) {
         const resolvedLocale = getLocaleFromRequest(request);
         console.log("[category-products] LOCALE DEBUG: lang=" + langParam + " header=" + xLocaleHeader + " cookie=" + localeCookie + " resolved=" + resolvedLocale + " referer=" + referer);
 
-        // Choose the Magento base URL: storeCode from query (e.g. V101) takes priority,
+        // choose the Magento base URL: storeCode from query (e.g. V101) takes priority,
         // otherwise fall back to "ar" as the default store context.
-        const effectiveStoreCode = storeCode || "ar";
+        // If we are searching (by query or itemCode), V101 is often more reliable.
+        const effectiveStoreCode = storeCode || (isSearching ? "V101" : "ar");
         const primaryBaseUrl = getStoreBaseUrl(effectiveStoreCode);
         const magentoUrlStr = `${primaryBaseUrl}/category-products?${queryParts.join("&")}`;
         console.log("[category-products] storeCode=" + effectiveStoreCode + " URL:", magentoUrlStr);

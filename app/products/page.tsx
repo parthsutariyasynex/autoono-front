@@ -113,6 +113,7 @@ export default function ProductsPage() {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
   const [isMobileSortOpen, setIsMobileSortOpen] = useState(false);
+  const [searchByTerm, setSearchByTerm] = useState("");
 
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
   const [selectedImage, setSelectedImage] = useState("");
@@ -122,6 +123,7 @@ export default function ProductsPage() {
 
   const [isMounted, setIsMounted] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
+  const isSyncingFromUrl = useRef(false);
   const [isFavorite, setIsFavorite] = useState(false);
   const [favIds, setFavIds] = useState<number[]>([]);
   const [selectedStoreCode, setSelectedStoreCode] = useState<string | null>(null);
@@ -131,47 +133,78 @@ export default function ProductsPage() {
     const stored = localStorage.getItem("favourites");
     if (stored) setFavIds(JSON.parse(stored));
     if (searchParams) {
-      const { filters, page, sortBy } = parseMagentoQueryParams(searchParams);
-      if (Object.keys(filters).length > 0) setSelectedFilters(filters);
-      setCurrentPage(page);
-      setSortBy(sortBy);
-      const sc = searchParams.get("store");
-      if (sc) {
-        setSelectedStoreCode(sc);
-        try { localStorage.setItem("selectedStoreCode", sc); } catch { }
-      } else {
-        setSelectedStoreCode(null);
-        try { localStorage.removeItem("selectedStoreCode"); } catch { }
+      const { filters, page, sortBy: parsedSortBy } = parseMagentoQueryParams(searchParams);
+
+      let changed = false;
+      if (JSON.stringify(filters) !== JSON.stringify(selectedFilters)) {
+        setSelectedFilters(filters);
+        changed = true;
       }
+      if (page !== currentPage) {
+        setCurrentPage(page);
+        changed = true;
+      }
+      if (parsedSortBy !== sortBy) {
+        setSortBy(parsedSortBy);
+        changed = true;
+      }
+      const sb = searchParams.get("searchBy") || "";
+      if (sb !== searchByTerm) {
+        setSearchByTerm(sb);
+        changed = true;
+      }
+
+      const sc = searchParams.get("store");
+      if (sc !== selectedStoreCode) {
+        setSelectedStoreCode(sc);
+        changed = true;
+        if (sc) {
+          try { localStorage.setItem("selectedStoreCode", sc); } catch { }
+        } else {
+          try { localStorage.removeItem("selectedStoreCode"); } catch { }
+        }
+      }
+
+      if (changed) {
+        isSyncingFromUrl.current = true;
+      }
+      setIsInitialized(true);
     }
-    setIsInitialized(true);
   }, [searchParams]);
 
   useEffect(() => {
-    if (!isMounted) return;
-    // Build params with URLSearchParams so encoding matches searchParams.toString() exactly.
-    // Read `store` directly from the current URL (NOT from selectedStoreCode state) — state is
-    // updated asynchronously in effect 1, which creates a race that oscillates the URL.
+    if (!isMounted || !searchParams || !isInitialized) return;
+
+    if (isSyncingFromUrl.current) {
+      isSyncingFromUrl.current = false;
+      return;
+    }
+
     const next = new URLSearchParams();
     if (currentPage > 1) next.set("page", String(currentPage));
     if (sortBy && sortBy !== "none") next.set("sortBy", sortBy);
+    if (searchByTerm) next.set("searchBy", searchByTerm);
+
     Object.entries(selectedFilters).forEach(([key, values]) => {
       if (Array.isArray(values)) {
         values.forEach((val, index) => next.append(`${key}[${index}]`, val));
       }
     });
-    const currentStoreFromUrl = searchParams?.get("store");
+
+    const currentStoreFromUrl = searchParams.get("store");
     if (currentStoreFromUrl) next.set("store", currentStoreFromUrl);
-    const currentCategoryFromUrl = searchParams?.get("category");
+    const currentCategoryFromUrl = searchParams.get("category");
     if (currentCategoryFromUrl) next.set("category", currentCategoryFromUrl);
 
-    const newUrlParams = next.toString();
-    const currentUrlParams = searchParams?.toString() || "";
-    if (newUrlParams !== currentUrlParams) {
-      const newUrl = `${window.location.pathname}${newUrlParams ? `?${newUrlParams}` : ""}`;
+    next.sort();
+    const current = new URLSearchParams(searchParams.toString());
+    current.sort();
+
+    if (next.toString() !== current.toString()) {
+      const newUrl = `${window.location.pathname}${next.toString() ? `?${next.toString()}` : ""}`;
       router.replace(newUrl, { scroll: false });
     }
-  }, [selectedFilters, currentPage, sortBy, isMounted, router, searchParams]);
+  }, [selectedFilters, currentPage, sortBy, searchByTerm, isMounted, router, searchParams, isInitialized]);
 
   const toggleFavorite = async (product: any) => {
     const { product_id: productId } = product;
@@ -238,7 +271,8 @@ export default function ProductsPage() {
         const queryString = formatMagentoQueryParams(debouncedFilters, currentPage, sortBy);
         const storeParam = selectedStoreCode ? `&storeCode=${encodeURIComponent(selectedStoreCode)}` : "";
         const categoryIdFromUrl = searchParams?.get("category") || "15";
-        const url = `/api/category-products?${queryString ? queryString + "&" : ""}categoryId=${encodeURIComponent(categoryIdFromUrl)}&pageSize=${PAGE_SIZE}&lang=${fetchLocale}${storeParam}`;
+        const searchByParam = searchByTerm ? `&searchBy=${encodeURIComponent(searchByTerm)}` : "";
+        const url = `/api/category-products?${queryString ? queryString + "&" : ""}categoryId=${encodeURIComponent(categoryIdFromUrl)}&pageSize=${PAGE_SIZE}&lang=${fetchLocale}${storeParam}${searchByParam}`;
         const res = await fetch(url, { headers, signal: abortController.signal });
         if (!res.ok) {
           if (res.status === 401) { localStorage.removeItem("token"); redirectToLogin(router); return; }
@@ -271,7 +305,7 @@ export default function ProductsPage() {
     };
     loadProducts();
     return () => abortController.abort();
-  }, [router, currentPage, debouncedFilters, sortBy, selectedStoreCode, isInitialized]);
+  }, [router, currentPage, debouncedFilters, sortBy, selectedStoreCode, searchByTerm, isInitialized]);
   // Note: locale intentionally excluded — fetchLocale reads from window.location directly
   // Adding locale here causes double-fetch and abort race condition
 
@@ -283,7 +317,8 @@ export default function ProductsPage() {
     }, [],
   );
 
-  const clearAllFilters = () => { setSelectedFilters({}); setSelectedFilterLabels({}); setIsFavorite(false); setCurrentPage(1); };
+  const clearAllFilters = () => { setSelectedFilters({}); setSelectedFilterLabels({}); setIsFavorite(false); setCurrentPage(1); setSearchByTerm(""); };
+  const clearSearchBy = () => { setSearchByTerm(""); setCurrentPage(1); };
 
   const removeSpecificFilter = (code: string, value: string) => {
     const nextFilters = { ...selectedFilters };
@@ -512,14 +547,27 @@ export default function ProductsPage() {
             {/* Active filter chips — wrapped in a stable-height slot so the
                 grid below doesn't jump when chips appear/disappear. */}
             <div className="min-h-[38px] flex items-center">
-              {Object.keys(selectedFilterLabels).length > 0 && (
-                <div className="flex items-center gap-1.5 overflow-x-auto custom-scrollbar-hide py-1 w-full">
+              {(Object.keys(selectedFilterLabels).length > 0 || searchByTerm || isFavorite) && (
+                <div className="flex items-center gap-2 overflow-x-auto custom-scrollbar-hide py-1 w-full">
+                  <span className="text-caption font-black text-black uppercase tracking-tight whitespace-nowrap px-1">
+                    {t("products.yourSelections")} :
+                  </span>
+                  {searchByTerm && (
+                    <div className="flex items-center gap-1.5 bg-blue-50 border border-primary/30 px-3 py-1 rounded-lg text-caption font-bold text-primary whitespace-nowrap flex-shrink-0">
+                      {searchByTerm} <button onClick={clearSearchBy} className="text-red-500 ml-0.5"><X size={12} strokeWidth={3} /></button>
+                    </div>
+                  )}
+                  {isFavorite && (
+                    <div className="flex items-center gap-1.5 bg-blue-50 border border-primary/30 px-3 py-1 rounded-lg text-caption font-bold text-primary whitespace-nowrap flex-shrink-0">
+                      {t("sidebar.favoriteProducts")} <button onClick={() => setIsFavorite(false)} className="text-red-500 ml-0.5"><X size={12} strokeWidth={3} /></button>
+                    </div>
+                  )}
                   {Object.entries(selectedFilterLabels).flatMap(([code, items]) => items.map((item) => (
-                    <div key={`${code}-${item.value}`} className="flex items-center gap-1 bg-gray-100 px-2.5 py-1 rounded-full text-caption font-semibold text-black/80 whitespace-nowrap flex-shrink-0">
-                      {item.label} <button onClick={() => removeSpecificFilter(code, item.value)} className="text-black/50"><X size={12} /></button>
+                    <div key={`${code}-${item.value}`} className="flex items-center gap-1.5 bg-gray-100 border border-gray-200 px-2.5 py-1 rounded-lg text-caption font-bold text-black/80 whitespace-nowrap flex-shrink-0">
+                      {item.label} <button onClick={() => removeSpecificFilter(code, item.value)} className="text-black/50 ml-0.5"><X size={12} strokeWidth={3} /></button>
                     </div>
                   )))}
-                  <button onClick={clearAllFilters} className="text-caption font-semibold text-red-500 uppercase whitespace-nowrap flex-shrink-0 px-2">{t("m.clear-all")}</button>
+                  <button onClick={clearAllFilters} className="text-caption font-black text-red-500 uppercase whitespace-nowrap flex-shrink-0 px-2 underline decoration-2 underline-offset-2">{t("products.clearAll")}</button>
                 </div>
               )}
             </div>
@@ -571,20 +619,34 @@ export default function ProductsPage() {
                 <button onClick={() => router.push(lp("/favorites"))} className="bg-gray-50 border border-gray-200 text-black px-4 py-2 rounded-xl flex items-center gap-2 shadow-sm text-xs font-semibold active:scale-95 cursor-pointer uppercase tracking-wider">
                   <Star className="w-5 h-5 fill-black text-black" /> {t("sidebar.favoriteProducts")}
                 </button>
-                <div className="flex flex-1 items-center gap-2 overflow-x-auto custom-scrollbar-hide max-w-[800px]">
+                <div className="flex flex-1 items-center gap-3 overflow-x-auto custom-scrollbar-hide max-w-[800px]">
+                  {(searchByTerm || isFavorite || Object.keys(selectedFilterLabels).length > 0) && (
+                    <span className="text-body-sm font-black text-black uppercase tracking-tight whitespace-nowrap">
+                      {t("products.yourSelections")} :
+                    </span>
+                  )}
+                  {/* Search term tag */}
+                  {searchByTerm && (
+                    <div className="flex items-center gap-1.5 bg-blue-50 border border-primary/30 px-3.5 py-1.5 rounded-lg text-body-sm font-bold text-primary shadow-sm whitespace-nowrap flex-shrink-0">
+                      {searchByTerm}
+                      <button onClick={clearSearchBy} className="hover:text-red-600 ml-1 transition-colors"><X size={14} strokeWidth={3} /></button>
+                    </div>
+                  )}
                   {isFavorite && (
-                    <div className="flex items-center gap-1.5 bg-primary border border-primary px-3 py-1.5 rounded-full text-body-sm font-semibold text-black shadow-sm flex-shrink-0">
-                      {t("sidebar.favoriteProducts")} <button onClick={() => setIsFavorite(false)} className="hover:text-red-700"><X size={14} /></button>
+                    <div className="flex items-center gap-1.5 bg-blue-50 border border-primary/30 px-3.5 py-1.5 rounded-lg text-body-sm font-bold text-primary shadow-sm flex-shrink-0">
+                      {t("sidebar.favoriteProducts")} <button onClick={() => setIsFavorite(false)} className="hover:text-red-600 ml-1 transition-colors"><X size={14} strokeWidth={3} /></button>
                     </div>
                   )}
                   {Object.entries(selectedFilterLabels).flatMap(([code, items]) => items.map((item) => (
-                    <div key={`${code}-${item.value}`} className="flex items-center gap-1 bg-white border border-gray-200 px-4 py-2 rounded-full text-body-sm font-semibold text-black/80 shadow-sm whitespace-nowrap flex-shrink-0">
-                      {item.label} <button onClick={() => removeSpecificFilter(code, item.value)} className="hover:text-red-500 text-black/50"><X size={14} strokeWidth={2.5} /></button>
+                    <div key={`${code}-${item.value}`} className="flex items-center gap-1.5 bg-white border border-gray-200 px-4 py-1.5 rounded-lg text-body-sm font-bold text-black/80 shadow-sm whitespace-nowrap flex-shrink-0">
+                      {item.label} <button onClick={() => removeSpecificFilter(code, item.value)} className="hover:text-red-500 text-black/50 ml-1 transition-colors"><X size={14} strokeWidth={3} /></button>
                     </div>
                   )))}
                 </div>
-                {Object.keys(selectedFilters).length > 0 && (
-                  <button onClick={clearAllFilters} className="text-caption font-semibold text-red-500 uppercase flex items-center gap-1.5 bg-red-50 px-2.5 py-1 rounded-full flex-shrink-0"><X size={12} strokeWidth={3} /> {t("m.clear")}</button>
+                {(Object.keys(selectedFilters).length > 0 || searchByTerm || isFavorite) && (
+                  <button onClick={clearAllFilters} className="text-caption font-bold text-red-500 uppercase flex items-center gap-1.5 bg-red-50 px-3 py-1.5 rounded-lg flex-shrink-0 hover:bg-red-100 transition-colors">
+                    <X size={12} strokeWidth={3} /> {t("products.clearAll")}
+                  </button>
                 )}
               </div>
               <PortalDropdown

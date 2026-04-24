@@ -267,6 +267,8 @@
   "products.sortByDefault": "رتب حسب",
   "products.sortByLowToHigh": "السعر: من الأقل إلى الأعلى",
   "products.sortByHighToLow": "السعر: من الأعلى إلى الأقل",
+  "products.yourSelections": "اختياراتك",
+  "products.clearAll": "مسح الكل",
   "cart.added_to_cart": "تمت الإضافة إلى العربة",
   "cart.recently_added_msg": "لقد قمت مؤخراً بإضافة هذا المنتج إلى عربة التسوق الخاصة بك",
   "cart.proceed_to_cart": "الانتقال إلى العربة",
