@@ -374,7 +374,8 @@ export default function FavouriteProducts({ title }: { title?: React.ReactNode }
                                     const brandName = product.brand || product.name.split(' ')[0] || "—";
                                     const isOutOfStock = product.stock_status === "Out of Stock" || product.stock_status === "Not Available" || Number(product.stock_qty || 0) <= 0;
                                     const isLimited = product.stock_qty > 0 && product.stock_qty <= 10;
-                                    const stockColor = isOutOfStock ? "bg-red-500" : isLimited ? "bg-primary" : "bg-green-500";
+                                    // const stockColor = isOutOfStock ? "bg-red-500" : isLimited ? "bg-primary" : "bg-green-500";
+                                    const stockColor = isOutOfStock ? "bg-red-500" : isLimited ? "bg-yellow-400" : "bg-green-500";
                                     const stockLabel = isOutOfStock ? t("stock.not_available") : isLimited ? t("stock.limited") : t("stock.available");
 
                                     return (
