@@ -258,7 +258,7 @@
   "nav.welcomeBack": "مرحباً بعودتك",
   "nav.search": "بحث",
   "nav.searchProducts": "البحث عن المنتجات",
-  "nav.searchPlaceholder": "ابحث باسم المنتج أو رمز SKU",
+  "nav.searchPlaceholder": "ابحث باسم المنتج أو رمز",
   "products.loading": "جارٍ تحميل المنتجات...",
   "products.noProducts": "لم يتم العثور على منتجات في هذه الفئة.",
   "products.categoryTitle": "الفئة",

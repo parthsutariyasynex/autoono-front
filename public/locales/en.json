@@ -252,7 +252,7 @@
   "nav.welcomeBack": "Welcome Back",
   "nav.search": "Search",
   "nav.searchProducts": "Search Products",
-  "nav.searchPlaceholder": "Search by product name, SKU",
+  "nav.searchPlaceholder": "Search by product name",
   "products.loading": "Loading products...",
   "products.noProducts": "No products found in this category.",
   "products.categoryTitle": "Category",

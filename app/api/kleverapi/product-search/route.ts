@@ -1,9 +1,8 @@
 import { NextResponse } from "next/server";
-import { getBaseUrl } from "@/lib/api/magento-url";
+import { getBaseUrl, getStoreBaseUrl } from "@/lib/api/magento-url";
 
 export async function GET(request: Request) {
     try {
-        const BASE_URL = getBaseUrl(request);
         const authHeader = request.headers.get("Authorization");
 
         if (!authHeader || !authHeader.startsWith("Bearer ")) {
@@ -11,6 +10,11 @@ export async function GET(request: Request) {
         }
 
         const { searchParams } = new URL(request.url);
+        const storeCode = searchParams.get("store") || searchParams.get("storeCode");
+
+        // Use store-specific base URL if provided, otherwise fall back to locale-based base URL
+        const BASE_URL = storeCode ? getStoreBaseUrl(storeCode) : getBaseUrl(request);
+
         const queryString = searchParams.toString();
         const url = `${BASE_URL}/product-search${queryString ? `?${queryString}` : ""}`;
 

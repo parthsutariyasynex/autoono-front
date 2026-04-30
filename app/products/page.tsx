@@ -21,7 +21,7 @@ import { useTranslation } from "@/hooks/useTranslation";
 import { useLocalePath } from "@/hooks/useLocalePath";
 import { useLocale } from "@/lib/i18n/client";
 
-const PAGE_SIZE = 20;
+const PAGE_SIZE = 50;
 
 // Translation keys for table headers — resolved inside the component using t()
 const TABLE_HEADER_KEYS = ['m.brand', 'm.name', 'm.image', 'm.stock', 'm.price', 'm.action'] as const;
@@ -133,36 +133,43 @@ export default function ProductsPage() {
     const stored = localStorage.getItem("favourites");
     if (stored) setFavIds(JSON.parse(stored));
     if (searchParams) {
-      const { filters, page, sortBy: parsedSortBy } = parseMagentoQueryParams(searchParams);
-
       let changed = false;
-      if (JSON.stringify(filters) !== JSON.stringify(selectedFilters)) {
-        setSelectedFilters(filters);
-        changed = true;
-      }
-      if (page !== currentPage) {
-        setCurrentPage(page);
-        changed = true;
-      }
-      if (parsedSortBy !== sortBy) {
-        setSortBy(parsedSortBy);
-        changed = true;
-      }
-      const sb = searchParams.get("searchBy") || "";
-      if (sb !== searchByTerm) {
-        setSearchByTerm(sb);
-        changed = true;
-      }
 
       const sc = searchParams.get("store");
       if (sc !== selectedStoreCode) {
         setSelectedStoreCode(sc);
+        setCurrentPage(1); // Reset page on store change
+        setProducts([]);   // Clear old results
         changed = true;
         if (sc) {
           try { localStorage.setItem("selectedStoreCode", sc); } catch { }
         } else {
           try { localStorage.removeItem("selectedStoreCode"); } catch { }
         }
+      }
+
+      const sb = searchParams.get("search") || searchParams.get("searchBy") || "";
+      if (sb !== searchByTerm) {
+        setSearchByTerm(sb);
+        setCurrentPage(1); // Reset page on search change
+        setProducts([]);   // Clear old results
+        changed = true;
+      }
+
+      const { filters, page, sortBy: parsedSortBy } = parseMagentoQueryParams(searchParams);
+
+      if (JSON.stringify(filters) !== JSON.stringify(selectedFilters)) {
+        setSelectedFilters(filters);
+        setCurrentPage(1);
+        changed = true;
+      }
+      if (page !== currentPage && !changed) { // Only sync page if store/search didn't change (as they force page 1)
+        setCurrentPage(page);
+        changed = true;
+      }
+      if (parsedSortBy !== sortBy) {
+        setSortBy(parsedSortBy);
+        changed = true;
       }
 
       if (changed) {
@@ -183,7 +190,7 @@ export default function ProductsPage() {
     const next = new URLSearchParams();
     if (currentPage > 1) next.set("page", String(currentPage));
     if (sortBy && sortBy !== "none") next.set("sortBy", sortBy);
-    if (searchByTerm) next.set("searchBy", searchByTerm);
+    if (searchByTerm) next.set("search", searchByTerm);
 
     Object.entries(selectedFilters).forEach(([key, values]) => {
       if (Array.isArray(values)) {
@@ -238,7 +245,7 @@ export default function ProductsPage() {
       setDebouncedFilters(selectedFilters);
       return;
     }
-    const handler = setTimeout(() => setDebouncedFilters(selectedFilters), 500);
+    const handler = setTimeout(() => setDebouncedFilters(selectedFilters), 300);
     return () => clearTimeout(handler);
   }, [selectedFilters, isInitialized]);
 
@@ -367,6 +374,7 @@ export default function ProductsPage() {
     if (isFavorite) result = result.filter(p => favIds.includes(p.product_id));
     const selectedOffers = selectedFilters["offers"];
     if (selectedOffers?.length) result = result.filter(p => p?.offer && selectedOffers.some((o: string) => o === p.offer));
+
     if (sortBy === "price-asc") return result.sort((a, b) => (a.final_price ?? 0) - (b.final_price ?? 0));
     if (sortBy === "price-desc") return result.sort((a, b) => (b.final_price ?? 0) - (a.final_price ?? 0));
     return result;

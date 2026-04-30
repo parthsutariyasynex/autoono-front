@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import Popup from "./Popup";
 import { Search, X } from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useLocalePath } from "@/hooks/useLocalePath";
 
 interface SearchPopupProps {
@@ -45,8 +45,12 @@ const SearchPopup: React.FC<SearchPopupProps> = ({ isOpen, onClose }) => {
     const { t, isRtl } = useTranslation();
     const router = useRouter();
     const lp = useLocalePath();
+    const searchParams = useSearchParams();
+    const currentStore = searchParams?.get("store") || "";
+
     const [query, setQuery] = useState("");
     const [suggestions, setSuggestions] = useState<{ label: string; sku: string }[]>([]);
+    const [totalFound, setTotalFound] = useState(0);
     const [isSearching, setIsSearching] = useState(false);
     const [noResults, setNoResults] = useState(false);
 
@@ -58,14 +62,14 @@ const SearchPopup: React.FC<SearchPopupProps> = ({ isOpen, onClose }) => {
         const parsed = parseTyreSize(searchVal.trim());
         const params = new URLSearchParams();
 
-        // Tyre size input → width/height/rim filters; otherwise use Magento's
-        // `searchBy` param (matches the live site behaviour — filters by name).
+        if (currentStore) params.set("store", currentStore);
+
         if (parsed) {
             params.set("width", parsed.width);
             if (parsed.height) params.set("height", parsed.height);
             if (parsed.rim) params.set("rim", parsed.rim);
         } else {
-            params.set("searchBy", searchVal.trim());
+            params.set("search", searchVal.trim());
         }
 
         router.push(lp(`/products?${params.toString()}`));
@@ -76,6 +80,7 @@ const SearchPopup: React.FC<SearchPopupProps> = ({ isOpen, onClose }) => {
 
     const handleSuggestionClick = (suggestion: { label: string; sku: string }) => {
         const params = new URLSearchParams();
+        if (currentStore) params.set("store", currentStore);
 
         // If we have a SKU, use it to filter for that exact product
         if (suggestion.sku) {
@@ -88,7 +93,7 @@ const SearchPopup: React.FC<SearchPopupProps> = ({ isOpen, onClose }) => {
                 if (parsed.height) params.set("height", parsed.height);
                 if (parsed.rim) params.set("rim", parsed.rim);
             } else {
-                params.set("searchBy", suggestion.label);
+                params.set("search", suggestion.label);
             }
         }
 
@@ -113,31 +118,56 @@ const SearchPopup: React.FC<SearchPopupProps> = ({ isOpen, onClose }) => {
             setNoResults(false);
             try {
                 const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
-                const res = await fetch(`/api/kleverapi/product-search?query=${encodeURIComponent(query)}&pageSize=10`, {
-                    headers: token ? { "Authorization": `Bearer ${token}` } : {},
-                    signal: abortController.signal,
-                });
 
-                if (res.ok) {
-                    const data = await res.json();
-                    const items = Array.isArray(data) ? data : (data.items || data.products || data.data || []);
+                let allItems: any[] = [];
+                let page = 1;
+                let totalPages = 1;
+                const pageSize = 100;
+                let finalTotalCount = 0;
+
+                while (page <= totalPages) {
+                    const storeParam = currentStore ? `&store=${encodeURIComponent(currentStore)}` : "";
+                    const res = await fetch(`/api/kleverapi/product-search?query=${encodeURIComponent(query)}&pageSize=${pageSize}&page=${page}${storeParam}`, {
+                        headers: token ? { "Authorization": `Bearer ${token}` } : {},
+                        signal: abortController.signal,
+                    });
+
+                    if (res.ok) {
+                        const data = await res.json();
+                        const items = Array.isArray(data) ? data : (data.items || data.products || data.data || []);
+                        allItems = [...allItems, ...items];
+
+                        finalTotalCount = typeof data?.total_count === "number" ? data.total_count : Math.max(finalTotalCount, allItems.length);
+                        totalPages = data.total_pages || (data.total_count ? Math.ceil(data.total_count / pageSize) : 1);
+
+                        if (items.length < pageSize || page >= totalPages) break;
+                    } else {
+                        break;
+                    }
+                    page++;
+                    if (page > 10) break; // Hard safety limit
+                }
+
+                if (allItems.length > 0) {
                     const results: { label: string; sku: string }[] = [];
                     const seen = new Set<string>();
 
-                    items.forEach((item: any) => {
-                        const name = item.name || item.label || item.title || "";
-                        const sku = item.sku || item.product_sku || "";
-                        const key = sku || name;
-                        if (name && !seen.has(key)) {
-                            seen.add(key);
+                    allItems.forEach((item: any) => {
+                        const name = (item.name || item.label || item.title || "").toString();
+                        const sku = (item.sku || item.product_sku || "").toString();
+
+                        if (name && !seen.has(sku || name)) {
+                            seen.add(sku || name);
                             results.push({ label: name, sku });
                         }
                     });
 
                     setSuggestions(results);
+                    setTotalFound(finalTotalCount);
                     setNoResults(results.length === 0);
                 } else {
                     setSuggestions([]);
+                    setTotalFound(0);
                     setNoResults(true);
                 }
             } catch (err: any) {
@@ -148,7 +178,7 @@ const SearchPopup: React.FC<SearchPopupProps> = ({ isOpen, onClose }) => {
             } finally {
                 if (!abortController.signal.aborted) setIsSearching(false);
             }
-        }, 400);
+        }, 300);
 
         return () => {
             clearTimeout(handler);
@@ -201,6 +231,11 @@ const SearchPopup: React.FC<SearchPopupProps> = ({ isOpen, onClose }) => {
                                     <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
                                 </div>
                             )}
+                            {!isSearching && suggestions.length > 0 && (
+                                <div className="px-6 md:px-10 py-2 border-b border-gray-100 bg-gray-50/50 text-caption font-bold text-black/40 uppercase tracking-widest">
+                                    {t("m.found")} {totalFound} {t("m.products")}
+                                </div>
+                            )}
                             {!isSearching && noResults && (
                                 <div className="px-6 md:px-10 py-6 text-center text-black/50 text-sm font-medium">
                                     {t("quickOrder.noProducts")}
@@ -220,6 +255,14 @@ const SearchPopup: React.FC<SearchPopupProps> = ({ isOpen, onClose }) => {
                                     </div>
                                 </div>
                             ))}
+                            {!isSearching && totalFound > suggestions.length && (
+                                <div
+                                    onClick={() => handleSearch()}
+                                    className="px-6 md:px-10 py-3 hover:bg-primary/10 cursor-pointer bg-gray-50/50 text-center text-caption font-bold text-primary uppercase tracking-widest transition-colors"
+                                >
+                                    {t("m.view-all")} ({totalFound})
+                                </div>
+                            )}
                         </div>
                     )}
                 </div>

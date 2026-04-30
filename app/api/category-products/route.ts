@@ -58,7 +58,7 @@ export async function GET(request: NextRequest) {
         const page = searchParams.get("page") || "1";
         const pageSize = searchParams.get("pageSize") || "20";
         // Optional store/warehouse code (e.g. V101, V102, V103) — goes into the Magento URL path
-        const storeCode = searchParams.get("storeCode") || searchParams.get("store") || "";
+        const storeCode = searchParams.get("store") || searchParams.get("storeCode") || "";
 
         // Group parameters: Magento's layered navigation uses key[0]=v1. 
         // We want to group these into key=v1,v2 for the category-products JSON API.
@@ -69,23 +69,29 @@ export async function GET(request: NextRequest) {
             if (!groupedParams[baseKey].includes(value)) groupedParams[baseKey].push(value);
         });
 
-        const searchByParam = searchParams.get("searchBy") || "";
-        const itemCodeParam = searchParams.get("item_code") || searchParams.get("itemCode") || "";
+        const searchByParam = searchParams.get("search") || searchParams.get("searchBy") || groupedParams["search"]?.[0] || groupedParams["searchBy"]?.[0] || "";
+        const itemCodeParam = searchParams.get("item_code") || searchParams.get("itemCode") || groupedParams["item_code"]?.[0] || groupedParams["itemCode"]?.[0] || "";
         const isSearching = !!(searchByParam || itemCodeParam);
 
+        // For search, we want a larger pageSize to ensure "all" results are fetched
+        let effectivePageSize = pageSize;
+        if (isSearching) {
+            effectivePageSize = "1000";
+        }
+
         // Step 3: Construct Magento URL with simple params (matching live API format)
+        const searchQuery = searchByParam || itemCodeParam;
         const queryParts: string[] = [
             `currentPage=${encodeURIComponent(page)}`,
-            `pageSize=${encodeURIComponent(pageSize)}`,
-            `is_ajax=1`,
+            `pageSize=${encodeURIComponent(effectivePageSize)}`,
             ...(isSearching
-                ? (searchByParam ? [`query=${encodeURIComponent(searchByParam)}`] : [])
-                : [`categoryId=${encodeURIComponent(categoryId)}`]
+                ? [`query=${encodeURIComponent(searchQuery)}`]
+                : [`is_ajax=1`, `categoryId=${encodeURIComponent(categoryId)}`]
             ),
         ];
 
         // Filters: mapping and joining grouped values
-        const reservedKeys = new Set(["categoryId", "page", "pageSize", "sortBy", "is_ajax", "storeCode", "store", "lang", "category", "searchBy"]);
+        const reservedKeys = new Set(["categoryId", "page", "pageSize", "sortBy", "is_ajax", "storeCode", "store", "lang", "category", "searchBy", "search", "itemCode", "item_code"]);
 
         Object.entries(groupedParams).forEach(([key, values]) => {
             if (reservedKeys.has(key)) return;
@@ -131,7 +137,11 @@ export async function GET(request: NextRequest) {
         // If we are searching (by query or itemCode), V101 is often more reliable.
         const effectiveStoreCode = storeCode || (isSearching ? "V101" : "ar");
         const primaryBaseUrl = getStoreBaseUrl(effectiveStoreCode);
-        const magentoUrlStr = `${primaryBaseUrl}/category-products?${queryParts.join("&")}`;
+        // When searching by name/SKU, use the dedicated /product-search endpoint
+        // (precise match — same one the search popup uses). Otherwise use
+        // /category-products (catalog browse with layered filters).
+        const magentoEndpoint = isSearching ? "product-search" : "category-products";
+        const magentoUrlStr = `${primaryBaseUrl}/${magentoEndpoint}?${queryParts.join("&")}`;
         console.log("[category-products] storeCode=" + effectiveStoreCode + " URL:", magentoUrlStr);
 
         let res = await fetch(magentoUrlStr, {
@@ -148,7 +158,7 @@ export async function GET(request: NextRequest) {
         if (!res.ok && res.status === 404) {
             console.warn("[category-products] V101 URL returned 404. Falling back to locale baseUrl.");
             const localeBaseUrl = getBaseUrl(request);
-            const fallbackUrl = `${localeBaseUrl}/category-products?${queryParts.join("&")}`;
+            const fallbackUrl = `${localeBaseUrl}/${magentoEndpoint}?${queryParts.join("&")}`;
             res = await fetch(fallbackUrl, {
                 headers: {
                     ...(token && { Authorization: `Bearer ${token}` }),
@@ -244,6 +254,7 @@ export async function GET(request: NextRequest) {
 
         // Extract total count and other fields from the original response
         const totalCount = typeof data.total_count === "number" ? data.total_count : products.length;
+        const totalPages = data.total_pages || Math.ceil(totalCount / Number(effectivePageSize));
         const finalFilters = Array.isArray(data.filters) ? data.filters : [];
 
         // Return the clean, normalized structure requested
@@ -252,6 +263,7 @@ export async function GET(request: NextRequest) {
             ...data,
             products: products,
             total_count: totalCount,
+            total_pages: totalPages,
             filters: finalFilters
         }), {
             headers: {
