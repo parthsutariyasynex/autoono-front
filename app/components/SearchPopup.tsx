@@ -46,7 +46,6 @@ const SearchPopup: React.FC<SearchPopupProps> = ({ isOpen, onClose }) => {
     const router = useRouter();
     const lp = useLocalePath();
     const searchParams = useSearchParams();
-    const currentStore = searchParams?.get("store") || "";
 
     const [query, setQuery] = useState("");
     const [suggestions, setSuggestions] = useState<{ label: string; sku: string }[]>([]);
@@ -54,15 +53,23 @@ const SearchPopup: React.FC<SearchPopupProps> = ({ isOpen, onClose }) => {
     const [isSearching, setIsSearching] = useState(false);
     const [noResults, setNoResults] = useState(false);
 
+    // Carry over the user's current listing-page context so the search runs
+    // within the same filtered dataset (category, store, brand, item_code, …).
+    // Drop listing-UI state (`page`, `sortBy`) and any prior search term.
+    const buildParamsWithContext = () => {
+        const params = new URLSearchParams();
+        const skip = new Set(["page", "sortBy", "search", "searchBy", "width", "height", "rim"]);
+        searchParams?.forEach((v, k) => { if (!skip.has(k)) params.append(k, v); });
+        return params;
+    };
+
     const handleSearch = (e?: React.FormEvent, term?: string) => {
         if (e) e.preventDefault();
         const searchVal = term || query;
         if (!searchVal.trim()) return;
 
         const parsed = parseTyreSize(searchVal.trim());
-        const params = new URLSearchParams();
-
-        if (currentStore) params.set("store", currentStore);
+        const params = buildParamsWithContext();
 
         if (parsed) {
             params.set("width", parsed.width);
@@ -79,11 +86,7 @@ const SearchPopup: React.FC<SearchPopupProps> = ({ isOpen, onClose }) => {
     };
 
     const handleSuggestionClick = (suggestion: { label: string; sku: string }) => {
-        const params = new URLSearchParams();
-        if (currentStore) params.set("store", currentStore);
-
-        // Use the 'search' parameter for consistency with the user's requested URL structure.
-        // This ensures the products page accurately picks up the search intent.
+        const params = buildParamsWithContext();
         params.set("search", suggestion.sku || suggestion.label);
 
         router.push(lp(`/products?${params.toString()}`));
@@ -92,6 +95,18 @@ const SearchPopup: React.FC<SearchPopupProps> = ({ isOpen, onClose }) => {
         setSuggestions([]);
         setNoResults(false);
     };
+
+    // Forward listing-page context (store, category, layered filters) so the
+    // popup searches within the same scope the user is currently browsing.
+    // Skip listing-UI state (`page`, `sortBy`) and any prior search term.
+    const contextParamsKey = (() => {
+        if (!searchParams) return "";
+        const skip = new Set(["page", "sortBy", "search", "searchBy"]);
+        const entries: [string, string][] = [];
+        searchParams.forEach((v, k) => { if (!skip.has(k)) entries.push([k, v]); });
+        entries.sort(([a], [b]) => a.localeCompare(b));
+        return entries.map(([k, v]) => `${k}=${v}`).join("&");
+    })();
 
     // Fetch product suggestions
     React.useEffect(() => {
@@ -108,43 +123,37 @@ const SearchPopup: React.FC<SearchPopupProps> = ({ isOpen, onClose }) => {
             try {
                 const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
 
-                let allItems: any[] = [];
-                let page = 1;
-                let totalPages = 1;
-                const pageSize = 100;
-                let finalTotalCount = 0;
+                // Use the listing-page proxy so filter-key mapping (brand → mgs_brand,
+                // item_code → itemCode, etc.) and category/store context apply consistently.
+                const PREVIEW_LIMIT = 20;
+                const params = new URLSearchParams();
+                params.set("search", query);
+                params.set("pageSize", String(PREVIEW_LIMIT));
+                params.set("page", "1");
 
-                while (page <= totalPages) {
-                    const storeParam = currentStore ? `&store=${encodeURIComponent(currentStore)}` : "";
-                    const res = await fetch(`/api/kleverapi/product-search?query=${encodeURIComponent(query)}&pageSize=${pageSize}&page=${page}${storeParam}`, {
-                        headers: token ? { "Authorization": `Bearer ${token}` } : {},
-                        signal: abortController.signal,
-                    });
-
-                    if (res.ok) {
-                        const data = await res.json();
-                        const items = Array.isArray(data) ? data : (data.items || data.products || data.data || []);
-                        allItems = [...allItems, ...items];
-
-                        finalTotalCount = typeof data?.total_count === "number" ? data.total_count : Math.max(finalTotalCount, allItems.length);
-                        totalPages = data.total_pages || (data.total_count ? Math.ceil(data.total_count / pageSize) : 1);
-
-                        if (items.length < pageSize || page >= totalPages) break;
-                    } else {
-                        break;
-                    }
-                    page++;
-                    if (page > 10) break; // Hard safety limit
+                const skip = new Set(["page", "sortBy", "search", "searchBy", "pageSize"]);
+                searchParams?.forEach((v, k) => { if (!skip.has(k)) params.append(k, v); });
+                if (!params.has("categoryId")) {
+                    const cat = searchParams?.get("category");
+                    if (cat) params.set("categoryId", cat);
                 }
 
-                if (allItems.length > 0) {
+                const res = await fetch(`/api/category-products?${params.toString()}`, {
+                    headers: token ? { "Authorization": `Bearer ${token}` } : {},
+                    signal: abortController.signal,
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+                    const items = Array.isArray(data) ? data : (data.products || data.items || data.data || []);
+                    const total = typeof data?.total_count === "number" ? data.total_count : items.length;
+
                     const results: { label: string; sku: string }[] = [];
                     const seen = new Set<string>();
 
-                    allItems.forEach((item: any) => {
+                    items.forEach((item: any) => {
                         const name = (item.name || item.label || item.title || "").toString();
                         const sku = (item.sku || item.product_sku || item.item_code || item.itemCode || "").toString();
-
                         if (name && !seen.has(sku || name)) {
                             seen.add(sku || name);
                             results.push({ label: name, sku });
@@ -152,7 +161,7 @@ const SearchPopup: React.FC<SearchPopupProps> = ({ isOpen, onClose }) => {
                     });
 
                     setSuggestions(results);
-                    setTotalFound(finalTotalCount);
+                    setTotalFound(total);
                     setNoResults(results.length === 0);
                 } else {
                     setSuggestions([]);
@@ -173,7 +182,7 @@ const SearchPopup: React.FC<SearchPopupProps> = ({ isOpen, onClose }) => {
             clearTimeout(handler);
             abortController.abort();
         };
-    }, [query]);
+    }, [query, contextParamsKey]);
 
     return (
         <Popup

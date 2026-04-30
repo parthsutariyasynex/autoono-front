@@ -21,7 +21,7 @@ import { useTranslation } from "@/hooks/useTranslation";
 import { useLocalePath } from "@/hooks/useLocalePath";
 import { useLocale } from "@/lib/i18n/client";
 
-const PAGE_SIZE = 50;
+const PAGE_SIZE = 20;
 
 // Translation keys for table headers — resolved inside the component using t()
 const TABLE_HEADER_KEYS = ['m.brand', 'm.name', 'm.image', 'm.stock', 'm.price', 'm.action'] as const;
@@ -110,6 +110,11 @@ export default function ProductsPage() {
   const [selectedFilters, setSelectedFilters] = useState<Record<string, string[]>>({});
   const [selectedFilterLabels, setSelectedFilterLabels] = useState<Record<string, { value: string; label: string }[]>>({});
   const [apiFilters, setApiFilters] = useState<any[] | null>(null);
+  // Full filter set captured from a non-search load. Magento only returns filter
+  // groups that have matching values in the current result set, so a narrow
+  // search would otherwise hide most filters. We keep the full list so the
+  // sidebar stays stable across search state.
+  const [baselineFilters, setBaselineFilters] = useState<any[] | null>(null);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
   const [isMobileSortOpen, setIsMobileSortOpen] = useState(false);
@@ -301,7 +306,13 @@ export default function ProductsPage() {
         if (abortController.signal.aborted) return;
         setProducts(mappedProducts);
         setTotalCount(total);
-        if (data.filters) setApiFilters(data.filters);
+        if (data.filters) {
+          setApiFilters(data.filters);
+          // Capture baseline only on non-search loads (full filter set for the category).
+          if (!searchByTerm && Object.keys(debouncedFilters).length === 0) {
+            setBaselineFilters(data.filters);
+          }
+        }
       } catch (err: unknown) {
         if (err instanceof Error && err.name === "AbortError") return;
         setError(t("products.noProducts"));
@@ -315,6 +326,35 @@ export default function ProductsPage() {
   }, [router, currentPage, debouncedFilters, sortBy, selectedStoreCode, searchByTerm, isInitialized]);
   // Note: locale intentionally excluded — fetchLocale reads from window.location directly
   // Adding locale here causes double-fetch and abort race condition
+
+  // One-time baseline filter fetch: when the user deep-links to a search URL
+  // (e.g. /products?search=ad), the main load returns only filters relevant to
+  // the search results. This separate call grabs the full category filter list
+  // so the sidebar shows every filter group regardless of search state.
+  useEffect(() => {
+    if (!isInitialized || baselineFilters) return;
+    const abortController = new AbortController();
+    (async () => {
+      try {
+        const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+        if (!token) return;
+        let fetchLocale = "en";
+        if (window.location.pathname.startsWith("/ar")) fetchLocale = "ar";
+        const headers: HeadersInit = { "Content-Type": "application/json", "Authorization": `Bearer ${token}`, "x-locale": fetchLocale };
+        const storeParam = selectedStoreCode ? `&storeCode=${encodeURIComponent(selectedStoreCode)}` : "";
+        const categoryIdFromUrl = searchParams?.get("category") || "15";
+        const url = `/api/category-products?categoryId=${encodeURIComponent(categoryIdFromUrl)}&pageSize=1&lang=${fetchLocale}${storeParam}`;
+        const res = await fetch(url, { headers, signal: abortController.signal });
+        if (!res.ok) return;
+        const data = await res.json();
+        if (abortController.signal.aborted) return;
+        if (Array.isArray(data.filters)) setBaselineFilters(data.filters);
+      } catch (err: unknown) {
+        if (err instanceof Error && err.name === "AbortError") return;
+      }
+    })();
+    return () => abortController.abort();
+  }, [isInitialized, baselineFilters, selectedStoreCode, searchParams]);
 
   const handleFilterChange = useCallback(
     (filters: Record<string, string[]>, labels: Record<string, { value: string; label: string }[]>) => {
@@ -474,6 +514,15 @@ export default function ProductsPage() {
   ══════════════════════════════════════════════════════════════ */
   const renderPagination = (compact = false) => {
     const show = !loading && displayCount > 0;
+    const safeTotalPages = Math.max(1, totalPages);
+    const WINDOW = 5;
+    let startPage = Math.max(1, currentPage - Math.floor(WINDOW / 2));
+    let endPage = Math.min(safeTotalPages, startPage + WINDOW - 1);
+    if (endPage - startPage + 1 < WINDOW) {
+      startPage = Math.max(1, endPage - WINDOW + 1);
+    }
+    const pageNumbers: number[] = [];
+    for (let p = startPage; p <= endPage; p++) pageNumbers.push(p);
     return (
       <div className={`flex items-center justify-between ${compact ? 'py-3 px-1' : 'px-6 h-[52px] border-t border-gray-100 bg-gray-50/30'} ${show ? 'opacity-100' : 'opacity-0'} transition-opacity`}>
         <span className={`font-semibold text-black/50 uppercase tracking-widest ${compact ? 'text-caption' : 'text-caption'}`}>
@@ -481,10 +530,22 @@ export default function ProductsPage() {
         </span>
         <div className="flex items-center gap-1 md:gap-1.5">
           <button disabled={currentPage === 1} onClick={() => setCurrentPage(p => p - 1)} className={`border border-gray-200 rounded-lg md:rounded-xl bg-white disabled:opacity-30 ${compact ? 'p-1.5' : 'p-2'}`}>{isRtl ? <ChevronRight size={compact ? 14 : 16} /> : <ChevronLeft size={compact ? 14 : 16} />}</button>
-          {Array.from({ length: Math.min(5, totalPages || 1) }).map((_, i) => (
-            <button key={i} onClick={() => setCurrentPage(i + 1)} className={`rounded-lg md:rounded-xl font-semibold ${compact ? 'w-8 h-8 text-label' : 'w-9 h-9 text-xs'} ${currentPage === i + 1 ? "bg-primary text-black" : "bg-white text-black/50 border border-gray-200"}`}>{i + 1}</button>
+          {startPage > 1 && (
+            <>
+              <button onClick={() => setCurrentPage(1)} className={`rounded-lg md:rounded-xl font-semibold ${compact ? 'w-8 h-8 text-label' : 'w-9 h-9 text-xs'} bg-white text-black/50 border border-gray-200`}>1</button>
+              {startPage > 2 && <span className="px-1 text-black/40 text-caption">…</span>}
+            </>
+          )}
+          {pageNumbers.map((p) => (
+            <button key={p} onClick={() => setCurrentPage(p)} className={`rounded-lg md:rounded-xl font-semibold ${compact ? 'w-8 h-8 text-label' : 'w-9 h-9 text-xs'} ${currentPage === p ? "bg-primary text-black" : "bg-white text-black/50 border border-gray-200"}`}>{p}</button>
           ))}
-          <button disabled={currentPage === totalPages} onClick={() => setCurrentPage(p => p + 1)} className={`border border-gray-200 rounded-lg md:rounded-xl bg-white disabled:opacity-30 ${compact ? 'p-1.5' : 'p-2'}`}>{isRtl ? <ChevronLeft size={compact ? 14 : 16} /> : <ChevronRight size={compact ? 14 : 16} />}</button>
+          {endPage < safeTotalPages && (
+            <>
+              {endPage < safeTotalPages - 1 && <span className="px-1 text-black/40 text-caption">…</span>}
+              <button onClick={() => setCurrentPage(safeTotalPages)} className={`rounded-lg md:rounded-xl font-semibold ${compact ? 'w-8 h-8 text-label' : 'w-9 h-9 text-xs'} bg-white text-black/50 border border-gray-200`}>{safeTotalPages}</button>
+            </>
+          )}
+          <button disabled={currentPage >= safeTotalPages} onClick={() => setCurrentPage(p => p + 1)} className={`border border-gray-200 rounded-lg md:rounded-xl bg-white disabled:opacity-30 ${compact ? 'p-1.5' : 'p-2'}`}>{isRtl ? <ChevronLeft size={compact ? 14 : 16} /> : <ChevronRight size={compact ? 14 : 16} />}</button>
         </div>
       </div>
     );
@@ -504,7 +565,7 @@ export default function ProductsPage() {
             selectedFilters={selectedFilters}
             isCollapsed={isSidebarCollapsed}
             setIsCollapsed={setIsSidebarCollapsed}
-            initialFilters={apiFilters}
+            initialFilters={searchByTerm && baselineFilters ? baselineFilters : apiFilters}
           />
         </div>
 
@@ -520,7 +581,7 @@ export default function ProductsPage() {
             <div className="flex-1 overflow-y-auto">
               {/* Render SidebarFilter content directly — override its aside wrapper via CSS */}
               <div className="[&>aside]:!w-full [&>aside]:!h-auto [&>aside]:!static [&>aside]:!border-0 [&>aside]:!overflow-visible [&>aside>div]:!static [&>aside>div]:!h-auto [&>aside>div>div:first-child]:!hidden">
-                <SidebarFilter onFilterChange={(f, l) => { handleFilterChange(f, l); setIsMobileFilterOpen(false); }} selectedFilters={selectedFilters} isCollapsed={false} setIsCollapsed={() => { }} initialFilters={apiFilters} />
+                <SidebarFilter onFilterChange={(f, l) => { handleFilterChange(f, l); setIsMobileFilterOpen(false); }} selectedFilters={selectedFilters} isCollapsed={false} setIsCollapsed={() => { }} initialFilters={searchByTerm && baselineFilters ? baselineFilters : apiFilters} />
               </div>
             </div>
             <div className="p-4 border-t border-gray-100 flex-shrink-0">

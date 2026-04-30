@@ -73,22 +73,16 @@ export async function GET(request: NextRequest) {
         const itemCodeParam = searchParams.get("item_code") || searchParams.get("itemCode") || groupedParams["item_code"]?.[0] || groupedParams["itemCode"]?.[0] || "";
         const isSearching = !!(searchByParam || itemCodeParam);
 
-        // For search, we want a larger pageSize to ensure "all" results are fetched
-        let effectivePageSize = pageSize;
-        if (isSearching) {
-            effectivePageSize = "1000";
-        }
-
         // Step 3: Construct Magento URL with simple params (matching live API format)
+        // Match the live storefront URL convention: category page + `searchBy=<term>`
+        // keeps the search scoped to the category & store, instead of a global catalogsearch.
         const searchQuery = searchByParam || itemCodeParam;
         const queryParts: string[] = [
             `currentPage=${encodeURIComponent(page)}`,
-            `pageSize=${encodeURIComponent(effectivePageSize)}`,
+            `pageSize=${encodeURIComponent(pageSize)}`,
             `is_ajax=1`,
-            ...(isSearching
-                ? [`query=${encodeURIComponent(searchQuery)}`]
-                : [`categoryId=${encodeURIComponent(categoryId)}`]
-            ),
+            `categoryId=${encodeURIComponent(categoryId)}`,
+            ...(isSearching ? [`searchBy=${encodeURIComponent(searchQuery)}`] : []),
         ];
 
         // Filters: mapping and joining grouped values
@@ -137,10 +131,9 @@ export async function GET(request: NextRequest) {
         // otherwise fall back to the resolved locale (en/ar) or V101 based on context.
         const effectiveStoreCode = storeCode || resolvedLocale;
         const primaryBaseUrl = getStoreBaseUrl(effectiveStoreCode);
-        // When searching by name/SKU, use the dedicated /product-search endpoint
-        // (precise match — same one the search popup uses). Otherwise use
-        // /category-products (catalog browse with layered filters).
-        const magentoEndpoint = isSearching ? "product-search" : "category-products";
+        // Always use /category-products so search runs within the current
+        // category & store scope (matches the live storefront's `?searchBy=…` URL).
+        const magentoEndpoint = "category-products";
         const magentoUrlStr = `${primaryBaseUrl}/${magentoEndpoint}?${queryParts.join("&")}`;
         console.log("[category-products] storeCode=" + effectiveStoreCode + " URL:", magentoUrlStr);
 
@@ -254,7 +247,7 @@ export async function GET(request: NextRequest) {
 
         // Extract total count and other fields from the original response
         const totalCount = typeof data.total_count === "number" ? data.total_count : products.length;
-        const totalPages = data.total_pages || Math.ceil(totalCount / Number(effectivePageSize));
+        const totalPages = data.total_pages || Math.ceil(totalCount / Number(pageSize));
         const finalFilters = Array.isArray(data.filters) ? data.filters : [];
 
         // Return the clean, normalized structure requested
