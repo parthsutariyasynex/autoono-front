@@ -516,11 +516,8 @@ export default function ProductsPage() {
     const show = !loading && displayCount > 0;
     const safeTotalPages = Math.max(1, totalPages);
     const WINDOW = 5;
-    let startPage = Math.max(1, currentPage - Math.floor(WINDOW / 2));
-    let endPage = Math.min(safeTotalPages, startPage + WINDOW - 1);
-    if (endPage - startPage + 1 < WINDOW) {
-      startPage = Math.max(1, endPage - WINDOW + 1);
-    }
+    const endPage = Math.min(safeTotalPages, Math.max(1, currentPage - Math.floor(WINDOW / 2)) + WINDOW - 1);
+    const startPage = Math.max(1, endPage - WINDOW + 1);
     const pageNumbers: number[] = [];
     for (let p = startPage; p <= endPage; p++) pageNumbers.push(p);
     return (
