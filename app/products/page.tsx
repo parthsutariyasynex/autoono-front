@@ -332,7 +332,9 @@ export default function ProductsPage() {
   // the search results. This separate call grabs the full category filter list
   // so the sidebar shows every filter group regardless of search state.
   useEffect(() => {
-    if (!isInitialized || baselineFilters) return;
+    // Only needed when deep-linking into a search URL — without a search,
+    // the main fetch already returns the full filter set.
+    if (!isInitialized || baselineFilters || !searchByTerm) return;
     const abortController = new AbortController();
     (async () => {
       try {
@@ -354,7 +356,7 @@ export default function ProductsPage() {
       }
     })();
     return () => abortController.abort();
-  }, [isInitialized, baselineFilters, selectedStoreCode, searchParams]);
+  }, [isInitialized, baselineFilters, searchByTerm, selectedStoreCode, searchParams]);
 
   const handleFilterChange = useCallback(
     (filters: Record<string, string[]>, labels: Record<string, { value: string; label: string }[]>) => {
@@ -562,7 +564,7 @@ export default function ProductsPage() {
             selectedFilters={selectedFilters}
             isCollapsed={isSidebarCollapsed}
             setIsCollapsed={setIsSidebarCollapsed}
-            initialFilters={searchByTerm && baselineFilters ? baselineFilters : apiFilters}
+            initialFilters={searchByTerm && baselineFilters ? baselineFilters : (apiFilters ?? [])}
           />
         </div>
 
@@ -578,7 +580,7 @@ export default function ProductsPage() {
             <div className="flex-1 overflow-y-auto">
               {/* Render SidebarFilter content directly — override its aside wrapper via CSS */}
               <div className="[&>aside]:!w-full [&>aside]:!h-auto [&>aside]:!static [&>aside]:!border-0 [&>aside]:!overflow-visible [&>aside>div]:!static [&>aside>div]:!h-auto [&>aside>div>div:first-child]:!hidden">
-                <SidebarFilter onFilterChange={(f, l) => { handleFilterChange(f, l); setIsMobileFilterOpen(false); }} selectedFilters={selectedFilters} isCollapsed={false} setIsCollapsed={() => { }} initialFilters={searchByTerm && baselineFilters ? baselineFilters : apiFilters} />
+                <SidebarFilter onFilterChange={(f, l) => { handleFilterChange(f, l); setIsMobileFilterOpen(false); }} selectedFilters={selectedFilters} isCollapsed={false} setIsCollapsed={() => { }} initialFilters={searchByTerm && baselineFilters ? baselineFilters : (apiFilters ?? [])} />
               </div>
             </div>
             <div className="p-4 border-t border-gray-100 flex-shrink-0">

@@ -137,6 +137,7 @@ export async function GET(request: NextRequest) {
         const magentoUrlStr = `${primaryBaseUrl}/${magentoEndpoint}?${queryParts.join("&")}`;
         console.log("[category-products] storeCode=" + effectiveStoreCode + " URL:", magentoUrlStr);
 
+        const t0 = Date.now();
         let res = await fetch(magentoUrlStr, {
             headers: {
                 ...(token && { Authorization: `Bearer ${token}` }),
@@ -146,6 +147,8 @@ export async function GET(request: NextRequest) {
             },
             cache: "no-store",
         });
+        const tMagento = Date.now() - t0;
+        console.log(`[category-products] ⏱  Magento responded in ${tMagento}ms (status ${res.status})`);
 
         // Fallback Strategy: If V101 returns 404, try the locale-specific URL
         if (!res.ok && res.status === 404) {

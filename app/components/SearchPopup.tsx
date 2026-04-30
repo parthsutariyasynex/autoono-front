@@ -123,22 +123,18 @@ const SearchPopup: React.FC<SearchPopupProps> = ({ isOpen, onClose }) => {
             try {
                 const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
 
-                // Use the listing-page proxy so filter-key mapping (brand → mgs_brand,
-                // item_code → itemCode, etc.) and category/store context apply consistently.
+                // Use the lightweight /product-search proxy (pure Magento passthrough)
+                // for typeahead — the heavy /category-products proxy with filter
+                // mapping & offer injection is too slow per-keystroke.
                 const PREVIEW_LIMIT = 20;
                 const params = new URLSearchParams();
-                params.set("search", query);
+                params.set("query", query);
                 params.set("pageSize", String(PREVIEW_LIMIT));
                 params.set("page", "1");
+                const store = searchParams?.get("store");
+                if (store) params.set("store", store);
 
-                const skip = new Set(["page", "sortBy", "search", "searchBy", "pageSize"]);
-                searchParams?.forEach((v, k) => { if (!skip.has(k)) params.append(k, v); });
-                if (!params.has("categoryId")) {
-                    const cat = searchParams?.get("category");
-                    if (cat) params.set("categoryId", cat);
-                }
-
-                const res = await fetch(`/api/category-products?${params.toString()}`, {
+                const res = await fetch(`/api/kleverapi/product-search?${params.toString()}`, {
                     headers: token ? { "Authorization": `Bearer ${token}` } : {},
                     signal: abortController.signal,
                 });
