@@ -84,9 +84,10 @@ export async function GET(request: NextRequest) {
         const queryParts: string[] = [
             `currentPage=${encodeURIComponent(page)}`,
             `pageSize=${encodeURIComponent(effectivePageSize)}`,
+            `is_ajax=1`,
             ...(isSearching
                 ? [`query=${encodeURIComponent(searchQuery)}`]
-                : [`is_ajax=1`, `categoryId=${encodeURIComponent(categoryId)}`]
+                : [`categoryId=${encodeURIComponent(categoryId)}`]
             ),
         ];
 
@@ -132,10 +133,9 @@ export async function GET(request: NextRequest) {
         const resolvedLocale = getLocaleFromRequest(request);
         console.log("[category-products] LOCALE DEBUG: lang=" + langParam + " header=" + xLocaleHeader + " cookie=" + localeCookie + " resolved=" + resolvedLocale + " referer=" + referer);
 
-        // choose the Magento base URL: storeCode from query (e.g. V101) takes priority,
-        // otherwise fall back to "ar" as the default store context.
-        // If we are searching (by query or itemCode), V101 is often more reliable.
-        const effectiveStoreCode = storeCode || (isSearching ? "V101" : "ar");
+        // Choose the Magento base URL: storeCode from query takes priority,
+        // otherwise fall back to the resolved locale (en/ar) or V101 based on context.
+        const effectiveStoreCode = storeCode || resolvedLocale;
         const primaryBaseUrl = getStoreBaseUrl(effectiveStoreCode);
         // When searching by name/SKU, use the dedicated /product-search endpoint
         // (precise match — same one the search popup uses). Otherwise use
@@ -202,7 +202,7 @@ export async function GET(request: NextRequest) {
         }
 
         // ── Dynamic Offers Filter Injection ──
-        const products = Array.isArray(data.products) ? data.products : (Array.isArray(data.items) ? data.items : []);
+        const products = Array.isArray(data) ? data : (Array.isArray(data.products) ? data.products : (Array.isArray(data.items) ? data.items : []));
 
         if (products.length > 0) {
             // Collect unique offers from the products array

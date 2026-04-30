@@ -82,20 +82,9 @@ const SearchPopup: React.FC<SearchPopupProps> = ({ isOpen, onClose }) => {
         const params = new URLSearchParams();
         if (currentStore) params.set("store", currentStore);
 
-        // If we have a SKU, use it to filter for that exact product
-        if (suggestion.sku) {
-            params.set("item_code", suggestion.sku);
-        } else {
-            // Fallback to name search if for some reason SKU is missing
-            const parsed = parseTyreSize(suggestion.label);
-            if (parsed) {
-                params.set("width", parsed.width);
-                if (parsed.height) params.set("height", parsed.height);
-                if (parsed.rim) params.set("rim", parsed.rim);
-            } else {
-                params.set("search", suggestion.label);
-            }
-        }
+        // Use the 'search' parameter for consistency with the user's requested URL structure.
+        // This ensures the products page accurately picks up the search intent.
+        params.set("search", suggestion.sku || suggestion.label);
 
         router.push(lp(`/products?${params.toString()}`));
         onClose();
@@ -154,7 +143,7 @@ const SearchPopup: React.FC<SearchPopupProps> = ({ isOpen, onClose }) => {
 
                     allItems.forEach((item: any) => {
                         const name = (item.name || item.label || item.title || "").toString();
-                        const sku = (item.sku || item.product_sku || "").toString();
+                        const sku = (item.sku || item.product_sku || item.item_code || item.itemCode || "").toString();
 
                         if (name && !seen.has(sku || name)) {
                             seen.add(sku || name);
@@ -255,14 +244,14 @@ const SearchPopup: React.FC<SearchPopupProps> = ({ isOpen, onClose }) => {
                                     </div>
                                 </div>
                             ))}
-                            {!isSearching && totalFound > suggestions.length && (
+                            {/* {!isSearching && totalFound > suggestions.length && (
                                 <div
                                     onClick={() => handleSearch()}
                                     className="px-6 md:px-10 py-3 hover:bg-primary/10 cursor-pointer bg-gray-50/50 text-center text-caption font-bold text-primary uppercase tracking-widest transition-colors"
                                 >
                                     {t("m.view-all")} ({totalFound})
                                 </div>
-                            )}
+                            )} */}
                         </div>
                     )}
                 </div>

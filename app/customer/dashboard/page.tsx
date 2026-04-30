@@ -369,13 +369,13 @@ export default function DashboardPage() {
                                             data={activeTab === 'quarterly' ?
                                                 [1, 2, 3, 4].map(q => ({
                                                     name: quarterNames[q - 1],
-                                                    [searchYear]: dashboardData?.compare_quarterly?.find((d: any) => d.year === searchYear && d.period === q)?.qty || 0,
-                                                    [compareYear]: dashboardData?.compare_quarterly?.find((d: any) => d.year === compareYear && d.period === q)?.qty || 0
+                                                    [searchYear]: Number(dashboardData?.compare_quarterly?.find((d: any) => Number(d.year) === searchYear && Number(d.period) === q)?.qty) || 0,
+                                                    [compareYear]: Number(dashboardData?.compare_quarterly?.find((d: any) => Number(d.year) === compareYear && Number(d.period) === q)?.qty) || 0
                                                 })) :
                                                 [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map(m => ({
                                                     name: monthNames[m - 1],
-                                                    [searchYear]: dashboardData?.compare_monthly?.find((d: any) => d.year === searchYear && d.period === m)?.qty || 0,
-                                                    [compareYear]: dashboardData?.compare_monthly?.find((d: any) => d.year === compareYear && d.period === m)?.qty || 0
+                                                    [searchYear]: Number(dashboardData?.compare_monthly?.find((d: any) => Number(d.year) === searchYear && Number(d.period) === m)?.qty) || 0,
+                                                    [compareYear]: Number(dashboardData?.compare_monthly?.find((d: any) => Number(d.year) === compareYear && Number(d.period) === m)?.qty) || 0
                                                 }))
                                             }
                                             margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
@@ -403,8 +403,8 @@ export default function DashboardPage() {
                                                 iconType="circle"
                                                 wrapperStyle={{ paddingBottom: '40px', fontSize: '11px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em' }}
                                             />
-                                            <Bar dataKey={searchYear} fill="var(--color-primary)" radius={[4, 4, 0, 0]} barSize={32} name={searchYear.toString()} />
-                                            <Bar dataKey={compareYear} fill="#111827" radius={[4, 4, 0, 0]} barSize={32} name={compareYear.toString()} />
+                                            <Bar dataKey={String(searchYear)} fill="#4E81C2" radius={[4, 4, 0, 0]} barSize={32} name={String(searchYear)} />
+                                            <Bar dataKey={String(compareYear)} fill="#111827" radius={[4, 4, 0, 0]} barSize={32} name={String(compareYear)} />
                                         </BarChart>
                                     </ResponsiveContainer>
                                 </div>
@@ -422,10 +422,10 @@ export default function DashboardPage() {
                                         </thead>
                                         <tbody className="divide-y divide-gray-50 bg-white">
                                             {(activeTab === 'quarterly' ? [1, 2, 3, 4] : [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]).map((p, idx) => {
-                                                const val1 = (activeTab === 'quarterly' ? dashboardData?.compare_quarterly : dashboardData?.compare_monthly)
-                                                    ?.find((d: any) => d.year === searchYear && d.period === p)?.qty || 0;
-                                                const val2 = (activeTab === 'quarterly' ? dashboardData?.compare_quarterly : dashboardData?.compare_monthly)
-                                                    ?.find((d: any) => d.year === compareYear && d.period === p)?.qty || 0;
+                                                const val1 = Number((activeTab === 'quarterly' ? dashboardData?.compare_quarterly : dashboardData?.compare_monthly)
+                                                    ?.find((d: any) => Number(d.year) === searchYear && Number(d.period) === p)?.qty) || 0;
+                                                const val2 = Number((activeTab === 'quarterly' ? dashboardData?.compare_quarterly : dashboardData?.compare_monthly)
+                                                    ?.find((d: any) => Number(d.year) === compareYear && Number(d.period) === p)?.qty) || 0;
 
                                                 const label = activeTab === 'quarterly'
                                                     ? (isRtl ? `ر${p}` : `Q${p}`)

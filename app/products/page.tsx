@@ -278,7 +278,7 @@ export default function ProductsPage() {
         const queryString = formatMagentoQueryParams(debouncedFilters, currentPage, sortBy);
         const storeParam = selectedStoreCode ? `&storeCode=${encodeURIComponent(selectedStoreCode)}` : "";
         const categoryIdFromUrl = searchParams?.get("category") || "15";
-        const searchByParam = searchByTerm ? `&searchBy=${encodeURIComponent(searchByTerm)}` : "";
+        const searchByParam = searchByTerm ? `&search=${encodeURIComponent(searchByTerm)}` : "";
         const url = `/api/category-products?${queryString ? queryString + "&" : ""}categoryId=${encodeURIComponent(categoryIdFromUrl)}&pageSize=${PAGE_SIZE}&lang=${fetchLocale}${storeParam}${searchByParam}`;
         const res = await fetch(url, { headers, signal: abortController.signal });
         if (!res.ok) {

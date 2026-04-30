@@ -228,22 +228,9 @@ export default function ForgotPasswordPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#f4f4f4] flex flex-col scrollbar-hide">
-      <style dangerouslySetInnerHTML={{
-        __html: `
-        html, body {
-          overflow: hidden !important;
-          scrollbar-width: none !important;
-          -ms-overflow-style: none !important;
-        }
-        html::-webkit-scrollbar, body::-webkit-scrollbar {
-          display: none !important;
-        }
-      ` }} />
-
-
-      <div className="flex-1 flex items-center justify-center p-4 md:p-10">
-        <div className="w-full max-w-[450px] bg-white rounded-[3px] shadow-lg border border-gray-100 flex flex-col overflow-hidden">
+    <div className="flex-1 w-full min-h-full bg-[#f4f4f4] flex flex-col">
+      <main className="flex-1 w-full flex justify-center items-start pt-6 sm:pt-8 md:pt-16 pb-8 sm:pb-12 px-4 md:px-0">
+        <div className="w-full max-w-[440px] bg-white rounded-[3px] shadow-[0_10px_40px_rgba(0,0,0,0.08)] border border-gray-100 flex flex-col overflow-hidden">
 
           {/* Header Section */}
           <div className="p-4 sm:p-6 md:p-8 flex flex-col gap-6">
@@ -431,7 +418,7 @@ export default function ForgotPasswordPage() {
             </form>
           </div>
         </div>
-      </div>
+      </main>
     </div>
   );
 }

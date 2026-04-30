@@ -349,340 +349,341 @@ export default function Navbar() {
   };
 
   return (
-    <div className={`main-header w-full ${isScrolled ? 'fixed fadeInDown' : 'relative'} top-0 left-0 right-0 z-[60] flex flex-col transition-[box-shadow,background-color] duration-300 ease-in-out`} style={{ paddingRight: isScrolled ? "var(--scrollbar-width)" : "0px" }}>
+    <>
+      <div className={`main-header w-full ${isScrolled ? 'fixed fadeInDown' : 'relative'} top-0 left-0 right-0 z-[60] flex flex-col transition-[box-shadow,background-color] duration-300 ease-in-out`} style={{ paddingRight: isScrolled ? "var(--scrollbar-width)" : "0px" }}>
 
-      {/* ── HEADER ── */}
-      <header className="bg-white border-b border-gray-100 shadow-[0_1px_4px_rgba(0,0,0,0.06)]">
-        <div className="relative flex items-center justify-between h-[56px] sm:h-[64px] lg:h-[72px] px-3 sm:px-5 lg:px-8 xl:px-14">
+        {/* ── HEADER ── */}
+        <header className="bg-white border-b border-gray-100 shadow-[0_1px_4px_rgba(0,0,0,0.06)]">
+          <div className="relative flex items-center justify-between h-[56px] sm:h-[64px] lg:h-[72px] px-3 sm:px-5 lg:px-8 xl:px-14">
 
-          {/* LEFT: BTIRE logo */}
-          <Link href={lp("/")} className="flex items-center flex-shrink-0 z-10">
-            <img
-              src="/logo/btire-logo-horizontal.svg"
-              alt="BTIRE Logo"
-              className="h-6 sm:h-8 lg:h-10 w-auto"
-            />
-          </Link>
-
-          {/* CENTER: Bridgestone logo — flex center on mobile, absolute center on md+ */}
-          <div className="flex-1 flex items-center justify-center min-w-0 px-2 lg:px-0 lg:absolute lg:inset-0 lg:pointer-events-none">
-            <Link href={lp("/")} className="flex-shrink-0 lg:pointer-events-auto">
+            {/* LEFT: BTIRE logo */}
+            <Link href={lp("/")} className="flex items-center flex-shrink-0 z-10">
               <img
-                src="/logo/auttono-logo.jpg"
-                alt="AL TALAYI KSA"
-                className="h-[24px] sm:h-[32px] lg:h-[42px] xl:h-[50px] w-auto object-contain"
+                src="/logo/btire-logo-horizontal.svg"
+                alt="BTIRE Logo"
+                className="h-6 sm:h-8 lg:h-10 w-auto"
               />
             </Link>
-          </div>
 
-          {/* RIGHT: Actions */}
-          <div className="flex items-center gap-2 sm:gap-3 md:gap-5 flex-shrink-0 z-10">
-
-            {/* Language Switcher — desktop only (mobile has it in drawer) */}
-            <div className="hidden lg:block">
-              <LanguageSwitcher />
+            {/* CENTER: Bridgestone logo — flex center on mobile, absolute center on md+ */}
+            <div className="flex-1 flex items-center justify-center min-w-0 px-2 lg:px-0 lg:absolute lg:inset-0 lg:pointer-events-none">
+              <Link href={lp("/")} className="flex-shrink-0 lg:pointer-events-auto">
+                <img
+                  src="/logo/auttono-logo.jpg"
+                  alt="AL TALAYI KSA"
+                  className="h-[24px] sm:h-[32px] lg:h-[42px] xl:h-[50px] w-auto object-contain"
+                />
+              </Link>
             </div>
 
-            {/* Welcome badge & Account Dropdown — md+ */}
-            {isAuthenticated && !isLoadingName && pathname !== "/login" && (
-              <div className="relative hidden lg:block" ref={dropdownRef}>
-                <div
-                  onClick={() => setIsProfileOpen(!isProfileOpen)}
-                  className="flex items-center gap-1.5 lg:gap-2 bg-white border border-gray-100 rounded-full px-1.5 lg:px-3 py-1 shadow-[0_2px_8px_-3px_rgba(0,0,0,0.12)] hover:shadow-md transition-shadow group cursor-pointer"
-                >
-                  <div className="w-7 h-7 bg-primary rounded-full flex items-center justify-center flex-shrink-0 transition-transform">
-                    <UserCircle size={16} strokeWidth={2.5} />
-                  </div>
-                  <div className="flex flex-col min-w-0 pr-1 rtl:pr-0 rtl:pl-1">
-                    <span className="hidden lg:block text-[8px] text-black/50 font-semibold uppercase tracking-widest leading-none">{t("nav.welcomeBack")}</span>
-                    <span className="text-body text-black font-semibold tracking-tighter leading-snug mt-0.5 truncate max-w-[80px] lg:max-w-[140px]">
-                      {isSubAccount && subAccountName ? subAccountName : displayUser}
-                    </span>
+            {/* RIGHT: Actions */}
+            <div className="flex items-center gap-2 sm:gap-3 md:gap-5 flex-shrink-0 z-10">
+
+              {/* Language Switcher — desktop only (mobile has it in drawer) */}
+              <div className="hidden lg:block">
+                <LanguageSwitcher />
+              </div>
+
+              {/* Welcome badge & Account Dropdown — md+ */}
+              {isAuthenticated && !isLoadingName && pathname !== "/login" && (
+                <div className="relative hidden lg:block" ref={dropdownRef}>
+                  <div
+                    onClick={() => setIsProfileOpen(!isProfileOpen)}
+                    className="flex items-center gap-1.5 lg:gap-2 bg-white border border-gray-100 rounded-full px-1.5 lg:px-3 py-1 shadow-[0_2px_8px_-3px_rgba(0,0,0,0.12)] hover:shadow-md transition-shadow group cursor-pointer"
+                  >
+                    <div className="w-7 h-7 bg-primary rounded-full flex items-center justify-center flex-shrink-0 transition-transform">
+                      <UserCircle size={16} strokeWidth={2.5} />
+                    </div>
+                    <div className="flex flex-col min-w-0 pr-1 rtl:pr-0 rtl:pl-1">
+                      <span className="hidden lg:block text-[8px] text-black/50 font-semibold uppercase tracking-widest leading-none">{t("nav.welcomeBack")}</span>
+                      <span className="text-body text-black font-semibold tracking-tighter leading-snug mt-0.5 truncate max-w-[80px] lg:max-w-[140px]">
+                        {isSubAccount && subAccountName ? subAccountName : displayUser}
+                      </span>
+                    </div>
+
                   </div>
 
-                </div>
-
-                {isProfileOpen && (
-                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-sm shadow-2xl border border-gray-200 py-1 z-[100]" dir={isRtl ? "rtl" : "ltr"}>
-                    <Link
-                      href={lp("/my-account")}
-                      className="block px-4 py-2.5 text-body font-semibold text-black hover:bg-gray-50 transition-colors ltr:text-left rtl:text-right"
-                      onClick={() => setIsProfileOpen(false)}
-                    >
-                      {t("nav.myAccount")}
-                    </Link>
-                    {isSubAccount && (
+                  {isProfileOpen && (
+                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-sm shadow-2xl border border-gray-200 py-1 z-[100]" dir={isRtl ? "rtl" : "ltr"}>
                       <Link
                         href={lp("/my-account")}
-                        className="block px-4 py-2.5 text-body font-semibold text-red-600 hover:bg-red-50 transition-colors border-t border-gray-100 ltr:text-left rtl:text-right"
-                        onClick={() => {
-                          setIsProfileOpen(false);
-                          localStorage.removeItem("subAccountName");
-                          localStorage.removeItem("isSubAccount");
-                          setSubAccountName(null);
-                          setIsSubAccount(false);
-                        }}
+                        className="block px-4 py-2.5 text-body font-semibold text-black hover:bg-gray-50 transition-colors ltr:text-left rtl:text-right"
+                        onClick={() => setIsProfileOpen(false)}
                       >
-                        {t("nav.backToMainAccount")}
+                        {t("nav.myAccount")}
                       </Link>
-                    )}
-                    <button
-                      onClick={handleLogout}
-                      className="w-full ltr:text-left rtl:text-right px-4 py-2.5 text-body font-semibold text-black hover:bg-gray-50 transition-colors cursor-pointer border-t border-gray-100"
-                    >
-                      {t("nav.signOut")}
-                    </button>
-                  </div>
-                )}
-              </div>
-            )}
-
-
-            {/* Search Icon */}
-            {isAuthenticated && pathname !== "/login" && (
-              <button
-                onClick={() => setIsSearchOpen(true)}
-                className="hidden lg:flex relative cursor-pointer hover:opacity-70 transition-opacity items-center justify-center -mb-1 focus:outline-none"
-                aria-label="Search"
-              >
-                <Search size={22} stroke="black" strokeWidth={1.5} />
-              </button>
-            )}
-
-
-
-
-            {/* Notification Bell */}
-            {isAuthenticated && pathname !== "/login" && (
-
-              <button
-                className="hidden lg:flex relative cursor-pointer items-center justify-center"
-                onClick={() => setIsNotificationOpen(true)}
-                aria-label="Notifications"
-              >
-                <Bell size={24} fill="black" stroke="black" strokeWidth={1} />
-                {unreadCount > 0 && (
-                  <span className="absolute w-[20px] h-[20px] lg:w-[26px] lg:h-[26px] font-semibold text-micro lg:text-body -top-[10px] lg:-top-[13px] -right-[6px] lg:-right-[14px] bg-primary text-black flex items-center justify-center rounded-full border border-white">
-                    {unreadCount}
-                  </span>
-                )}
-              </button>
-            )}
-
-            {/* Cart */}
-            {isAuthenticated && pathname !== "/login" && (
-              <button
-                onClick={() => setIsCartOpen(true)}
-                className="relative text-black cursor-pointer pr-2 md:pr-0"
-                aria-label="Shopping Cart"
-              >
-                <ShoppingCart size={24} strokeWidth={1.5} />
-                {cartCount > 0 && (
-                  <span className="absolute w-[20px] h-[20px] lg:w-[26px] lg:h-[26px] font-semibold text-micro lg:text-body -top-[10px] -right-[6px] lg:-right-[14px] bg-primary text-black flex items-center justify-center rounded-full border border-white">
-                    {cartCount}
-                  </span>
-                )}
-              </button>
-            )}
-
-
-
-            {/* Mobile hamburger */}
-            <button
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="lg:hidden text-black hover:opacity-70 transition-opacity cursor-pointer"
-              aria-label="Toggle Menu"
-            >
-              {isMenuOpen ? <X size={22} /> : <Menu size={22} />}
-            </button>
-          </div>
-        </div>
-      </header>
-
-      {/* ── YELLOW NAV BAR — desktop only ── */}
-      <nav className="bg-primary w-full hidden lg:block">
-        <div className="flex items-center justify-center w-full px-2 lg:px-4">
-          {navLoading ? (
-            <div className="flex items-center gap-6">
-              {[1, 2, 3, 4, 5].map(i => (
-                <div key={i} className="h-3 w-20 bg-primary/40 rounded animate-pulse" />
-              ))}
-            </div>
-          ) : (
-            navLinks.map((item) => {
-              const isWarehouse = isWarehouseCategory(item);
-              // For warehouse-aware categories, defaults should be English.
-              const baseHref = isWarehouse ? `/en${item.href}` : lp(item.href);
-              const href = isWarehouse && item.categoryId
-                ? `${baseHref}?category=${encodeURIComponent(item.categoryId)}`
-                : baseHref;
-
-              const isActive = pathname === baseHref || pathname?.startsWith(baseHref + "/");
-              const children = isWarehouse ? undefined : item.children;
-              const hasChildren = (isWarehouse && warehouseItems.length > 0) || !!(children && children.length > 0);
-
-              return (
-                <div key={item.href} className="relative group h-full">
-                  <Link
-                    href={href}
-                    className={`py-3 flex items-center h-full px-2.5 lg:px-7 text-body font-semibold capitalize transition-all duration-200 whitespace-nowrap ${isActive
-                      ? "bg-black text-white"
-                      : "text-black group-hover:bg-black group-hover:text-white"
-                      }`}
-                  >
-                    {resolveLabel(item)}
-                  </Link>
-
-                  {/* Warehouse dropdown — matches reference image */}
-                  {hasChildren && (
-                    <div className="absolute top-full left-0 w-56 bg-white shadow-[0_8px_24px_rgba(0,0,0,0.08)] opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-150 z-[100]">
-                      <div className="flex flex-col py-1">
-                        {isWarehouse
-                          ? warehouseItems.map((w) => {
-                            const isSelected = pathname?.startsWith(lp(item.href)) && currentStore === w.code;
-                            return (
-                              <button
-                                key={w.code}
-                                type="button"
-                                onClick={() => handleStoreSelect(w.label, w.code, item.href, item.categoryId)}
-                                className={`text-start px-6 py-2.5 text-body font-semibold transition-colors cursor-pointer ${isSelected ? "bg-primary/10 text-primary" : "text-black hover:bg-gray-50"}`}
-                              >
-                                {w.label}
-                              </button>
-                            );
-                          })
-                          : children?.map((child, idx) => (
-                            <Link
-                              key={idx}
-                              href={lp(child.href)}
-                              className="px-6 py-2.5 text-body font-semibold text-black hover:bg-gray-50 transition-colors"
-                            >
-                              {child.label}
-                            </Link>
-                          ))}
-                      </div>
+                      {isSubAccount && (
+                        <Link
+                          href={lp("/my-account")}
+                          className="block px-4 py-2.5 text-body font-semibold text-red-600 hover:bg-red-50 transition-colors border-t border-gray-100 ltr:text-left rtl:text-right"
+                          onClick={() => {
+                            setIsProfileOpen(false);
+                            localStorage.removeItem("subAccountName");
+                            localStorage.removeItem("isSubAccount");
+                            setSubAccountName(null);
+                            setIsSubAccount(false);
+                          }}
+                        >
+                          {t("nav.backToMainAccount")}
+                        </Link>
+                      )}
+                      <button
+                        onClick={handleLogout}
+                        className="w-full ltr:text-left rtl:text-right px-4 py-2.5 text-body font-semibold text-black hover:bg-gray-50 transition-colors cursor-pointer border-t border-gray-100"
+                      >
+                        {t("nav.signOut")}
+                      </button>
                     </div>
                   )}
                 </div>
-              );
-            })
-          )}
-        </div>
-      </nav>
+              )}
 
-      {/* ── MOBILE DRAWER ── */}
-      {isMenuOpen && (
-        <div className="lg:hidden absolute top-[56px] sm:top-[64px] left-0 w-full bg-white shadow-2xl z-40 border-t border-gray-100 animate-in slide-in-from-top duration-200">
-          <div className="flex flex-col py-2">
 
-            {/* User info */}
-            {isAuthenticated && pathname !== "/login" && (
-              <div className="px-4 py-3 bg-gray-50 border-b border-gray-100 mb-1">
-                <div className="flex items-center gap-3">
-                  <div className="flex flex-col overflow-hidden">
-                    <span className="text-micro text-black/50 font-semibold uppercase tracking-widest leading-none">{t("nav.loggedInAs")}</span>
-                    <span className="text-body text-black font-semibold uppercase truncate tracking-tight">
-                      {isSubAccount && subAccountName ? subAccountName : displayUser}
+              {/* Search Icon */}
+              {isAuthenticated && pathname !== "/login" && (
+                <button
+                  onClick={() => setIsSearchOpen(true)}
+                  className="hidden lg:flex relative cursor-pointer hover:opacity-70 transition-opacity items-center justify-center -mb-1 focus:outline-none"
+                  aria-label="Search"
+                >
+                  <Search size={22} stroke="black" strokeWidth={1.5} />
+                </button>
+              )}
+
+
+
+
+              {/* Notification Bell */}
+              {isAuthenticated && pathname !== "/login" && (
+
+                <button
+                  className="hidden lg:flex relative cursor-pointer items-center justify-center"
+                  onClick={() => setIsNotificationOpen(true)}
+                  aria-label="Notifications"
+                >
+                  <Bell size={24} fill="black" stroke="black" strokeWidth={1} />
+                  {unreadCount > 0 && (
+                    <span className="absolute w-[20px] h-[20px] lg:w-[26px] lg:h-[26px] font-semibold text-micro lg:text-body -top-[10px] lg:-top-[13px] -right-[6px] lg:-right-[14px] bg-primary text-black flex items-center justify-center rounded-full border border-white">
+                      {unreadCount}
                     </span>
-                  </div>
-                </div>
-              </div>
-            )}
+                  )}
+                </button>
+              )}
 
-            {/* Nav links */}
-            <div className="px-4 py-2">
-              <span className="text-micro font-bold text-black/50 uppercase tracking-[0.2em] block mb-2">{t("nav.navigation")}</span>
-              {navLinks.map((item) => {
+              {/* Cart */}
+              {isAuthenticated && pathname !== "/login" && (
+                <button
+                  onClick={() => setIsCartOpen(true)}
+                  className="relative text-black cursor-pointer pr-2 md:pr-0"
+                  aria-label="Shopping Cart"
+                >
+                  <ShoppingCart size={24} strokeWidth={1.5} />
+                  {cartCount > 0 && (
+                    <span className="absolute w-[20px] h-[20px] lg:w-[26px] lg:h-[26px] font-semibold text-micro lg:text-body -top-[10px] -right-[6px] lg:-right-[14px] bg-primary text-black flex items-center justify-center rounded-full border border-white">
+                      {cartCount}
+                    </span>
+                  )}
+                </button>
+              )}
+
+
+
+              {/* Mobile hamburger */}
+              <button
+                onClick={() => setIsMenuOpen(!isMenuOpen)}
+                className="lg:hidden text-black hover:opacity-70 transition-opacity cursor-pointer"
+                aria-label="Toggle Menu"
+              >
+                {isMenuOpen ? <X size={22} /> : <Menu size={22} />}
+              </button>
+            </div>
+          </div>
+        </header>
+
+        {/* ── YELLOW NAV BAR — desktop only ── */}
+        <nav className="bg-primary w-full hidden lg:block">
+          <div className="flex items-center justify-center w-full px-2 lg:px-4">
+            {navLoading ? (
+              <div className="flex items-center gap-6">
+                {[1, 2, 3, 4, 5].map(i => (
+                  <div key={i} className="h-3 w-20 bg-primary/40 rounded animate-pulse" />
+                ))}
+              </div>
+            ) : (
+              navLinks.map((item) => {
                 const isWarehouse = isWarehouseCategory(item);
+                // For warehouse-aware categories, defaults should be English.
                 const baseHref = isWarehouse ? `/en${item.href}` : lp(item.href);
                 const href = isWarehouse && item.categoryId
                   ? `${baseHref}?category=${encodeURIComponent(item.categoryId)}`
                   : baseHref;
 
                 const isActive = pathname === baseHref || pathname?.startsWith(baseHref + "/");
+                const children = isWarehouse ? undefined : item.children;
+                const hasChildren = (isWarehouse && warehouseItems.length > 0) || !!(children && children.length > 0);
+
                 return (
-                  <div key={item.href}>
+                  <div key={item.href} className="relative group h-full">
                     <Link
                       href={href}
-                      className={`py-2.5 text-body font-semibold uppercase tracking-wide flex items-center justify-between group ${isActive ? "text-primary" : "text-black hover:text-primary"
+                      className={`py-3 flex items-center h-full px-2.5 lg:px-7 text-body font-semibold capitalize transition-all duration-200 whitespace-nowrap ${isActive
+                        ? "bg-black text-white"
+                        : "text-black group-hover:bg-black group-hover:text-white"
                         }`}
-                      onClick={() => setIsMenuOpen(false)}
                     >
                       {resolveLabel(item)}
-                      <span className="text-black/40 group-hover:text-primary transition-colors text-caption">→</span>
                     </Link>
-                    {isWarehouse && warehouseItems.length > 0 && (
-                      <div className="pl-3 border-l-2 border-gray-100 ml-1 mb-1">
-                        {warehouseItems.map((w) => {
-                          const isSelected = pathname?.startsWith(lp(item.href)) && currentStore === w.code;
-                          return (
-                            <button
-                              key={w.code}
-                              type="button"
-                              onClick={() => {
-                                handleStoreSelect(w.label, w.code, item.href, item.categoryId);
-                                setIsMenuOpen(false);
-                              }}
-                              className={`block w-full text-start py-2 text-label font-semibold cursor-pointer ${isSelected ? "text-primary" : "text-black/70 hover:text-primary"}`}
-                            >
-                              {w.label}
-                            </button>
-                          );
-                        })}
+
+                    {/* Warehouse dropdown — matches reference image */}
+                    {hasChildren && (
+                      <div className="absolute top-full left-0 w-56 bg-white shadow-[0_8px_24px_rgba(0,0,0,0.08)] opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-150 z-[100]">
+                        <div className="flex flex-col py-1">
+                          {isWarehouse
+                            ? warehouseItems.map((w) => {
+                              const isSelected = pathname?.startsWith(lp(item.href)) && currentStore === w.code;
+                              return (
+                                <button
+                                  key={w.code}
+                                  type="button"
+                                  onClick={() => handleStoreSelect(w.label, w.code, item.href, item.categoryId)}
+                                  className={`text-start px-6 py-2.5 text-body font-semibold transition-colors cursor-pointer ${isSelected ? "bg-primary/10 text-primary" : "text-black hover:bg-gray-50"}`}
+                                >
+                                  {w.label}
+                                </button>
+                              );
+                            })
+                            : children?.map((child, idx) => (
+                              <Link
+                                key={idx}
+                                href={lp(child.href)}
+                                className="px-6 py-2.5 text-body font-semibold text-black hover:bg-gray-50 transition-colors"
+                              >
+                                {child.label}
+                              </Link>
+                            ))}
+                        </div>
                       </div>
                     )}
                   </div>
                 );
-              })}
-            </div>
+              })
+            )}
+          </div>
+        </nav>
 
-            {/* Quick actions */}
-            <div className="px-4 py-3 mt-1 border-t border-gray-100">
-              <span className="text-micro font-bold text-black/50 uppercase tracking-[0.2em] block mb-2">{t("nav.quickActions")}</span>
+        {/* ── MOBILE DRAWER ── */}
+        {isMenuOpen && (
+          <div className="lg:hidden absolute top-[56px] sm:top-[64px] left-0 w-full bg-white shadow-2xl z-40 border-t border-gray-100 animate-in slide-in-from-top duration-200">
+            <div className="flex flex-col py-2">
 
+              {/* User info */}
               {isAuthenticated && pathname !== "/login" && (
-                <>
-                  <button
-                    onClick={() => { setIsSearchOpen(true); setIsMenuOpen(false); }}
-                    className="py-2.5 text-body font-semibold text-black/80 flex items-center gap-3 w-full text-start"
-                  >
-                    <Search size={16} /> {t("nav.searchProducts") || "Search Products"}
-                  </button>
-
-                  <button
-                    onClick={() => { setIsNotificationOpen(true); setIsMenuOpen(false); }}
-                    className="py-2.5 text-body font-semibold text-black/80 flex items-center gap-3 w-full"
-                  >
-                    <Bell size={16} /> {t("nav.notifications")} ({unreadCount})
-                  </button>
-                  <Link href={lp("/my-account")} className="py-2.5 text-body font-semibold text-black/80 flex items-center gap-3" onClick={() => setIsMenuOpen(false)}>
-
-                    <UserCircle size={16} /> {t("nav.myAccount")}
-                  </Link>
-                </>
+                <div className="px-4 py-3 bg-gray-50 border-b border-gray-100 mb-1">
+                  <div className="flex items-center gap-3">
+                    <div className="flex flex-col overflow-hidden">
+                      <span className="text-micro text-black/50 font-semibold uppercase tracking-widest leading-none">{t("nav.loggedInAs")}</span>
+                      <span className="text-body text-black font-semibold uppercase truncate tracking-tight">
+                        {isSubAccount && subAccountName ? subAccountName : displayUser}
+                      </span>
+                    </div>
+                  </div>
+                </div>
               )}
 
-              <div className="py-2.5">
-                <LanguageSwitcher />
+              {/* Nav links */}
+              <div className="px-4 py-2">
+                <span className="text-micro font-bold text-black/50 uppercase tracking-[0.2em] block mb-2">{t("nav.navigation")}</span>
+                {navLinks.map((item) => {
+                  const isWarehouse = isWarehouseCategory(item);
+                  const baseHref = isWarehouse ? `/en${item.href}` : lp(item.href);
+                  const href = isWarehouse && item.categoryId
+                    ? `${baseHref}?category=${encodeURIComponent(item.categoryId)}`
+                    : baseHref;
+
+                  const isActive = pathname === baseHref || pathname?.startsWith(baseHref + "/");
+                  return (
+                    <div key={item.href}>
+                      <Link
+                        href={href}
+                        className={`py-2.5 text-body font-semibold uppercase tracking-wide flex items-center justify-between group ${isActive ? "text-primary" : "text-black hover:text-primary"
+                          }`}
+                        onClick={() => setIsMenuOpen(false)}
+                      >
+                        {resolveLabel(item)}
+                        <span className="text-black/40 group-hover:text-primary transition-colors text-caption">→</span>
+                      </Link>
+                      {isWarehouse && warehouseItems.length > 0 && (
+                        <div className="pl-3 border-l-2 border-gray-100 ml-1 mb-1">
+                          {warehouseItems.map((w) => {
+                            const isSelected = pathname?.startsWith(lp(item.href)) && currentStore === w.code;
+                            return (
+                              <button
+                                key={w.code}
+                                type="button"
+                                onClick={() => {
+                                  handleStoreSelect(w.label, w.code, item.href, item.categoryId);
+                                  setIsMenuOpen(false);
+                                }}
+                                className={`block w-full text-start py-2 text-label font-semibold cursor-pointer ${isSelected ? "text-primary" : "text-black/70 hover:text-primary"}`}
+                              >
+                                {w.label}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
 
-              {isAuthenticated && pathname !== "/login" && (
-                <button
-                  onClick={handleLogout}
-                  className="py-2.5 mt-2 text-body font-semibold text-red-600 flex items-center gap-3 border-t border-gray-100 w-full pt-3"
-                >
-                  <LogOut size={16} /> {t("nav.signOut")}
-                </button>
-              )}
+              {/* Quick actions */}
+              <div className="px-4 py-3 mt-1 border-t border-gray-100">
+                <span className="text-micro font-bold text-black/50 uppercase tracking-[0.2em] block mb-2">{t("nav.quickActions")}</span>
+
+                {isAuthenticated && pathname !== "/login" && (
+                  <>
+                    <button
+                      onClick={() => { setIsSearchOpen(true); setIsMenuOpen(false); }}
+                      className="py-2.5 text-body font-semibold text-black/80 flex items-center gap-3 w-full text-start"
+                    >
+                      <Search size={16} /> {t("nav.searchProducts") || "Search Products"}
+                    </button>
+
+                    <button
+                      onClick={() => { setIsNotificationOpen(true); setIsMenuOpen(false); }}
+                      className="py-2.5 text-body font-semibold text-black/80 flex items-center gap-3 w-full"
+                    >
+                      <Bell size={16} /> {t("nav.notifications")} ({unreadCount})
+                    </button>
+                    <Link href={lp("/my-account")} className="py-2.5 text-body font-semibold text-black/80 flex items-center gap-3" onClick={() => setIsMenuOpen(false)}>
+
+                      <UserCircle size={16} /> {t("nav.myAccount")}
+                    </Link>
+                  </>
+                )}
+
+                <div className="py-2.5">
+                  <LanguageSwitcher />
+                </div>
+
+                {isAuthenticated && pathname !== "/login" && (
+                  <button
+                    onClick={handleLogout}
+                    className="py-2.5 mt-2 text-body font-semibold text-red-600 flex items-center gap-3 border-t border-gray-100 w-full pt-3"
+                  >
+                    <LogOut size={16} /> {t("nav.signOut")}
+                  </button>
+                )}
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
 
+      </div>
       <CartDrawer isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
       <NotificationDrawer isOpen={isNotificationOpen} onClose={() => setIsNotificationOpen(false)} />
       <SearchPopup isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
-
-    </div>
+    </>
   );
 }
