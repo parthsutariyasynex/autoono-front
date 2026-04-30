@@ -119,6 +119,7 @@ export default function ProductsPage() {
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
   const [isMobileSortOpen, setIsMobileSortOpen] = useState(false);
   const [searchByTerm, setSearchByTerm] = useState("");
+  const [itemCodeTerm, setItemCodeTerm] = useState("");
 
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
   const [selectedImage, setSelectedImage] = useState("");
@@ -161,6 +162,14 @@ export default function ProductsPage() {
         changed = true;
       }
 
+      const ic = searchParams.get("item_code") || searchParams.get("itemCode") || "";
+      if (ic !== itemCodeTerm) {
+        setItemCodeTerm(ic);
+        setCurrentPage(1);
+        setProducts([]);
+        changed = true;
+      }
+
       const { filters, page, sortBy: parsedSortBy } = parseMagentoQueryParams(searchParams);
 
       if (JSON.stringify(filters) !== JSON.stringify(selectedFilters)) {
@@ -196,6 +205,7 @@ export default function ProductsPage() {
     if (currentPage > 1) next.set("page", String(currentPage));
     if (sortBy && sortBy !== "none") next.set("sortBy", sortBy);
     if (searchByTerm) next.set("search", searchByTerm);
+    if (itemCodeTerm) next.set("item_code", itemCodeTerm);
 
     Object.entries(selectedFilters).forEach(([key, values]) => {
       if (Array.isArray(values)) {
@@ -216,7 +226,7 @@ export default function ProductsPage() {
       const newUrl = `${window.location.pathname}${next.toString() ? `?${next.toString()}` : ""}`;
       router.replace(newUrl, { scroll: false });
     }
-  }, [selectedFilters, currentPage, sortBy, searchByTerm, isMounted, router, searchParams, isInitialized]);
+  }, [selectedFilters, currentPage, sortBy, searchByTerm, itemCodeTerm, isMounted, router, searchParams, isInitialized]);
 
   const toggleFavorite = async (product: any) => {
     const { product_id: productId } = product;
@@ -284,7 +294,8 @@ export default function ProductsPage() {
         const storeParam = selectedStoreCode ? `&storeCode=${encodeURIComponent(selectedStoreCode)}` : "";
         const categoryIdFromUrl = searchParams?.get("category") || "15";
         const searchByParam = searchByTerm ? `&search=${encodeURIComponent(searchByTerm)}` : "";
-        const url = `/api/category-products?${queryString ? queryString + "&" : ""}categoryId=${encodeURIComponent(categoryIdFromUrl)}&pageSize=${PAGE_SIZE}&lang=${fetchLocale}${storeParam}${searchByParam}`;
+        const itemCodeParam = itemCodeTerm ? `&item_code=${encodeURIComponent(itemCodeTerm)}` : "";
+        const url = `/api/category-products?${queryString ? queryString + "&" : ""}categoryId=${encodeURIComponent(categoryIdFromUrl)}&pageSize=${PAGE_SIZE}&lang=${fetchLocale}${storeParam}${searchByParam}${itemCodeParam}`;
         const res = await fetch(url, { headers, signal: abortController.signal });
         if (!res.ok) {
           if (res.status === 401) { localStorage.removeItem("token"); redirectToLogin(router); return; }
@@ -309,7 +320,7 @@ export default function ProductsPage() {
         if (data.filters) {
           setApiFilters(data.filters);
           // Capture baseline only on non-search loads (full filter set for the category).
-          if (!searchByTerm && Object.keys(debouncedFilters).length === 0) {
+          if (!searchByTerm && !itemCodeTerm && Object.keys(debouncedFilters).length === 0) {
             setBaselineFilters(data.filters);
           }
         }
@@ -323,7 +334,7 @@ export default function ProductsPage() {
     };
     loadProducts();
     return () => abortController.abort();
-  }, [router, currentPage, debouncedFilters, sortBy, selectedStoreCode, searchByTerm, isInitialized]);
+  }, [router, currentPage, debouncedFilters, sortBy, selectedStoreCode, searchByTerm, itemCodeTerm, isInitialized]);
   // Note: locale intentionally excluded — fetchLocale reads from window.location directly
   // Adding locale here causes double-fetch and abort race condition
 
@@ -332,9 +343,9 @@ export default function ProductsPage() {
   // the search results. This separate call grabs the full category filter list
   // so the sidebar shows every filter group regardless of search state.
   useEffect(() => {
-    // Only needed when deep-linking into a search URL — without a search,
-    // the main fetch already returns the full filter set.
-    if (!isInitialized || baselineFilters || !searchByTerm) return;
+    // Only needed when deep-linking into a search/item-code URL — without
+    // either, the main fetch already returns the full filter set.
+    if (!isInitialized || baselineFilters || (!searchByTerm && !itemCodeTerm)) return;
     const abortController = new AbortController();
     (async () => {
       try {
@@ -356,7 +367,7 @@ export default function ProductsPage() {
       }
     })();
     return () => abortController.abort();
-  }, [isInitialized, baselineFilters, searchByTerm, selectedStoreCode, searchParams]);
+  }, [isInitialized, baselineFilters, searchByTerm, itemCodeTerm, selectedStoreCode, searchParams]);
 
   const handleFilterChange = useCallback(
     (filters: Record<string, string[]>, labels: Record<string, { value: string; label: string }[]>) => {
@@ -366,8 +377,9 @@ export default function ProductsPage() {
     }, [],
   );
 
-  const clearAllFilters = () => { setSelectedFilters({}); setSelectedFilterLabels({}); setIsFavorite(false); setCurrentPage(1); setSearchByTerm(""); };
+  const clearAllFilters = () => { setSelectedFilters({}); setSelectedFilterLabels({}); setIsFavorite(false); setCurrentPage(1); setSearchByTerm(""); setItemCodeTerm(""); };
   const clearSearchBy = () => { setSearchByTerm(""); setCurrentPage(1); };
+  const clearItemCode = () => { setItemCodeTerm(""); setCurrentPage(1); };
 
   const removeSpecificFilter = (code: string, value: string) => {
     const nextFilters = { ...selectedFilters };
@@ -564,7 +576,7 @@ export default function ProductsPage() {
             selectedFilters={selectedFilters}
             isCollapsed={isSidebarCollapsed}
             setIsCollapsed={setIsSidebarCollapsed}
-            initialFilters={searchByTerm && baselineFilters ? baselineFilters : (apiFilters ?? [])}
+            initialFilters={(searchByTerm || itemCodeTerm) && baselineFilters ? baselineFilters : (apiFilters ?? [])}
           />
         </div>
 
@@ -580,7 +592,7 @@ export default function ProductsPage() {
             <div className="flex-1 overflow-y-auto">
               {/* Render SidebarFilter content directly — override its aside wrapper via CSS */}
               <div className="[&>aside]:!w-full [&>aside]:!h-auto [&>aside]:!static [&>aside]:!border-0 [&>aside]:!overflow-visible [&>aside>div]:!static [&>aside>div]:!h-auto [&>aside>div>div:first-child]:!hidden">
-                <SidebarFilter onFilterChange={(f, l) => { handleFilterChange(f, l); setIsMobileFilterOpen(false); }} selectedFilters={selectedFilters} isCollapsed={false} setIsCollapsed={() => { }} initialFilters={searchByTerm && baselineFilters ? baselineFilters : (apiFilters ?? [])} />
+                <SidebarFilter onFilterChange={(f, l) => { handleFilterChange(f, l); setIsMobileFilterOpen(false); }} selectedFilters={selectedFilters} isCollapsed={false} setIsCollapsed={() => { }} initialFilters={(searchByTerm || itemCodeTerm) && baselineFilters ? baselineFilters : (apiFilters ?? [])} />
               </div>
             </div>
             <div className="p-4 border-t border-gray-100 flex-shrink-0">
@@ -615,7 +627,7 @@ export default function ProductsPage() {
             {/* Active filter chips — wrapped in a stable-height slot so the
                 grid below doesn't jump when chips appear/disappear. */}
             <div className="min-h-[38px] flex items-center">
-              {(Object.keys(selectedFilterLabels).length > 0 || searchByTerm || isFavorite) && (
+              {(Object.keys(selectedFilterLabels).length > 0 || searchByTerm || itemCodeTerm || isFavorite) && (
                 <div className="flex items-center gap-2 overflow-x-auto custom-scrollbar-hide py-1 w-full">
                   <span className="text-caption font-black text-black uppercase tracking-tight whitespace-nowrap px-1">
                     {t("products.yourSelections")} :
@@ -623,6 +635,11 @@ export default function ProductsPage() {
                   {searchByTerm && (
                     <div className="flex items-center gap-1.5 bg-blue-50 border border-primary/30 px-3 py-1 rounded-lg text-caption font-bold text-primary whitespace-nowrap flex-shrink-0">
                       {searchByTerm} <button onClick={clearSearchBy} className="text-red-500 ml-0.5"><X size={12} strokeWidth={3} /></button>
+                    </div>
+                  )}
+                  {itemCodeTerm && (
+                    <div className="flex items-center gap-1.5 bg-blue-50 border border-primary/30 px-3 py-1 rounded-lg text-caption font-bold text-primary whitespace-nowrap flex-shrink-0">
+                      {itemCodeTerm} <button onClick={clearItemCode} className="text-red-500 ml-0.5"><X size={12} strokeWidth={3} /></button>
                     </div>
                   )}
                   {isFavorite && (
@@ -688,7 +705,7 @@ export default function ProductsPage() {
                   <Star className="w-5 h-5 fill-black text-black" /> {t("sidebar.favoriteProducts")}
                 </button>
                 <div className="flex flex-1 items-center gap-3 overflow-x-auto custom-scrollbar-hide max-w-[800px]">
-                  {(searchByTerm || isFavorite || Object.keys(selectedFilterLabels).length > 0) && (
+                  {(searchByTerm || itemCodeTerm || isFavorite || Object.keys(selectedFilterLabels).length > 0) && (
                     <span className="text-body-sm font-black text-black uppercase tracking-tight whitespace-nowrap">
                       {t("products.yourSelections")} :
                     </span>
@@ -698,6 +715,12 @@ export default function ProductsPage() {
                     <div className="flex items-center gap-1.5 bg-blue-50 border border-primary/30 px-3.5 py-1.5 rounded-lg text-body-sm font-bold text-primary shadow-sm whitespace-nowrap flex-shrink-0">
                       {searchByTerm}
                       <button onClick={clearSearchBy} className="hover:text-red-600 ml-1 transition-colors"><X size={14} strokeWidth={3} /></button>
+                    </div>
+                  )}
+                  {itemCodeTerm && (
+                    <div className="flex items-center gap-1.5 bg-blue-50 border border-primary/30 px-3.5 py-1.5 rounded-lg text-body-sm font-bold text-primary shadow-sm whitespace-nowrap flex-shrink-0">
+                      {itemCodeTerm}
+                      <button onClick={clearItemCode} className="hover:text-red-600 ml-1 transition-colors"><X size={14} strokeWidth={3} /></button>
                     </div>
                   )}
                   {isFavorite && (
@@ -711,7 +734,7 @@ export default function ProductsPage() {
                     </div>
                   )))}
                 </div>
-                {(Object.keys(selectedFilters).length > 0 || searchByTerm || isFavorite) && (
+                {(Object.keys(selectedFilters).length > 0 || searchByTerm || itemCodeTerm || isFavorite) && (
                   <button onClick={clearAllFilters} className="text-caption font-bold text-red-500 uppercase flex items-center gap-1.5 bg-red-50 px-3 py-1.5 rounded-lg flex-shrink-0 hover:bg-red-100 transition-colors">
                     <X size={12} strokeWidth={3} /> {t("products.clearAll")}
                   </button>

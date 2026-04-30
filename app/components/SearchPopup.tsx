@@ -87,7 +87,14 @@ const SearchPopup: React.FC<SearchPopupProps> = ({ isOpen, onClose }) => {
 
     const handleSuggestionClick = (suggestion: { label: string; sku: string }) => {
         const params = buildParamsWithContext();
-        params.set("search", suggestion.sku || suggestion.label);
+        // SKUs route through Magento's `itemCode` attribute filter (exact match);
+        // names route through `searchBy` (name search). Mixing them returns
+        // every category product because the name filter ignores SKU strings.
+        if (suggestion.sku) {
+            params.set("item_code", suggestion.sku);
+        } else {
+            params.set("search", suggestion.label);
+        }
 
         router.push(lp(`/products?${params.toString()}`));
         onClose();

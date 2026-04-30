@@ -73,16 +73,16 @@ export async function GET(request: NextRequest) {
         const itemCodeParam = searchParams.get("item_code") || searchParams.get("itemCode") || groupedParams["item_code"]?.[0] || groupedParams["itemCode"]?.[0] || "";
         const isSearching = !!(searchByParam || itemCodeParam);
 
-        // Step 3: Construct Magento URL with simple params (matching live API format)
-        // Match the live storefront URL convention: category page + `searchBy=<term>`
-        // keeps the search scoped to the category & store, instead of a global catalogsearch.
-        const searchQuery = searchByParam || itemCodeParam;
+        // Step 3: Construct Magento URL with simple params (matching live API format).
+        // `searchBy=<term>` is a name search; `itemCode=<sku>` is the SKU/item-code
+        // attribute filter — they are NOT interchangeable.
         const queryParts: string[] = [
             `currentPage=${encodeURIComponent(page)}`,
             `pageSize=${encodeURIComponent(pageSize)}`,
             `is_ajax=1`,
             `categoryId=${encodeURIComponent(categoryId)}`,
-            ...(isSearching ? [`searchBy=${encodeURIComponent(searchQuery)}`] : []),
+            ...(searchByParam ? [`searchBy=${encodeURIComponent(searchByParam)}`] : []),
+            ...(itemCodeParam ? [`itemCode=${encodeURIComponent(itemCodeParam)}`] : []),
         ];
 
         // Filters: mapping and joining grouped values
