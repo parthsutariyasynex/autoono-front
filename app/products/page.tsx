@@ -110,11 +110,6 @@ export default function ProductsPage() {
   const [selectedFilters, setSelectedFilters] = useState<Record<string, string[]>>({});
   const [selectedFilterLabels, setSelectedFilterLabels] = useState<Record<string, { value: string; label: string }[]>>({});
   const [apiFilters, setApiFilters] = useState<any[] | null>(null);
-  // Full filter set captured from a non-search load. Magento only returns filter
-  // groups that have matching values in the current result set, so a narrow
-  // search would otherwise hide most filters. We keep the full list so the
-  // sidebar stays stable across search state.
-  const [baselineFilters, setBaselineFilters] = useState<any[] | null>(null);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
   const [isMobileSortOpen, setIsMobileSortOpen] = useState(false);
@@ -157,8 +152,12 @@ export default function ProductsPage() {
       const sb = searchParams.get("search") || searchParams.get("searchBy") || "";
       if (sb !== searchByTerm) {
         setSearchByTerm(sb);
-        setCurrentPage(1); // Reset page on search change
-        setProducts([]);   // Clear old results
+        setCurrentPage(1);
+        setProducts([]);
+        // Entering a new search: reset filters so results start clean.
+        setSelectedFilters({});
+        setSelectedFilterLabels({});
+        setApiFilters(null);
         changed = true;
       }
 
@@ -167,6 +166,9 @@ export default function ProductsPage() {
         setItemCodeTerm(ic);
         setCurrentPage(1);
         setProducts([]);
+        setSelectedFilters({});
+        setSelectedFilterLabels({});
+        setApiFilters(null);
         changed = true;
       }
 
@@ -290,6 +292,10 @@ export default function ProductsPage() {
           fetchLocale = storeLower;
         }
         const headers: HeadersInit = { "Content-Type": "application/json", "Authorization": `Bearer ${token}`, "x-locale": fetchLocale };
+
+        // Always use category-products: it handles search + filters simultaneously and
+        // returns filter groups in the response. product-search is only used in the
+        // search popup typeahead — it ignores filter params and returns no filter groups.
         const queryString = formatMagentoQueryParams(debouncedFilters, currentPage, sortBy);
         const storeParam = selectedStoreCode ? `&storeCode=${encodeURIComponent(selectedStoreCode)}` : "";
         const categoryIdFromUrl = searchParams?.get("category") || "15";
@@ -319,10 +325,6 @@ export default function ProductsPage() {
         setTotalCount(total);
         if (data.filters) {
           setApiFilters(data.filters);
-          // Capture baseline only on non-search loads (full filter set for the category).
-          if (!searchByTerm && !itemCodeTerm && Object.keys(debouncedFilters).length === 0) {
-            setBaselineFilters(data.filters);
-          }
         }
       } catch (err: unknown) {
         if (err instanceof Error && err.name === "AbortError") return;
@@ -338,36 +340,6 @@ export default function ProductsPage() {
   // Note: locale intentionally excluded — fetchLocale reads from window.location directly
   // Adding locale here causes double-fetch and abort race condition
 
-  // One-time baseline filter fetch: when the user deep-links to a search URL
-  // (e.g. /products?search=ad), the main load returns only filters relevant to
-  // the search results. This separate call grabs the full category filter list
-  // so the sidebar shows every filter group regardless of search state.
-  useEffect(() => {
-    // Only needed when deep-linking into a search/item-code URL — without
-    // either, the main fetch already returns the full filter set.
-    if (!isInitialized || baselineFilters || (!searchByTerm && !itemCodeTerm)) return;
-    const abortController = new AbortController();
-    (async () => {
-      try {
-        const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
-        if (!token) return;
-        let fetchLocale = "en";
-        if (window.location.pathname.startsWith("/ar")) fetchLocale = "ar";
-        const headers: HeadersInit = { "Content-Type": "application/json", "Authorization": `Bearer ${token}`, "x-locale": fetchLocale };
-        const storeParam = selectedStoreCode ? `&storeCode=${encodeURIComponent(selectedStoreCode)}` : "";
-        const categoryIdFromUrl = searchParams?.get("category") || "15";
-        const url = `/api/category-products?categoryId=${encodeURIComponent(categoryIdFromUrl)}&pageSize=1&lang=${fetchLocale}${storeParam}`;
-        const res = await fetch(url, { headers, signal: abortController.signal });
-        if (!res.ok) return;
-        const data = await res.json();
-        if (abortController.signal.aborted) return;
-        if (Array.isArray(data.filters)) setBaselineFilters(data.filters);
-      } catch (err: unknown) {
-        if (err instanceof Error && err.name === "AbortError") return;
-      }
-    })();
-    return () => abortController.abort();
-  }, [isInitialized, baselineFilters, searchByTerm, itemCodeTerm, selectedStoreCode, searchParams]);
 
   const handleFilterChange = useCallback(
     (filters: Record<string, string[]>, labels: Record<string, { value: string; label: string }[]>) => {
@@ -562,6 +534,11 @@ export default function ProductsPage() {
     );
   };
 
+  // Sidebar always reflects exactly what the current category-products call returns.
+  // Magento narrows filter options to match the active query + selected filters,
+  // so the sidebar stays in sync with the result set automatically.
+  const sidebarFilters: any[] = apiFilters ?? [];
+
   /* ══════════════════════════════════════════════════════════════
      RENDER
   ══════════════════════════════════════════════════════════════ */
@@ -569,39 +546,42 @@ export default function ProductsPage() {
     <>
       <Suspense fallback={null}><SearchParamsReader onParams={handleParams} /></Suspense>
       <div className="flex">
-        {/* Desktop Sidebar Track */}
-        <div className="hidden xl:flex flex-col flex-shrink-0 self-stretch bg-white border-r border-gray-200">
-          <SidebarFilter
-            onFilterChange={handleFilterChange}
-            selectedFilters={selectedFilters}
-            isCollapsed={isSidebarCollapsed}
-            setIsCollapsed={setIsSidebarCollapsed}
-            initialFilters={(searchByTerm || itemCodeTerm) && baselineFilters ? baselineFilters : (apiFilters ?? [])}
-          />
-        </div>
+        {/* Desktop Sidebar — hidden for exact SKU lookup; shown for text search (filters returned by category-products) */}
+        {!itemCodeTerm && (
+          <div className="hidden xl:flex flex-col flex-shrink-0 self-stretch bg-white border-r border-gray-200">
+            <SidebarFilter
+              onFilterChange={handleFilterChange}
+              selectedFilters={selectedFilters}
+              isCollapsed={isSidebarCollapsed}
+              setIsCollapsed={setIsSidebarCollapsed}
+              initialFilters={sidebarFilters}
+            />
+          </div>
+        )}
 
-        {/* Mobile Filter Drawer */}
-        <Drawer isOpen={isMobileFilterOpen} onClose={() => setIsMobileFilterOpen(false)}>
-          <div className="flex flex-col h-full">
-            <div className="bg-primary px-5 py-4 flex items-center justify-between flex-shrink-0">
-              <h2 className="text-body-lg font-semibold text-black uppercase tracking-tight">{t("m.filter-options")}</h2>
-              {Object.keys(selectedFilters).length > 0 && (
-                <button onClick={() => { clearAllFilters(); setIsMobileFilterOpen(false); }} className="text-label font-semibold text-black/70 uppercase underline">{t("m.clear-all")}</button>
-              )}
-            </div>
-            <div className="flex-1 overflow-y-auto">
-              {/* Render SidebarFilter content directly — override its aside wrapper via CSS */}
-              <div className="[&>aside]:!w-full [&>aside]:!h-auto [&>aside]:!static [&>aside]:!border-0 [&>aside]:!overflow-visible [&>aside>div]:!static [&>aside>div]:!h-auto [&>aside>div>div:first-child]:!hidden">
-                <SidebarFilter onFilterChange={(f, l) => { handleFilterChange(f, l); setIsMobileFilterOpen(false); }} selectedFilters={selectedFilters} isCollapsed={false} setIsCollapsed={() => { }} initialFilters={(searchByTerm || itemCodeTerm) && baselineFilters ? baselineFilters : (apiFilters ?? [])} />
+        {/* Mobile Filter Drawer — not available for exact SKU lookup */}
+        {!itemCodeTerm && (
+          <Drawer isOpen={isMobileFilterOpen} onClose={() => setIsMobileFilterOpen(false)}>
+            <div className="flex flex-col h-full">
+              <div className="bg-primary px-5 py-4 flex items-center justify-between flex-shrink-0">
+                <h2 className="text-body-lg font-semibold text-black uppercase tracking-tight">{t("m.filter-options")}</h2>
+                {Object.keys(selectedFilters).length > 0 && (
+                  <button onClick={() => { clearAllFilters(); setIsMobileFilterOpen(false); }} className="text-label font-semibold text-black/70 uppercase underline">{t("m.clear-all")}</button>
+                )}
+              </div>
+              <div className="flex-1 overflow-y-auto">
+                <div className="[&>aside]:!w-full [&>aside]:!h-auto [&>aside]:!static [&>aside]:!border-0 [&>aside]:!overflow-visible [&>aside>div]:!static [&>aside>div]:!h-auto [&>aside>div>div:first-child]:!hidden">
+                  <SidebarFilter onFilterChange={(f, l) => { handleFilterChange(f, l); setIsMobileFilterOpen(false); }} selectedFilters={selectedFilters} isCollapsed={false} setIsCollapsed={() => { }} initialFilters={sidebarFilters} />
+                </div>
+              </div>
+              <div className="p-4 border-t border-gray-100 flex-shrink-0">
+                <button onClick={() => setIsMobileFilterOpen(false)} className="w-full h-[44px] bg-black text-white font-semibold uppercase text-body-sm tracking-widest rounded-lg active:scale-95 cursor-pointer">
+                  {t("m.apply-filters")}
+                </button>
               </div>
             </div>
-            <div className="p-4 border-t border-gray-100 flex-shrink-0">
-              <button onClick={() => setIsMobileFilterOpen(false)} className="w-full h-[44px] bg-black text-white font-semibold uppercase text-body-sm tracking-widest rounded-lg active:scale-95 cursor-pointer">
-                {t("m.apply-filters")}
-              </button>
-            </div>
-          </div>
-        </Drawer>
+          </Drawer>
+        )}
 
 
 
@@ -610,8 +590,8 @@ export default function ProductsPage() {
 
           {/* ── MOBILE CONTROLS ── */}
           <div className="xl:hidden flex flex-col gap-2 mb-3">
-            {/* Controls: 2 cols on mobile, 4 cols on tablet */}
-            <div className="grid grid-cols-3 gap-2">
+            {/* Controls: 2 cols for SKU lookup (no filters), 3 cols otherwise */}
+            <div className={`grid ${itemCodeTerm ? "grid-cols-2" : "grid-cols-3"} gap-2`}>
               <button onClick={() => router.push(lp("/favorites"))} className="h-[44px] bg-white border border-gray-200 rounded-xl flex items-center justify-center gap-2 text-label font-semibold uppercase tracking-wider shadow-sm active:scale-95 cursor-pointer">
                 <Star className="w-4 h-4 fill-black text-black" /> {t("m.favourite-products")}
               </button>
@@ -619,10 +599,12 @@ export default function ProductsPage() {
                 <ChevronDown className="w-4 h-4" />
                 {sortBy === "none" ? t("products.sortByDefault") : sortBy === "price-asc" ? t("products.sortByLowToHigh") : t("products.sortByHighToLow")}
               </button>
-              <button onClick={() => setIsMobileFilterOpen(true)} className="h-[44px] bg-white border border-gray-200 rounded-xl flex items-center justify-center gap-2 text-label font-semibold uppercase tracking-wider shadow-sm active:scale-95 cursor-pointer">
-                <Filter className="w-4 h-4" /> Filter
-                {Object.keys(selectedFilters).length > 0 && <span className="w-5 h-5 bg-primary rounded-full text-caption font-semibold flex items-center justify-center">{Object.keys(selectedFilters).length}</span>}
-              </button>
+              {!itemCodeTerm && (
+                <button onClick={() => setIsMobileFilterOpen(true)} className="h-[44px] bg-white border border-gray-200 rounded-xl flex items-center justify-center gap-2 text-label font-semibold uppercase tracking-wider shadow-sm active:scale-95 cursor-pointer">
+                  <Filter className="w-4 h-4" /> Filter
+                  {Object.keys(selectedFilters).length > 0 && <span className="w-5 h-5 bg-primary rounded-full text-caption font-semibold flex items-center justify-center">{Object.keys(selectedFilters).length}</span>}
+                </button>
+              )}
             </div>
             {/* Active filter chips — wrapped in a stable-height slot so the
                 grid below doesn't jump when chips appear/disappear. */}
@@ -697,7 +679,8 @@ export default function ProductsPage() {
           <div className="xl:hidden">{renderPagination(true)}</div>
 
           {/* ── DESKTOP CONTROLS + TABLE ── */}
-          <div className="hidden xl:flex flex-col bg-white rounded-none md:rounded-r-2xl shadow-sm border border-gray-200 border-l-0 overflow-hidden">
+          {/* For SKU lookup the sidebar is gone → full rounding; otherwise right-rounded only */}
+          <div className={`hidden xl:flex flex-col bg-white rounded-none shadow-sm border border-gray-200 overflow-hidden ${itemCodeTerm ? "md:rounded-2xl" : "md:rounded-r-2xl border-l-0"}`}>
             {/* Desktop header */}
             <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center gap-4 min-h-[60px]">
               <div className="flex items-center gap-4">

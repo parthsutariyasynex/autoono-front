@@ -58,7 +58,9 @@ const SearchPopup: React.FC<SearchPopupProps> = ({ isOpen, onClose }) => {
     // Drop listing-UI state (`page`, `sortBy`) and any prior search term.
     const buildParamsWithContext = () => {
         const params = new URLSearchParams();
-        const skip = new Set(["page", "sortBy", "search", "searchBy", "width", "height", "rim"]);
+        // Drop all prior search/filter state — each new search starts clean.
+        // store/category/storeCode are kept so search stays within the current scope.
+        const skip = new Set(["page", "sortBy", "search", "searchBy", "width", "height", "rim", "item_code", "itemCode"]);
         searchParams?.forEach((v, k) => { if (!skip.has(k)) params.append(k, v); });
         return params;
     };

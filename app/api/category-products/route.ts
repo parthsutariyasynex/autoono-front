@@ -69,8 +69,17 @@ export async function GET(request: NextRequest) {
             if (!groupedParams[baseKey].includes(value)) groupedParams[baseKey].push(value);
         });
 
-        const searchByParam = searchParams.get("search") || searchParams.get("searchBy") || groupedParams["search"]?.[0] || groupedParams["searchBy"]?.[0] || "";
-        const itemCodeParam = searchParams.get("item_code") || searchParams.get("itemCode") || groupedParams["item_code"]?.[0] || groupedParams["itemCode"]?.[0] || "";
+        // Combine bracketed multi-values (e.g. itemCode[0]=A&itemCode[1]=B) into
+        // a comma-joined string — Magento's `itemCode=A,B` accepts that form.
+        const joinValues = (...arrays: (string[] | undefined)[]) => {
+            const all: string[] = [];
+            arrays.forEach((arr) => arr?.forEach((v) => { if (v && !all.includes(v)) all.push(v); }));
+            return all.join(",");
+        };
+        const searchByParam = searchParams.get("search") || searchParams.get("searchBy") ||
+            joinValues(groupedParams["search"], groupedParams["searchBy"]) || "";
+        const itemCodeParam = searchParams.get("item_code") || searchParams.get("itemCode") ||
+            joinValues(groupedParams["item_code"], groupedParams["itemCode"]) || "";
         const isSearching = !!(searchByParam || itemCodeParam);
 
         // Step 3: Construct Magento URL with simple params (matching live API format).

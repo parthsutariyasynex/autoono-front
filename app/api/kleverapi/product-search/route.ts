@@ -15,9 +15,16 @@ export async function GET(request: Request) {
         // Use store-specific base URL if provided, otherwise fall back to locale-based base URL
         const BASE_URL = storeCode ? getStoreBaseUrl(storeCode) : getBaseUrl(request);
 
-        const queryString = searchParams.toString();
+        // Strip routing-only params that belong in the URL path, not the query string.
+        // store/storeCode is already encoded in BASE_URL (e.g. /rest/V101/V1/…);
+        // forwarding them again as query params confuses Magento.
+        const forwardParams = new URLSearchParams(searchParams.toString());
+        forwardParams.delete("store");
+        forwardParams.delete("storeCode");
+        const queryString = forwardParams.toString();
         const url = `${BASE_URL}/product-search${queryString ? `?${queryString}` : ""}`;
 
+        const t0 = Date.now();
         const response = await fetch(url, {
             method: "GET",
             headers: {
@@ -27,6 +34,8 @@ export async function GET(request: Request) {
             },
             cache: "no-store",
         });
+        const tMagento = Date.now() - t0;
+        console.log(`[product-search] ⏱ Magento ${tMagento}ms (${response.status}) q=${searchParams.get("query")} → ${url}`);
 
         const data = await response.json();
 
