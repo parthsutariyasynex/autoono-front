@@ -32,6 +32,9 @@ const rubik = Rubik({
 export const metadata: Metadata = {
   title: "AutoOno",
   description: "AutoOno",
+  icons: {
+    icon: "/favicon.ico",
+  },
 };
 
 export default async function RootLayout({

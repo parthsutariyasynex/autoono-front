@@ -200,7 +200,7 @@ export async function GET(request: NextRequest) {
                 if (code === "partsCategory") code = "parts_category";
                 if (code === "oilType") code = "oil_type";
                 if (code === "oilGrade") code = "grade";
-                if (code === "oilGrade") code = "grade";
+                if (code === "itemCode") code = "item_code";
 
                 return { ...f, code };
             });
