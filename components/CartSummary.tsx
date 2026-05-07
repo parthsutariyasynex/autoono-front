@@ -22,7 +22,7 @@ const CartSummary: React.FC<CartSummaryProps> = ({ subtotal, taxAmount, taxLabel
     return (
         <div className="lg:sticky lg:top-28 self-start bg-white border border-gray-100 rounded-sm shadow-[0_10px_40px_rgba(0,0,0,0.05)] overflow-hidden">
             {/* Header */}
-            <div className="bg-[#fcfcfc] px-6 py-4 border-b border-gray-100">
+            <div className="bg-surfacePage px-6 py-4 border-b border-gray-100">
                 <h2 className="text-label font-bold text-black uppercase tracking-[0.2em]">
                     {t("m.order-summary")}
                 </h2>

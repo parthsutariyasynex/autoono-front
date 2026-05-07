@@ -135,7 +135,7 @@ const FilterGroup = memo(({
 FilterGroup.displayName = "FilterGroup";
 
 function SidebarFilter({
-    categoryId = "15",
+    categoryId = "",
     selectedFilters = {},
     onFilterChange,
     isCollapsed: externalIsCollapsed,

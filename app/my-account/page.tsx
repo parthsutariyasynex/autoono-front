@@ -139,7 +139,7 @@ export default function MyAccountPage() {
     };
 
     const cardBase = "border border-gray-300 bg-white shadow-sm rounded-none";
-    const sectionHeader = "bg-[#f5f5f5] px-4 py-3 border-b border-gray-300 text-black font-bold uppercase text-body";
+    const sectionHeader = "bg-surfaceHover px-4 py-3 border-b border-gray-300 text-black font-bold uppercase text-body";
 
     const addresses = (customer as any).addresses as Address[] | undefined;
     const defaultBilling = addresses?.find((a: Address) => a.default_billing);
@@ -169,7 +169,7 @@ export default function MyAccountPage() {
         <>
 
 
-            <div className="min-h-screen flex flex-col w-full bg-[#fcfcfc]">
+            <div className="min-h-screen flex flex-col w-full bg-surfacePage">
                 <div className="flex flex-col lg:flex-row flex-1 w-full">
                     <Sidebar />
 
@@ -178,8 +178,8 @@ export default function MyAccountPage() {
 
                         {/* Sub-account Identity Banner */}
                         {isSubAccountSession && (
-                            <div className="bg-[#e7f6e7] border-l-4 border-[#2d8a2d] text-[#1b5e20] p-4 mb-8 flex items-center gap-3 animate-in fade-in slide-in-from-top duration-500 shadow-sm" role="alert">
-                                <span className="text-[#2d8a2d] font-bold text-lg">✔</span>
+                            <div className="bg-successLight border-l-4 border-successCheck text-successDark p-4 mb-8 flex items-center gap-3 animate-in fade-in slide-in-from-top duration-500 shadow-sm" role="alert">
+                                <span className="text-successCheck font-bold text-lg">✔</span>
                                 <p className="text-body-lg font-medium tracking-tight">{t("account.youAreLoggedAs")}</p>
                             </div>
                         )}

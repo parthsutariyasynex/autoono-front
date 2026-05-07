@@ -221,7 +221,7 @@ export default function MyForecastPage() {
         <div className="flex flex-col lg:flex-row min-h-screen">
             <Sidebar />
 
-            <main className="flex-1 p-4 md:p-8 bg-[#f9f9f9] min-h-screen" dir={isRtl ? "rtl" : "ltr"}>
+            <main className="flex-1 p-4 md:p-8 bg-surfaceWarm min-h-screen" dir={isRtl ? "rtl" : "ltr"}>
                 {/* Header with Refresh */}
                 <div className="flex justify-between items-center mb-6 md:mb-8">
                     <h1 className="text-[18px] md:text-h3 font-black text-black uppercase tracking-tight">
@@ -243,7 +243,7 @@ export default function MyForecastPage() {
 
                 <div className="bg-white border border-gray-200 rounded-sm mb-8 md:mb-12 shadow-sm overflow-hidden">
                     <div className="p-4 md:p-8">
-                        <div className="border-2 border-dashed border-gray-300 rounded-sm bg-[#eeeeee] px-4 md:px-6 py-6 md:py-8 flex flex-col items-center gap-4 md:gap-6">
+                        <div className="border-2 border-dashed border-gray-300 rounded-sm bg-surfaceDp px-4 md:px-6 py-6 md:py-8 flex flex-col items-center gap-4 md:gap-6">
                             <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
                                 <span className="text-body md:text-body-lg font-medium text-black">{t("forecast.dropFiles")}</span>
                                 <input
@@ -255,7 +255,7 @@ export default function MyForecastPage() {
                                 />
                                 <label
                                     htmlFor="file-upload"
-                                    className="bg-[#f0f0f0] border border-gray-400 px-4 py-1.5 text-body-sm md:text-body font-medium text-black cursor-pointer hover:bg-gray-200 transition-colors rounded-[2px]"
+                                    className="bg-surfaceSoft border border-gray-400 px-4 py-1.5 text-body-sm md:text-body font-medium text-black cursor-pointer hover:bg-gray-200 transition-colors rounded-[2px]"
                                 >
                                     {t("forecast.chooseFile")}
                                 </label>
@@ -277,7 +277,7 @@ export default function MyForecastPage() {
                         <button
                             onClick={handleUpload}
                             disabled={uploading}
-                            className="w-full sm:w-auto bg-[#f4b400] text-black text-body-sm md:text-body font-black px-8 md:px-12 py-2.5 md:py-2.5 uppercase tracking-wider hover:bg-black hover:text-white transition-all shadow-sm disabled:opacity-50"
+                            className="w-full sm:w-auto bg-warningAmber text-black text-body-sm md:text-body font-black px-8 md:px-12 py-2.5 md:py-2.5 uppercase tracking-wider hover:bg-black hover:text-white transition-all shadow-sm disabled:opacity-50"
                         >
                             {uploading ? t("forecast.uploading") : t("forecast.submit")}
                         </button>
@@ -285,13 +285,13 @@ export default function MyForecastPage() {
                 </div>
 
                 {/* Desktop Table Header */}
-                <div className="hidden sm:grid grid-cols-2 bg-[#fcfcfc] border border-gray-100 py-3 md:py-4 mb-2">
+                <div className="hidden sm:grid grid-cols-2 bg-surfacePage border border-gray-100 py-3 md:py-4 mb-2">
                     <span className="text-body-sm md:text-body font-black text-black px-4 md:px-6 ltr:text-left rtl:text-right">{t("forecast.fileName")}</span>
                     <span className={`text-body-sm md:text-body font-black text-black text-center ${isRtl ? 'border-r' : 'border-l'} border-gray-100`}>{t("forecast.uploadedDate")}</span>
                 </div>
 
                 {/* Mobile Header */}
-                <div className="sm:hidden bg-[#fcfcfc] border border-gray-100 py-3 mb-2 px-4">
+                <div className="sm:hidden bg-surfacePage border border-gray-100 py-3 mb-2 px-4">
                     <span className="text-body-sm font-black text-black">{t("forecast.files")}</span>
                 </div>
 
@@ -312,7 +312,7 @@ export default function MyForecastPage() {
                                             {file.file_name || file.filename || file.name || t("m.name")}
                                         </button>
                                         {downloadingId !== null && downloadingId === fileId && (
-                                            <div className="animate-spin h-3 w-3 border-b-2 border-[#f4b400] rounded-full flex-shrink-0 mt-1"></div>
+                                            <div className="animate-spin h-3 w-3 border-b-2 border-warningAmber rounded-full flex-shrink-0 mt-1"></div>
                                         )}
                                     </div>
                                     <span className="text-label text-black/50 font-medium mt-1 block">
@@ -330,7 +330,7 @@ export default function MyForecastPage() {
                                             {file.file_name || file.filename || file.name || t("m.name")}
                                         </button>
                                         {downloadingId !== null && downloadingId === fileId && (
-                                            <div className="animate-spin h-3 w-3 border-b-2 border-[#f4b400] rounded-full"></div>
+                                            <div className="animate-spin h-3 w-3 border-b-2 border-warningAmber rounded-full"></div>
                                         )}
                                     </div>
                                     <span className={`text-body text-black/80 font-medium text-center ${isRtl ? 'border-r' : 'border-l'} border-gray-50`}>
@@ -347,7 +347,7 @@ export default function MyForecastPage() {
                 </div>
 
                 {/* Pagination */}
-                <div className="bg-[#f2f2f2] mt-6 md:mt-10 py-3 md:py-3.5 px-3 md:px-6 flex flex-col sm:flex-row justify-between items-center gap-3 text-black/80 rounded-sm">
+                <div className="bg-surfaceDim mt-6 md:mt-10 py-3 md:py-3.5 px-3 md:px-6 flex flex-col sm:flex-row justify-between items-center gap-3 text-black/80 rounded-sm">
                     <div className="flex items-center gap-4 sm:gap-6">
                         <span className="text-label md:text-body-sm font-medium">{totalItems} {t("forecast.items")}</span>
                         <div className="flex items-center gap-2">

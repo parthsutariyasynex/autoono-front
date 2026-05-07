@@ -101,7 +101,7 @@ export default function MyAccountPage() {
     }
 
     const cardBase = "bg-white border border-gray-100 rounded-sm shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07)] overflow-hidden transition-all duration-300 hover:shadow-[0_8px_25px_-5px_rgba(0,0,0,0.1)]";
-    const sectionHeader = "bg-[#fcfcfc] px-4 md:px-6 py-3 md:py-4 border-b border-gray-50 text-black font-black tracking-wider uppercase text-body md:text-body-lg";
+    const sectionHeader = "bg-surfacePage px-4 md:px-6 py-3 md:py-4 border-b border-gray-50 text-black font-black tracking-wider uppercase text-body md:text-body-lg";
 
     const addresses = (customer as any).addresses as Address[] | undefined;
     const defaultBilling = addresses?.find((a: Address) => a.default_billing);
@@ -113,7 +113,7 @@ export default function MyAccountPage() {
                 <Sidebar />
 
                 {/* Right Content Area */}
-                <main className="flex-1 p-4 md:p-8 lg:p-10 bg-[#fcfcfc] min-h-0">
+                <main className="flex-1 p-4 md:p-8 lg:p-10 bg-surfacePage min-h-0">
                     <div className="w-full space-y-12">
 
                         <div className="flex items-center gap-4 mb-2">
@@ -127,8 +127,8 @@ export default function MyAccountPage() {
                             {/* CONTACT & COMPANY INFORMATION */}
                             <section className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                 {/* Contact Information */}
-                                <div className="bg-white border border-[#ebebeb] rounded-xl shadow-sm overflow-hidden transition-all duration-300 hover:shadow-md">
-                                    <div className="bg-gray-50/80 px-6 py-4 border-b border-[#ebebeb] flex justify-between items-center h-[60px]">
+                                <div className="bg-white border border-border rounded-xl shadow-sm overflow-hidden transition-all duration-300 hover:shadow-md">
+                                    <div className="bg-gray-50/80 px-6 py-4 border-b border-border flex justify-between items-center h-[60px]">
                                         <span className="text-black font-black tracking-widest uppercase text-label">Contact Information</span>
                                     </div>
                                     <div className="p-8 text-body text-black/80 space-y-4 font-medium leading-relaxed">
@@ -159,8 +159,8 @@ export default function MyAccountPage() {
                                 </div>
 
                                 {/* Company Information */}
-                                <div className="bg-white border border-[#ebebeb] rounded-xl shadow-sm overflow-hidden transition-all duration-300 hover:shadow-md">
-                                    <div className="bg-gray-50/80 px-6 py-4 border-b border-[#ebebeb] flex justify-between items-center h-[60px]">
+                                <div className="bg-white border border-border rounded-xl shadow-sm overflow-hidden transition-all duration-300 hover:shadow-md">
+                                    <div className="bg-gray-50/80 px-6 py-4 border-b border-border flex justify-between items-center h-[60px]">
                                         <span className="text-black font-black tracking-widest uppercase text-label">Company Information</span>
                                     </div>
                                     <div className="p-8 text-body text-black/80 space-y-4 font-medium leading-relaxed">
@@ -186,12 +186,12 @@ export default function MyAccountPage() {
 
                             {/* BUSINESS OVERVIEW & SALES DATA */}
                             <section className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                <div className="bg-white border border-[#ebebeb] rounded-xl shadow-sm overflow-hidden transition-all duration-300 hover:shadow-md">
-                                    <div className="bg-gray-50/80 px-6 py-4 border-b border-[#ebebeb] flex justify-between items-center h-[60px]">
+                                <div className="bg-white border border-border rounded-xl shadow-sm overflow-hidden transition-all duration-300 hover:shadow-md">
+                                    <div className="bg-gray-50/80 px-6 py-4 border-b border-border flex justify-between items-center h-[60px]">
                                         <span className="text-black font-black tracking-widest uppercase text-label">Business Overview</span>
                                         <button
                                             onClick={() => setIsEditModalOpen(true)}
-                                            className="bg-white border border-[#ebebeb] hover:border-primary hover:text-primary text-black text-micro font-black px-4 py-1.5 uppercase transition-all rounded-lg shadow-sm tracking-widest active:scale-95"
+                                            className="bg-white border border-border hover:border-primary hover:text-primary text-black text-micro font-black px-4 py-1.5 uppercase transition-all rounded-lg shadow-sm tracking-widest active:scale-95"
                                         >
                                             Edit
                                         </button>
@@ -204,8 +204,8 @@ export default function MyAccountPage() {
                                     </div>
                                 </div>
 
-                                <div className="bg-white border border-[#ebebeb] rounded-xl shadow-sm overflow-hidden transition-all duration-300 hover:shadow-md">
-                                    <div className="bg-gray-50/80 px-6 py-4 border-b border-[#ebebeb] flex justify-between items-center h-[60px]">
+                                <div className="bg-white border border-border rounded-xl shadow-sm overflow-hidden transition-all duration-300 hover:shadow-md">
+                                    <div className="bg-gray-50/80 px-6 py-4 border-b border-border flex justify-between items-center h-[60px]">
                                         <span className="text-black font-black tracking-widest uppercase text-label">Sales Performance</span>
                                     </div>
                                     <div className="p-8 text-body text-black/80 space-y-4 font-medium leading-relaxed">
@@ -223,10 +223,10 @@ export default function MyAccountPage() {
 
                             {/* ADDRESS BOOK */}
                             <section>
-                                <div className="bg-white border border-[#ebebeb] rounded-xl shadow-sm overflow-hidden transition-all duration-300 hover:shadow-md">
-                                    <div className="bg-gray-50/80 px-6 py-4 border-b border-[#ebebeb] flex justify-between items-center h-[60px]">
+                                <div className="bg-white border border-border rounded-xl shadow-sm overflow-hidden transition-all duration-300 hover:shadow-md">
+                                    <div className="bg-gray-50/80 px-6 py-4 border-b border-border flex justify-between items-center h-[60px]">
                                         <span className="text-black font-black tracking-widest uppercase text-label">Address Book</span>
-                                        <Link href={lp("/customer/address-book")} className="bg-white border border-[#ebebeb] hover:border-primary hover:text-primary text-black text-micro font-black px-4 py-1.5 uppercase transition-all rounded-lg shadow-sm tracking-widest active:scale-95">
+                                        <Link href={lp("/customer/address-book")} className="bg-white border border-border hover:border-primary hover:text-primary text-black text-micro font-black px-4 py-1.5 uppercase transition-all rounded-lg shadow-sm tracking-widest active:scale-95">
                                             Manage
                                         </Link>
                                     </div>

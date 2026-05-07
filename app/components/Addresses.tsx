@@ -39,8 +39,8 @@ type AddressCardProps = {
 
 function AddressCard({ title, address, onEdit, buttonLabel, t, isRtl }: AddressCardProps) {
   return (
-    <div className="bg-white border border-[#ebebeb] rounded-xl shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden flex flex-col h-full group">
-      <div className="bg-gray-50/80 px-5 py-4 border-b border-[#ebebeb] uppercase text-label font-black text-black tracking-widest ltr:text-left rtl:text-right group-hover:bg-primary/50 transition-colors">
+    <div className="bg-white border border-border rounded-xl shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden flex flex-col h-full group">
+      <div className="bg-gray-50/80 px-5 py-4 border-b border-border uppercase text-label font-black text-black tracking-widest ltr:text-left rtl:text-right group-hover:bg-primary/50 transition-colors">
         {title}
       </div>
       <div className="p-6 flex-grow ltr:text-left rtl:text-right">
@@ -202,11 +202,11 @@ export default function Addresses() {
           <div className="h-[2px] flex-1 bg-gradient-to-r from-primary to-transparent"></div>
         </div>
 
-        <div className="bg-white border border-[#ebebeb] rounded-xl shadow-sm overflow-hidden transition-all duration-300 hover:shadow-md">
+        <div className="bg-white border border-border rounded-xl shadow-sm overflow-hidden transition-all duration-300 hover:shadow-md">
           <div className="overflow-x-auto">
             <table className="w-full border-collapse min-w-[650px]">
               <thead>
-                <tr className="bg-gray-50/80 border-b border-[#ebebeb] text-black text-label font-black uppercase tracking-widest h-[60px]">
+                <tr className="bg-gray-50/80 border-b border-border text-black text-label font-black uppercase tracking-widest h-[60px]">
                   <th className="px-6 py-4 ltr:text-left rtl:text-right">{t("addressBook.firstName")}</th>
                   <th className="px-6 py-4 ltr:text-left rtl:text-right">{t("addressBook.lastName")}</th>
                   <th className="px-6 py-4 ltr:text-left rtl:text-right">{t("addressBook.streetAddress")}</th>

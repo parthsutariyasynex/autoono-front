@@ -328,8 +328,8 @@ const MultiShippingReviewPage: React.FC = () => {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8 mb-8 md:mb-12">
                     {/* Billing Address */}
-                    <div className="flex flex-col bg-[#f7f7f7] border border-gray-100">
-                        <div className="bg-[#e2e2e2] py-3 md:py-3.5 px-4 md:px-6 text-center">
+                    <div className="flex flex-col bg-surfaceAlt border border-gray-100">
+                        <div className="bg-borderMedium py-3 md:py-3.5 px-4 md:px-6 text-center">
                             <h2 className="text-label font-[900] text-black uppercase tracking-widest">
                                 {t("multi.billingAddress")}
                             </h2>
@@ -352,8 +352,8 @@ const MultiShippingReviewPage: React.FC = () => {
                     </div>
 
                     {/* Payment Method & Commitment */}
-                    <div className="flex flex-col bg-[#f7f7f7] border border-gray-100">
-                        <div className="bg-[#e2e2e2] py-3 md:py-3.5 px-4 md:px-6 text-center">
+                    <div className="flex flex-col bg-surfaceAlt border border-gray-100">
+                        <div className="bg-borderMedium py-3 md:py-3.5 px-4 md:px-6 text-center">
                             <h2 className="text-label font-[900] text-black uppercase tracking-widest">
                                 {t("multi.paymentMethod")}
                             </h2>
@@ -416,8 +416,8 @@ const MultiShippingReviewPage: React.FC = () => {
 
                             <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 md:gap-4">
                                 {/* Column 1: Shipping To */}
-                                <div className="flex flex-col bg-[#f7f7f7]">
-                                    <div className="bg-[#dadada] py-2.5 px-4 md:px-6 text-center">
+                                <div className="flex flex-col bg-surfaceAlt">
+                                    <div className="bg-surfaceBar py-2.5 px-4 md:px-6 text-center">
                                         <h2 className="text-label font-[900] text-black uppercase tracking-widest">{t("multi.shippingTo")}</h2>
                                     </div>
                                     <div className="p-5 md:p-8 text-body md:text-body-lg text-black leading-[1.7] flex-grow">
@@ -434,8 +434,8 @@ const MultiShippingReviewPage: React.FC = () => {
                                 </div>
 
                                 {/* Column 2: PO Number & Upload */}
-                                <div className="flex flex-col bg-[#f7f7f7]">
-                                    <div className="bg-[#dadada] py-2.5 px-4 md:px-6 text-center">
+                                <div className="flex flex-col bg-surfaceAlt">
+                                    <div className="bg-surfaceBar py-2.5 px-4 md:px-6 text-center">
                                         <h2 className="text-label font-[900] text-black uppercase tracking-widest">{t("multi.customerPo")}</h2>
                                     </div>
                                     <div className="p-5 md:p-8 space-y-4 md:space-y-6 flex-grow">
@@ -469,7 +469,7 @@ const MultiShippingReviewPage: React.FC = () => {
                                 </div>
 
                                 {/* Column 3: Items Table */}
-                                <div className="flex flex-col bg-[#f7f7f7]">
+                                <div className="flex flex-col bg-surfaceAlt">
                                     <div className="p-0 overflow-x-auto flex-grow">
                                         <table className="w-full text-left border-collapse min-w-[320px]">
                                             <thead>
@@ -528,7 +528,7 @@ const MultiShippingReviewPage: React.FC = () => {
                 </div>
 
                 {/* Final Actions */}
-                <div className="bg-[#f2f2f2] p-4 sm:p-6 md:p-8 flex flex-col sm:flex-row justify-between items-center gap-3 sm:gap-4">
+                <div className="bg-surfaceDim p-4 sm:p-6 md:p-8 flex flex-col sm:flex-row justify-between items-center gap-3 sm:gap-4">
                     <button
                         onClick={() => router.push(lp('/multi-location-delivery/billing'))}
                         className="w-full sm:w-auto bg-black text-white px-6 md:px-10 py-3.5 md:py-4 text-label font-black uppercase tracking-[0.15em] hover:opacity-90 transition-opacity text-center"

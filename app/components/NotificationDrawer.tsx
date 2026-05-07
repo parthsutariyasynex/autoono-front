@@ -102,7 +102,7 @@ export default function NotificationDrawer({ isOpen, onClose }: NotificationDraw
                             {notifications.map((item, index) => (
                                 <div
                                     key={`${item.notification_id || index}-${index}`}
-                                    className={`p-6 flex flex-col gap-1 transition-all relative border-l-4 ${!item.is_read ? "bg-[#fcf8ec] border-primary" : "bg-white border-transparent"
+                                    className={`p-6 flex flex-col gap-1 transition-all relative border-l-4 ${!item.is_read ? "bg-warningBgLight border-primary" : "bg-white border-transparent"
                                         }`}
                                 >
                                     {/* Header Row: Title & Remove */}

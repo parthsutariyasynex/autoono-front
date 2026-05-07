@@ -170,14 +170,14 @@ export default function MyStatementPage() {
                 <Sidebar />
 
                 {/* Right Content */}
-                <main className="flex-1 p-4 md:p-6 lg:p-8 bg-[#fcfcfc] min-h-0">
+                <main className="flex-1 p-4 md:p-6 lg:p-8 bg-surfacePage min-h-0">
                     <h1 className="text-[18px] sm:text-h3 md:text-h2 font-black text-black tracking-tight uppercase mb-4 md:mb-8">
                         {t("statement.title")}
                     </h1>
 
                     <div className="max-w-[700px] bg-white border border-gray-200 rounded-sm shadow-sm overflow-hidden">
                         {/* Card Header */}
-                        <div className="bg-[#f8f8f8] px-6 py-3 border-b border-gray-200">
+                        <div className="bg-surfaceMuted px-6 py-3 border-b border-gray-200">
                             <h2 className="text-body-lg font-bold text-black uppercase tracking-wide">
                                 {t("m.get-your-statement")}
                             </h2>

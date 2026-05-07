@@ -150,8 +150,8 @@ const MultiShippingBillingPage: React.FC = () => {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8 mb-8 md:mb-12">
                     {/* Billing Address Block */}
-                    <div className="flex flex-col bg-white border border-[#f0f0f0] shadow-sm">
-                        <div className="bg-[#e9e9e9] py-3 px-4 md:px-6 text-center">
+                    <div className="flex flex-col bg-white border border-surfaceSoft shadow-sm">
+                        <div className="bg-surfaceStrong py-3 px-4 md:px-6 text-center">
                             <h2 className="text-label font-black text-black uppercase tracking-widest leading-none">
                                 {t("multi.billingAddress")}
                             </h2>
@@ -174,8 +174,8 @@ const MultiShippingBillingPage: React.FC = () => {
                     </div>
 
                     {/* Payment Method Block */}
-                    <div className="flex flex-col bg-white border border-[#f0f0f0] shadow-sm">
-                        <div className="bg-[#e9e9e9] py-3 px-4 md:px-6 text-center">
+                    <div className="flex flex-col bg-white border border-surfaceSoft shadow-sm">
+                        <div className="bg-surfaceStrong py-3 px-4 md:px-6 text-center">
                             <h2 className="text-label font-black text-black uppercase tracking-widest leading-none">
                                 {t("multi.paymentMethod")}
                             </h2>
@@ -227,7 +227,7 @@ const MultiShippingBillingPage: React.FC = () => {
                 </div>
 
                 {/* Footer Actions */}
-                <div className="bg-[#f2f2f2] p-4 sm:p-6 md:p-8 flex flex-col sm:flex-row justify-between items-center gap-3 sm:gap-4">
+                <div className="bg-surfaceDim p-4 sm:p-6 md:p-8 flex flex-col sm:flex-row justify-between items-center gap-3 sm:gap-4">
                     <button
                         onClick={() => router.push(lp('/multi-location-delivery/shipping'))}
                         disabled={isSubmitting}

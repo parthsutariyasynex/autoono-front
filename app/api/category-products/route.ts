@@ -2,7 +2,7 @@ import { getServerSession } from "next-auth";
 import { getToken } from "next-auth/jwt";
 import { authOptions } from "@/lib/auth/auth-options";
 import { NextRequest } from "next/server";
-import { getBaseUrl, getLocaleFromRequest, getV101BaseUrl, getStoreBaseUrl } from "@/lib/api/magento-url";
+import { getBaseUrl, getGlobalBaseUrl, getLocaleFromRequest, getStoreBaseUrl } from "@/lib/api/magento-url";
 import { SESSION_COOKIE_NAME } from "@/lib/auth/constants";
 
 export async function GET(request: NextRequest) {
@@ -54,6 +54,7 @@ export async function GET(request: NextRequest) {
 
         // Step 2: Handle search parameters
         const { searchParams } = new URL(request.url);
+        // categoryId=15 is Magento's root/all-products category — required by category-products endpoint
         const categoryId = searchParams.get("categoryId") || "15";
         const page = searchParams.get("page") || "1";
         const pageSize = searchParams.get("pageSize") || "20";
@@ -89,8 +90,8 @@ export async function GET(request: NextRequest) {
             `currentPage=${encodeURIComponent(page)}`,
             `pageSize=${encodeURIComponent(pageSize)}`,
             `is_ajax=1`,
-            `categoryId=${encodeURIComponent(categoryId)}`,
-            ...(searchByParam ? [`searchBy=${encodeURIComponent(searchByParam)}`] : []),
+            ...(categoryId ? [`categoryId=${encodeURIComponent(categoryId)}`] : []),
+            ...(searchByParam ? [`query=${encodeURIComponent(searchByParam)}`] : []),
             ...(itemCodeParam ? [`itemCode=${encodeURIComponent(itemCodeParam)}`] : []),
         ];
 
@@ -136,10 +137,14 @@ export async function GET(request: NextRequest) {
         const resolvedLocale = getLocaleFromRequest(request);
         console.log("[category-products] LOCALE DEBUG: lang=" + langParam + " header=" + xLocaleHeader + " cookie=" + localeCookie + " resolved=" + resolvedLocale + " referer=" + referer);
 
-        // Choose the Magento base URL: storeCode from query takes priority,
-        // otherwise fall back to the resolved locale (en/ar) or V101 based on context.
-        const effectiveStoreCode = storeCode || resolvedLocale;
-        const primaryBaseUrl = getStoreBaseUrl(effectiveStoreCode);
+        // Choose the Magento base URL: explicit warehouse code (V101, V102…) takes priority.
+        // When no warehouse is selected, use the global /rest/V1/ endpoint — locale-prefixed
+        // URLs like /rest/en/ don't work with the kleverapi category-products endpoint.
+        const effectiveStoreCode = storeCode || "";
+        const LOCALE_CODES = ["en", "ar"];
+        const primaryBaseUrl = (effectiveStoreCode && !LOCALE_CODES.includes(effectiveStoreCode))
+            ? getStoreBaseUrl(effectiveStoreCode)
+            : getGlobalBaseUrl(request);
         // Always use /category-products so search runs within the current
         // category & store scope (matches the live storefront's `?searchBy=…` URL).
         const magentoEndpoint = "category-products";
@@ -176,7 +181,12 @@ export async function GET(request: NextRequest) {
 
         if (!res.ok) {
             const errBody = await res.text();
-            console.error("Magento category-products error:", res.status, errBody);
+            console.error(`[category-products] Magento ${res.status} for URL: ${magentoUrlStr} — ${errBody.slice(0, 300)}`);
+            // 400 = missing/invalid params (e.g. no categoryId for this store context).
+            // Return empty results so the UI shows "no products" instead of crashing.
+            if (res.status === 400) {
+                return Response.json({ products: [], items: [], total_count: 0, filters: [] });
+            }
             return Response.json(
                 { error: "Magento API error", details: errBody },
                 { status: res.status }

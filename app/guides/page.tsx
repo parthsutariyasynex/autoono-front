@@ -29,7 +29,7 @@ export default function UserGuidesPage() {
                     {/* Guide 1 */}
                     {/* <div className="w-full flex justify-center">
                         <div className="w-full border-[2px] border-gray-200 bg-white hover:border-gray-300 transition-colors duration-300 flex flex-col group cursor-pointer shadow-sm">
-                            <div className="relative w-full aspect-[16/9] bg-[#1a1a1e] flex items-center justify-center overflow-hidden">
+                            <div className="relative w-full aspect-[16/9] bg-surfaceDark flex items-center justify-center overflow-hidden">
                                 <img src="/images/Why-Btire-English.jpg" alt={t("guides.whyBtire")} className="w-full h-full object-cover" />
                                 <div className="absolute inset-0 flex items-center justify-center pointer-events-none transition-transform group-hover:scale-110 duration-300">
                                     <div className="w-14 h-14 bg-primary rounded-full flex items-center justify-center shadow-md">
@@ -46,7 +46,7 @@ export default function UserGuidesPage() {
                     {/* Guide 2 */}
                     {/* <div className="w-full flex justify-center">
                         <div className="w-full border-[2px] border-gray-200 bg-white hover:border-gray-300 transition-colors duration-300 flex flex-col group cursor-pointer shadow-sm">
-                            <div className="relative w-full aspect-[16/9] bg-[#1a1a1e] flex items-center justify-center overflow-hidden">
+                            <div className="relative w-full aspect-[16/9] bg-surfaceDark flex items-center justify-center overflow-hidden">
                                 <img src="/images/What-is-Btire-English.jpg" alt={t("guides.whatIsBtire")} className="w-full h-full object-cover" />
                                 <div className="absolute inset-0 flex items-center justify-center pointer-events-none transition-transform group-hover:scale-110 duration-300">
                                     <div className="w-14 h-14 bg-primary rounded-full flex items-center justify-center shadow-md">
@@ -63,7 +63,7 @@ export default function UserGuidesPage() {
                     {/* Guide 3 */}
                     {/* <div className="w-full flex justify-center">
                         <div className="w-full border-[2px] border-gray-200 bg-white hover:border-gray-300 transition-colors duration-300 flex flex-col group cursor-pointer shadow-sm">
-                            <div className="relative w-full aspect-[16/9] bg-[#1a1a1e] flex items-center justify-center overflow-hidden">
+                            <div className="relative w-full aspect-[16/9] bg-surfaceDark flex items-center justify-center overflow-hidden">
                                 <img src="/images/My-account-information-English.jpg" alt={t("guides.myAccountProfile")} className="w-full h-full object-cover" />
                                 <div className="absolute inset-0 flex items-center justify-center pointer-events-none transition-transform group-hover:scale-110 duration-300">
                                     <div className="w-14 h-14 bg-primary rounded-full flex items-center justify-center shadow-md">
@@ -80,7 +80,7 @@ export default function UserGuidesPage() {
                     {/* Guide 4 */}
                     {/* <div className="w-full flex justify-center">
                         <div className="w-full border-[2px] border-gray-200 bg-white hover:border-gray-300 transition-colors duration-300 flex flex-col group cursor-pointer shadow-sm">
-                            <div className="relative w-full aspect-[16/9] bg-[#1a1a1e] flex items-center justify-center overflow-hidden">
+                            <div className="relative w-full aspect-[16/9] bg-surfaceDark flex items-center justify-center overflow-hidden">
                                 <img src="/images/Create-an-order-english.jpg" alt={t("guides.btireOrderCycle")} className="w-full h-full object-cover" />
                                 <div className="absolute inset-0 flex items-center justify-center pointer-events-none transition-transform group-hover:scale-110 duration-300">
                                     <div className="w-14 h-14 bg-primary rounded-full flex items-center justify-center shadow-md">

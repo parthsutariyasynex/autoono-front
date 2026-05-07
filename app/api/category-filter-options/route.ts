@@ -13,7 +13,11 @@ export async function GET(req: NextRequest) {
         }
 
         const { searchParams } = new URL(req.url);
-        const categoryId = searchParams.get("categoryId") || "15";
+        const categoryId = searchParams.get("categoryId") || "";
+
+        if (!categoryId) {
+            return new Response(JSON.stringify([]), { headers: { "Content-Type": "application/json" } });
+        }
 
         const v101BaseUrl = getV101BaseUrl(req);
         const magentoUrl = `${v101BaseUrl}/category-filter-options?categoryId=${categoryId}`;

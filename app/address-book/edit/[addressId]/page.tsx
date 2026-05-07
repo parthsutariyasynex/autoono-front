@@ -147,7 +147,7 @@ export default function EditAddressPage() {
 
                         <div className="border border-gray-200 rounded-sm overflow-hidden">
                             {/* Section Header */}
-                            <div className="bg-[#fcfcfc] px-4 md:px-6 py-3 border-b border-gray-200">
+                            <div className="bg-surfacePage px-4 md:px-6 py-3 border-b border-gray-200">
                                 <h2 className="text-[17px] font-bold text-black uppercase tracking-wide">
                                     CONTACT INFORMATION
                                 </h2>
@@ -214,7 +214,7 @@ export default function EditAddressPage() {
                                         <button
                                             type="submit"
                                             disabled={saving}
-                                            className="bg-[#ffb12b] hover:bg-primaryHover text-black text-body-lg font-bold px-6 md:px-10 py-3 uppercase transition-colors rounded-[3px] shadow-sm tracking-wide disabled:opacity-50 flex items-center justify-center w-full sm:w-auto sm:min-w-[180px]"
+                                            className="bg-warningHoney hover:bg-primaryHover text-black text-body-lg font-bold px-6 md:px-10 py-3 uppercase transition-colors rounded-[3px] shadow-sm tracking-wide disabled:opacity-50 flex items-center justify-center w-full sm:w-auto sm:min-w-[180px]"
                                         >
                                             {saving ? (
                                                 <div className="h-5 w-5 animate-spin rounded-full border-2 border-black border-t-transparent"></div>

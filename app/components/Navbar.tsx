@@ -25,9 +25,10 @@ import SearchPopup from "./SearchPopup";
 import { useCart } from "@/modules/cart/hooks/useCart";
 import { useNotifications } from "@/modules/notifications/hooks/useNotifications";
 import { fetchCustomerInfo } from "@/store/actions/customerActions";
-import LanguageSwitcher from "@/components/LanguageSwitcher";
+
 import { useTranslation } from "@/hooks/useTranslation";
 import { useLocalePath } from "@/hooks/useLocalePath";
+import { isValidLocale } from "@/lib/i18n/config";
 
 interface NavLink {
   label: string;
@@ -38,65 +39,43 @@ interface NavLink {
   children?: { label: string; href: string }[];
 }
 
-const TARGET_CATEGORY_CODES = new Set(["all_lubricants", "all_tyres"]);
-
-function isWarehouseCategory(item: { label?: string; code?: string }): boolean {
-  if (item.code && TARGET_CATEGORY_CODES.has(item.code)) return true;
-  const l = (item.label || "").toLowerCase();
-  return l.includes("lubricants") || l.includes("tyre");
+// Any nav item that has a categoryId shows the warehouse dropdown on hover.
+function isWarehouseCategory(item: { label?: string; categoryId?: string | null }): boolean {
+  const label = (item.label || "").toLowerCase();
+  // Show warehouse dropdown for items with categoryId OR specific keywords
+  return !!item.categoryId || label.includes("lubricant") || label.includes("tyre");
 }
 
-// Warehouse item shape — populated dynamically from /api/kleverapi/source-permission/stores
-interface WarehouseItem { label: string; code: string; }
-
-const FALLBACK_NAV_KEYS: { key: string; href: string }[] = [
-  { key: "nav.allTyres", href: "/products" },
-  { key: "nav.quickOrder", href: "/quick-order" },
-  { key: "nav.aboutUs", href: "/about" },
-  { key: "nav.branchLocations", href: "/locations" },
-  { key: "nav.userGuides", href: "/guides" },
-  { key: "nav.productCatalogue", href: "/catalogue" },
-];
-
-// Map the Magento menu `code` (stable across locales) to the local translation key.
-// Use this to translate labels ourselves when the API returns them in the wrong
-// language — e.g. when the Arabic store view isn't translated in the admin.
-const CODE_TO_TRANSLATION_KEY: Record<string, string> = {
-  all_tyres: "nav.allTyres",
-  all_lubricants: "nav.allLubricants",
-  quick_order: "nav.quickOrder",
-  about_us: "nav.aboutUs",
-  branch_locations: "nav.branchLocations",
-  user_guides: "nav.userGuides",
-  product_catalogue: "nav.productCatalogue",
-};
-
-// Secondary href → translation-key lookup. Used when the Magento menu API
-// returns items WITHOUT a `code` field (or with codes we don't recognize).
-// Without this secondary lookup, the Navbar would render the raw Arabic label
-// returned by the previous fetch even after the user switched to EN, because
-// resolveLabel falls back to item.label.
-const HREF_TO_TRANSLATION_KEY: Record<string, string> = {
-  "/products": "nav.allTyres",
-  "/quick-order": "nav.quickOrder",
-  "/about": "nav.aboutUs",
-  "/locations": "nav.branchLocations",
-  "/guides": "nav.userGuides",
-  "/catalogue": "nav.productCatalogue",
-};
+// Warehouse item shape — populated dynamically from /api/kleverapi/source-permission
+interface WarehouseItem { label: string; code: string; storeUrl: string; }
 
 export default function Navbar() {
   const { data: session, status } = useSession();
   const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const currentStore = searchParams?.get("store") || "";
   const { t, isRtl, i18n } = useTranslation();
   const locale = i18n.language;
   const lp = useLocalePath();
+
+  // Store code lives in the URL path prefix (e.g. /V101_en/all-tyres) — not a query param.
+  // Fall back to ?store= for any legacy URLs that still carry it.
+  const STORE_CODE_RE = /^[A-Za-z0-9]+_(en|ar)$/;
+  const pathnameFirstSeg = pathname?.split("/").filter(Boolean)[0] || "";
+  const currentStore = (STORE_CODE_RE.test(pathnameFirstSeg) || isValidLocale(pathnameFirstSeg))
+    ? pathnameFirstSeg
+    : (searchParams?.get("store") || "");
+
+  // Strip locale or store-code prefix from a path for prefix-agnostic comparison.
+  const stripPrefix = (path: string) => {
+    const segs = (path || "").split("/").filter(Boolean);
+    const first = segs[0] || "";
+    if (isValidLocale(first) || STORE_CODE_RE.test(first)) return "/" + segs.slice(1).join("/") || "/";
+    return path || "/";
+  };
   const isAuthenticated = status === "authenticated";
   const { cart, refetchCart } = useCart();
-  const [navLinks, setNavLinks] = useState<NavLink[]>(FALLBACK_NAV_KEYS.map(n => ({ label: t(n.key), href: n.href })));
+  const [navLinks, setNavLinks] = useState<NavLink[]>([]);
   const [navLoading, setNavLoading] = useState(true);
   const [warehouseItems, setWarehouseItems] = useState<WarehouseItem[]>([]);
 
@@ -122,6 +101,7 @@ export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const { unreadCount, fetchNotifications: pullNotifications } = useNotifications();
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const logoutCalledRef = useRef(false);
 
   const cartCount = cart?.items_count || 0;
 
@@ -139,10 +119,14 @@ export default function Navbar() {
   useEffect(() => {
     if (status === "authenticated") {
       const sess = session as any;
-      if (sess?.error === "MagentoTokenExpired" || !sess?.accessToken) {
-        console.warn("[Navbar] Session has expired Magento token. Logging out.");
+      if (sess?.error === "MagentoTokenExpired" && !logoutCalledRef.current) {
+        logoutCalledRef.current = true;
         handleLogout();
       }
+    }
+    // Reset guard when session becomes valid again (fresh login)
+    if (status !== "authenticated") {
+      logoutCalledRef.current = false;
     }
   }, [status, session]);
 
@@ -184,55 +168,84 @@ export default function Navbar() {
 
   // Fetch dynamic menu from API (re-fetches when locale changes)
   useEffect(() => {
-    const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
-
-    // No token (login page) — use fallback links immediately, no API call
-    if (!token) {
-      setNavLinks(FALLBACK_NAV_KEYS.map(n => ({ label: t(n.key), href: n.href })));
-      setNavLoading(false);
-      return;
-    }
-
     let cancelled = false;
-    const fetchMenu = async () => {
+
+    const CACHE_KEY = `navmenu_${locale}`;
+    const CACHE_TTL = 24 * 60 * 60 * 1000; // 24 h
+
+    const toLinks = (raw: any[]): NavLink[] =>
+      raw.map((item: any) => ({
+        label: item.label,
+        href: item.href,
+        code: item.code,
+        magentoUrl: item.magentoUrl,
+        categoryId: item.categoryId ?? null,
+        children: item.children && item.children.length > 0 ? item.children : undefined,
+      }));
+
+    const applyLinks = (links: NavLink[]) => {
+      setNavLinks(links);
+      const firstCat = links.find((l) => l.categoryId);
+      if (firstCat?.categoryId && typeof sessionStorage !== "undefined") {
+        sessionStorage.setItem("defaultCategoryId", firstCat.categoryId);
+      }
+    };
+
+    const readLocalCache = (): NavLink[] | null => {
       try {
+        const raw = typeof window !== "undefined" ? localStorage.getItem(CACHE_KEY) : null;
+        if (!raw) return null;
+        const parsed = JSON.parse(raw);
+        if (parsed.expires > Date.now() && Array.isArray(parsed.items) && parsed.items.length > 0)
+          return parsed.items;
+      } catch { }
+      return null;
+    };
+
+    const fetchMenu = async () => {
+      // Immediately show cached data so menu appears before API responds
+      const localCached = readLocalCache();
+      if (localCached) {
+        applyLinks(localCached);
+        setNavLoading(false);
+      } else {
         setNavLoading(true);
-        // Use the `locale` React state directly. Reading window.location.pathname
-        // here caused stale values when the locale-changed event fired before
-        // router.push committed the new URL — which left the Navbar stuck in
-        // the previous locale until manual refresh (esp. noticeable on AR→EN).
+      }
+
+      try {
+        const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+
         const res = await fetch("/api/kleverapi/menu", {
           headers: {
             "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}`,
+            ...(token && { "Authorization": `Bearer ${token}` }),
             "x-locale": locale,
           },
         });
+
         if (cancelled) return;
+
         if (!res.ok) {
-          if (res.status === 401) handleLogout();
           throw new Error("Menu fetch failed");
         }
+
         const data = await res.json();
         if (cancelled) return;
 
         if (Array.isArray(data) && data.length > 0) {
-          // Store the RAW API label here. The actual displayed text is resolved at
-          // render time via `resolveLabel(item)` so a locale change (e.g. /en ↔ /ar)
-          // re-renders labels instantly without waiting for a new menu fetch.
-          setNavLinks(data.map((item: any) => ({
-            label: item.label,
-            href: item.href,
-            code: item.code,
-            magentoUrl: item.magentoUrl,
-            categoryId: item.categoryId ?? null,
-            children: item.children && item.children.length > 0 ? item.children : undefined,
-          })));
-        } else {
-          setNavLinks(FALLBACK_NAV_KEYS.map(n => ({ label: t(n.key), href: n.href, code: n.key })));
+          const links = toLinks(data);
+          applyLinks(links);
+          // Save fresh data to localStorage for future page loads
+          try {
+            localStorage.setItem(CACHE_KEY, JSON.stringify({ items: links, expires: Date.now() + CACHE_TTL }));
+          } catch { }
+        } else if (!localCached) {
+          setNavLinks([]);
         }
-      } catch {
-        setNavLinks(FALLBACK_NAV_KEYS.map(n => ({ label: t(n.key), href: n.href })));
+      } catch (err) {
+        console.error("[Navbar] Menu fetch error:", err);
+        // Keep the locally-cached links if we had them; only clear if nothing
+        if (!cancelled && !localCached) setNavLinks([]);
       } finally {
         if (!cancelled) setNavLoading(false);
       }
@@ -245,10 +258,7 @@ export default function Navbar() {
   // Fetch warehouse list for the "All Lubricants"/"All Tyres" dropdown.
   // Matches the live Magento site — enabled/disabled by admin via source-permission.
   useEffect(() => {
-    if (!isAuthenticated) return;
     const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
-    if (!token) return;
-
     let cancelled = false;
     (async () => {
       try {
@@ -261,7 +271,10 @@ export default function Navbar() {
           },
         });
         if (!res.ok) {
-          if (res.status === 401) handleLogout();
+          if (res.status === 401) {
+            setWarehouseItems([]);
+            return;
+          }
           throw new Error("source-permission fetch failed");
         }
         const data = await res.json();
@@ -269,35 +282,34 @@ export default function Navbar() {
         if (process.env.NODE_ENV !== "production") {
           console.log("[Navbar] source-permission raw response:", data);
         }
-        // Magento returns { has_restrictions, permitted_stores, total_count, permitted_store_ids }
         const raw: any[] = Array.isArray(data?.permitted_stores)
           ? data.permitted_stores
           : (Array.isArray(data) ? data : []);
 
-        // Magento returns one entry per store view; group by `group_name` so we show one
-        // dropdown item per warehouse (matching how the live site renders the list).
-        const groups = new Map<string, any[]>();
-        for (const s of raw) {
-          if (s?.is_active === false) continue;
-          const g = String(s.group_name ?? s.website_name ?? s.store_name ?? "");
-          if (!g) continue;
-          if (!groups.has(g)) groups.set(g, []);
-          groups.get(g)!.push(s);
-        }
+        // Filter by locale: only show stores that match the current language (matching live behavior).
+        const filtered = raw.filter((s) => 
+          s?.is_active !== false && 
+          (String(s.store_code).endsWith(`_${locale}`) || String(s.store_code) === locale)
+        );
 
-        // For each group, always prefer `ar` (user's rule — Warehouse must use code "ar").
-        // Fall back to `default` or the first entry if `ar` isn't in the group.
-        const mapped: WarehouseItem[] = Array.from(groups.entries()).map(([groupName, stores]) => {
-          const preferred = stores.find((s) => String(s.store_code).toLowerCase() === "ar")
-            ?? stores.find((s) => String(s.store_code).toLowerCase() === "default")
-            ?? stores[0];
+        // Map stores to WarehouseItem shape.
+        const mapped: WarehouseItem[] = filtered.map((s) => {
+          const storeCode = String(s.store_code ?? "");
+          const label = String(s.group_name || s.store_name || s.website_name || "");
+          
           return {
-            label: groupName,
-            code: String(preferred.store_code ?? ""),
+            label: label,
+            code: storeCode,
+            storeUrl: String(s.store_url ?? ""),
           };
-        }).filter((w) => !!w.code && !!w.label);
+        }).filter((w) => !!w.label);
 
         setWarehouseItems(mapped);
+        // Persist the first permitted warehouse so the products page can use it
+        // as a fallback when no store is selected (direct nav to "All Tyres").
+        if (mapped.length > 0 && typeof sessionStorage !== "undefined") {
+          sessionStorage.setItem("defaultStoreCode", mapped[0].code);
+        }
       } catch (err) {
         if (process.env.NODE_ENV !== "production") {
           console.warn("[Navbar] source-permission/stores fetch failed:", err);
@@ -315,38 +327,10 @@ export default function Navbar() {
   // This runs at render time, so toggling /en ↔ /ar re-renders labels instantly
   // without waiting for the menu re-fetch to complete.
   const resolveLabel = (item: { code?: string; href?: string; label?: string }): string => {
-    const byCode = item.code ? CODE_TO_TRANSLATION_KEY[item.code] : undefined;
-    if (byCode) {
-      const translated = t(byCode);
-      if (translated && translated !== byCode) return translated;
-    }
-    const hrefKey = item.href ? HREF_TO_TRANSLATION_KEY[item.href.replace(/^\/(en|ar)/, "")] : undefined;
-    if (hrefKey) {
-      const translated = t(hrefKey);
-      if (translated && translated !== hrefKey) return translated;
-    }
     return item.label || "";
   };
 
-  const handleStoreSelect = (storeName: string, storeCode: string, itemHref: string, categoryId?: string | null) => {
-    // Rule: ONLY the warehouse whose store code is "ar" switches the app to Arabic.
-    // Every other warehouse forces the app back to English — even if the user is
-    // currently on /ar, picking a non-ar warehouse should take them to /en.
-    const code = String(storeCode || "").toLowerCase();
-    const targetLocale = code === "ar" ? "ar" : "en";
 
-    const normalizedItemHref = itemHref.startsWith("/") ? itemHref : `/${itemHref}`;
-    const basePath = `/${targetLocale}${normalizedItemHref}`;
-
-    const params = new URLSearchParams();
-    if (categoryId) params.set("category", categoryId);
-    if (storeCode) params.set("store", storeCode);
-
-    const qs = params.toString();
-    const targetUrl = qs ? `${basePath}?${qs}` : basePath;
-
-    router.push(targetUrl);
-  };
 
   return (
     <>
@@ -379,10 +363,7 @@ export default function Navbar() {
             {/* RIGHT: Actions */}
             <div className="flex items-center gap-2 sm:gap-3 md:gap-5 flex-shrink-0 z-10">
 
-              {/* Language Switcher — desktop only (mobile has it in drawer) */}
-              <div className="hidden lg:block">
-                <LanguageSwitcher />
-              </div>
+
 
               {/* Welcome badge & Account Dropdown — md+ */}
               {isAuthenticated && !isLoadingName && pathname !== "/login" && (
@@ -512,13 +493,14 @@ export default function Navbar() {
             ) : (
               navLinks.map((item) => {
                 const isWarehouse = isWarehouseCategory(item);
-                // For warehouse-aware categories, defaults should be English.
-                const baseHref = isWarehouse ? `/en${item.href}` : lp(item.href);
-                const href = isWarehouse && item.categoryId
-                  ? `${baseHref}?category=${encodeURIComponent(item.categoryId)}`
-                  : baseHref;
+                // Strip prefix/extension, rebuild as /{storeOrLocale}/{path}.html
+                const cleanItemPath = stripPrefix(item.href.split("?")[0] || "/").replace(/\.html$/, "") || "/";
+                const seoItemPath = cleanItemPath === "/" ? cleanItemPath : `${cleanItemPath}.html`;
+                const prefix = currentStore || locale;
+                const href = `/${prefix}${seoItemPath}`;
 
-                const isActive = pathname === baseHref || pathname?.startsWith(baseHref + "/");
+                const strippedPathname = stripPrefix(pathname || "");
+                const isActive = strippedPathname === cleanItemPath || strippedPathname.startsWith(cleanItemPath + "/");
                 const children = isWarehouse ? undefined : item.children;
                 const hasChildren = (isWarehouse && warehouseItems.length > 0) || !!(children && children.length > 0);
 
@@ -539,28 +521,44 @@ export default function Navbar() {
                       <div className="absolute top-full left-0 w-56 bg-white shadow-[0_8px_24px_rgba(0,0,0,0.08)] opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-150 z-[100]">
                         <div className="flex flex-col py-1">
                           {isWarehouse
-                            ? warehouseItems.map((w) => {
-                              const isSelected = pathname?.startsWith(lp(item.href)) && currentStore === w.code;
+                            ? [...warehouseItems]
+                              .sort((a, b) => {
+                                if (a.code === currentStore) return -1;
+                                if (b.code === currentStore) return 1;
+                                return 0;
+                              })
+                              .map((w) => {
+                                const isSelected = currentStore === w.code;
+                                // Calculate target warehouse URL
+                                const cleanPath = stripPrefix(pathname || "/").replace(/\.html$/, "") || "/";
+                                const targetPrefix = w.code || locale;
+                                const seoPath = cleanPath === "/" ? cleanPath : `${cleanPath}.html`;
+                                const warehouseHref = `/${targetPrefix}${seoPath}`;
+
+                                return (
+                                  <Link
+                                    key={w.code}
+                                    href={warehouseHref}
+                                    className={`text-start px-6 py-2.5 text-body font-semibold transition-colors cursor-pointer ${isSelected ? "bg-primary/10 text-primary" : "text-black hover:bg-gray-50"}`}
+                                  >
+                                    {w.label}
+                                  </Link>
+                                );
+                              })
+                            : children?.map((child, idx) => {
+                              const childPath = stripPrefix(child.href.split("?")[0] || "/").replace(/\.html$/, "") || "/";
+                              const childSeoPath = childPath === "/" ? childPath : `${childPath}.html`;
+                              const childHref = `/${currentStore || locale}${childSeoPath}`;
                               return (
-                                <button
-                                  key={w.code}
-                                  type="button"
-                                  onClick={() => handleStoreSelect(w.label, w.code, item.href, item.categoryId)}
-                                  className={`text-start px-6 py-2.5 text-body font-semibold transition-colors cursor-pointer ${isSelected ? "bg-primary/10 text-primary" : "text-black hover:bg-gray-50"}`}
+                                <Link
+                                  key={idx}
+                                  href={childHref}
+                                  className="px-6 py-2.5 text-body font-semibold text-black hover:bg-gray-50 transition-colors"
                                 >
-                                  {w.label}
-                                </button>
+                                  {child.label}
+                                </Link>
                               );
-                            })
-                            : children?.map((child, idx) => (
-                              <Link
-                                key={idx}
-                                href={lp(child.href)}
-                                className="px-6 py-2.5 text-body font-semibold text-black hover:bg-gray-50 transition-colors"
-                              >
-                                {child.label}
-                              </Link>
-                            ))}
+                            })}
                         </div>
                       </div>
                     )}
@@ -595,12 +593,14 @@ export default function Navbar() {
                 <span className="text-micro font-bold text-black/50 uppercase tracking-[0.2em] block mb-2">{t("nav.navigation")}</span>
                 {navLinks.map((item) => {
                   const isWarehouse = isWarehouseCategory(item);
-                  const baseHref = isWarehouse ? `/en${item.href}` : lp(item.href);
-                  const href = isWarehouse && item.categoryId
-                    ? `${baseHref}?category=${encodeURIComponent(item.categoryId)}`
-                    : baseHref;
+                  // Strip prefix/extension, rebuild as /{storeOrLocale}/{path}.html
+                  const cleanItemPath = stripPrefix(item.href.split("?")[0] || "/").replace(/\.html$/, "") || "/";
+                  const seoItemPath = cleanItemPath === "/" ? cleanItemPath : `${cleanItemPath}.html`;
+                  const prefix = currentStore || locale;
+                  const href = `/${prefix}${seoItemPath}`;
 
-                  const isActive = pathname === baseHref || pathname?.startsWith(baseHref + "/");
+                  const strippedPathname = stripPrefix(pathname || "");
+                  const isActive = strippedPathname === cleanItemPath || strippedPathname.startsWith(cleanItemPath + "/");
                   return (
                     <div key={item.href}>
                       <Link
@@ -614,22 +614,31 @@ export default function Navbar() {
                       </Link>
                       {isWarehouse && warehouseItems.length > 0 && (
                         <div className="pl-3 border-l-2 border-gray-100 ml-1 mb-1">
-                          {warehouseItems.map((w) => {
-                            const isSelected = pathname?.startsWith(lp(item.href)) && currentStore === w.code;
-                            return (
-                              <button
-                                key={w.code}
-                                type="button"
-                                onClick={() => {
-                                  handleStoreSelect(w.label, w.code, item.href, item.categoryId);
-                                  setIsMenuOpen(false);
-                                }}
-                                className={`block w-full text-start py-2 text-label font-semibold cursor-pointer ${isSelected ? "text-primary" : "text-black/70 hover:text-primary"}`}
-                              >
-                                {w.label}
-                              </button>
-                            );
-                          })}
+                          {[...warehouseItems]
+                            .sort((a, b) => {
+                              if (a.code === currentStore) return -1;
+                              if (b.code === currentStore) return 1;
+                              return 0;
+                            })
+                            .map((w) => {
+                              const isSelected = currentStore === w.code;
+                              // Calculate target warehouse URL
+                              const cleanPath = stripPrefix(pathname || "/").replace(/\.html$/, "") || "/";
+                              const targetPrefix = w.code || locale;
+                              const seoPath = cleanPath === "/" ? cleanPath : `${cleanPath}.html`;
+                              const warehouseHref = `/${targetPrefix}${seoPath}`;
+
+                              return (
+                                <Link
+                                  key={w.code}
+                                  href={warehouseHref}
+                                  onClick={() => setIsMenuOpen(false)}
+                                  className={`block w-full text-start py-2 text-label font-semibold cursor-pointer ${isSelected ? "text-primary" : "text-black/70 hover:text-primary"}`}
+                                >
+                                  {w.label}
+                                </Link>
+                              );
+                            })}
                         </div>
                       )}
                     </div>
@@ -663,9 +672,6 @@ export default function Navbar() {
                   </>
                 )}
 
-                <div className="py-2.5">
-                  <LanguageSwitcher />
-                </div>
 
                 {isAuthenticated && pathname !== "/login" && (
                   <button

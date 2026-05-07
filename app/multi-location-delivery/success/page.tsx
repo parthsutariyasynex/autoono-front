@@ -39,6 +39,7 @@ const MultiShippingSuccessContent = () => {
     useEffect(() => {
         if (hasFetched) return;
         if (!orderId || orderId === "placed") {
+
             if (!orderId) router.push(lp("/"));
             setIsLoading(false);
             return;
@@ -123,7 +124,7 @@ const MultiShippingSuccessContent = () => {
 
                 <div className="border border-gray-200 shadow-sm overflow-hidden">
                     {/* Table Header */}
-                    <div className="flex bg-[#f8f8f8] border-b border-gray-200 py-3 px-6">
+                    <div className="flex bg-surfaceMuted border-b border-gray-200 py-3 px-6">
                         <div className="w-[180px] md:w-[220px] flex-shrink-0 text-body-sm md:text-body font-black text-black">{t("multi.orderId")}</div>
                         <div className="flex-1 text-body-sm md:text-body font-black text-black">{t("multi.shipTo")}</div>
                     </div>
@@ -133,7 +134,7 @@ const MultiShippingSuccessContent = () => {
                         {orders.length > 0 ? orders.map((order, index) => (
                             <div
                                 key={index}
-                                className="flex border-b border-gray-100 last:border-b-0 border-l-4 border-l-primary py-5 px-6 items-start bg-[#fafafa]"
+                                className="flex border-b border-gray-100 last:border-b-0 border-l-4 border-l-primary py-5 px-6 items-start bg-surfaceGhost"
                             >
                                 <div className="w-[180px] md:w-[220px] flex-shrink-0">
                                     <span className="text-body md:text-body-lg font-black text-black">
@@ -154,7 +155,7 @@ const MultiShippingSuccessContent = () => {
                     </div>
 
                     {/* Footer */}
-                    <div className="bg-[#f2f2f2] p-4 flex justify-end">
+                    <div className="bg-surfaceDim p-4 flex justify-end">
                         <Link
                             href={lp("/products")}
                             className="bg-primary text-black px-8 md:px-12 py-3 text-label font-black uppercase tracking-[0.1em] hover:bg-black hover:text-white transition-all shadow-sm"

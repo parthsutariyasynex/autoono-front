@@ -47,6 +47,7 @@ export function getMagentoAuthUrl(locale: Locale = defaultLocale): string {
 /**
  * Check if a string is a valid locale.
  */
-export function isValidLocale(value: string): value is Locale {
-    return locales.includes(value as Locale);
+export function isValidLocale(value: string): boolean {
+    if (locales.includes(value as Locale)) return true;
+    return /^[Vv]\d{3}_(en|ar)$/.test(value);
 }

@@ -1,28 +1,46 @@
 "use client";
 
 import { useLocale } from "../lib/i18n/client";
+import { usePathname } from "next/navigation";
+import { isValidLocale } from "../lib/i18n/config";
+
+const STORE_CODE_RE = /^[A-Za-z0-9]+_(en|ar)$/;
 
 /**
- * Returns a function that prefixes any path with the current locale.
- *
- * Usage:
- *   const lp = useLocalePath();
- *   <Link href={lp("/products")}>        → /en/products or /ar/products
- *   router.push(lp("/checkout"));        → /en/checkout or /ar/checkout
- *
- * If the path already has a locale prefix, it's returned as-is.
+ * Returns a function that prefixes any path with the current store code or locale.
+ * Store code is read from the URL path prefix (e.g. /V101_en/...) — not a query param.
+ * Prevents double prefixing by stripping any existing locale/store prefix first.
  */
 export function useLocalePath() {
   const locale = useLocale();
+  const pathname = usePathname();
+
+  // Read store code from path prefix (e.g. /V101_en/products → "V101_en")
+  const firstSeg = (pathname || "").split("/").filter(Boolean)[0] || "";
+  const currentStore = STORE_CODE_RE.test(firstSeg) ? firstSeg : "";
 
   return (path: string): string => {
-    // Already has locale prefix
-    if (path.startsWith("/en/") || path.startsWith("/ar/") || path === "/en" || path === "/ar") {
-      return path;
+    if (!path || path === "#") return path;
+
+    // Extract path and query string
+    const [pathPart, queryPart] = path.split("?");
+    const qs = queryPart ? `?${queryPart}` : "";
+
+    // Strip any existing locale or store-code prefix
+    const segs = (pathPart || "").split("/").filter(Boolean);
+    const first = segs[0] || "";
+    let cleanPath: string;
+    if (isValidLocale(first) || STORE_CODE_RE.test(first)) {
+      cleanPath = "/" + segs.slice(1).join("/") || "/";
+    } else {
+      cleanPath = pathPart || "/";
     }
-    // Root path
-    if (path === "/") return `/${locale}`;
-    // Normal path
-    return `/${locale}${path}`;
+    if (!cleanPath.startsWith("/")) cleanPath = "/" + cleanPath;
+
+    // Store code from path prefix takes priority over plain locale
+    const prefix = currentStore || locale;
+
+    if (cleanPath === "/") return `/${prefix}${qs}`;
+    return `/${prefix}${cleanPath}${qs}`;
   };
 }

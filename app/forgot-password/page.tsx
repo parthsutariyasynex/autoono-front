@@ -228,7 +228,7 @@ export default function ForgotPasswordPage() {
   };
 
   return (
-    <div className="flex-1 w-full min-h-full bg-[#f4f4f4] flex flex-col">
+    <div className="flex-1 w-full min-h-full bg-surfaceSubtle flex flex-col">
       <main className="flex-1 w-full flex justify-center items-start pt-6 sm:pt-8 md:pt-16 pb-8 sm:pb-12 px-4 md:px-0">
         <div className="w-full max-w-[440px] bg-white rounded-[3px] shadow-[0_10px_40px_rgba(0,0,0,0.08)] border border-gray-100 flex flex-col overflow-hidden">
 

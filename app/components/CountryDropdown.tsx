@@ -74,7 +74,7 @@ const CountryDropdown: React.FC<CountryDropdownProps> = ({ selectedCountryCode, 
                 <span className={`${selectedCountry.flagClass} flex-shrink-0`}></span>
                 <span
                     className="font-semibold text-[14px] sm:text-[15px] whitespace-nowrap leading-none"
-                    style={{ color: '#e02b27' }}
+                    style={{ color: 'var(--color-danger)' }}
                 >
                     {selectedCountry.code}
                 </span>
@@ -97,11 +97,11 @@ const CountryDropdown: React.FC<CountryDropdownProps> = ({ selectedCountryCode, 
                         >
                             <div className="flex items-center gap-3 sm:gap-4 min-w-0 flex-1">
                                 <span className={`${item.flagClass} scale-110 flex-shrink-0`}></span>
-                                <span className="text-[13px] sm:text-body font-semibold text-[#e02b27] group-hover:text-black transition-colors truncate">
+                                <span className="text-[13px] sm:text-body font-semibold text-danger group-hover:text-black transition-colors truncate">
                                     {item.country} ({item.nativeName})
                                 </span>
                             </div>
-                            <span className="text-body font-bold text-black group-hover:text-[#e02b27] transition-colors flex-shrink-0">
+                            <span className="text-body font-bold text-black group-hover:text-danger transition-colors flex-shrink-0">
                                 {item.code}
                             </span>
                         </div>

@@ -200,7 +200,7 @@ export default function FavouriteProducts({ title }: { title?: React.ReactNode }
             // Extract item code from SKU (remove year suffix e.g. "PSR02347-2025" → "PSR02347")
             const itemCode = product.sku?.replace(/-\d{4}$/, "") || product.sku;
 
-            const res = await fetch(`/api/category-products?categoryId=15&page=1&pageSize=5&itemCode=${itemCode}`, { headers });
+            const res = await fetch(`/api/category-products?page=1&pageSize=5&itemCode=${itemCode}`, { headers });
             if (res.ok) {
                 const data = await res.json();
                 const items = data.products || data.items || [];
@@ -347,14 +347,14 @@ export default function FavouriteProducts({ title }: { title?: React.ReactNode }
                 })}
             </div>
 
-            <div className="hidden xl:flex flex-col bg-white border border-[#ebebeb] overflow-hidden rounded-t-lg">
+            <div className="hidden xl:flex flex-col bg-white border border-border overflow-hidden rounded-t-lg">
                 <div className="flex-1 overflow-x-auto">
                     <table className="w-full border-collapse table-fixed min-w-[950px]">
                         <colgroup>
                             {COL_WIDTHS.map((w, i) => <col key={i} style={{ width: w }} />)}
                         </colgroup>
                         <thead className="sticky top-0 z-20">
-                            <tr className="bg-gray-50/80 text-black text-label font-semibold uppercase tracking-widest h-[60px] border-b border-[#ebebeb]">
+                            <tr className="bg-gray-50/80 text-black text-label font-semibold uppercase tracking-widest h-[60px] border-b border-border">
                                 {TABLE_HEADER_KEYS.map(key => (
                                     <th key={key} className="px-2 md:px-4 text-center">
                                         {t(key)}
@@ -478,7 +478,7 @@ export default function FavouriteProducts({ title }: { title?: React.ReactNode }
             </div>
 
             {/* Bottom Toolbar */}
-            <div className="bg-[#f5f5f5] border border-[#ebebeb] px-4 py-2 flex justify-between items-center mt-0 rounded-b-lg">
+            <div className="bg-surfaceHover border border-border px-4 py-2 flex justify-between items-center mt-0 rounded-b-lg">
                 <div className="text-body-sm font-semibold text-black uppercase tracking-tight">
                     {totalCount} {totalCount === 1 ? t("m.item") : t("m.items")}
                 </div>

@@ -11,7 +11,7 @@ const Sidebar = () => {
     const lp = useLocalePath();
 
     return (
-        <aside className="w-full md:w-[260px] flex-shrink-0 bg-[#f8f9fa] p-6 rounded-sm min-h-[600px]">
+        <aside className="w-full md:w-[260px] flex-shrink-0 bg-surfaceTint p-6 rounded-sm min-h-[600px]">
             <nav>
                 <ul className="text-body-lg flex flex-col gap-1">
                     {accountSidebarMenu.map((item, idx) => {

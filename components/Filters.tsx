@@ -151,7 +151,7 @@
 //                                                     onStatusChange(optionValue);
 //                                                     setIsStatusOpen(false);
 //                                                 }}
-//                                                 className={`w-full text-left px-4 py-2 text-body-lg text-black hover:bg-[#1a73e8] hover:text-white transition-colors flex justify-between items-center ${status === optionValue ? "bg-[#1a73e8] text-white font-bold" : ""}`}
+//                                                 className={`w-full text-left px-4 py-2 text-body-lg text-black hover:bg-info hover:text-white transition-colors flex justify-between items-center ${status === optionValue ? "bg-info text-white font-bold" : ""}`}
 //                                             >
 //                                                 <span>{optionLabel}</span>
 //                                             </button>
@@ -178,7 +178,7 @@
 //                             }
 //                         }}
 //                         placeholder="e.g. 000001"
-//                         className="w-full h-[42px] px-3 bg-[#f8f8f8] border border-gray-200 text-body-lg text-black/80 focus:outline-none focus:border-primary transition-colors rounded-[1px]"
+//                         className="w-full h-[42px] px-3 bg-surfaceMuted border border-gray-200 text-body-lg text-black/80 focus:outline-none focus:border-primary transition-colors rounded-[1px]"
 //                     />
 //                 </div>
 
@@ -321,7 +321,7 @@ const Filters: React.FC<FiltersProps> = ({
     }, [status, statusOptions]);
 
     return (
-        <div className="bg-white p-5 rounded-md shadow-sm border border-[#ebebeb] mb-8 mt-2 overflow-visible">
+        <div className="bg-white p-5 rounded-md shadow-sm border border-border mb-8 mt-2 overflow-visible">
             <div className="flex flex-col md:flex-row gap-5 items-end">
                 {/* Status Dropdown */}
                 <div className="flex flex-col gap-1.5 min-w-[180px]">

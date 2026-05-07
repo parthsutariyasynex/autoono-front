@@ -11,13 +11,12 @@ import { sendOtp } from "@/store/actions/authActions";
 import { RootState } from "@/store/store";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useLocalePath } from "@/hooks/useLocalePath";
-
 import CountryDropdown from "@/app/components/CountryDropdown";
 
 export default function LoginPage() {
   return (
     <Suspense fallback={
-      <div className="flex-1 bg-[#f4f4f4] flex items-center justify-center">
+      <div className="flex-1 bg-surfaceSubtle flex items-center justify-center">
         <div className="h-10 w-10 animate-spin rounded-full border-4 border-gray-200 border-t-primary"></div>
       </div>
     }>
@@ -41,12 +40,16 @@ function LoginPageContent() {
   useEffect(() => {
     if (status === "authenticated") {
       const sess = session as any;
-      if (sess?.error === "MagentoTokenExpired" || !sess?.accessToken) {
+      // Only force-signout on an explicit server-side expiry signal.
+      // Never signout on missing accessToken — it may just be hydrating.
+      if (sess?.error === "MagentoTokenExpired") {
         signOut({ redirect: false });
         return;
       }
-      const callbackUrl = searchParams.get("callbackUrl") || lp("/products");
-      window.location.href = callbackUrl;
+      if (sess?.accessToken) {
+        const callbackUrl = searchParams.get("callbackUrl") || lp("/products");
+        window.location.href = callbackUrl;
+      }
     }
   }, [status, session, lp, searchParams]);
 
@@ -144,7 +147,7 @@ function LoginPageContent() {
             await new Promise(r => setTimeout(r, 200));
           }
           toast.success(t("login.loginSuccess"));
-          const callbackUrl = searchParams.get("callbackUrl") || `/${locale}/products`;
+          const callbackUrl = searchParams.get("callbackUrl") || lp("/products");
           window.location.href = callbackUrl;
         } else {
           localStorage.removeItem("token");
@@ -184,7 +187,7 @@ function LoginPageContent() {
             await new Promise(r => setTimeout(r, 200));
           }
           toast.success(t("login.loginSuccess"));
-          const callbackUrl = searchParams.get("callbackUrl") || `/${locale}/products`;
+          const callbackUrl = searchParams.get("callbackUrl") || lp("/products");
           window.location.href = callbackUrl;
         } else {
           localStorage.removeItem("token");
@@ -199,7 +202,7 @@ function LoginPageContent() {
   };
 
   return (
-    <div className="flex-1 w-full min-h-full bg-[#f4f4f4] flex flex-col">
+    <div className="flex-1 w-full min-h-full bg-surfaceSubtle flex flex-col">
       <main className="flex-1 w-full flex justify-center items-start pt-6 sm:pt-8 md:pt-16 pb-8 sm:pb-12 px-4 md:px-0">
         <div className="w-full max-w-[440px] bg-white rounded-[3px] shadow-[0_10px_40px_rgba(0,0,0,0.08)] border border-gray-100">
           <div className="px-4 sm:px-6 md:px-8 pt-5 sm:pt-7 pb-4 sm:pb-5">

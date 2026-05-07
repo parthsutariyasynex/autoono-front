@@ -217,7 +217,7 @@ export default function OrderAttachmentsPage() {
     const handlePageSizeChange = (size: number) => { setPageSize(size); setCurrentPage(1); };
 
     return (
-        <div className="min-h-screen flex flex-col w-full bg-[#fcfcfc]">
+        <div className="min-h-screen flex flex-col w-full bg-surfacePage">
             <div className="flex flex-col lg:flex-row flex-1 w-full">
                 <Sidebar />
 
@@ -234,7 +234,7 @@ export default function OrderAttachmentsPage() {
                                 value={searchText}
                                 onChange={(e) => setSearchText(e.target.value)}
                                 placeholder={t("m.search")}
-                                className="w-full bg-white border border-[#ebebeb] rounded-md px-4 py-2.5 text-xs text-black focus:outline-none focus:border-primary placeholder:text-black/50 font-bold shadow-sm"
+                                className="w-full bg-white border border-border rounded-md px-4 py-2.5 text-xs text-black focus:outline-none focus:border-primary placeholder:text-black/50 font-bold shadow-sm"
                             />
                         </div>
                         <button
@@ -246,7 +246,7 @@ export default function OrderAttachmentsPage() {
                     </div>
 
                     {/* Filters Section */}
-                    <div className="flex flex-col sm:flex-row gap-4 items-end mb-6 md:mb-10 bg-white p-4 md:p-6 border border-[#ebebeb] rounded-md shadow-sm">
+                    <div className="flex flex-col sm:flex-row gap-4 items-end mb-6 md:mb-10 bg-white p-4 md:p-6 border border-border rounded-md shadow-sm">
                         <div className="w-full sm:w-auto sm:min-w-[200px]">
                             <label className="block text-xs font-black text-black mb-2 uppercase tracking-wider">{t("m.document-type")}</label>
                             <PortalDropdown
@@ -290,16 +290,16 @@ export default function OrderAttachmentsPage() {
                             </button>
                         </div>
                     ) : isLoading ? (
-                        <div className="bg-white p-16 flex flex-col items-center justify-center border border-[#ebebeb] rounded-md shadow-sm">
+                        <div className="bg-white p-16 flex flex-col items-center justify-center border border-border rounded-md shadow-sm">
                             <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary mb-4"></div>
                             <span className="text-xs font-bold text-black/50 uppercase tracking-widest">{t("common.loading")}</span>
                         </div>
                     ) : attachments.length > 0 ? (
                         <>
                             {/* Desktop Table */}
-                            <div className="hidden md:block overflow-x-auto w-full border border-[#ebebeb] rounded-md shadow-sm">
+                            <div className="hidden md:block overflow-x-auto w-full border border-border rounded-md shadow-sm">
                                 <table className="w-full border-collapse bg-white">
-                                    <thead className="bg-gray-50 border-b border-[#ebebeb]">
+                                    <thead className="bg-gray-50 border-b border-border">
                                         <tr className="h-[50px]">
                                             <th className="px-6 py-3 font-black text-xs text-black uppercase tracking-wider text-center">{t("orders.orderId")}</th>
                                             <th className="px-6 py-3 font-black text-xs text-black uppercase tracking-wider ltr:text-left rtl:text-right">{t("m.file-name")}</th>
@@ -321,7 +321,7 @@ export default function OrderAttachmentsPage() {
                                             const paymentStatus = attachment.payment || attachment.payment_status || "";
 
                                             return (
-                                                <tr key={attId} className={`${idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'} border-b border-[#ebebeb] hover:bg-primary/5 transition-colors text-xs`}>
+                                                <tr key={attId} className={`${idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'} border-b border-border hover:bg-primary/5 transition-colors text-xs`}>
                                                     <td className="px-6 py-4 text-center font-black">
                                                         <button onClick={() => handleViewOrder(attachment.order_id)} className="text-black hover:text-primary hover:underline transition-all cursor-pointer focus:outline-none">{orderDisplay}</button>
                                                     </td>
@@ -357,7 +357,7 @@ export default function OrderAttachmentsPage() {
                                     const paymentStatus = attachment.payment || attachment.payment_status || "";
 
                                     return (
-                                        <div key={attId} className="bg-white border border-[#ebebeb] rounded-md p-4 shadow-sm">
+                                        <div key={attId} className="bg-white border border-border rounded-md p-4 shadow-sm">
                                             <div className="flex items-start justify-between gap-3 mb-3">
                                                 <div className="min-w-0 flex-1">
                                                     <button
@@ -402,7 +402,7 @@ export default function OrderAttachmentsPage() {
                             )}
                         </>
                     ) : (
-                        <div className="border border-[#ebebeb] p-8 md:p-24 text-center rounded-md bg-white shadow-sm">
+                        <div className="border border-border p-8 md:p-24 text-center rounded-md bg-white shadow-sm">
                             <p className="text-black/50 italic text-xs uppercase tracking-widest">{t("orderAttachments.noRecords")}</p>
                         </div>
                     )}

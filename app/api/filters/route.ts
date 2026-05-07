@@ -40,7 +40,11 @@ export async function GET(request: NextRequest) {
 
         // Step 4: Get categoryId from query params
         const { searchParams } = new URL(request.url);
-        const categoryId = searchParams.get("categoryId") || "15";
+        const categoryId = searchParams.get("categoryId") || "";
+
+        if (!categoryId) {
+            return NextResponse.json([]);
+        }
 
         // Step 5: Fetch filter options from Magento
         const magentoUrl = `${baseUrl}/category-filter-options/${categoryId}`;

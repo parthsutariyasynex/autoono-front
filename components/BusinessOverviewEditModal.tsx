@@ -140,7 +140,7 @@ export default function BusinessOverviewEditModal({ isOpen, onClose, initialData
                 </div>
 
                 {/* Footer */}
-                <div className="bg-[#fcfcfc] px-6 md:px-8 py-5 border-t border-gray-100 flex justify-end gap-4 flex-shrink-0">
+                <div className="bg-surfacePage px-6 md:px-8 py-5 border-t border-gray-100 flex justify-end gap-4 flex-shrink-0">
                     <button
                         onClick={handleSave}
                         disabled={isSaving}

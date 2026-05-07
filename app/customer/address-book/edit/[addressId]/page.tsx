@@ -163,7 +163,7 @@ function EditAddressPageContent() {
             <div className="flex flex-col lg:flex-row flex-1 min-h-0 w-full min-w-full">
                 <Sidebar />
 
-                <main className="flex-1 w-full min-w-0 p-4 md:p-10 bg-[#fdfdfd]">
+                <main className="flex-1 w-full min-w-0 p-4 md:p-10 bg-surfaceOverlay">
                     <h1 className="text-h3 md:text-h1 font-black text-black uppercase tracking-tight mb-6 md:mb-10 px-1 md:px-0 ltr:text-left rtl:text-right">
                         {t("addressBook.editAddress")}
                     </h1>

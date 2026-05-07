@@ -55,7 +55,7 @@ export default function AddressBookPage() {
                 <Sidebar />
 
                 {/* Right Content */}
-                <main className="flex-1 p-4 md:p-6 lg:p-8 bg-[#fcfcfc] min-h-0">
+                <main className="flex-1 p-4 md:p-6 lg:p-8 bg-surfacePage min-h-0">
                     <div className="max-w-[1200px]">
                         <Addresses />
                     </div>

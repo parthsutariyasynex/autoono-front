@@ -7,6 +7,7 @@ import {
   useState,
   useCallback,
   ReactNode,
+  useRef,
 } from "react";
 import { getSession, signOut } from "next-auth/react";
 
@@ -84,8 +85,11 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const isFetching = useRef(false);
   const fetchCart = useCallback(async (showLoader = true, _retry = 0) => {
+    if (isFetching.current) return;
     try {
+      isFetching.current = true;
       if (showLoader) setIsLoading(true);
       setError(null);
 
@@ -158,6 +162,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       // Network error or backend unreachable — fail silently
       setCart(null);
     } finally {
+      isFetching.current = false;
       if (showLoader) setIsLoading(false);
     }
   }, []);
@@ -179,8 +184,16 @@ export function CartProvider({ children }: { children: ReactNode }) {
       const token = await getAuthToken();
       if (!token) throw new Error("Not authenticated");
 
-      // Requirement: Send the quantity to add. 
-      // Most Cart APIs handle the increment internally if the item already exists.
+      // Check if item already exists in cart to update its quantity instead of adding a duplicate
+      const existingItem = cart?.items?.find((item) => item.sku === sku);
+      
+      if (existingItem) {
+        // Increment existing quantity
+        const newQty = existingItem.qty + qty;
+        await updateCartItem(existingItem.item_id, newQty);
+        return;
+      }
+
       const res = await fetch("/api/kleverapi/cart/add", {
         method: "POST",
         headers: {

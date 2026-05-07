@@ -137,7 +137,7 @@ function EditAccountPageContent() {
         <div className="flex flex-col lg:flex-row flex-1 min-h-0 min-w-full">
             <Sidebar />
 
-            <main className="flex-1 p-6 md:p-12 min-h-0 bg-[#FDFDFD]">
+            <main className="flex-1 p-6 md:p-12 min-h-0 bg-surfaceOverlay">
                 <div className="w-full">
                     <h1 className="text-h3 sm:text-h2 md:text-h1-sm font-black text-black mb-6 md:mb-10 uppercase tracking-tight">
                         {t("account.editTitle")}
@@ -278,7 +278,7 @@ function EditAccountPageContent() {
                                             onChange={(e) => setNewPassword(e.target.value)}
                                             autoComplete="new-password"
                                         />
-                                        <div className="bg-[#f4f4f4] px-4 py-2 text-body-sm font-bold text-black/70 border border-gray-100 italic">
+                                        <div className="bg-surfaceSubtle px-4 py-2 text-body-sm font-bold text-black/70 border border-gray-100 italic">
                                             {t("account.passwordStrength")}: {newPassword.length === 0 ? t("account.noPassword") : newPassword.length < 8 ? t("account.weak") : newPassword.length < 12 ? t("account.medium") : t("account.strong")}
                                         </div>
                                     </div>

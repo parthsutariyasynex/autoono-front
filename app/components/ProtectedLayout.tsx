@@ -1,13 +1,14 @@
 'use client';
 
 import React, { ReactNode, useEffect, useState } from 'react';
-import { useSession, signOut } from 'next-auth/react';
+import { useSession } from 'next-auth/react';
 import { usePathname } from 'next/navigation';
 import { useDispatch } from 'react-redux';
 import Navbar from './Navbar';
 import Footer from './Footer';
 import ScrollToTop from './ScrollToTop';
 import { stripLocaleFromPath, useLocale } from '@/lib/i18n/client';
+import { useLocalePath } from '@/hooks/useLocalePath';
 
 interface ProtectedLayoutProps {
   children: ReactNode;
@@ -17,6 +18,7 @@ export default function ProtectedLayout({ children }: ProtectedLayoutProps) {
   const { data: session, status } = useSession();
   const pathname = usePathname();
   const locale = useLocale();
+  const lp = useLocalePath();
   const dispatch = useDispatch();
 
   const isAuthenticated = status === 'authenticated';
@@ -35,16 +37,6 @@ export default function ProtectedLayout({ children }: ProtectedLayoutProps) {
   useEffect(() => {
     if (status === 'authenticated') {
       setWasAuthenticated(true);
-
-      // Check if Magento token has expired (set by auth-options.ts JWT callback)
-      if ((session as any)?.error === 'MagentoTokenExpired') {
-        localStorage.removeItem('token');
-        dispatch({ type: 'LOGOUT' });
-        signOut({ redirect: false }).finally(() => {
-          window.location.href = `/${locale}/login`;
-        });
-        return;
-      }
 
       if ((session as any)?.accessToken) {
         const token = (session as any).accessToken;
@@ -71,10 +63,9 @@ export default function ProtectedLayout({ children }: ProtectedLayoutProps) {
   useEffect(() => {
     if (status === 'unauthenticated' && !isPublicPage) {
       localStorage.removeItem('token');
-      const loginUrl = `/${locale}/login?callbackUrl=${encodeURIComponent(pathname)}`;
-      window.location.href = loginUrl;
+      window.location.href = `${lp("/login")}?callbackUrl=${encodeURIComponent(pathname)}`;
     }
-  }, [status, isPublicPage, locale, pathname]);
+  }, [status, isPublicPage, lp, pathname]);
 
   // Show loading overlay while auth is checking on protected pages
   if (isLoading && !isPublicPage) {

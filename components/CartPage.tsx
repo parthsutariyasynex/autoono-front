@@ -73,8 +73,8 @@ const CartPage: React.FC = () => {
                 icon: '🗑️',
                 style: {
                     borderRadius: '16px',
-                    background: '#000',
-                    color: '#fff',
+                    background: 'var(--color-text)',
+                    color: 'var(--color-text-inverse)',
                     fontSize: '10px',
                     fontWeight: 'black',
                     textTransform: 'uppercase',
@@ -140,7 +140,7 @@ const CartPage: React.FC = () => {
     }
 
     return (
-        <div className="min-h-screen bg-[#FDFDFD] pb-4 lg:pb-10">
+        <div className="min-h-screen bg-surfaceOverlay pb-4 lg:pb-10">
             {/* Main Content Container */}
             <div className="w-full px-4 md:px-12 pt-8 md:pt-14">
 

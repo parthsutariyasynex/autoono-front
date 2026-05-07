@@ -1,3 +1,4 @@
+
 import { NextResponse } from "next/server";
 import { getBaseUrl } from "@/lib/api/magento-url";
 

@@ -22,11 +22,11 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders }) => {
     return (
         <div className="w-full">
             {/* Desktop Table */}
-            <div className="hidden md:block w-full bg-white border border-[#ebebeb] rounded-xl shadow-sm overflow-hidden transition-all duration-300 hover:shadow-md">
+            <div className="hidden md:block w-full bg-white border border-border rounded-xl shadow-sm overflow-hidden transition-all duration-300 hover:shadow-md">
                 <div className="overflow-x-auto">
                     <table className="w-full text-body text-left border-collapse min-w-[900px]">
                         <thead>
-                            <tr className="bg-gray-50/80 text-black text-label font-black uppercase tracking-widest h-[60px] border-b border-[#ebebeb]">
+                            <tr className="bg-gray-50/80 text-black text-label font-black uppercase tracking-widest h-[60px] border-b border-border">
                                 <th className="px-6 py-4 ltr:text-left rtl:text-right">{t("orders.orderId")}</th>
                                 <th className="px-6 py-4 ltr:text-left rtl:text-right">{t("orders.sapOrder")}</th>
                                 <th className="px-6 py-4 text-center whitespace-nowrap">{t("orders.date")}</th>
@@ -96,7 +96,7 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders }) => {
                     orders.map((order, idx) => (
                         <div
                             key={order.id + idx}
-                            className="bg-white border border-[#ebebeb] rounded-lg shadow-sm p-4 space-y-3"
+                            className="bg-white border border-border rounded-lg shadow-sm p-4 space-y-3"
                         >
                             {/* Order # + Date */}
                             <div className="flex items-center justify-between">
@@ -152,7 +152,7 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders }) => {
                         </div>
                     ))
                 ) : (
-                    <div className="bg-white border border-[#ebebeb] rounded-lg px-4 py-16 text-center">
+                    <div className="bg-white border border-border rounded-lg px-4 py-16 text-center">
                         <p className="text-black/50 text-xs italic tracking-[0.2em] uppercase font-black">
                             We couldn&apos;t find any records.
                         </p>

@@ -31,12 +31,12 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders, onViewOrder, onReorde
                 <table className="w-full text-body text-left border-collapse min-w-[700px]">
                     <thead>
                         <tr className="bg-primary text-black text-label uppercase font-bold tracking-widest">
-                            <th className="px-2 lg:px-4 py-4 border border-[#e6950f]/30">{t("orders.orderId")}</th>
-                            <th className="px-2 lg:px-4 py-4 border border-[#e6950f]/30 whitespace-nowrap text-center">{t("orders.date")}</th>
-                            <th className="px-2 lg:px-4 py-4 border border-[#e6950f]/30 whitespace-nowrap text-right">{t("orders.grandTotal")}</th>
-                            <th className="px-2 lg:px-4 py-4 border border-[#e6950f]/30 text-center">{t("orders.orderedBy")}</th>
-                            <th className="px-2 lg:px-4 py-4 border border-[#e6950f]/30 text-center">{t("orders.status")}</th>
-                            <th className="px-2 lg:px-4 py-4 border border-[#e6950f]/30 text-center">{t("orders.action")}</th>
+                            <th className="px-2 lg:px-4 py-4 border border-warning/30">{t("orders.orderId")}</th>
+                            <th className="px-2 lg:px-4 py-4 border border-warning/30 whitespace-nowrap text-center">{t("orders.date")}</th>
+                            <th className="px-2 lg:px-4 py-4 border border-warning/30 whitespace-nowrap text-right">{t("orders.grandTotal")}</th>
+                            <th className="px-2 lg:px-4 py-4 border border-warning/30 text-center">{t("orders.orderedBy")}</th>
+                            <th className="px-2 lg:px-4 py-4 border border-warning/30 text-center">{t("orders.status")}</th>
+                            <th className="px-2 lg:px-4 py-4 border border-warning/30 text-center">{t("orders.action")}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -63,7 +63,7 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders, onViewOrder, onReorde
                                         {order.orderedBy}
                                     </td>
                                     <td className="px-2 lg:px-4 py-3 border-r border-gray-200 text-center">
-                                        <span className={`inline-flex px-2 py-1 border rounded-sm text-caption font-bold uppercase tracking-wider bg-white whitespace-nowrap ${order.status?.toLowerCase().includes('pending') ? 'border-[#ccc] text-black' :
+                                        <span className={`inline-flex px-2 py-1 border rounded-sm text-caption font-bold uppercase tracking-wider bg-white whitespace-nowrap ${order.status?.toLowerCase().includes('pending') ? 'border-borderStrong text-black' :
                                             order.status?.toLowerCase().includes('complete') ? 'border-green-200 text-green-700 bg-green-50' :
                                                 order.status?.toLowerCase().includes('cancel') ? 'border-red-200 text-red-700 bg-red-50' :
                                                     'border-gray-200 text-black/80 bg-white'
@@ -138,7 +138,7 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders, onViewOrder, onReorde
 
                             {/* Status badge */}
                             <div>
-                                <span className={`inline-block px-2.5 py-1 border rounded-sm text-caption font-bold uppercase tracking-wider bg-white ${order.status?.toLowerCase().includes('pending') ? 'border-[#ccc] text-black' :
+                                <span className={`inline-block px-2.5 py-1 border rounded-sm text-caption font-bold uppercase tracking-wider bg-white ${order.status?.toLowerCase().includes('pending') ? 'border-borderStrong text-black' :
                                     order.status?.toLowerCase().includes('complete') ? 'border-green-200 text-green-700 bg-green-50' :
                                         order.status?.toLowerCase().includes('cancel') ? 'border-red-200 text-red-700 bg-red-50' :
                                             'border-gray-300 text-black/80 bg-white'

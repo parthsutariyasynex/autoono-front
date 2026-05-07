@@ -522,7 +522,7 @@ export default function OrderDetailsPage() {
 
     if (authStatus === "loading" || (isLoading && !order)) {
         return (
-            <div className="min-h-screen flex flex-col w-full bg-[#fcfcfc]">
+            <div className="min-h-screen flex flex-col w-full bg-surfacePage">
                 <div className="flex flex-col lg:flex-row flex-1 w-full">
                     <Sidebar />
                     <main className="flex-1 w-full flex items-center justify-center p-4 md:p-8">
@@ -535,7 +535,7 @@ export default function OrderDetailsPage() {
 
     if (error) {
         return (
-            <div className="min-h-screen flex flex-col w-full bg-[#fcfcfc]">
+            <div className="min-h-screen flex flex-col w-full bg-surfacePage">
                 <div className="flex flex-col lg:flex-row flex-1 w-full">
                     <Sidebar />
                     <main className="flex-1 w-full px-4 md:px-6 lg:px-8 py-10">
@@ -564,7 +564,7 @@ export default function OrderDetailsPage() {
     const paymentMethod = order.payment?.additional_information?.[0] || order.payment?.method || "N/A";
 
     return (
-        <div className="min-h-screen flex flex-col w-full bg-[#fcfcfc]">
+        <div className="min-h-screen flex flex-col w-full bg-surfacePage">
             <div className="flex flex-col lg:flex-row flex-1 w-full">
                 {/* Left Sidebar */}
                 <Sidebar />
@@ -579,7 +579,7 @@ export default function OrderDetailsPage() {
                                     {safeTranslate("orderHash", "ORDER #")} {order.increment_id}
                                 </h1>
 
-                                <span className={`inline-flex px-4 py-1.5 border rounded-sm text-caption md:text-label font-bold uppercase tracking-widest bg-white ${order.status?.toLowerCase().includes('pending') ? 'border-[#d1d1d1] text-black' :
+                                <span className={`inline-flex px-4 py-1.5 border rounded-sm text-caption md:text-label font-bold uppercase tracking-widest bg-white ${order.status?.toLowerCase().includes('pending') ? 'border-borderSoft text-black' :
                                     order.status?.toLowerCase().includes('complete') ? 'border-green-300 text-green-700 bg-green-50' :
                                         order.status?.toLowerCase().includes('cancel') ? 'border-red-300 text-red-700 bg-red-50' :
                                             'border-gray-300 text-black/80 bg-white'
@@ -639,7 +639,7 @@ export default function OrderDetailsPage() {
                             <button
                                 onClick={handlePrintOrder}
                                 disabled={isPrinting}
-                                className={`bg-white hover:bg-gray-50 text-black font-black py-2.5 px-6 md:px-8 rounded-md text-label uppercase tracking-widest transition-all border border-[#ebebeb] shadow-sm flex items-center justify-center gap-2 no-print active:scale-95 w-full sm:w-auto ${isPrinting ? 'opacity-70 cursor-not-allowed' : ''}`}
+                                className={`bg-white hover:bg-gray-50 text-black font-black py-2.5 px-6 md:px-8 rounded-md text-label uppercase tracking-widest transition-all border border-border shadow-sm flex items-center justify-center gap-2 no-print active:scale-95 w-full sm:w-auto ${isPrinting ? 'opacity-70 cursor-not-allowed' : ''}`}
                             >
                                 {isPrinting ? (
                                     <div className="animate-spin rounded-full h-4 w-4 border-2 border-black border-t-transparent"></div>
@@ -657,8 +657,8 @@ export default function OrderDetailsPage() {
                     </div>
 
                     {/* Items Ordered Table */}
-                    <div className="bg-white rounded-md border border-[#ebebeb] overflow-hidden mb-10 shadow-sm">
-                        <div className="border-b border-[#ebebeb] px-3 md:px-6 py-3 md:py-4 bg-gray-50">
+                    <div className="bg-white rounded-md border border-border overflow-hidden mb-10 shadow-sm">
+                        <div className="border-b border-border px-3 md:px-6 py-3 md:py-4 bg-gray-50">
                             <h2 className="text-xs font-black text-black uppercase tracking-widest">
                                 {safeTranslate("itemsOrdered", "Items Ordered")}
                             </h2>
@@ -666,7 +666,7 @@ export default function OrderDetailsPage() {
                         {/* Desktop Table */}
                         <div className="hidden md:block overflow-x-auto">
                             <table className="w-full text-start min-w-[500px]">
-                                <thead className="bg-gray-50/50 text-label font-black text-black uppercase border-b border-[#ebebeb]">
+                                <thead className="bg-gray-50/50 text-label font-black text-black uppercase border-b border-border">
                                     <tr>
                                         <th className="px-3 md:px-6 py-3 md:py-4 tracking-widest text-start">{safeTranslate("productName", "Product Name")}</th>
                                         <th className="px-3 md:px-6 py-3 md:py-4 tracking-widest text-center">{safeTranslate("sku", "SKU")}</th>
@@ -675,7 +675,7 @@ export default function OrderDetailsPage() {
                                         <th className="px-3 md:px-6 py-3 md:py-4 tracking-widest text-end">{safeTranslate("subtotal", "Subtotal")}</th>
                                     </tr>
                                 </thead>
-                                <tbody className="divide-y divide-[#ebebeb]">
+                                <tbody className="divide-y divide-border">
                                     {order.items?.map((item: any, idx: number) => (
                                         <tr key={item.item_id || item.id} className={`text-xs hover:bg-primary/5 transition-colors ${idx % 2 !== 0 ? 'bg-gray-50' : 'bg-white'}`}>
                                             <td className="px-3 md:px-6 py-3 md:py-5 text-black font-bold text-start">
@@ -701,7 +701,7 @@ export default function OrderDetailsPage() {
                         </div>
 
                         {/* Mobile Card View */}
-                        <div className="md:hidden divide-y divide-[#ebebeb]">
+                        <div className="md:hidden divide-y divide-border">
                             {order.items?.map((item: any, idx: number) => (
                                 <div key={item.item_id || item.id} className={`p-4 text-xs ${idx % 2 !== 0 ? 'bg-gray-50' : 'bg-white'}`}>
                                     <p className="text-black font-black text-sm mb-2">{item.name}</p>
@@ -727,7 +727,7 @@ export default function OrderDetailsPage() {
                         </div>
 
                         {/* Order Summary */}
-                        <div className="flex ltr:justify-end rtl:justify-start p-4 md:p-8 bg-gray-50/30 border-t border-[#ebebeb]">
+                        <div className="flex ltr:justify-end rtl:justify-start p-4 md:p-8 bg-gray-50/30 border-t border-border">
                             <div className="w-full max-w-[340px] space-y-3">
                                 <div className="flex justify-between items-center text-xs">
                                     <span className="text-black/50 font-bold uppercase tracking-widest flex-1 text-end me-10">{safeTranslate("itemsTotal", "Items Total")}</span>
@@ -773,8 +773,8 @@ export default function OrderDetailsPage() {
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8">
                             {/* Shipping Address */}
-                            <div className="bg-white border border-[#ebebeb] rounded-md shadow-sm overflow-hidden">
-                                <div className="bg-gray-50 px-5 py-3 border-b border-[#ebebeb]">
+                            <div className="bg-white border border-border rounded-md shadow-sm overflow-hidden">
+                                <div className="bg-gray-50 px-5 py-3 border-b border-border">
                                     <h3 className="text-xs font-black text-black uppercase tracking-widest">{safeTranslate("shippingAddress", "Shipping Address")}</h3>
                                 </div>
                                 <div className="p-4 md:p-6 text-xs text-black/70 leading-relaxed min-h-[140px]">
@@ -796,8 +796,8 @@ export default function OrderDetailsPage() {
                             </div>
 
                             {/* Shipping Method */}
-                            <div className="bg-white border border-[#ebebeb] rounded-md shadow-sm overflow-hidden">
-                                <div className="bg-gray-50 px-5 py-3 border-b border-[#ebebeb]">
+                            <div className="bg-white border border-border rounded-md shadow-sm overflow-hidden">
+                                <div className="bg-gray-50 px-5 py-3 border-b border-border">
                                     <h3 className="text-xs font-black text-black uppercase tracking-widest">{safeTranslate("shippingMethod", "Shipping Method")}</h3>
 
                                 </div>
@@ -813,8 +813,8 @@ export default function OrderDetailsPage() {
                             </div>
 
                             {/* Billing Address */}
-                            <div className="bg-white border border-[#ebebeb] rounded-md shadow-sm overflow-hidden">
-                                <div className="bg-gray-50 px-5 py-3 border-b border-[#ebebeb]">
+                            <div className="bg-white border border-border rounded-md shadow-sm overflow-hidden">
+                                <div className="bg-gray-50 px-5 py-3 border-b border-border">
                                     <h3 className="text-xs font-black text-black uppercase tracking-widest">{safeTranslate("billingAddress", "Billing Address")}</h3>
 
                                 </div>
@@ -837,8 +837,8 @@ export default function OrderDetailsPage() {
                             </div>
 
                             {/* Payment Method */}
-                            <div className="bg-white border border-[#ebebeb] rounded-md shadow-sm overflow-hidden">
-                                <div className="bg-gray-50 px-5 py-3 border-b border-[#ebebeb]">
+                            <div className="bg-white border border-border rounded-md shadow-sm overflow-hidden">
+                                <div className="bg-gray-50 px-5 py-3 border-b border-border">
                                     <h3 className="text-xs font-black text-black uppercase tracking-widest">{safeTranslate("paymentMethod", "Payment Method")}</h3>
 
                                 </div>
@@ -868,14 +868,14 @@ export default function OrderDetailsPage() {
                                 <p className="text-xs">{attachmentsError}</p>
                             </div>
                         ) : isAttachmentsLoading ? (
-                            <div className="bg-white rounded-md border border-[#ebebeb] p-20 flex justify-center items-center shadow-sm">
+                            <div className="bg-white rounded-md border border-border p-20 flex justify-center items-center shadow-sm">
                                 <div className="animate-spin rounded-full h-10 w-10 border-b-4 border-primary"></div>
                             </div>
                         ) : attachments.length > 0 ? (
-                            <div className="bg-white border border-[#ebebeb] rounded-md overflow-hidden shadow-sm">
+                            <div className="bg-white border border-border rounded-md overflow-hidden shadow-sm">
                                 <div className="overflow-x-auto">
                                     <table className="w-full text-xs border-collapse">
-                                        <thead className="bg-gray-50 border-b border-[#ebebeb]">
+                                        <thead className="bg-gray-50 border-b border-border">
                                             <tr className="h-[50px]">
                                                 <th className="px-3 md:px-6 py-3 md:py-4 font-black text-black text-left tracking-widest uppercase">{safeTranslate("fileName", "File Name")}</th>
                                                 <th className="px-3 md:px-6 py-3 md:py-4 font-black text-black text-center tracking-widest uppercase">{safeTranslate("type", "Type")}</th>
@@ -884,7 +884,7 @@ export default function OrderDetailsPage() {
                                                 <th className="px-3 md:px-6 py-3 md:py-4 font-black text-black text-center tracking-widest uppercase">{safeTranslate("payment", "Payment")}</th>
                                             </tr>
                                         </thead>
-                                        <tbody className="divide-y divide-[#ebebeb]">
+                                        <tbody className="divide-y divide-border">
                                             {attachments.map((attachment: any, idx: number) => {
                                                 const formatDateDDMMYYYY = (dateStr: string | undefined | null) => {
                                                     if (!dateStr) return "-";
@@ -939,7 +939,7 @@ export default function OrderDetailsPage() {
                                 </div>
                             </div>
                         ) : (
-                            <div className="bg-white border border-[#ebebeb] p-10 md:p-20 text-center text-black/50 italic rounded-md shadow-sm text-xs font-bold uppercase tracking-widest">
+                            <div className="bg-white border border-border p-10 md:p-20 text-center text-black/50 italic rounded-md shadow-sm text-xs font-bold uppercase tracking-widest">
                                 {safeTranslate("noAttachments", "No attachments available for this order")}
                             </div>
                         )}
@@ -970,10 +970,10 @@ export default function OrderDetailsPage() {
                             )}
                         </div>
 
-                        <div className="bg-white border border-[#ebebeb] rounded-md overflow-hidden shadow-sm">
+                        <div className="bg-white border border-border rounded-md overflow-hidden shadow-sm">
                             <div className="overflow-x-auto">
                                 <table className="w-full text-xs border-collapse">
-                                    <thead className="bg-gray-50 border-b border-[#ebebeb]">
+                                    <thead className="bg-gray-50 border-b border-border">
                                         <tr className="h-[50px]">
                                             <th className="px-3 md:px-4 py-3 md:py-4 font-black text-black text-center tracking-widest uppercase">{safeTranslate("receiptNo", "Receipt No")}</th>
                                             <th className="px-3 md:px-4 py-3 md:py-4 font-black text-black text-center tracking-widest uppercase">{safeTranslate("paymentDate", "Payment Date")}</th>
@@ -986,7 +986,7 @@ export default function OrderDetailsPage() {
                                             <th className="px-3 md:px-4 py-3 md:py-4 font-black text-black text-center tracking-widest uppercase">{safeTranslate("action", "Action")}</th>
                                         </tr>
                                     </thead>
-                                    <tbody className="divide-y divide-[#ebebeb] text-center">
+                                    <tbody className="divide-y divide-border text-center">
                                         {paymentHistory.map((payment: any, index: number) => (
                                             <tr key={payment.id || payment.receipt_no || index} className="hover:bg-primary/5 bg-white">
                                                 <td className="px-3 md:px-4 py-4 text-black/80 font-medium">{payment.receipt_no}</td>
@@ -1005,8 +1005,8 @@ export default function OrderDetailsPage() {
                                                 </td>
                                                 <td className="px-3 md:px-4 py-4">
                                                     <span className={`inline-flex px-3 py-1 rounded-sm text-caption font-black uppercase tracking-tight border ${payment.payment_status === "Full Paid"
-                                                        ? "bg-[#E7F6EC] text-[#038E42] border-[#D1EBD9]"
-                                                        : "bg-[#FFF4E5] text-[#FA8C16] border-[#FFE7BA]"
+                                                        ? "bg-successBg text-successDark border-successBorder"
+                                                        : "bg-warningLight text-warningOrange border-warningBar"
                                                         }`}>
                                                         {t(`data.${payment.payment_status}`) !== `data.${payment.payment_status}` ? t(`data.${payment.payment_status}`) : payment.payment_status}
                                                     </span>
@@ -1016,7 +1016,7 @@ export default function OrderDetailsPage() {
                                                     <div className="flex items-center justify-center gap-2">
                                                         <button
                                                             onClick={() => fetchSinglePayment(payment.id)}
-                                                            className="bg-[#EFA73F] text-white px-3 py-1.5 rounded-sm font-bold text-caption uppercase tracking-wide hover:bg-primaryHover transition-colors shadow-sm"
+                                                            className="bg-warningDeep text-white px-3 py-1.5 rounded-sm font-bold text-caption uppercase tracking-wide hover:bg-primaryHover transition-colors shadow-sm"
                                                         >
                                                             {safeTranslate("edit", "Edit")}
                                                         </button>

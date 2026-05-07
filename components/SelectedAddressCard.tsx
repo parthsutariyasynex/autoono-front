@@ -13,9 +13,9 @@ interface SelectedAddressCardProps {
 const SelectedAddressCard: React.FC<SelectedAddressCardProps> = ({ address, onEdit }) => {
     const { t } = useTranslation();
     return (
-        <div className="relative flex items-center justify-between w-full p-4 bg-[#F8F9FA] border-2 border-[#00A651] rounded-sm transition-all duration-300">
+        <div className="relative flex items-center justify-between w-full p-4 bg-surfacePanel border-2 border-success rounded-sm transition-all duration-300">
             {/* Green Square Box with Check Icon at Top-Right */}
-            <div className="absolute top-0 right-0 bg-[#00A651] w-6 h-6 flex items-center justify-center">
+            <div className="absolute top-0 right-0 bg-success w-6 h-6 flex items-center justify-center">
                 <Check className="text-white w-4 h-4" strokeWidth={3} />
             </div>
 

@@ -40,7 +40,7 @@ import Price from "@/app/components/Price";
 // --- Sub-components ---
 
 const SectionHeader = ({ title, step }: { title: string; step?: number }) => (
-    <div className="bg-gray-50/80 px-4 py-3 border-b border-[#ebebeb] flex items-center justify-between h-[50px]">
+    <div className="bg-gray-50/80 px-4 py-3 border-b border-border flex items-center justify-between h-[50px]">
         <div className="flex items-center gap-2.5">
             {step && (
                 <span className="w-5 h-5 rounded-full bg-black text-white text-micro font-black flex items-center justify-center shadow-sm">
@@ -51,7 +51,7 @@ const SectionHeader = ({ title, step }: { title: string; step?: number }) => (
                 {title}
             </h3>
         </div>
-        <div className="h-px flex-1 bg-gradient-to-r from-transparent via-[#ebebeb] to-transparent mx-4 hidden sm:block"></div>
+        <div className="h-px flex-1 bg-gradient-to-r from-transparent via-border to-transparent mx-4 hidden sm:block"></div>
     </div>
 );
 
@@ -640,7 +640,7 @@ const CheckoutPageUI: React.FC = () => {
     };
     if (isCartLoading || status === "loading") {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-[#f9f9f9]">
+            <div className="min-h-screen flex items-center justify-center bg-surfaceWarm">
                 <div className="flex flex-col items-center gap-4">
                     <div className="w-12 h-12 border-4 border-gray-200 border-t-primary rounded-full animate-spin" />
                     <p className="text-label font-black text-black/50 uppercase tracking-widest italic">{t("checkout.preparing")}</p>
@@ -681,7 +681,7 @@ const CheckoutPageUI: React.FC = () => {
     };
 
     return (
-        <div className="min-h-screen flex flex-col w-full bg-[#fcfcfc] text-xs italic-none">
+        <div className="min-h-screen flex flex-col w-full bg-surfacePage text-xs italic-none">
             <main className="flex-1 w-full px-4 md:px-6 lg:px-8 py-4 md:py-6 lg:py-10 pt-2 md:pt-4">
                 {/* Header Section */}
                 <div className="flex flex-col items-center justify-center text-center gap-4 mb-12 relative">
@@ -703,7 +703,7 @@ const CheckoutPageUI: React.FC = () => {
                     {/* ═══════════ Left Column ═══════════ */}
                     <div className="lg:col-span-8 space-y-6">
 
-                        <div className="bg-white border border-[#ebebeb] shadow-sm rounded-xl overflow-hidden transition-all duration-300 hover:shadow-md">
+                        <div className="bg-white border border-border shadow-sm rounded-xl overflow-hidden transition-all duration-300 hover:shadow-md">
                             <SectionHeader title={t("checkout.shippingAddress")} step={1} />
                             <div className="p-4">
                                 {/* Search */}
@@ -711,7 +711,7 @@ const CheckoutPageUI: React.FC = () => {
                                     <input
                                         type="text"
                                         placeholder={t("m.search")}
-                                        className="w-full px-4 py-2.5 bg-gray-50/50 border border-[#ebebeb] rounded-xl outline-none text-body-sm font-medium transition-all placeholder:text-black/50 focus:bg-white focus:border-primary shadow-sm focus:ring-4 focus:ring-primary/10"
+                                        className="w-full px-4 py-2.5 bg-gray-50/50 border border-border rounded-xl outline-none text-body-sm font-medium transition-all placeholder:text-black/50 focus:bg-white focus:border-primary shadow-sm focus:ring-4 focus:ring-primary/10"
                                         value={searchQuery}
                                         onChange={(e) => setSearchQuery(e.target.value)}
                                     />
@@ -731,7 +731,7 @@ const CheckoutPageUI: React.FC = () => {
                                         ) : (
                                             <div
                                                 key={addr.id}
-                                                className="relative flex items-start gap-3 cursor-pointer group p-4 border border-[#ebebeb] bg-white hover:bg-primary/20 transition-all duration-300 rounded-xl hover:shadow-sm"
+                                                className="relative flex items-start gap-3 cursor-pointer group p-4 border border-border bg-white hover:bg-primary/20 transition-all duration-300 rounded-xl hover:shadow-sm"
                                                 onClick={() => handleAddressSelect(addr.id)}
                                             >
                                                 {/* Selection Indicator */}
@@ -766,7 +766,7 @@ const CheckoutPageUI: React.FC = () => {
                                                             {t("m.ship-here")}
                                                         </button>
                                                         <button
-                                                            className="text-micro font-black uppercase tracking-[0.15em] px-6 py-2 bg-white text-black/60 border border-[#ebebeb] hover:bg-gray-50 hover:text-black hover:border-gray-300 transition-all duration-300 rounded-lg active:scale-95"
+                                                            className="text-micro font-black uppercase tracking-[0.15em] px-6 py-2 bg-white text-black/60 border border-border hover:bg-gray-50 hover:text-black hover:border-gray-300 transition-all duration-300 rounded-lg active:scale-95"
                                                             onClick={(e) => {
                                                                 e.stopPropagation();
                                                                 router.push(lp(`/customer/address-book/edit/${addr.id}?redirect=/checkout`));
@@ -790,14 +790,14 @@ const CheckoutPageUI: React.FC = () => {
                         </div>
 
                         {/* 2. Customer PO Number */}
-                        <div className="bg-white border border-[#ebebeb] shadow-sm rounded-xl overflow-hidden transition-all duration-300 hover:shadow-md">
+                        <div className="bg-white border border-border shadow-sm rounded-xl overflow-hidden transition-all duration-300 hover:shadow-md">
                             <SectionHeader title={t("m.po-number")} step={2} />
                             <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
                                 <div className="space-y-1.5">
                                     <label className="text-caption font-black text-black/50 uppercase tracking-widest">{t("m.po-number")}</label>
                                     <input
                                         type="text"
-                                        className="w-full px-4 py-2.5 bg-gray-50/50 border border-[#ebebeb] rounded-xl outline-none text-body font-medium transition-all placeholder:text-black/50 focus:bg-white focus:border-primary focus:ring-4 focus:ring-primary/10 shadow-sm"
+                                        className="w-full px-4 py-2.5 bg-gray-50/50 border border-border rounded-xl outline-none text-body font-medium transition-all placeholder:text-black/50 focus:bg-white focus:border-primary focus:ring-4 focus:ring-primary/10 shadow-sm"
                                         value={poNumber}
                                         onChange={(e) => setPoNumber(e.target.value)}
                                         onBlur={handlePoNumberBlur}
@@ -826,7 +826,7 @@ const CheckoutPageUI: React.FC = () => {
                                             {/* Drop Area */}
                                             <div
                                                 className={`relative group p-8 border-2 border-dashed rounded-xl transition-all duration-300 flex flex-col items-center justify-center gap-4 cursor-pointer
-                                                    ${dragActive ? "border-primary bg-primary/30 scale-[1.01]" : "border-[#ebebeb] bg-gray-50/30 hover:bg-white hover:border-gray-300"}`}
+                                                    ${dragActive ? "border-primary bg-primary/30 scale-[1.01]" : "border-border bg-gray-50/30 hover:bg-white hover:border-gray-300"}`}
                                                 onDragEnter={handleDrag}
                                                 onDragLeave={handleDrag}
                                                 onDragOver={handleDrag}
@@ -850,7 +850,7 @@ const CheckoutPageUI: React.FC = () => {
                                             {/* Files List - Image Style */}
                                             <div className="flex flex-wrap gap-x-4 gap-y-3">
                                                 {uploadedPOs.map((po, idx) => (
-                                                    <div key={idx} className="flex border border-[#ebebeb] rounded-xl overflow-hidden group shadow-sm bg-white">
+                                                    <div key={idx} className="flex border border-border rounded-xl overflow-hidden group shadow-sm bg-white">
                                                         <div className="px-6 py-3 flex-1 flex items-center min-w-0">
                                                             <span className="text-body font-black text-black truncate ltr:mr-2 rtl:ml-2">
                                                                 {po.fileName}
@@ -858,7 +858,7 @@ const CheckoutPageUI: React.FC = () => {
                                                         </div>
                                                         <button
                                                             onClick={() => handleDeletePo(po.fileName)}
-                                                            className="bg-red-50 text-red-600 px-6 py-3 text-label font-black uppercase tracking-widest transition-all hover:bg-red-600 hover:text-white border-l border-[#ebebeb] active:scale-95"
+                                                            className="bg-red-50 text-red-600 px-6 py-3 text-label font-black uppercase tracking-widest transition-all hover:bg-red-600 hover:text-white border-l border-border active:scale-95"
                                                             disabled={isUploading}
                                                         >
                                                             {t("m.remove")}
@@ -889,7 +889,7 @@ const CheckoutPageUI: React.FC = () => {
                             </div>
                         </div>
 
-                        <div className="bg-white border border-[#ebebeb] shadow-sm rounded-xl overflow-hidden" id="step-3">
+                        <div className="bg-white border border-border shadow-sm rounded-xl overflow-hidden" id="step-3">
                             <SectionHeader title={t("checkout.shippingMethod")} step={4} />
                             <div className="p-6">
                                 <div className="space-y-6">
@@ -969,7 +969,7 @@ const CheckoutPageUI: React.FC = () => {
 
                                                 {/* Pickup Details Form */}
                                                 {isPickupFormOpen && (
-                                                    <div className="p-6 bg-[#F8F9FA] border border-gray-200 rounded-sm space-y-4 animate-in slide-in-from-top-2 duration-300">
+                                                    <div className="p-6 bg-surfacePanel border border-gray-200 rounded-sm space-y-4 animate-in slide-in-from-top-2 duration-300">
                                                         {/* Row 1: Name & ID */}
                                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                                             <div className="flex items-center gap-3">
@@ -1136,7 +1136,7 @@ const CheckoutPageUI: React.FC = () => {
                             </div>
                         </div>
 
-                        <div className="bg-white border border-[#ebebeb] shadow-sm rounded-xl overflow-hidden">
+                        <div className="bg-white border border-border shadow-sm rounded-xl overflow-hidden">
                             <SectionHeader title={t("checkout.paymentMethod")} step={5} />
 
                             <div className="p-5">
@@ -1170,7 +1170,7 @@ const CheckoutPageUI: React.FC = () => {
                                                 {isSelected && needsUpload && (
                                                     <div className="mt-3 border border-gray-100 rounded-xl overflow-hidden">
                                                         <div
-                                                            className="bg-[#f8f8f8] px-5 py-4 flex items-center justify-between border-b border-gray-100 cursor-pointer group hover:bg-[#f2f2f2] transition-colors"
+                                                            className="bg-surfaceMuted px-5 py-4 flex items-center justify-between border-b border-gray-100 cursor-pointer group hover:bg-surfaceDim transition-colors"
                                                             onClick={() => setIsPaymentCommitmentOpen(!isPaymentCommitmentOpen)}
                                                         >
                                                             <span className="text-body-lg font-bold text-black">
@@ -1217,7 +1217,7 @@ const CheckoutPageUI: React.FC = () => {
 
                                                                 {paymentCommitmentFile && (
                                                                     <div className="flex items-center">
-                                                                        <div className="flex border border-[#ebebeb] rounded-xl overflow-hidden group shadow-sm bg-white">
+                                                                        <div className="flex border border-border rounded-xl overflow-hidden group shadow-sm bg-white">
                                                                             <div className="px-6 py-3 flex-1 flex items-center min-w-0">
                                                                                 <span className="text-body font-black text-black truncate ltr:mr-2 rtl:ml-2">
                                                                                     {paymentCommitmentFile.name}
@@ -1225,7 +1225,7 @@ const CheckoutPageUI: React.FC = () => {
                                                                             </div>
                                                                             <button
                                                                                 onClick={removePaymentCommitment}
-                                                                                className="bg-red-50 text-red-600 px-6 py-3 text-label font-black uppercase tracking-widest transition-all hover:bg-red-600 hover:text-white border-l border-[#ebebeb] active:scale-95"
+                                                                                className="bg-red-50 text-red-600 px-6 py-3 text-label font-black uppercase tracking-widest transition-all hover:bg-red-600 hover:text-white border-l border-border active:scale-95"
                                                                             >
                                                                                 {t("m.remove")}
                                                                             </button>
@@ -1246,9 +1246,9 @@ const CheckoutPageUI: React.FC = () => {
 
                     {/* ═══════════ Right Column (Order Summary) ═══════════ */}
                     <div className="lg:col-span-4 space-y-6">
-                        <div className="bg-white border border-[#ebebeb] shadow-lg rounded-xl sticky top-24 overflow-hidden transition-all duration-300">
+                        <div className="bg-white border border-border shadow-lg rounded-xl sticky top-24 overflow-hidden transition-all duration-300">
                             {/* Header exactly as per image */}
-                            <div className="bg-gray-50 px-4 sm:px-6 py-3 sm:py-4 flex items-center gap-2 sm:gap-3 border-b border-[#ebebeb]">
+                            <div className="bg-gray-50 px-4 sm:px-6 py-3 sm:py-4 flex items-center gap-2 sm:gap-3 border-b border-border">
                                 <div className="w-5 h-5 rounded-full bg-black flex items-center justify-center">
                                     <Check size={12} strokeWidth={4} className="text-white" />
                                 </div>
@@ -1280,7 +1280,7 @@ const CheckoutPageUI: React.FC = () => {
                                     <div className="space-y-3 sm:space-y-4 md:space-y-6 p-4 sm:p-6">
                                         {cart?.items?.map((item) => (
                                             <div key={item.item_id} className="flex gap-4 items-start pb-6 border-b border-gray-50 last:border-0 last:pb-0">
-                                                <div className="w-16 sm:w-20 h-16 sm:h-20 flex-shrink-0 border border-[#ebebeb] rounded-xl overflow-hidden bg-gray-50 p-2">
+                                                <div className="w-16 sm:w-20 h-16 sm:h-20 flex-shrink-0 border border-border rounded-xl overflow-hidden bg-gray-50 p-2">
                                                     <img
                                                         src={item.image_url || "/images/tyre-sample.png"}
                                                         alt={item.name}
@@ -1301,7 +1301,7 @@ const CheckoutPageUI: React.FC = () => {
                                                                 const val = parseInt(e.target.value);
                                                                 if (val > 0) updateCartItem(item.item_id, val);
                                                             }}
-                                                            className="w-10 h-7 border border-[#ebebeb] rounded-lg text-center text-body-sm font-black focus:outline-none focus:border-primary ml-1 bg-gray-50/50"
+                                                            className="w-10 h-7 border border-border rounded-lg text-center text-body-sm font-black focus:outline-none focus:border-primary ml-1 bg-gray-50/50"
                                                         />
                                                     </div>
                                                     <div className="text-body font-black text-black price currency-riyal">
@@ -1342,7 +1342,7 @@ const CheckoutPageUI: React.FC = () => {
 
                                 {/* Order Comment */}
                                 <div className="p-6 pt-0">
-                                    <div className="bg-[#f8f8f8] p-4 rounded-sm border border-gray-100">
+                                    <div className="bg-surfaceMuted p-4 rounded-sm border border-gray-100">
                                         <textarea
                                             placeholder={t("m.enter-your-comment")}
                                             rows={4}
@@ -1358,7 +1358,7 @@ const CheckoutPageUI: React.FC = () => {
                                     <button
                                         onClick={handlePlaceOrder}
                                         className={`w-full py-4 text-body-lg font-black uppercase tracking-[0.2em] transition-all duration-300 flex items-center justify-center gap-2.5 rounded-xl shadow-lg ${isPlacingOrder
-                                            ? "bg-gray-100 text-black/50 cursor-not-allowed border-[#ebebeb]"
+                                            ? "bg-gray-100 text-black/50 cursor-not-allowed border-border"
                                             : "bg-primary text-black hover:bg-black hover:text-white border-primary hover:border-black active:scale-[0.98]"
                                             }`}
                                     >
@@ -1412,11 +1412,11 @@ const CheckoutPageUI: React.FC = () => {
                                             </p>
                                             <p className="flex items-start gap-2">
                                                 <span className="font-bold text-black min-w-[80px]">{t("m.email")}:</span>
-                                                <a href={`mailto:${wh.email}`} className="text-[#3b82f6] hover:underline" onClick={(e) => e.stopPropagation()}>{wh.email}</a>
+                                                <a href={`mailto:${wh.email}`} className="text-infoLink hover:underline" onClick={(e) => e.stopPropagation()}>{wh.email}</a>
                                             </p>
                                             <p className="flex items-start gap-2">
                                                 <span className="font-bold text-black min-w-[80px]">{t("checkout.gpsLocation")}:</span>
-                                                <a href={wh.gps_location} target="_blank" rel="noopener noreferrer" className="text-[#3b82f6] hover:underline flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
+                                                <a href={wh.gps_location} target="_blank" rel="noopener noreferrer" className="text-infoLink hover:underline flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
                                                     {wh.gps_location.startsWith('http') ? wh.gps_location.replace('https://', '').replace('http://', '') : t("checkout.viewOnMaps")}
                                                 </a>
                                             </p>

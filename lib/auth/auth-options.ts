@@ -73,15 +73,27 @@ export const authOptions: NextAuthOptions = {
                         body: JSON.stringify(body),
                     });
 
-                    const data = await res.json();
+                    let data: any;
+                    const rawText = await res.text();
+                    try {
+                        data = JSON.parse(rawText);
+                    } catch {
+                        console.error("[auth] Magento returned non-JSON:", res.status, rawText.slice(0, 200));
+                        return null;
+                    }
 
-                    if (res.ok && data) {
+                    if (!res.ok) {
+                        console.error("[auth] Magento login rejected:", res.status, data);
+                        return null;
+                    }
+
+                    if (data) {
                         const token = isOtp
                             ? (data.token || (data.customer && data.customer.token))
                             : (typeof data === 'string' ? data : data.token);
 
                         if (!token) {
-                            console.error("No token found in successful response.");
+                            console.error("[auth] No token in Magento response:", data);
                             return null;
                         }
 
@@ -96,7 +108,7 @@ export const authOptions: NextAuthOptions = {
                     }
                     return null;
                 } catch (error) {
-                    console.error("Auth Error:", error);
+                    console.error("[auth] Unexpected error in authorize:", error);
                     return null;
                 }
             },
@@ -104,28 +116,24 @@ export const authOptions: NextAuthOptions = {
     ],
     callbacks: {
         async jwt({ token, user }) {
-            // First login — save the Magento token
             if (user) {
+                // Fresh login — always trust the new token; never run expiry check here.
                 token.accessToken = (user as any).token;
-                // Store the Magento token expiry so we can detect when it expires
+                token.error = undefined;
+                token.magentoTokenExp = undefined;
                 const exp = getMagentoTokenExpiry((user as any).token);
-                if (exp) {
-                    token.magentoTokenExp = exp;
-                }
-            }
-
-            // Check if the Magento token has expired
-            if (token.magentoTokenExp) {
+                if (exp) token.magentoTokenExp = exp;
+            } else if (token.magentoTokenExp) {
+                // Subsequent session reads — flag expiry but keep accessToken so
+                // in-flight API calls that already have the token still work.
                 const now = Math.floor(Date.now() / 1000);
-                if (now >= (token.magentoTokenExp as number)) {
-                    // Magento token expired — force user to re-login
-                    // Clear the token so the session becomes invalid
-                    console.warn("Magento token expired, forcing re-login");
-                    token.accessToken = undefined;
+                if (now >= (token.magentoTokenExp as number) - 60) {
                     token.error = "MagentoTokenExpired";
+                } else {
+                    // Token still valid — clear any stale error from a previous cycle
+                    token.error = undefined;
                 }
             }
-
             return token;
         },
         async session({ session, token }) {

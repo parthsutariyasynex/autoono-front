@@ -67,7 +67,7 @@ export function PageSizeSelect({ value, onChange }: { value: number; onChange: (
                 className={`h-8 md:h-9 px-3 bg-white border rounded text-body-sm md:text-body font-black text-black flex items-center gap-2 min-w-[60px] justify-between cursor-pointer transition-all shadow-sm ${isOpen ? "border-primary ring-1 ring-primary/20" : "border-gray-200 hover:border-primary hover:shadow-md"}`}
             >
                 {value}
-                <ChevronDown size={12} className={`text-[#f5a624] transition-transform duration-300 ${isOpen ? "rotate-180" : ""}`} />
+                <ChevronDown size={12} className={`text-warningIcon transition-transform duration-300 ${isOpen ? "rotate-180" : ""}`} />
             </button>
             {isOpen && mounted && createPortal(
                 <>

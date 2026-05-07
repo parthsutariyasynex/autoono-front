@@ -68,7 +68,7 @@ const CheckoutSuccessContent = () => {
 
     if (isLoading) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-[#f9f9f9]">
+            <div className="min-h-screen flex items-center justify-center bg-surfaceWarm">
                 <div className="flex flex-col items-center gap-4">
                     <div className="w-12 h-12 border-4 border-gray-200 border-t-primary rounded-full animate-spin" />
                     <p className="text-label font-black text-black/50 uppercase tracking-widest italic">{t("checkoutSuccess.verifyingOrder")}</p>

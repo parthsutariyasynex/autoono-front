@@ -153,15 +153,15 @@ export default function NotificationsPage() {
                             {t('notifications.title')}
                         </h1>
 
-                        <div className="border border-[#ebebeb] rounded-sm overflow-hidden shadow-sm">
+                        <div className="border border-border rounded-sm overflow-hidden shadow-sm">
                             {/* Desktop Table */}
                             <div className="hidden md:block overflow-x-auto">
                                 <table className="w-full text-left border-collapse table-fixed min-w-[600px]">
                                     <thead>
-                                        <tr className="border-b border-[#ebebeb]">
-                                            <th className="px-6 py-4 text-body font-black text-black uppercase text-center w-[15%] border-r border-[#ebebeb]">{t('common.date')}</th>
-                                            <th className="px-6 py-4 text-body font-black text-black uppercase text-center w-[20%] border-r border-[#ebebeb]">{t('m.title')}</th>
-                                            <th className="px-6 py-4 text-body font-black text-black uppercase text-center w-[45%] border-r border-[#ebebeb]">{t('m.message')}</th>
+                                        <tr className="border-b border-border">
+                                            <th className="px-6 py-4 text-body font-black text-black uppercase text-center w-[15%] border-r border-border">{t('common.date')}</th>
+                                            <th className="px-6 py-4 text-body font-black text-black uppercase text-center w-[20%] border-r border-border">{t('m.title')}</th>
+                                            <th className="px-6 py-4 text-body font-black text-black uppercase text-center w-[45%] border-r border-border">{t('m.message')}</th>
                                             <th className="px-6 py-4 text-body font-black text-black uppercase text-center w-[20%]">{t('common.action')}</th>
                                         </tr>
                                     </thead>
@@ -176,22 +176,22 @@ export default function NotificationsPage() {
                                             notifications.map((item, index) => (
                                                 <tr
                                                     key={`${item.notification_id || index}-${index}`}
-                                                    className={`border-b border-[#ebebeb] last:border-0 transition-colors ${!item.is_read ? "bg-[#fcf8ec]" : "bg-white"}`}
+                                                    className={`border-b border-border last:border-0 transition-colors ${!item.is_read ? "bg-warningBgLight" : "bg-white"}`}
                                                 >
-                                                    <td className="px-6 py-6 text-body-lg text-black text-center border-r border-[#ebebeb] align-middle relative">
+                                                    <td className="px-6 py-6 text-body-lg text-black text-center border-r border-border align-middle relative">
                                                         {!item.is_read && (
                                                             <div className="absolute left-2 top-1/2 -translate-y-1/2 w-2 h-2 bg-primary rounded-full shadow-sm"></div>
                                                         )}
                                                         {formatDate(item.date_added_formatted, locale)}
                                                     </td>
-                                                    <td className={`px-6 py-6 text-body-lg text-center border-r border-[#ebebeb] align-middle ${!item.is_read ? "font-bold text-black" : "font-normal text-black/70"}`}>
+                                                    <td className={`px-6 py-6 text-body-lg text-center border-r border-border align-middle ${!item.is_read ? "font-bold text-black" : "font-normal text-black/70"}`}>
                                                         {getOrderLink(item) ? (
                                                             <Link href={getOrderLink(item)!} className="hover:text-primary transition-colors cursor-pointer underline-offset-2 hover:underline">
                                                                 {translateNotificationText(item.title, locale)}
                                                             </Link>
                                                         ) : translateNotificationText(item.title, locale)}
                                                     </td>
-                                                    <td className={`px-6 py-6 text-body-lg text-center border-r border-[#ebebeb] leading-relaxed align-middle ${!item.is_read ? "font-medium text-black" : "text-black/70"}`}>
+                                                    <td className={`px-6 py-6 text-body-lg text-center border-r border-border leading-relaxed align-middle ${!item.is_read ? "font-medium text-black" : "text-black/70"}`}>
                                                         {translateNotificationText(item.description, locale)}
                                                     </td>
                                                     <td className="px-6 py-6 text-body text-center align-middle">
@@ -228,7 +228,7 @@ export default function NotificationsPage() {
                                     notifications.map((item, index) => (
                                         <div
                                             key={`mobile-${item.notification_id || index}-${index}`}
-                                            className={`p-4 border-b border-[#ebebeb] last:border-0 transition-colors ${!item.is_read ? "bg-[#fcf8ec]" : "bg-white"}`}
+                                            className={`p-4 border-b border-border last:border-0 transition-colors ${!item.is_read ? "bg-warningBgLight" : "bg-white"}`}
                                         >
                                             <div className="flex items-start justify-between gap-2 mb-2">
                                                 <div className="flex items-center gap-2">
@@ -265,7 +265,7 @@ export default function NotificationsPage() {
                             </div>
 
                             {/* PAGINATION PANEL */}
-                            <div className="bg-[#e8e8e8] px-4 md:px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-4 md:gap-6 border-t border-[#dddddd]">
+                            <div className="bg-borderFaint px-4 md:px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-4 md:gap-6 border-t border-borderLight">
                                 <div className="text-body text-black font-medium order-2 lg:order-1">
                                     {t('favorites.items')} <bdi dir="ltr">{((currentPage - 1) * pageSize) + 1} {t('m.to')} {Math.min(currentPage * pageSize, totalCount)}</bdi> {t('favorites.of')} <bdi dir="ltr">{totalCount}</bdi> {t('favorites.total')}
                                 </div>
@@ -274,7 +274,7 @@ export default function NotificationsPage() {
                                     {currentPage > 1 && (
                                         <button
                                             onClick={() => setCurrentPage(currentPage - 1)}
-                                            className="w-10 h-10 flex items-center justify-center text-black/70 hover:text-black hover:bg-white/50 rounded-full transition-all border border-transparent hover:border-[#cccccc]"
+                                            className="w-10 h-10 flex items-center justify-center text-black/70 hover:text-black hover:bg-white/50 rounded-full transition-all border border-transparent hover:border-borderStrong"
                                         >
                                             {isRtl ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
                                         </button>
@@ -286,7 +286,7 @@ export default function NotificationsPage() {
                                                 onClick={() => setCurrentPage(num)}
                                                 className={`w-10 h-10 flex items-center justify-center text-body-lg font-bold rounded-full border transition-all ${currentPage === num
                                                     ? "bg-primary border-primary text-white shadow-md transform scale-105"
-                                                    : "bg-white border-[#cccccc] text-black hover:border-primary hover:text-primary"
+                                                    : "bg-white border-borderStrong text-black hover:border-primary hover:text-primary"
                                                     }`}
                                             >
                                                 {num}
@@ -296,7 +296,7 @@ export default function NotificationsPage() {
                                     {currentPage < totalPages && (
                                         <button
                                             onClick={() => setCurrentPage(currentPage + 1)}
-                                            className="w-10 h-10 flex items-center justify-center text-black/70 hover:text-black hover:bg-white/50 rounded-full transition-all border border-transparent hover:border-[#cccccc]"
+                                            className="w-10 h-10 flex items-center justify-center text-black/70 hover:text-black hover:bg-white/50 rounded-full transition-all border border-transparent hover:border-borderStrong"
                                         >
                                             {isRtl ? <ChevronLeft size={20} /> : <ChevronRight size={20} />}
                                         </button>

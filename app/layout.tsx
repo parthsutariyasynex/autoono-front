@@ -1,9 +1,9 @@
-
 import "intl-tel-input/build/css/intlTelInput.css";
 import type { Metadata } from "next";
 import { Rubik } from "next/font/google";
 import { cookies, headers } from "next/headers";
 import { CartProvider } from "../modules/cart/context/CartContext";
+import { GiftProvider } from "../modules/cart/context/GiftContext";
 import { ReduxProvider } from "@/store/provider";
 import ProtectedLayout from "@/app/components/ProtectedLayout";
 import "./globals.css";
@@ -67,11 +67,13 @@ export default async function RootLayout({
             <ReduxProvider>
               <NextAuthProvider>
                 <CartProvider>
-                  <DirectionSync />
-                  <Toaster position="top-right" reverseOrder={false} />
-                  <ProtectedLayout>
-                    {children}
-                  </ProtectedLayout>
+                  <GiftProvider>
+                    <DirectionSync />
+                    <Toaster position="top-right" reverseOrder={false} />
+                    <ProtectedLayout>
+                      {children}
+                    </ProtectedLayout>
+                  </GiftProvider>
                 </CartProvider>
               </NextAuthProvider>
             </ReduxProvider>

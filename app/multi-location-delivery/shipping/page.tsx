@@ -187,8 +187,8 @@ const MultiShippingShippingPage: React.FC = () => {
                                 </p>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
                                     {/* Shipping To Section */}
-                                    <div className="bg-[#f2f2f2] min-h-[200px] md:min-h-[250px] flex flex-col">
-                                        <div className="bg-[#dadada] py-2.5 px-4 md:px-6 text-center">
+                                    <div className="bg-surfaceDim min-h-[200px] md:min-h-[250px] flex flex-col">
+                                        <div className="bg-surfaceBar py-2.5 px-4 md:px-6 text-center">
                                             <h2 className="text-label font-[900] text-black uppercase tracking-widest">
                                                 {t("multi.shippingTo")}
                                             </h2>
@@ -207,8 +207,8 @@ const MultiShippingShippingPage: React.FC = () => {
                                     </div>
 
                                     {/* Items Section */}
-                                    <div className="bg-[#f2f2f2] min-h-[200px] md:min-h-[250px] flex flex-col">
-                                        <div className="bg-[#dadada] py-2.5 px-4 md:px-6 text-center">
+                                    <div className="bg-surfaceDim min-h-[200px] md:min-h-[250px] flex flex-col">
+                                        <div className="bg-surfaceBar py-2.5 px-4 md:px-6 text-center">
                                             <h2 className="text-label font-[900] text-black uppercase tracking-widest">
                                                 {t("multi.items")}
                                             </h2>
@@ -216,14 +216,14 @@ const MultiShippingShippingPage: React.FC = () => {
                                         <div className="p-0 flex-grow">
                                             <table className="w-full text-left border-collapse">
                                                 <thead>
-                                                    <tr className="border-b border-[#e0e0e0]">
+                                                    <tr className="border-b border-borderDim">
                                                         <th className="py-3 md:py-4 px-4 md:px-6 text-label md:text-body-sm font-black text-black">{t("multi.productName")}</th>
                                                         <th className="py-3 md:py-4 px-4 md:px-6 text-label md:text-body-sm font-black text-black text-right">{t("multi.qty")}</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody className="bg-white">
                                                     {group.items.map((item) => (
-                                                        <tr key={item.itemId} className="border-b border-[#f2f2f2] last:border-b-0">
+                                                        <tr key={item.itemId} className="border-b border-surfaceDim last:border-b-0">
                                                             <td className="py-3 md:py-4 px-4 md:px-6 text-body-sm md:text-body font-medium text-black/80">
                                                                 {item.name}
                                                             </td>
@@ -245,7 +245,7 @@ const MultiShippingShippingPage: React.FC = () => {
                 </div>
 
                 {/* Bottom Actions Bar */}
-                <div className="mt-4 md:mt-6 bg-[#f2f2f2] p-4 sm:p-6 flex flex-col sm:flex-row justify-between items-center gap-3 sm:gap-4">
+                <div className="mt-4 md:mt-6 bg-surfaceDim p-4 sm:p-6 flex flex-col sm:flex-row justify-between items-center gap-3 sm:gap-4">
                     <button
                         onClick={() => router.push(lp('/multi-location-delivery'))}
                         className="w-full sm:w-auto text-center bg-black text-white px-6 md:px-8 py-3 md:py-3.5 text-label font-black uppercase tracking-wider hover:opacity-90 transition-opacity"

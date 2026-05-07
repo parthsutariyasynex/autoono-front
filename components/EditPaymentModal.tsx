@@ -266,7 +266,7 @@ const EditPaymentModal: React.FC<EditPaymentModalProps> = ({ isOpen, onClose, pa
                 </div>
 
                 {/* Footer */}
-                <div className="bg-[#fcfcfc] px-4 sm:px-5 md:px-6 py-4 border-t border-gray-100 flex justify-end flex-shrink-0">
+                <div className="bg-surfacePage px-4 sm:px-5 md:px-6 py-4 border-t border-gray-100 flex justify-end flex-shrink-0">
                     <button
                         type="submit"
                         disabled={isSubmitting}

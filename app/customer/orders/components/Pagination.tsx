@@ -55,7 +55,7 @@ const Pagination: React.FC<PaginationProps> = ({
     const pages = getPageNumbers(currentPage, totalPages);
 
     return (
-        <div className="flex flex-col md:flex-row items-center justify-between py-3 px-6 bg-[#f0f0f0] rounded-sm mt-0 border-t border-gray-100">
+        <div className="flex flex-col md:flex-row items-center justify-between py-3 px-6 bg-surfaceSoft rounded-sm mt-0 border-t border-gray-100">
             {/* Left: Item count */}
             <div className="text-body text-black/70 font-medium">
                 Items {startItem} to {endItem} of {totalItems} total
