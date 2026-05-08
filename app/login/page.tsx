@@ -160,18 +160,6 @@ function LoginPageContent() {
       }
     } else {
       try {
-        const otpRes = await fetch("/api/login-otp", {
-          method: "POST",
-          headers: { "Content-Type": "application/json", "platform": "web" },
-          body: JSON.stringify({ mobile: mobileNumber, otp, countryCode }),
-        });
-        const otpData = await otpRes.json();
-        const otpToken = otpData?.token || (otpData?.customer?.token);
-
-        if (otpRes.ok && otpToken) {
-          localStorage.setItem("token", String(otpToken).trim());
-        }
-
         const res = await signIn("credentials", {
           mobile: mobileNumber,
           otp: otp,
@@ -183,7 +171,11 @@ function LoginPageContent() {
         if (res?.ok) {
           for (let i = 0; i < 15; i++) {
             const session: any = await getSession();
-            if (session?.accessToken) break;
+            if (session?.accessToken) {
+              // Store the validated token for non-NextAuth API calls
+              localStorage.setItem("token", String(session.accessToken).trim());
+              break;
+            }
             await new Promise(r => setTimeout(r, 200));
           }
           toast.success(t("login.loginSuccess"));

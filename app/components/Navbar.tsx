@@ -29,6 +29,7 @@ import { fetchCustomerInfo } from "@/store/actions/customerActions";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useLocalePath } from "@/hooks/useLocalePath";
 import { isValidLocale } from "@/lib/i18n/config";
+import { setLocaleCookie } from "@/lib/i18n/client";
 
 interface NavLink {
   label: string;
@@ -78,6 +79,8 @@ export default function Navbar() {
   const [navLinks, setNavLinks] = useState<NavLink[]>([]);
   const [navLoading, setNavLoading] = useState(true);
   const [warehouseItems, setWarehouseItems] = useState<WarehouseItem[]>([]);
+  const [storeDropOpen, setStoreDropOpen] = useState(false);
+  const storeDropRef = useRef<HTMLDivElement>(null);
 
   const { data: customerData } = useSelector((state: RootState) => state.customer);
   const dispatch = useDispatch();
@@ -153,6 +156,15 @@ export default function Navbar() {
     const handleClickOutside = (e: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node))
         setIsProfileOpen(false);
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (storeDropRef.current && !storeDropRef.current.contains(e.target as Node))
+        setStoreDropOpen(false);
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
@@ -286,9 +298,9 @@ export default function Navbar() {
           ? data.permitted_stores
           : (Array.isArray(data) ? data : []);
 
-        // Filter by locale: only show stores that match the current language (matching live behavior).
-        const filtered = raw.filter((s) => 
-          s?.is_active !== false && 
+        // Show stores matching the current locale for the nav hover dropdown.
+        const filtered = raw.filter((s) =>
+          s?.is_active !== false &&
           (String(s.store_code).endsWith(`_${locale}`) || String(s.store_code) === locale)
         );
 
@@ -296,7 +308,7 @@ export default function Navbar() {
         const mapped: WarehouseItem[] = filtered.map((s) => {
           const storeCode = String(s.store_code ?? "");
           const label = String(s.group_name || s.store_name || s.website_name || "");
-          
+
           return {
             label: label,
             code: storeCode,
@@ -420,6 +432,34 @@ export default function Navbar() {
               )}
 
 
+              {/* Store Code Toggle — shows current store code, click to flip en ↔ ar */}
+              {isAuthenticated && pathname !== "/login" && currentStore && STORE_CODE_RE.test(currentStore) && (
+                <div className="hidden lg:block" ref={storeDropRef}>
+                  {(() => {
+                    const base = currentStore.split("_")[0];
+                    const currentStoreLocale = currentStore.endsWith("_ar") ? "ar" : "en";
+                    const targetLocale = currentStoreLocale === "en" ? "ar" : "en";
+                    const targetStore = `${base}_${targetLocale}`;
+                    const cleanPath = stripPrefix(pathname || "/").replace(/\.html$/, "") || "/";
+                    const seoPath = cleanPath === "/" ? cleanPath : `${cleanPath}.html`;
+                    const href = `/${targetStore}${seoPath}`;
+                    return (
+                      <Link
+                        href={href}
+                        onClick={() => {
+                          setLocaleCookie(targetLocale);
+                          i18n.changeLanguage(targetLocale);
+                        }}
+                        className="flex items-center gap-1.5 border border-gray-200 rounded px-3 py-1.5 text-body font-semibold text-black hover:bg-gray-50 transition-colors"
+                        title={`Switch to ${targetStore}`}
+                      >
+                        <span>{currentStore}</span>
+                      </Link>
+                    );
+                  })()}
+                </div>
+              )}
+
               {/* Search Icon */}
               {isAuthenticated && pathname !== "/login" && (
                 <button
@@ -494,8 +534,15 @@ export default function Navbar() {
               navLinks.map((item) => {
                 const isWarehouse = isWarehouseCategory(item);
                 // Strip prefix/extension, rebuild as /{storeOrLocale}/{path}.html
-                const cleanItemPath = stripPrefix(item.href.split("?")[0] || "/").replace(/\.html$/, "") || "/";
-                const seoItemPath = cleanItemPath === "/" ? cleanItemPath : `${cleanItemPath}.html`;
+                let cleanItemPath = stripPrefix(item.href.split("?")[0] || "/").replace(/\.html$/, "") || "/";
+                let seoItemPath = cleanItemPath === "/" ? cleanItemPath : `${cleanItemPath}.html`;
+
+                // Override for lubricants menu link as requested
+                if (item.label?.toLowerCase().includes("lubricant")) {
+                  cleanItemPath = "/lubricant";
+                  seoItemPath = "/lubricant.html#";
+                }
+
                 const prefix = currentStore || locale;
                 const href = `/${prefix}${seoItemPath}`;
 
@@ -510,7 +557,7 @@ export default function Navbar() {
                       href={href}
                       className={`py-3 flex items-center h-full px-2.5 lg:px-7 text-body font-semibold capitalize transition-all duration-200 whitespace-nowrap ${isActive
                         ? "bg-black text-white"
-                        : "text-black group-hover:bg-black group-hover:text-white"
+                        : "text-white group-hover:bg-black group-hover:text-white"
                         }`}
                     >
                       {resolveLabel(item)}
@@ -535,10 +582,15 @@ export default function Navbar() {
                                 const seoPath = cleanPath === "/" ? cleanPath : `${cleanPath}.html`;
                                 const warehouseHref = `/${targetPrefix}${seoPath}`;
 
+                                const wLocale = w.code.endsWith("_ar") ? "ar" : "en";
                                 return (
                                   <Link
                                     key={w.code}
                                     href={warehouseHref}
+                                    onClick={() => {
+                                      setLocaleCookie(wLocale);
+                                      i18n.changeLanguage(wLocale);
+                                    }}
                                     className={`text-start px-6 py-2.5 text-body font-semibold transition-colors cursor-pointer ${isSelected ? "bg-primary/10 text-primary" : "text-black hover:bg-gray-50"}`}
                                   >
                                     {w.label}
@@ -594,8 +646,15 @@ export default function Navbar() {
                 {navLinks.map((item) => {
                   const isWarehouse = isWarehouseCategory(item);
                   // Strip prefix/extension, rebuild as /{storeOrLocale}/{path}.html
-                  const cleanItemPath = stripPrefix(item.href.split("?")[0] || "/").replace(/\.html$/, "") || "/";
-                  const seoItemPath = cleanItemPath === "/" ? cleanItemPath : `${cleanItemPath}.html`;
+                  let cleanItemPath = stripPrefix(item.href.split("?")[0] || "/").replace(/\.html$/, "") || "/";
+                  let seoItemPath = cleanItemPath === "/" ? cleanItemPath : `${cleanItemPath}.html`;
+
+                  // Override for lubricants menu link as requested
+                  if (item.label?.toLowerCase().includes("lubricant")) {
+                    cleanItemPath = "/lubricant";
+                    seoItemPath = "/lubricant.html#";
+                  }
+
                   const prefix = currentStore || locale;
                   const href = `/${prefix}${seoItemPath}`;
 
@@ -628,11 +687,16 @@ export default function Navbar() {
                               const seoPath = cleanPath === "/" ? cleanPath : `${cleanPath}.html`;
                               const warehouseHref = `/${targetPrefix}${seoPath}`;
 
+                              const mLocale = w.code.endsWith("_ar") ? "ar" : "en";
                               return (
                                 <Link
                                   key={w.code}
                                   href={warehouseHref}
-                                  onClick={() => setIsMenuOpen(false)}
+                                  onClick={() => {
+                                    setLocaleCookie(mLocale);
+                                    i18n.changeLanguage(mLocale);
+                                    setIsMenuOpen(false);
+                                  }}
                                   className={`block w-full text-start py-2 text-label font-semibold cursor-pointer ${isSelected ? "text-primary" : "text-black/70 hover:text-primary"}`}
                                 >
                                   {w.label}

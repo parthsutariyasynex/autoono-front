@@ -6,13 +6,19 @@ import { isValidLocale, Locale, defaultLocale } from "./config";
 
 export const LocaleContext = createContext<Locale>(defaultLocale);
 
+const STORE_CODE_LOCALE_RE = /^\/[A-Za-z0-9]+_(en|ar)(\/|$)/;
+
 /**
  * Read locale from browser URL (most reliable source on client).
+ * Handles both /ar/... and store-code URLs like /V102_ar/...
  */
 function getBrowserLocale(): Locale {
     if (typeof window === "undefined") return defaultLocale;
-    if (window.location.pathname.startsWith("/ar")) return "ar";
-    if (window.location.pathname.startsWith("/en")) return "en";
+    const path = window.location.pathname;
+    const storeMatch = path.match(STORE_CODE_LOCALE_RE);
+    if (storeMatch) return storeMatch[1] as Locale;
+    if (path.startsWith("/ar")) return "ar";
+    if (path.startsWith("/en")) return "en";
     return defaultLocale;
 }
 

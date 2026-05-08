@@ -27,6 +27,10 @@ export const authOptions: NextAuthOptions = {
             credentials: {
                 email: { label: "Email", type: "text" },
                 password: { label: "Password", type: "password" },
+                mobile: { label: "Mobile", type: "text" },
+                otp: { label: "OTP", type: "text" },
+                countryCode: { label: "Country Code", type: "text" },
+                locale: { label: "Locale", type: "text" },
             },
             async authorize(credentials) {
                 if (!credentials) return null;

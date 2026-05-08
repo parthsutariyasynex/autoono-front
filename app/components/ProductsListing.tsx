@@ -288,9 +288,11 @@ export default function ProductsPage({ categoryId: propCategoryId, storeCode: pr
         // If token is missing, just skip the fetch silently (ProtectedLayout will set it).
         const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
         if (!token) return;
-        // Read locale from the URL path first (most reliable — set by handleStoreSelect
-        // using store_url from the API), then fall back to the NEXT_LOCALE cookie.
-        const pathLocale = window.location.pathname.split("/").filter(Boolean)[0] || "";
+        // Derive locale from URL: handle both /ar/... and store-code URLs like /V102_ar/...
+        const firstSeg = window.location.pathname.split("/").filter(Boolean)[0] || "";
+        const storeLocaleMatch = firstSeg.match(/^[A-Za-z0-9]+_(en|ar)$/);
+        const pathLocale = storeLocaleMatch ? storeLocaleMatch[1]
+            : (firstSeg === "ar" || firstSeg === "en") ? firstSeg : "";
         const cookieLocale = document.cookie.match(/NEXT_LOCALE=([^;]+)/)?.[1] || "";
         const fetchLocale = pathLocale || cookieLocale || "en";
         const headers: HeadersInit = { "Content-Type": "application/json", "Authorization": `Bearer ${token}`, "x-locale": fetchLocale };
