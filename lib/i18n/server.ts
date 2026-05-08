@@ -25,7 +25,7 @@ export async function getLocaleMagentoUrl(): Promise<string> {
     const cookieStore = await cookies();
     const localeCookie = cookieStore.get(LOCALE_COOKIE)?.value;
     const locale: Locale =
-        localeCookie && isValidLocale(localeCookie) ? localeCookie : defaultLocale;
+        localeCookie && isValidLocale(localeCookie) ? (localeCookie as Locale) : defaultLocale;
     return getMagentoBaseUrl(locale);
 }
 
@@ -36,7 +36,7 @@ export async function getLocaleFromCookies(): Promise<Locale> {
     const cookieStore = await cookies();
     const localeCookie = cookieStore.get(LOCALE_COOKIE)?.value;
     return localeCookie && isValidLocale(localeCookie)
-        ? localeCookie
+        ? (localeCookie as Locale)
         : defaultLocale;
 }
 
@@ -48,7 +48,7 @@ export function getLocaleFromRequest(request: Request): Locale {
     // Check X-Locale header first (set by middleware)
     const headerLocale = request.headers.get("x-locale");
     if (headerLocale && isValidLocale(headerLocale)) {
-        return headerLocale;
+        return headerLocale as Locale;
     }
 
     // Fallback: parse cookie from the Cookie header
