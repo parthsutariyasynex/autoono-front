@@ -24,6 +24,10 @@ export const handleGlobalLogout = async (callbackUrl: string) => {
         try {
             localStorage.removeItem("token");
             localStorage.removeItem(`${APP_NAMESPACE}_token`);
+            localStorage.removeItem("subAccountToken");
+            localStorage.removeItem("isSubAccount");
+            localStorage.removeItem("subAccountName");
+            localStorage.removeItem("subAccountId");
             sessionStorage.clear();
         } catch { }
 

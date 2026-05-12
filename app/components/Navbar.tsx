@@ -48,7 +48,7 @@ function isWarehouseCategory(item: { label?: string; categoryId?: string | null 
 }
 
 // Warehouse item shape — populated dynamically from /api/kleverapi/source-permission
-interface WarehouseItem { label: string; code: string; storeUrl: string; }
+interface WarehouseItem { label: string; code: string; storeUrl: string; name: string; }
 
 export default function Navbar() {
   const { data: session, status } = useSession();
@@ -74,13 +74,24 @@ export default function Navbar() {
     if (isValidLocale(first) || STORE_CODE_RE.test(first)) return "/" + segs.slice(1).join("/") || "/";
     return path || "/";
   };
+
+  // Extract the relative path from a full store_url (e.g. https://domain.com/V101_en/all-tyres.html → /V101_en/all-tyres.html)
+  const getStoreUrlPath = (storeUrl: string): string => {
+    try {
+      return new URL(storeUrl).pathname;
+    } catch {
+      return storeUrl;
+    }
+  };
   const isAuthenticated = status === "authenticated";
   const { cart, refetchCart } = useCart();
   const [navLinks, setNavLinks] = useState<NavLink[]>([]);
   const [navLoading, setNavLoading] = useState(true);
   const [warehouseItems, setWarehouseItems] = useState<WarehouseItem[]>([]);
+  const [allPermittedStores, setAllPermittedStores] = useState<any[]>([]);
   const [storeDropOpen, setStoreDropOpen] = useState(false);
   const storeDropRef = useRef<HTMLDivElement>(null);
+  const [openWarehouseMenu, setOpenWarehouseMenu] = useState<string | null>(null);
 
   const { data: customerData } = useSelector((state: RootState) => state.customer);
   const dispatch = useDispatch();
@@ -98,6 +109,7 @@ export default function Navbar() {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [storeName, setStoreName] = useState<string>("");
 
   const [subAccountName, setSubAccountName] = useState<string | null>(null);
   const [isSubAccount, setIsSubAccount] = useState(false);
@@ -177,6 +189,25 @@ export default function Navbar() {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  // Update document title and sync storeName state
+  useEffect(() => {
+    const found = warehouseItems.find(w => w.code === currentStore);
+    // Strictly use found.name (Store Name e.g. "Arabic") as primary
+    const displayName = found ? (found.name || found.label) : (typeof sessionStorage !== "undefined" ? sessionStorage.getItem(`storeName_${currentStore}`) : null) || currentStore;
+    setStoreName(displayName);
+
+    if (displayName && displayName !== currentStore) {
+      document.title = `AutoOno - ${displayName}`;
+    }
+
+    // Pre-cache all names to ensure they are ready when clicking/navigating
+    if (warehouseItems.length > 0 && typeof sessionStorage !== "undefined") {
+      warehouseItems.forEach(w => {
+        sessionStorage.setItem(`storeName_${w.code}`, w.name || w.label);
+      });
+    }
+  }, [currentStore, warehouseItems]);
 
   // Fetch dynamic menu from API (re-fetches when locale changes)
   useEffect(() => {
@@ -285,6 +316,7 @@ export default function Navbar() {
         if (!res.ok) {
           if (res.status === 401) {
             setWarehouseItems([]);
+            setAllPermittedStores([]);
             return;
           }
           throw new Error("source-permission fetch failed");
@@ -298,6 +330,8 @@ export default function Navbar() {
           ? data.permitted_stores
           : (Array.isArray(data) ? data : []);
 
+        setAllPermittedStores(raw);
+
         // Show stores matching the current locale for the nav hover dropdown.
         const filtered = raw.filter((s) =>
           s?.is_active !== false &&
@@ -307,21 +341,19 @@ export default function Navbar() {
         // Map stores to WarehouseItem shape.
         const mapped: WarehouseItem[] = filtered.map((s) => {
           const storeCode = String(s.store_code ?? "");
-          const label = String(s.group_name || s.store_name || s.website_name || "");
-
+          console.log("[Navbar] warehouse store_url:", s.store_url, "store_code:", storeCode);
           return {
-            label: label,
+            label: String(s.group_name || s.store_name || s.website_name || ""),
             code: storeCode,
             storeUrl: String(s.store_url ?? ""),
+            name: String(s.store_name || ""),
           };
         }).filter((w) => !!w.label);
 
         setWarehouseItems(mapped);
-        // Persist the first permitted warehouse so the products page can use it
-        // as a fallback when no store is selected (direct nav to "All Tyres").
-        if (mapped.length > 0 && typeof sessionStorage !== "undefined") {
-          sessionStorage.setItem("defaultStoreCode", mapped[0].code);
-        }
+        // We no longer automatically set a 'defaultStoreCode' from the first warehouse.
+        // This prevents users from being forced into a specific store (like Anwar Khaled)
+        // when they haven't explicitly chosen one.
       } catch (err) {
         if (process.env.NODE_ENV !== "production") {
           console.warn("[Navbar] source-permission/stores fetch failed:", err);
@@ -385,7 +417,7 @@ export default function Navbar() {
                     className="flex items-center gap-1.5 lg:gap-2 bg-white border border-gray-100 rounded-full px-1.5 lg:px-3 py-1 shadow-[0_2px_8px_-3px_rgba(0,0,0,0.12)] hover:shadow-md transition-shadow group cursor-pointer"
                   >
                     <div className="w-7 h-7 bg-primary rounded-full flex items-center justify-center flex-shrink-0 transition-transform">
-                      <UserCircle size={16} strokeWidth={2.5} />
+                      <UserCircle size={16} strokeWidth={2.5} className="text-white" />
                     </div>
                     <div className="flex flex-col min-w-0 pr-1 rtl:pr-0 rtl:pl-1">
                       <span className="hidden lg:block text-[8px] text-black/50 font-semibold uppercase tracking-widest leading-none">{t("nav.welcomeBack")}</span>
@@ -411,7 +443,9 @@ export default function Navbar() {
                           className="block px-4 py-2.5 text-body font-semibold text-red-600 hover:bg-red-50 transition-colors border-t border-gray-100 ltr:text-left rtl:text-right"
                           onClick={() => {
                             setIsProfileOpen(false);
+                            localStorage.removeItem("subAccountToken");
                             localStorage.removeItem("subAccountName");
+                            localStorage.removeItem("subAccountId");
                             localStorage.removeItem("isSubAccount");
                             setSubAccountName(null);
                             setIsSubAccount(false);
@@ -431,18 +465,49 @@ export default function Navbar() {
                 </div>
               )}
 
-
-              {/* Store Code Toggle — shows current store code, click to flip en ↔ ar */}
-              {isAuthenticated && pathname !== "/login" && currentStore && STORE_CODE_RE.test(currentStore) && (
+              {/* Store Switcher — fully dynamic from permitted_stores API */}
+              {isAuthenticated && pathname !== "/login" && currentStore && allPermittedStores.length > 0 && (
                 <div className="hidden lg:block" ref={storeDropRef}>
                   {(() => {
-                    const base = currentStore.split("_")[0];
-                    const currentStoreLocale = currentStore.endsWith("_ar") ? "ar" : "en";
-                    const targetLocale = currentStoreLocale === "en" ? "ar" : "en";
-                    const targetStore = `${base}_${targetLocale}`;
-                    const cleanPath = stripPrefix(pathname || "/").replace(/\.html$/, "") || "/";
-                    const seoPath = cleanPath === "/" ? cleanPath : `${cleanPath}.html`;
-                    const href = `/${targetStore}${seoPath}`;
+                    // 1. Find the current store entry from the API
+                    const currentEntry = allPermittedStores.find(
+                      (s) => String(s.store_code) === currentStore
+                    );
+                    if (!currentEntry) return null;
+
+                    // 2. Derive opposite store code from the store_code suffix (no hardcoded names)
+                    const oppositeCode = currentStore.endsWith("_en")
+                      ? currentStore.replace(/_en$/, "_ar")
+                      : currentStore.endsWith("_ar")
+                        ? currentStore.replace(/_ar$/, "_en")
+                        : currentStore === "en" ? "ar" : "en";
+
+                    // 3. Find opposite store — if not in permitted list, hide button
+                    const oppositeEntry = allPermittedStores.find(
+                      (s) => String(s.store_code) === oppositeCode
+                    );
+                    if (!oppositeEntry) return null;
+
+                    // 4. Label — locale-only stores (en/ar): show opposite store_name so user
+                    //    knows what they are switching TO (e.g. on "en" → show "Arabic").
+                    //    Warehouse stores (V101_en etc.): show current store_name as identifier.
+                    const isLocaleOnly = isValidLocale(currentStore);
+                    const buttonLabel = isLocaleOnly
+                      ? String(oppositeEntry.store_name || oppositeCode)
+                      : String(currentEntry.store_name || currentStore);
+
+                    // 5. Build href using store_url from API as the path prefix
+                    const getStorePath = (url: string): string => {
+                      try { return new URL(url).pathname.replace(/\/$/, ""); } catch { return ""; }
+                    };
+                    const oppositeBasePath = getStorePath(oppositeEntry.store_url) || `/${oppositeCode}`;
+                    const cleanCurrentPath = stripPrefix(pathname || "/").replace(/\.html$/, "") || "/";
+                    const seoCurrentPath = cleanCurrentPath === "/" ? "" : `${cleanCurrentPath}.html`;
+                    const href = `${oppositeBasePath}${seoCurrentPath}` || "/";
+
+                    // 6. Locale for i18n cookie — derived from store_code suffix only
+                    const targetLocale = (oppositeCode.endsWith("_ar") || oppositeCode === "ar") ? "ar" : "en";
+
                     return (
                       <Link
                         href={href}
@@ -450,10 +515,10 @@ export default function Navbar() {
                           setLocaleCookie(targetLocale);
                           i18n.changeLanguage(targetLocale);
                         }}
-                        className="flex items-center gap-1.5 border border-gray-200 rounded px-3 py-1.5 text-body font-semibold text-black hover:bg-gray-50 transition-colors"
-                        title={`Switch to ${targetStore}`}
+                        className="flex items-center gap-1.5 rounded px-3 py-1.5 text-body font-semibold text-black hover:bg-gray-50 transition-colors"
+                        title={`Switch to ${oppositeEntry.store_name || oppositeCode}`}
                       >
-                        <span>{currentStore}</span>
+                        <span>{buttonLabel}</span>
                       </Link>
                     );
                   })()}
@@ -500,7 +565,7 @@ export default function Navbar() {
                 >
                   <ShoppingCart size={24} strokeWidth={1.5} />
                   {cartCount > 0 && (
-                    <span className="absolute w-[20px] h-[20px] lg:w-[26px] lg:h-[26px] font-semibold text-micro lg:text-body -top-[10px] -right-[6px] lg:-right-[14px] bg-primary text-black flex items-center justify-center rounded-full border border-white">
+                    <span className="absolute w-[20px] h-[20px] lg:w-[26px] lg:h-[26px] font-semibold text-micro lg:text-body -top-[10px] -right-[6px] lg:-right-[14px] bg-primary text-white flex items-center justify-center rounded-full border border-white">
                       {cartCount}
                     </span>
                   )}
@@ -537,12 +602,9 @@ export default function Navbar() {
                 let cleanItemPath = stripPrefix(item.href.split("?")[0] || "/").replace(/\.html$/, "") || "/";
                 let seoItemPath = cleanItemPath === "/" ? cleanItemPath : `${cleanItemPath}.html`;
 
-                // Override for lubricants menu link as requested
-                if (item.label?.toLowerCase().includes("lubricant")) {
-                  cleanItemPath = "/lubricant";
-                  seoItemPath = "/lubricant.html#";
-                }
-
+                // On locale-only pages (e.g. /en/my-account), currentStore is "en"/"ar".
+                // We use the current store or fall back to the locale.
+                // We avoid forcing a warehouse code if the user hasn't picked one.
                 const prefix = currentStore || locale;
                 const href = `/${prefix}${seoItemPath}`;
 
@@ -551,21 +613,27 @@ export default function Navbar() {
                 const children = isWarehouse ? undefined : item.children;
                 const hasChildren = (isWarehouse && warehouseItems.length > 0) || !!(children && children.length > 0);
 
+                const isOpen = openWarehouseMenu === item.href;
                 return (
-                  <div key={item.href} className="relative group h-full">
+                  <div
+                    key={item.href}
+                    className="relative h-full"
+                    onMouseEnter={() => hasChildren && setOpenWarehouseMenu(item.href)}
+                    onMouseLeave={() => setOpenWarehouseMenu(null)}
+                  >
                     <Link
                       href={href}
                       className={`py-3 flex items-center h-full px-2.5 lg:px-7 text-body font-semibold capitalize transition-all duration-200 whitespace-nowrap ${isActive
                         ? "bg-black text-white"
-                        : "text-white group-hover:bg-black group-hover:text-white"
+                        : "text-white hover:bg-black hover:text-white"
                         }`}
                     >
                       {resolveLabel(item)}
                     </Link>
 
-                    {/* Warehouse dropdown — matches reference image */}
-                    {hasChildren && (
-                      <div className="absolute top-full left-0 w-56 bg-white shadow-[0_8px_24px_rgba(0,0,0,0.08)] opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-150 z-[100]">
+                    {/* Warehouse dropdown — hover-based via React state (no CSS gap issue) */}
+                    {hasChildren && isOpen && (
+                      <div className="absolute top-full left-0 w-56 bg-white shadow-[0_8px_24px_rgba(0,0,0,0.08)] z-[100]">
                         <div className="flex flex-col py-1">
                           {isWarehouse
                             ? [...warehouseItems]
@@ -576,13 +644,13 @@ export default function Navbar() {
                               })
                               .map((w) => {
                                 const isSelected = currentStore === w.code;
-                                // Calculate target warehouse URL
-                                const cleanPath = stripPrefix(pathname || "/").replace(/\.html$/, "") || "/";
-                                const targetPrefix = w.code || locale;
-                                const seoPath = cleanPath === "/" ? cleanPath : `${cleanPath}.html`;
-                                const warehouseHref = `/${targetPrefix}${seoPath}`;
-
+                                // Use the category's path (item.href) instead of the current pathname
+                                // so that clicking a warehouse under 'Lubricants' actually takes you to Lubricants.
+                                const targetCategoryPath = stripPrefix(item.href || "/").replace(/\.html$/, "") || "/";
+                                const seoCategoryPath = targetCategoryPath === "/" ? "" : `${targetCategoryPath}.html`;
                                 const wLocale = w.code.endsWith("_ar") ? "ar" : "en";
+                                const warehouseHref = `/${w.code}${seoCategoryPath}`;
+
                                 return (
                                   <Link
                                     key={w.code}
@@ -590,6 +658,8 @@ export default function Navbar() {
                                     onClick={() => {
                                       setLocaleCookie(wLocale);
                                       i18n.changeLanguage(wLocale);
+                                      document.cookie = `NEXT_STORE=${w.code};path=/;max-age=${60 * 60 * 24 * 365};samesite=lax`;
+                                      setOpenWarehouseMenu(null);
                                     }}
                                     className={`text-start px-6 py-2.5 text-body font-semibold transition-colors cursor-pointer ${isSelected ? "bg-primary/10 text-primary" : "text-black hover:bg-gray-50"}`}
                                   >
@@ -605,6 +675,7 @@ export default function Navbar() {
                                 <Link
                                   key={idx}
                                   href={childHref}
+                                  onClick={() => setOpenWarehouseMenu(null)}
                                   className="px-6 py-2.5 text-body font-semibold text-black hover:bg-gray-50 transition-colors"
                                 >
                                   {child.label}
@@ -635,6 +706,9 @@ export default function Navbar() {
                       <span className="text-body text-black font-semibold uppercase truncate tracking-tight">
                         {isSubAccount && subAccountName ? subAccountName : displayUser}
                       </span>
+                      {storeName && storeName !== currentStore && (
+                        <span className="text-[10px] text-primary font-bold uppercase mt-1 leading-none">{storeName}</span>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -648,12 +722,6 @@ export default function Navbar() {
                   // Strip prefix/extension, rebuild as /{storeOrLocale}/{path}.html
                   let cleanItemPath = stripPrefix(item.href.split("?")[0] || "/").replace(/\.html$/, "") || "/";
                   let seoItemPath = cleanItemPath === "/" ? cleanItemPath : `${cleanItemPath}.html`;
-
-                  // Override for lubricants menu link as requested
-                  if (item.label?.toLowerCase().includes("lubricant")) {
-                    cleanItemPath = "/lubricant";
-                    seoItemPath = "/lubricant.html#";
-                  }
 
                   const prefix = currentStore || locale;
                   const href = `/${prefix}${seoItemPath}`;
@@ -681,13 +749,12 @@ export default function Navbar() {
                             })
                             .map((w) => {
                               const isSelected = currentStore === w.code;
-                              // Calculate target warehouse URL
-                              const cleanPath = stripPrefix(pathname || "/").replace(/\.html$/, "") || "/";
-                              const targetPrefix = w.code || locale;
-                              const seoPath = cleanPath === "/" ? cleanPath : `${cleanPath}.html`;
-                              const warehouseHref = `/${targetPrefix}${seoPath}`;
-
+                              // Use the category's path (item.href) instead of the current pathname
+                              const targetCategoryPathM = stripPrefix(item.href || "/").replace(/\.html$/, "") || "/";
+                              const seoCategoryPathM = targetCategoryPathM === "/" ? "" : `${targetCategoryPathM}.html`;
                               const mLocale = w.code.endsWith("_ar") ? "ar" : "en";
+                              const warehouseHref = `/${w.code}${seoCategoryPathM}`;
+
                               return (
                                 <Link
                                   key={w.code}
@@ -695,6 +762,7 @@ export default function Navbar() {
                                   onClick={() => {
                                     setLocaleCookie(mLocale);
                                     i18n.changeLanguage(mLocale);
+                                    document.cookie = `NEXT_STORE=${w.code};path=/;max-age=${60 * 60 * 24 * 365};samesite=lax`;
                                     setIsMenuOpen(false);
                                   }}
                                   className={`block w-full text-start py-2 text-label font-semibold cursor-pointer ${isSelected ? "text-primary" : "text-black/70 hover:text-primary"}`}

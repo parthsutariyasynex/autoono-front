@@ -130,7 +130,7 @@ const Filters: React.FC<FiltersProps> = ({
                         </button>
 
                         {isStatusOpen && (
-                            <ul className="absolute top-full left-0 min-w-[180px] w-full bg-primary z-50 shadow-md max-h-[320px] overflow-y-auto border-t border-black/10">
+                            <ul className="absolute top-full left-0 min-w-[180px] w-full bg-primary z-50 shadow-md max-h-[320px] overflow-y-auto border-t border-gray-200">
                                 {statusOptions.map((opt: any, idx: number) => {
                                     const optionLabel = typeof opt === 'string' ? opt : (opt.label || opt.name || opt.status || String(idx));
                                     const optionValue = typeof opt === 'string' ? opt : (opt.value || opt.id || optionLabel);

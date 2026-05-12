@@ -265,7 +265,7 @@ export default function NotificationsPage() {
                             </div>
 
                             {/* PAGINATION PANEL */}
-                            <div className="bg-borderFaint px-4 md:px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-4 md:gap-6 border-t border-borderLight">
+                            <div className="bg-borderFaint px-4 md:px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-4 md:gap-6 border-t border-gray-200">
                                 <div className="text-body text-black font-medium order-2 lg:order-1">
                                     {t('favorites.items')} <bdi dir="ltr">{((currentPage - 1) * pageSize) + 1} {t('m.to')} {Math.min(currentPage * pageSize, totalCount)}</bdi> {t('favorites.of')} <bdi dir="ltr">{totalCount}</bdi> {t('favorites.total')}
                                 </div>
@@ -274,7 +274,7 @@ export default function NotificationsPage() {
                                     {currentPage > 1 && (
                                         <button
                                             onClick={() => setCurrentPage(currentPage - 1)}
-                                            className="w-10 h-10 flex items-center justify-center text-black/70 hover:text-black hover:bg-white/50 rounded-full transition-all border border-transparent hover:border-borderStrong"
+                                            className="w-10 h-10 flex items-center justify-center text-black/70 hover:text-black hover:bg-white/50 rounded-full transition-all border border-transparent hover:border-gray-200"
                                         >
                                             {isRtl ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
                                         </button>
@@ -286,7 +286,7 @@ export default function NotificationsPage() {
                                                 onClick={() => setCurrentPage(num)}
                                                 className={`w-10 h-10 flex items-center justify-center text-body-lg font-bold rounded-full border transition-all ${currentPage === num
                                                     ? "bg-primary border-primary text-white shadow-md transform scale-105"
-                                                    : "bg-white border-borderStrong text-black hover:border-primary hover:text-primary"
+                                                    : "bg-white border-gray-200 text-black hover:border-primary hover:text-primary"
                                                     }`}
                                             >
                                                 {num}
@@ -296,7 +296,7 @@ export default function NotificationsPage() {
                                     {currentPage < totalPages && (
                                         <button
                                             onClick={() => setCurrentPage(currentPage + 1)}
-                                            className="w-10 h-10 flex items-center justify-center text-black/70 hover:text-black hover:bg-white/50 rounded-full transition-all border border-transparent hover:border-borderStrong"
+                                            className="w-10 h-10 flex items-center justify-center text-black/70 hover:text-black hover:bg-white/50 rounded-full transition-all border border-transparent hover:border-gray-200"
                                         >
                                             {isRtl ? <ChevronLeft size={20} /> : <ChevronRight size={20} />}
                                         </button>

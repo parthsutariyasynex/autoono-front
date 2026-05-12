@@ -35,6 +35,12 @@ function getResponse(response: any) {
 }
 
 export function getToken() {
+    // Sub-account session override: use the sub-account token while impersonating
+    if (typeof window !== "undefined" && localStorage.getItem("isSubAccount") === "true") {
+        const subToken = localStorage.getItem("subAccountToken");
+        if (subToken) return subToken;
+    }
+
     // Try Redux first, then fallback to localStorage
     const reduxToken = store.getState().auth.token;
     if (reduxToken) return reduxToken;

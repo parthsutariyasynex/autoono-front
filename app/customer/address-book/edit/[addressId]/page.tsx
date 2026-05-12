@@ -170,7 +170,7 @@ function EditAddressPageContent() {
 
                     <div className="bg-white border border-gray-200 shadow-sm rounded-sm overflow-hidden max-w-4xl">
                         {/* Section Header */}
-                        <div className="bg-white px-5 md:px-8 py-3.5 md:py-4 border-b border-gray-100">
+                        <div className="bg-white px-5 md:px-8 py-3.5 md:py-4 border-b border-gray-200">
                             <h2 className="text-body-lg md:text-h3-sm font-black text-black uppercase tracking-tight ltr:text-left rtl:text-right">
                                 {t("addressBook.contactInformation")}
                             </h2>
@@ -188,7 +188,7 @@ function EditAddressPageContent() {
                                         value={formData.firstname}
                                         onChange={handleInputChange}
                                         type="text"
-                                        className={`w-full p-2.5 md:p-3 border ${errors.firstname ? 'border-red-500' : 'border-gray-300'} rounded-sm focus:outline-none focus:border-primary text-sm text-black/80 ltr:text-left rtl:text-right`}
+                                        className={`w-full p-2.5 md:p-3 border ${errors.firstname ? 'border-red-500' : 'border-gray-200'} rounded-sm focus:outline-none focus:border-primary text-sm text-black/80 ltr:text-left rtl:text-right`}
                                         placeholder={t("addressBook.firstName")}
                                     />
                                     {errors.firstname && (
@@ -206,7 +206,7 @@ function EditAddressPageContent() {
                                         value={formData.lastname}
                                         onChange={handleInputChange}
                                         type="text"
-                                        className={`w-full p-2.5 md:p-3 border ${errors.lastname ? 'border-red-500' : 'border-gray-300'} rounded-sm focus:outline-none focus:border-primary text-sm text-black/80 ltr:text-left rtl:text-right`}
+                                        className={`w-full p-2.5 md:p-3 border ${errors.lastname ? 'border-red-500' : 'border-gray-200'} rounded-sm focus:outline-none focus:border-primary text-sm text-black/80 ltr:text-left rtl:text-right`}
                                         placeholder={t("addressBook.lastName")}
                                     />
                                     {errors.lastname && (
@@ -225,7 +225,7 @@ function EditAddressPageContent() {
                                         onChange={handleInputChange}
                                         type="tel"
                                         dir="ltr"
-                                        className={`w-full p-2.5 md:p-3 border ${errors.telephone ? 'border-red-500' : 'border-gray-300'} rounded-sm focus:outline-none focus:border-primary text-sm text-black/80 ltr:text-left rtl:text-right`}
+                                        className={`w-full p-2.5 md:p-3 border ${errors.telephone ? 'border-red-500' : 'border-gray-200'} rounded-sm focus:outline-none focus:border-primary text-sm text-black/80 ltr:text-left rtl:text-right`}
                                         placeholder={t("addressBook.phoneNumber")}
                                     />
                                     {errors.telephone && (

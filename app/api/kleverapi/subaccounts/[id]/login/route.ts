@@ -16,7 +16,8 @@ export async function POST(
         const { id } = await params;
         const magentoUrl = `${baseUrl}/subaccounts/${id}/login`;
 
-        console.log(`[API ROUTE] Sub-Account Login at: ${magentoUrl}`);
+        console.log(`[SubAccount Login] URL: ${magentoUrl}`);
+        console.log(`[SubAccount Login] Auth header present:`, !!authHeader);
 
         const response = await fetch(magentoUrl, {
             method: 'POST',

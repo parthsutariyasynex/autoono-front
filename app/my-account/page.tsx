@@ -43,17 +43,18 @@ export default function MyAccountPage() {
     const { data: customer, loading } = useSelector((state: RootState) => state.customer);
     const token = useSelector((state: RootState) => state.auth.token);
 
+    const [subAccountName, setSubAccountName] = useState("");
     const [isSubAccountSession, setIsSubAccountSession] = useState(false);
 
     useEffect(() => {
         if (typeof window !== "undefined") {
             const isSub = localStorage.getItem("isSubAccount") === "true";
             setIsSubAccountSession(isSub);
+            setSubAccountName(localStorage.getItem("subAccountName") || "");
 
-            // Redirect sub-account users to their dedicated page
+            // Clear cached parent customer data so the page re-fetches under the sub-account token
             if (isSub) {
-                router.replace(lp("/subaccount/my-account"));
-                return;
+                dispatch({ type: "CLEAR_CUSTOMER" });
             }
         }
     }, [pathname, router]);
@@ -107,18 +108,15 @@ export default function MyAccountPage() {
         return businessOverview?.[key] || fallback;
     };
 
-    if (loading) {
+    if (loading || !customer) {
         return (
             <div className="min-h-screen bg-white">
-
                 <div className="flex items-center justify-center h-[60vh]">
                     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
                 </div>
             </div>
         );
     }
-
-    if (!customer) return null;
 
     const getAttr = (code: string, fallback: string = "N/A") => {
         if ((customer as any)[code] !== undefined) return (customer as any)[code];
@@ -138,8 +136,8 @@ export default function MyAccountPage() {
         return num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     };
 
-    const cardBase = "border border-gray-300 bg-white shadow-sm rounded-none";
-    const sectionHeader = "bg-surfaceHover px-4 py-3 border-b border-gray-300 text-black font-bold uppercase text-body";
+    const cardBase = "border border-gray-200 bg-white shadow-sm rounded-none";
+    const sectionHeader = "bg-surfaceHover px-4 py-3 border-b border-gray-200 text-black font-bold uppercase text-body";
 
     const addresses = (customer as any).addresses as Address[] | undefined;
     const defaultBilling = addresses?.find((a: Address) => a.default_billing);
@@ -180,7 +178,9 @@ export default function MyAccountPage() {
                         {isSubAccountSession && (
                             <div className="bg-successLight border-l-4 border-successCheck text-successDark p-4 mb-8 flex items-center gap-3 animate-in fade-in slide-in-from-top duration-500 shadow-sm" role="alert">
                                 <span className="text-successCheck font-bold text-lg">✔</span>
-                                <p className="text-body-lg font-medium tracking-tight">{t("account.youAreLoggedAs")}</p>
+                                <p className="text-body-lg font-medium tracking-tight">
+                                    {t("account.youAreLoggedAs")} {subAccountName && <span className="font-bold underline decoration-primary/40 underline-offset-4">{subAccountName}</span>}
+                                </p>
                             </div>
                         )}
 

@@ -12,6 +12,7 @@ export default {
       colors: {
         primary: "#4E81C2",
         primaryHover: "#3A6BA8",
+        border: "#e5e7eb",
       },
       fontSize: {
         "h1-lg": ["42px", { lineHeight: "1.1" }],

@@ -223,7 +223,8 @@ export async function GET(request: NextRequest) {
             }
             const errBody = await res.text();
             console.error("[menu] Magento error:", res.status, errBody);
-            return NextResponse.json({ error: "Failed to fetch menu" }, { status: res.status });
+            // Return empty menu instead of propagating the error so the navbar doesn't crash.
+            return jsonResponse([]);
         }
 
         const data = await res.json();

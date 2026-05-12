@@ -24,26 +24,28 @@ import { useLocale } from "@/lib/i18n/client";
 
 const PAGE_SIZE = 20;
 
-// Translation keys for table headers — resolved inside the component using t()
-const TABLE_HEADER_KEYS = ['m.brand', 'm.name', 'm.image', 'm.stock', 'm.price', 'm.action'] as const;
-const COL_WIDTHS = ['10%', '40%', '10%', '12%', '12%', '120px'] as const;
+// Base headers/widths — Action column added dynamically only when products need it.
+const BASE_HEADER_KEYS = ['m.brand', 'm.name', 'm.image', 'm.stock', 'm.price'] as const;
+const BASE_COL_WIDTHS = ['10%', '40%', '10%', '12%', '18%'] as const;
+const ACTION_COL_WIDTH = '120px';
 const SHIMMER_ROWS = 10;
 const ROW_HEIGHT = 'h-auto md:h-[52px]';
 
-function TableColGroup() {
+function TableColGroup({ showAction }: { showAction: boolean }) {
   return (
     <colgroup>
-      {COL_WIDTHS.map((w, i) => <col key={i} style={{ width: w }} />)}
+      {BASE_COL_WIDTHS.map((w, i) => <col key={i} style={{ width: w }} />)}
+      {showAction && <col style={{ width: ACTION_COL_WIDTH }} />}
     </colgroup>
   );
 }
 
-function ShimmerRows() {
+function ShimmerRows({ colCount }: { colCount: number }) {
   return (
     <>
       {Array.from({ length: SHIMMER_ROWS }).map((_, i) => (
         <tr key={`shimmer-${i}`} className={`animate-pulse ${ROW_HEIGHT}`}>
-          {TABLE_HEADER_KEYS.map((_, j) => (
+          {Array.from({ length: colCount }).map((_, j) => (
             <td key={j} className="px-4">
               <div className="h-3 bg-gray-100 rounded w-full"></div>
             </td>
@@ -137,6 +139,7 @@ export default function ProductsPage({ categoryId: propCategoryId, storeCode: pr
   const [isInquiryModalOpen, setIsInquiryModalOpen] = useState(false);
   const [inquiryProduct, setInquiryProduct] = useState<any | null>(null);
   const [previewProduct, setPreviewProduct] = useState<any | null>(null);
+  const [urlCategoryId, setUrlCategoryId] = useState<string | null>(null);
 
   const [isMounted, setIsMounted] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
@@ -144,6 +147,7 @@ export default function ProductsPage({ categoryId: propCategoryId, storeCode: pr
   const [isFavorite, setIsFavorite] = useState(false);
   const [favIds, setFavIds] = useState<number[]>([]);
   const [selectedStoreCode, setSelectedStoreCode] = useState<string | null>(null);
+  const [storeName, setStoreName] = useState<string>("");
 
   useEffect(() => {
     setIsMounted(true);
@@ -151,6 +155,14 @@ export default function ProductsPage({ categoryId: propCategoryId, storeCode: pr
     if (stored) setFavIds(JSON.parse(stored));
     if (searchParams) {
       let changed = false;
+
+      const cid = searchParams.get("categoryId");
+      if (cid && cid !== urlCategoryId) {
+        setUrlCategoryId(cid);
+        setCurrentPage(1);
+        setProducts([]);
+        changed = true;
+      }
 
       const sc = searchParams.get("store");
       if (sc !== selectedStoreCode) {
@@ -208,6 +220,13 @@ export default function ProductsPage({ categoryId: propCategoryId, storeCode: pr
         isSyncingFromUrl.current = true;
       }
       setIsInitialized(true);
+
+      // Sync store name from session storage
+      if (typeof sessionStorage !== "undefined") {
+        const sc = propStoreCode || pathStoreCode || searchParams.get("store") || sessionStorage.getItem("defaultStoreCode") || "";
+        const sn = sessionStorage.getItem(`storeName_${sc}`);
+        if (sn) setStoreName(sn);
+      }
     }
   }, [searchParams]);
 
@@ -261,7 +280,7 @@ export default function ProductsPage({ categoryId: propCategoryId, storeCode: pr
         }
       }
     }
-    router.push(lp("/favorites"));
+    router.push(lp(`/favorites?added=${encodeURIComponent(product.name || "")}`));
   };
 
   const [debouncedFilters, setDebouncedFilters] = useState(selectedFilters);
@@ -292,7 +311,7 @@ export default function ProductsPage({ categoryId: propCategoryId, storeCode: pr
         const firstSeg = window.location.pathname.split("/").filter(Boolean)[0] || "";
         const storeLocaleMatch = firstSeg.match(/^[A-Za-z0-9]+_(en|ar)$/);
         const pathLocale = storeLocaleMatch ? storeLocaleMatch[1]
-            : (firstSeg === "ar" || firstSeg === "en") ? firstSeg : "";
+          : (firstSeg === "ar" || firstSeg === "en") ? firstSeg : "";
         const cookieLocale = document.cookie.match(/NEXT_LOCALE=([^;]+)/)?.[1] || "";
         const fetchLocale = pathLocale || cookieLocale || "en";
         const headers: HeadersInit = { "Content-Type": "application/json", "Authorization": `Bearer ${token}`, "x-locale": fetchLocale };
@@ -301,18 +320,16 @@ export default function ProductsPage({ categoryId: propCategoryId, storeCode: pr
         // returns filter groups in the response. product-search is only used in the
         // search popup typeahead — it ignores filter params and returns no filter groups.
         const queryString = formatMagentoQueryParams(debouncedFilters, currentPage, sortBy);
-        // When no warehouse is explicitly selected, fall back to the first permitted
-        // warehouse the Navbar stored after fetching source-permission. This prevents
-        // an empty result when the user clicks "All Tyres" without choosing a warehouse.
-        const fallbackStore = typeof sessionStorage !== "undefined"
-          ? sessionStorage.getItem("defaultStoreCode") || ""
-          : "";
-        const effectiveStoreCode = propStoreCode || pathStoreCode || selectedStoreCode || fallbackStore;
+
+        // Priority for categoryId: Prop > URL Param > Default (15)
+        const categoryIdFromUrl = propCategoryId || urlCategoryId || "15";
+
+        // Restore storeParam calculation
+        const pathStoreCodeFromUrl = window.location.pathname.split("/").filter(Boolean)[0];
+        // We avoid forcing a default warehouse code if none is active in the URL or props.
+        const effectiveStoreCode = propStoreCode || (STORE_CODE_RE_PL.test(pathStoreCodeFromUrl) ? pathStoreCodeFromUrl : null) || selectedStoreCode || "";
         const storeParam = effectiveStoreCode ? `&storeCode=${encodeURIComponent(effectiveStoreCode)}` : "";
-        // Always use the root/all-products category (15) for the API call.
-        // The ?category= URL param is the nav menu's categoryId (e.g. 5 for "All Tyres")
-        // which is a navigation/CMS ID — it has no products. Only categoryId=15 returns results.
-        const categoryIdFromUrl = propCategoryId || "15";
+
         const searchByParam = searchByTerm ? `&search=${encodeURIComponent(searchByTerm)}` : "";
         const itemCodeParam = itemCodeTerm ? `&item_code=${encodeURIComponent(itemCodeTerm)}` : "";
         const url = `/api/category-products?${queryString ? queryString + "&" : ""}categoryId=${encodeURIComponent(categoryIdFromUrl)}&pageSize=${PAGE_SIZE}&lang=${fetchLocale}${storeParam}${searchByParam}${itemCodeParam}`;
@@ -326,13 +343,12 @@ export default function ProductsPage({ categoryId: propCategoryId, storeCode: pr
         const productArray = Array.isArray(data.products) ? data.products : (Array.isArray(data.items) ? data.items : []);
         const total = typeof data.total_count === "number" ? data.total_count : productArray.length;
 
-        // Map items to ensure final_price and original_price are consistent
-        const mappedProducts = productArray.map((p: any) => {
-          const finalPrice = Number(p.final_price || p.special_price || p.price || 0);
-          const potentialOldPrice = Number(p.price || p.regular_price || p.original_price || p.old_price || 0);
-          const originalPrice = potentialOldPrice > finalPrice ? potentialOldPrice : 0;
-          return { ...p, final_price: finalPrice, original_price: originalPrice };
-        });
+        // Normalise final_price only; keep all other API fields (show_old_price,
+        // original_price, stock_label, stock_color, is_action, etc.) exactly as returned.
+        const mappedProducts = productArray.map((p: any) => ({
+          ...p,
+          final_price: Number(p.final_price ?? p.special_price ?? p.price ?? 0),
+        }));
 
         if (abortController.signal.aborted) return;
         setProducts(mappedProducts);
@@ -398,17 +414,24 @@ export default function ProductsPage({ categoryId: propCategoryId, storeCode: pr
     }
   }, [addToCart, router]);
 
-  const getStockBadge = (product: any) => {
-    const label = product?.stock_label === "Available" ? t("stock.available") : product?.stock_label === "Not Available" ? t("stock.not_available") : product?.stock_label === "Limited" ? t("stock.limited") : product?.stock_label || (product?.is_in_stock ? t("stock.available") : t("stock.not_available"));
-    const apiColor = product?.stock_color?.toLowerCase() || (product?.is_in_stock ? "green" : "red");
-    const colorClass = apiColor === "green" ? "bg-green-500" : apiColor === "yellow" ? "bg-primary" : "bg-red-500";
-    return (
-      <div className="flex flex-col items-center justify-center text-center gap-1">
-        <span className={`w-4 h-4 rounded-full border border-gray-100 shadow-sm ${colorClass}`}></span>
-        <span className="text-caption font-semibold text-black/80 uppercase leading-none">{label}</span>
-      </div>
-    );
+  // Map the API-provided stock_color string → Tailwind dot class.
+  // This is a presentation concern only — the label text comes directly from the API.
+  const stockColorClass = (color: string) => {
+    const c = (color || "").toLowerCase();
+    if (c === "green") return "bg-green-500";
+    if (c === "yellow" || c === "orange") return "bg-primary";
+    if (c === "red") return "bg-red-500";
+    return "bg-gray-400";
   };
+
+  const getStockBadge = (product: any) => (
+    <div className="flex flex-col items-center justify-center text-center gap-1">
+      <span className={`w-4 h-4 rounded-full border border-gray-100 shadow-sm ${stockColorClass(product.stock_color)}`} />
+      <span className="text-caption font-semibold text-black/80 uppercase leading-none">
+        {product.stock_label || ""}
+      </span>
+    </div>
+  );
 
   const sortedProducts = useMemo(() => {
     let result = [...products];
@@ -421,7 +444,10 @@ export default function ProductsPage({ categoryId: propCategoryId, storeCode: pr
     return result;
   }, [products, sortBy, isFavorite, favIds, selectedFilters]);
 
-  const totalColumns = TABLE_HEADER_KEYS.length;
+  // Show the Action column only if at least one loaded product has is_action === "Yes".
+  // During loading we assume it may appear (prevents column count jump on shimmer → data).
+  const showActionColumn = loading || sortedProducts.some(p => p.is_action === "Yes");
+  const totalColumns = BASE_HEADER_KEYS.length + (showActionColumn ? 1 : 0);
   const displayCount = totalCount;
   const totalPages = Math.ceil(displayCount / PAGE_SIZE);
 
@@ -430,20 +456,16 @@ export default function ProductsPage({ categoryId: propCategoryId, storeCode: pr
      MOBILE PRODUCT CARD
   ══════════════════════════════════════════════════════════════ */
   const renderProductCard = (product: any, index: number) => {
-    const brandName = product?.brand || (product?.name ? product.name.split(' ')[0] : "N/A");
-    const isOutOfStock = product.stock_status === "Not Available" || Number(product?.stock_qty ?? 0) <= 0;
-    const stockLabel = product?.stock_label === "Available" ? t("stock.available") : product?.stock_label === "Not Available" ? t("stock.not_available") : product?.stock_label === "Limited" ? t("stock.limited") : product?.stock_label || (product?.is_in_stock ? t("stock.available") : t("stock.not_available"));
-    const stockColor = product?.stock_color?.toLowerCase() || (product?.is_in_stock ? "green" : "red");
-    const dotColor = stockColor === "green" ? "bg-green-500" : stockColor === "yellow" ? "bg-primary" : "bg-red-500";
+    // All values come directly from the API — no hardcoded fallbacks.
+    const showActions = product.is_action === "Yes";
+    const showOldPrice = product.show_old_price !== false && product.original_price > product.final_price;
+    const isOutOfStock = product.is_in_stock === false || product.stock_label === "Not Available";
 
-    // Extract relative path from absolute Magento URL
+    // Resolve relative path from the API-provided product_url.
     let productPath = "#";
     if (product.product_url) {
-      try {
-        productPath = new URL(product.product_url).pathname;
-      } catch {
-        productPath = product.product_url;
-      }
+      try { productPath = new URL(product.product_url).pathname; }
+      catch { productPath = product.product_url; }
     }
 
     return (
@@ -451,69 +473,68 @@ export default function ProductsPage({ categoryId: propCategoryId, storeCode: pr
         {/* Top: content left + image right */}
         <Link href={productPath} className="flex gap-2.5 group/card">
           <div className="flex-1 min-w-0">
-            <p className="text-caption font-semibold text-black/50 uppercase tracking-wider">{brandName}</p>
-            <p className="text-body-sm md:text-body font-semibold text-black leading-tight mt-0.5 truncate group-hover/card:text-primary transition-colors">{product?.name || "—"}</p>
+            <p className="text-caption font-semibold text-black/50 uppercase tracking-wider">{product.brand || "—"}</p>
+            <p className="text-body-sm md:text-body font-semibold text-black leading-tight mt-0.5 truncate group-hover/card:text-primary transition-colors">{product.name || "—"}</p>
+            {product.item_code && (
+              <p className="text-caption text-black/40 font-medium mt-0.5 truncate">{product.item_code}</p>
+            )}
             <div className="flex items-center gap-1.5 mt-1.5">
-              <span className={`w-2 h-2 rounded-full ${dotColor}`}></span>
-              <span className="text-caption font-semibold text-black/70 uppercase">{stockLabel}</span>
+              <span className={`w-2 h-2 rounded-full ${stockColorClass(product.stock_color)}`} />
+              <span className="text-caption font-semibold text-black/70 uppercase">{product.stock_label || ""}</span>
             </div>
           </div>
-          <div
-            className="w-12 h-12 sm:w-14 sm:h-14 flex-shrink-0 rounded-lg border border-gray-100 overflow-hidden bg-gray-50 flex items-center justify-center group-hover/card:border-primary/20 transition-colors"
-          >
-            {product?.image_url ? <img src={product.image_url} alt={product.name} className="w-full h-full object-contain" /> : <span className="text-[8px] text-black/40 font-semibold uppercase">No Img</span>}
+          <div className="w-12 h-12 sm:w-14 sm:h-14 flex-shrink-0 rounded-lg border border-gray-100 overflow-hidden bg-gray-50 flex items-center justify-center group-hover/card:border-primary/20 transition-colors">
+            {product.image_url
+              ? <img src={product.image_url} alt={product.name} className="w-full h-full object-contain" />
+              : <span className="text-[8px] text-black/40 font-semibold uppercase">No Img</span>}
           </div>
         </Link>
+
         {/* Bottom: price left + actions right */}
         <div className="flex items-center justify-between border-t border-gray-100 pt-2 gap-2">
-          <div className="flex items-center gap-2 min-w-0">
-            <div className="flex flex-col">
-              {product.original_price && product.original_price > product.final_price ? (
-                <>
-                  <span className="text-caption font-semibold text-black/50">
-                    <Price amount={product.original_price} className="font-semibold line-through" />
-                  </span>
-                  <span className="text-body font-semibold text-black rubik-sans truncate">
-                    <Price amount={product.final_price} />
-                  </span>
-                </>
-              ) : (
-                <span className="text-body font-semibold text-black rubik-sans truncate">
-                  <Price amount={product?.final_price || 0} />
-                </span>
-              )}
-            </div>
-          </div>
-          <div className="flex items-center gap-1 flex-shrink-0">
-            {!isOutOfStock ? (
-              <button
-                onClick={() => handleAddToCart(product)}
-                disabled={addingToCart === product.sku}
-                className={`h-9 px-2.5 rounded-lg flex items-center gap-1.5 text-label font-semibold uppercase shadow-sm active:scale-95 cursor-pointer flex-shrink-0 ${justAdded === product.sku ? "bg-green-500 text-white" : "bg-primary text-black"}`}
-              >
-                {addingToCart === product.sku ? (
-                  <div className="w-3.5 h-3.5 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
-                ) : justAdded === product.sku ? (
-                  <><Check size={14} strokeWidth={3} /> {t("favorites.cartAdded")}</>
-                ) : (
-                  <><ShoppingCart size={14} strokeWidth={2.5} /></>
-                )}
-              </button>
-            ) : (
-              <button
-                onClick={() => { setInquiryProduct(product); setIsInquiryModalOpen(true); }}
-                className="h-9 px-2.5 bg-primary text-black rounded-lg flex items-center gap-1.5 text-label font-semibold uppercase shadow-sm active:scale-95 cursor-pointer flex-shrink-0"
-              >
-                <Info size={14} strokeWidth={2.5} />
-              </button>
+          {/* Price */}
+          <div className="flex flex-col min-w-0">
+            {showOldPrice && (
+              <span className="text-caption font-semibold text-black/50">
+                <Price amount={product.original_price} className="font-semibold line-through" />
+              </span>
             )}
-            <button
-              onClick={() => toggleFavorite(product)}
-              className={`w-9 h-9 rounded-lg flex items-center justify-center active:scale-95 cursor-pointer flex-shrink-0 ${favIds.includes(product.product_id) ? "bg-primary text-black" : "bg-gray-100 text-black/50"}`}
-            >
-              <Star size={16} fill={favIds.includes(product.product_id) ? "currentColor" : "none"} strokeWidth={2.5} />
-            </button>
+            <span className="text-body font-semibold text-black rubik-sans truncate">
+              <Price amount={product.final_price} />
+            </span>
           </div>
+
+          {/* Actions — only when API says is_action === "Yes" */}
+          {showActions && (
+            <div className="flex items-center gap-1 flex-shrink-0">
+              {!isOutOfStock ? (
+                <button
+                  onClick={() => handleAddToCart(product)}
+                  disabled={addingToCart === product.sku}
+                  className={`h-9 px-2.5 rounded-lg flex items-center gap-1.5 text-label font-semibold uppercase shadow-sm active:scale-95 cursor-pointer flex-shrink-0 ${justAdded === product.sku ? "bg-green-500 text-white" : "bg-primary text-black"}`}
+                >
+                  {addingToCart === product.sku
+                    ? <div className="w-3.5 h-3.5 border-2 border-black border-t-transparent rounded-full animate-spin" />
+                    : justAdded === product.sku
+                      ? <><Check size={14} strokeWidth={3} />{t("favorites.cartAdded")}</>
+                      : <ShoppingCart size={14} strokeWidth={2.5} />}
+                </button>
+              ) : (
+                <button
+                  onClick={() => { setInquiryProduct(product); setIsInquiryModalOpen(true); }}
+                  className="h-9 px-2.5 bg-primary text-black rounded-lg flex items-center gap-1.5 text-label font-semibold uppercase shadow-sm active:scale-95 cursor-pointer flex-shrink-0"
+                >
+                  <Info size={14} strokeWidth={2.5} />
+                </button>
+              )}
+              <button
+                onClick={() => toggleFavorite(product)}
+                className={`w-9 h-9 rounded-lg flex items-center justify-center active:scale-95 cursor-pointer flex-shrink-0 ${favIds.includes(product.product_id) ? "bg-primary text-black" : "bg-gray-100 text-black/50"}`}
+              >
+                <Star size={16} fill={favIds.includes(product.product_id) ? "currentColor" : "none"} strokeWidth={2.5} />
+              </button>
+            </div>
+          )}
         </div>
       </div>
     );
@@ -570,8 +591,8 @@ export default function ProductsPage({ categoryId: propCategoryId, storeCode: pr
     <>
       <Suspense fallback={null}><SearchParamsReader onParams={handleParams} /></Suspense>
       <div className="flex">
-        {/* Desktop Sidebar — hidden for exact SKU lookup; shown for text search (filters returned by category-products) */}
-        {!itemCodeTerm && (
+        {/* Desktop Sidebar — hidden for exact SKU lookup or when no products found */}
+        {!itemCodeTerm && (loading || products.length > 0) && (
           <div className="hidden xl:flex flex-col flex-shrink-0 self-stretch bg-white border-r border-gray-200">
             <SidebarFilter
               onFilterChange={handleFilterChange}
@@ -614,6 +635,11 @@ export default function ProductsPage({ categoryId: propCategoryId, storeCode: pr
 
           {/* ── MOBILE CONTROLS ── */}
           <div className="xl:hidden flex flex-col gap-2 mb-3">
+            {storeName && (loading || products.length > 0) && (
+              <div className="px-1 mb-1">
+                <h1 className="text-body-lg font-bold text-black uppercase tracking-tight">{storeName}</h1>
+              </div>
+            )}
             {/* Controls: 2 cols for SKU lookup (no filters), 3 cols otherwise */}
             <div className={`grid ${itemCodeTerm ? "grid-cols-2" : "grid-cols-3"} gap-2`}>
               <button onClick={() => router.push(lp("/favorites"))} className="h-[44px] bg-white border border-gray-200 rounded-xl flex items-center justify-center gap-2 text-label font-semibold uppercase tracking-wider shadow-sm active:scale-95 cursor-pointer">
@@ -697,92 +723,131 @@ export default function ProductsPage({ categoryId: propCategoryId, storeCode: pr
           {/* ── MOBILE/TABLET CARD LIST ── */}
           <div className="xl:hidden flex-1 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5 overflow-y-auto">
             {loading ? <MobileCardShimmer /> : sortedProducts.length === 0 ? (
-              <div className="flex-1 flex items-center justify-center py-20 col-span-full"><p className="text-xs font-semibold text-black/50 uppercase tracking-widest">{t("products.noProducts")}</p></div>
+              <div className="flex-1 flex items-center justify-center py-10 px-4 col-span-full">
+                <div className="bg-[#FFF9E7] border border-[#FFE7A3] text-[#856404] px-5 py-4 rounded-xl flex items-center gap-3 w-full shadow-sm">
+                  <AlertTriangle className="w-5 h-5 flex-shrink-0" />
+                  <span className="text-xs font-semibold uppercase tracking-wider">{t("products.noProducts")}</span>
+                </div>
+              </div>
             ) : sortedProducts.map((p, i) => renderProductCard(p, i))}
           </div>
           <div className="xl:hidden">{renderPagination(true)}</div>
 
           {/* ── DESKTOP CONTROLS + TABLE ── */}
-          {/* For SKU lookup the sidebar is gone → full rounding; otherwise right-rounded only */}
-          <div className={`hidden xl:flex flex-col bg-white rounded-none shadow-sm border border-gray-200 overflow-hidden ${itemCodeTerm ? "md:rounded-2xl" : "md:rounded-r-2xl border-l-0"}`}>
+          {/* For SKU lookup or empty results the sidebar is gone → full rounding; otherwise right-rounded only */}
+          <div className={`hidden xl:flex flex-col bg-white shadow-sm border border-gray-200 overflow-hidden ${itemCodeTerm || (!loading && products.length === 0) ? "md:rounded-2xl" : "md:rounded-r-2xl border-l-0"}`}>
             {/* Desktop header */}
-            <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center gap-4 min-h-[60px]">
-              <div className="flex items-center gap-4">
-                <button onClick={() => router.push(lp("/favorites"))} className="bg-gray-50 border border-gray-200 text-black px-4 py-2 rounded-xl flex items-center gap-2 shadow-sm text-xs font-semibold active:scale-95 cursor-pointer uppercase tracking-wider">
-                  <Star className="w-5 h-5 fill-black text-black" /> {t("sidebar.favoriteProducts")}
-                </button>
-                <div className="flex flex-1 items-center gap-3 overflow-x-auto custom-scrollbar-hide max-w-[800px]">
-                  {(searchByTerm || itemCodeTerm || isFavorite || Object.keys(selectedFilterLabels).length > 0) && (
-                    <span className="text-body-sm font-black text-black uppercase tracking-tight whitespace-nowrap">
-                      {t("products.yourSelections")} :
-                    </span>
-                  )}
-                  {/* Search term tag */}
-                  {searchByTerm && (
-                    <div className="flex items-center gap-1.5 bg-blue-50 border border-primary/30 px-3.5 py-1.5 rounded-lg text-body-sm font-bold text-primary shadow-sm whitespace-nowrap flex-shrink-0">
-                      {searchByTerm}
-                      <button onClick={clearSearchBy} className="hover:text-red-600 ml-1 transition-colors"><X size={14} strokeWidth={3} /></button>
-                    </div>
-                  )}
-                  {itemCodeTerm && (
-                    <div className="flex items-center gap-1.5 bg-blue-50 border border-primary/30 px-3.5 py-1.5 rounded-lg text-body-sm font-bold text-primary shadow-sm whitespace-nowrap flex-shrink-0">
-                      {itemCodeTerm}
-                      <button onClick={clearItemCode} className="hover:text-red-600 ml-1 transition-colors"><X size={14} strokeWidth={3} /></button>
-                    </div>
-                  )}
-                  {isFavorite && (
-                    <div className="flex items-center gap-1.5 bg-blue-50 border border-primary/30 px-3.5 py-1.5 rounded-lg text-body-sm font-bold text-primary shadow-sm flex-shrink-0">
-                      {t("sidebar.favoriteProducts")} <button onClick={() => setIsFavorite(false)} className="hover:text-red-600 ml-1 transition-colors"><X size={14} strokeWidth={3} /></button>
-                    </div>
-                  )}
-                  {Object.entries(selectedFilterLabels).flatMap(([code, items]) => items.map((item) => (
-                    <div key={`${code}-${item.value}`} className="flex items-center gap-1.5 bg-white border border-gray-200 px-4 py-1.5 rounded-lg text-body-sm font-bold text-black/80 shadow-sm whitespace-nowrap flex-shrink-0">
-                      {item.label} <button onClick={() => removeSpecificFilter(code, item.value)} className="hover:text-red-500 text-black/50 ml-1 transition-colors"><X size={14} strokeWidth={3} /></button>
-                    </div>
-                  )))}
-                </div>
-                {(Object.keys(selectedFilters).length > 0 || searchByTerm || itemCodeTerm || isFavorite) && (
-                  <button onClick={clearAllFilters} className="text-caption font-bold text-red-500 uppercase flex items-center gap-1.5 bg-red-50 px-3 py-1.5 rounded-lg flex-shrink-0 hover:bg-red-100 transition-colors">
-                    <X size={12} strokeWidth={3} /> {t("products.clearAll")}
+            {(loading || products.length > 0) && (
+              <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center gap-4 min-h-[60px]">
+                <div className="flex items-center gap-4">
+                  <button onClick={() => router.push(lp("/favorites"))} className="bg-gray-50 border border-gray-200 text-black px-4 py-2 rounded-xl flex items-center gap-2 shadow-sm text-xs font-semibold active:scale-95 cursor-pointer uppercase tracking-wider">
+                    <Star className="w-5 h-5 fill-black text-black" /> {t("sidebar.favoriteProducts")}
                   </button>
-                )}
+                  <div className="flex flex-1 items-center gap-3 overflow-x-auto custom-scrollbar-hide max-w-[800px]">
+                    {(searchByTerm || itemCodeTerm || isFavorite || Object.keys(selectedFilterLabels).length > 0) && (
+                      <span className="text-body-sm font-black text-black uppercase tracking-tight whitespace-nowrap">
+                        {t("products.yourSelections")} :
+                      </span>
+                    )}
+                    {/* Search term tag */}
+                    {searchByTerm && (
+                      <div className="flex items-center gap-1.5 bg-blue-50 border border-primary/30 px-3.5 py-1.5 rounded-lg text-body-sm font-bold text-primary shadow-sm whitespace-nowrap flex-shrink-0">
+                        {searchByTerm}
+                        <button onClick={clearSearchBy} className="hover:text-red-600 ml-1 transition-colors"><X size={14} strokeWidth={3} /></button>
+                      </div>
+                    )}
+                    {itemCodeTerm && (
+                      <div className="flex items-center gap-1.5 bg-blue-50 border border-primary/30 px-3.5 py-1.5 rounded-lg text-body-sm font-bold text-primary shadow-sm whitespace-nowrap flex-shrink-0">
+                        {itemCodeTerm}
+                        <button onClick={clearItemCode} className="hover:text-red-600 ml-1 transition-colors"><X size={14} strokeWidth={3} /></button>
+                      </div>
+                    )}
+                    {isFavorite && (
+                      <div className="flex items-center gap-1.5 bg-blue-50 border border-primary/30 px-3.5 py-1.5 rounded-lg text-body-sm font-bold text-primary shadow-sm flex-shrink-0">
+                        {t("sidebar.favoriteProducts")} <button onClick={() => setIsFavorite(false)} className="hover:text-red-600 ml-1 transition-colors"><X size={14} strokeWidth={3} /></button>
+                      </div>
+                    )}
+                    {Object.entries(selectedFilterLabels).flatMap(([code, items]) => items.map((item) => (
+                      <div key={`${code}-${item.value}`} className="flex items-center gap-1.5 bg-white border border-gray-200 px-4 py-1.5 rounded-lg text-body-sm font-bold text-black/80 shadow-sm whitespace-nowrap flex-shrink-0">
+                        {item.label} <button onClick={() => removeSpecificFilter(code, item.value)} className="hover:text-red-500 text-black/50 ml-1 transition-colors"><X size={14} strokeWidth={3} /></button>
+                      </div>
+                    )))}
+                  </div>
+                  {(Object.keys(selectedFilters).length > 0 || searchByTerm || itemCodeTerm || isFavorite) && (
+                    <button onClick={clearAllFilters} className="text-caption font-bold text-red-500 uppercase flex items-center gap-1.5 bg-red-50 px-3 py-1.5 rounded-lg flex-shrink-0 hover:bg-red-100 transition-colors">
+                      <X size={12} strokeWidth={3} /> {t("products.clearAll")}
+                    </button>
+                  )}
+                </div>
+                <PortalDropdown
+                  value={sortBy}
+                  onChange={setSortBy}
+                  options={[{ label: t("products.sortByDefault"), value: "none" }, { label: t("products.sortByLowToHigh"), value: "price-asc" }, { label: t("products.sortByHighToLow"), value: "price-desc" }]}
+                  buttonClassName="bg-gray-50 px-4 py-2 rounded-xl border border-gray-200 text-xs font-medium text-black cursor-pointer shadow-sm hover:border-gray-300 whitespace-nowrap"
+                  minWidth={190}
+                />
               </div>
-              <PortalDropdown
-                value={sortBy}
-                onChange={setSortBy}
-                options={[{ label: t("products.sortByDefault"), value: "none" }, { label: t("products.sortByLowToHigh"), value: "price-asc" }, { label: t("products.sortByHighToLow"), value: "price-desc" }]}
-                buttonClassName="bg-gray-50 px-4 py-2 rounded-xl border border-gray-200 text-xs font-medium text-black cursor-pointer shadow-sm hover:border-gray-300 whitespace-nowrap"
-                minWidth={190}
-              />
-            </div>
+            )}
 
             {/* Desktop table area */}
             <div className="flex-1 overflow-x-auto">
               <table className="w-full border-collapse table-fixed min-w-[700px]">
-                <TableColGroup />
-                <thead className="sticky top-0 z-20">
-                  <tr className="bg-gray-50 border-b-2 border-gray-200">
-                    {TABLE_HEADER_KEYS.map(key => (
-                      <th key={key} className="px-2 md:px-4 py-2 md:py-3 text-label font-semibold text-black uppercase tracking-widest text-center">{t(key)}</th>
-                    ))}
-                  </tr>
-                </thead>
+                <TableColGroup showAction={showActionColumn} />
+                {(loading || products.length > 0) && (
+                  <thead className="sticky top-0 z-20">
+                    <tr className="bg-gray-50 border-b-2 border-gray-200">
+                      {BASE_HEADER_KEYS.map(key => (
+                        <th key={key} className="px-2 md:px-4 py-2 md:py-3 text-label font-semibold text-black uppercase tracking-widest text-center">{t(key)}</th>
+                      ))}
+                      {showActionColumn && (
+                        <th className="px-2 md:px-4 py-2 md:py-3 text-label font-semibold text-black uppercase tracking-widest text-center">{t('m.action')}</th>
+                      )}
+                    </tr>
+                  </thead>
+                )}
                 <tbody className="divide-y divide-gray-50">
-                  {loading ? <ShimmerRows /> : products.length === 0 ? (
-                    <tr><td colSpan={totalColumns} className="py-24 text-center"><p className="text-xs font-semibold text-black/50 uppercase tracking-[0.2em]">{t("products.noProducts")}</p></td></tr>
+                  {loading ? <ShimmerRows colCount={totalColumns} /> : products.length === 0 ? (
+                    <tr>
+                      <td colSpan={totalColumns} className="py-24 px-6">
+                        <div className="bg-[#FFF9E7] border border-[#FFE7A3] text-[#856404] px-5 py-4 rounded-xl flex items-center gap-3 w-full shadow-sm max-w-2xl mx-auto">
+                          <AlertTriangle className="w-5 h-5 flex-shrink-0" />
+                          <span className="text-xs font-semibold uppercase tracking-wider">{t("products.noProducts")}</span>
+                        </div>
+                      </td>
+                    </tr>
                   ) : sortedProducts.map((product, index) => {
-                    const brandName = product?.brand || (product?.name ? product.name.split(' ')[0] : "N/A");
-                    const isOutOfStock = product.stock_status === "Not Available" || Number(product?.stock_qty ?? 0) <= 0;
+                    // All display values are taken directly from the API response.
+                    const showActions = product.is_action === "Yes";
+                    const showOldPrice = product.show_old_price !== false && product.original_price > product.final_price;
+                    const isOutOfStock = product.is_in_stock === false || product.stock_label === "Not Available";
+
+                    let productPath = "#";
+                    if (product.product_url) {
+                      try { productPath = new URL(product.product_url).pathname; }
+                      catch { productPath = product.product_url; }
+                    }
+
                     return (
                       <tr key={index} className={`hover:bg-primary/5 transition-colors group ${ROW_HEIGHT}`}>
-                        {/* Brand */}
-                        <td className="px-2 md:px-4 text-body-sm font-normal text-black/80 text-center">{t(`data.${brandName}`) !== `data.${brandName}` ? t(`data.${brandName}`) : brandName}</td>
-                        {/* Name */}
-                        <td className="px-2 md:px-4 text-body-sm font-normal text-black text-center">{product?.name || "—"}</td>
-                        {/* Image */}
+                        {/* Brand — direct from API */}
+                        <td className="px-2 md:px-4 text-body-sm font-normal text-black/80 text-center">
+                          {product.brand || "—"}
+                        </td>
+
+                        {/* Name + item_code — direct from API */}
+                        <td className="px-2 md:px-4 text-center">
+                          {/* <Link href={productPath} className="hover:text-primary transition-colors"> */}
+                          <span className="text-body-sm font-normal text-black block leading-tight">{product.name || "—"}</span>
+                          {/* {product.item_code && (
+                              <span className="text-caption text-black/40 font-medium block mt-0.5">{product.item_code}</span>
+                            )} */}
+                          {/* </Link> */}
+                        </td>
+
+                        {/* Image — direct from API */}
                         <td className="px-2 md:px-4 text-center">
                           <div className="w-10 h-10 mx-auto">
-                            {product?.image_url ? (
+                            {product.image_url ? (
                               <div className="relative w-10 h-10 group/img cursor-pointer" onClick={() => { setSelectedImage(product.image_url); setPreviewProduct(product); setIsImageModalOpen(true); }}>
                                 <img src={product.image_url} alt={product.name} width={40} height={40} className="w-10 h-10 object-contain rounded border border-gray-100 shadow-sm" />
                                 <div className="absolute inset-0 bg-black/50 opacity-0 group-hover/img:opacity-100 transition-all duration-300 flex items-center justify-center rounded">
@@ -792,66 +857,65 @@ export default function ProductsPage({ categoryId: propCategoryId, storeCode: pr
                             ) : <span className="text-caption text-black/40 font-semibold uppercase leading-[40px]">No Image</span>}
                           </div>
                         </td>
-                        {/* Stock */}
+
+                        {/* Stock — stock_label + stock_color direct from API */}
                         <td className="px-2 md:px-4 text-center">{getStockBadge(product)}</td>
-                        {/* Price */}
+
+                        {/* Price — final_price + show_old_price + original_price direct from API */}
                         <td className="px-2 md:px-4 text-center whitespace-nowrap">
                           <div className="flex flex-col items-center justify-center">
-                            {product.original_price && product.original_price > product.final_price ? (
-                              <>
-                                <span className="text-caption font-semibold text-black/50 mb-0.5">
-                                  <Price amount={product.original_price} className="font-semibold line-through" />
-                                </span>
-                                <span className="text-body-sm font-semibold text-black tracking-tight rubik-sans">
-                                  <Price amount={product.final_price} />
-                                </span>
-                              </>
-                            ) : (
-                              <span className="text-body-sm font-semibold text-black tracking-tight rubik-sans">
-                                <Price amount={product?.final_price || 0} />
+                            {showOldPrice && (
+                              <span className="text-caption font-semibold text-black/50 mb-0.5">
+                                <Price amount={product.original_price} className="font-semibold line-through" />
                               </span>
                             )}
+                            <span className="text-body-sm font-semibold text-black tracking-tight rubik-sans">
+                              <Price amount={product.final_price} />
+                            </span>
                           </div>
                         </td>
-                        {/* Action */}
-                        <td className="px-1 text-center align-middle">
-                          <div className="inline-grid grid-cols-3 gap-1 items-center">
-                            {!isOutOfStock ? (
-                              <input
-                                type="text"
-                                value={productQtys[product.sku] || 1}
-                                onChange={(e) => {
-                                  const val = e.target.value.replace(/\D/g, '');
-                                  const num = parseInt(val) || 0;
-                                  setProductQtys({ ...productQtys, [product.sku]: num });
-                                }}
-                                className="w-8 h-8 border-2 border-gray-100 rounded-md flex items-center justify-center text-label font-semibold text-black bg-white shadow-sm text-center outline-none focus:border-primary transition-colors"
-                                onFocus={(e) => {
-                                  const target = e.target;
-                                  setTimeout(() => target.select(), 0);
-                                }}
-                                onClick={(e) => (e.target as HTMLInputElement).select()}
-                                onKeyDown={(e) => {
-                                  if (e.key === "Enter") {
-                                    handleAddToCart(product);
-                                  }
-                                }}
-                              />
-                            ) : (
-                              <div className="w-8 h-8" />
+
+                        {/* Action TD — only in DOM when the column is visible */}
+                        {showActionColumn && (
+                          <td className="px-1 text-center align-middle">
+                            {showActions && (
+                              <div className="inline-grid grid-cols-3 gap-1 items-center">
+                                {!isOutOfStock ? (
+                                  <input
+                                    type="text"
+                                    value={productQtys[product.sku] || 1}
+                                    onChange={(e) => {
+                                      const val = e.target.value.replace(/\D/g, "");
+                                      setProductQtys({ ...productQtys, [product.sku]: parseInt(val) || 0 });
+                                    }}
+                                    className="w-8 h-8 border-2 border-gray-100 rounded-md flex items-center justify-center text-label font-semibold text-black bg-white shadow-sm text-center outline-none focus:border-primary transition-colors"
+                                    onFocus={(e) => { const t = e.target; setTimeout(() => t.select(), 0); }}
+                                    onClick={(e) => (e.target as HTMLInputElement).select()}
+                                    onKeyDown={(e) => { if (e.key === "Enter") handleAddToCart(product); }}
+                                  />
+                                ) : <div className="w-8 h-8" />}
+
+                                {!isOutOfStock ? (
+                                  <button onClick={() => handleAddToCart(product)} disabled={addingToCart === product.sku} className={`w-8 h-8 rounded-md flex items-center justify-center shadow-md hover:-translate-y-0.5 transition-all cursor-pointer ${justAdded === product.sku ? "bg-green-500 text-white" : "bg-primary text-black"}`}>
+                                    {addingToCart === product.sku
+                                      ? <div className="w-3.5 h-3.5 border-2 border-black border-t-transparent rounded-full animate-spin" />
+                                      : justAdded === product.sku
+                                        ? <Check size={15} strokeWidth={3} />
+                                        : <ShoppingCart size={15} strokeWidth={2.5} />}
+                                  </button>
+                                ) : (
+                                  <button onClick={() => { setInquiryProduct(product); setIsInquiryModalOpen(true); }} className="w-8 h-8 bg-primary text-black rounded-md flex items-center justify-center shadow-md active:scale-95 cursor-pointer">
+                                    <Info size={15} strokeWidth={2.5} />
+                                  </button>
+                                )}
+
+                                <button onClick={() => toggleFavorite(product)} className={`w-8 h-8 rounded-md flex items-center justify-center shadow-md active:scale-95 cursor-pointer ${favIds.includes(product.product_id) ? "bg-primary text-black" : "bg-white text-black/50 border border-gray-100 hover:border-primary"}`}>
+                                  <Star size={15} fill={favIds.includes(product.product_id) ? "currentColor" : "none"} strokeWidth={2.5} />
+                                </button>
+                              </div>
                             )}
-                            {!isOutOfStock ? (
-                              <button onClick={() => handleAddToCart(product)} disabled={addingToCart === product.sku} className={`w-8 h-8 rounded-md flex items-center justify-center shadow-md hover:-translate-y-0.5 transition-all cursor-pointer ${justAdded === product.sku ? "bg-green-500 text-white" : "bg-primary text-black hover:bg-primary"}`}>
-                                {addingToCart === product.sku ? <div className="w-3.5 h-3.5 border-2 border-black border-t-transparent rounded-full animate-spin"></div> : justAdded === product.sku ? <Check size={15} strokeWidth={3} /> : <ShoppingCart size={15} strokeWidth={2.5} />}
-                              </button>
-                            ) : (
-                              <button onClick={() => { setInquiryProduct(product); setIsInquiryModalOpen(true); }} className="w-8 h-8 bg-primary hover:bg-primary text-black rounded-md flex items-center justify-center shadow-md active:scale-95 cursor-pointer"><Info size={15} strokeWidth={2.5} /></button>
-                            )}
-                            <button onClick={() => toggleFavorite(product)} className={`w-8 h-8 rounded-md flex items-center justify-center shadow-md active:scale-95 cursor-pointer ${favIds.includes(product.product_id) ? "bg-primary text-black" : "bg-white text-black/50 border border-gray-100 hover:border-primary"}`}>
-                              <Star size={15} fill={favIds.includes(product.product_id) ? "currentColor" : "none"} strokeWidth={2.5} />
-                            </button>
-                          </div>
-                        </td>
+                          </td>
+                        )}
                       </tr>
                     );
                   })}

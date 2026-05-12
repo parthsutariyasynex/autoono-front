@@ -36,7 +36,7 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders }) => {
                                 <th className="px-6 py-4 text-center">{t("orders.action")}</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-gray-50">
+                        <tbody className="divide-y divide-gray-200">
                             {orders.length > 0 ? (
                                 orders.map((order, idx) => (
                                     <tr
@@ -140,7 +140,7 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders }) => {
                             </div>
 
                             {/* Actions */}
-                            <div className="flex items-center gap-3 pt-2 border-t border-gray-100 text-label font-black uppercase tracking-wider">
+                            <div className="flex items-center gap-3 pt-2 border-t border-gray-200 text-label font-black uppercase tracking-wider">
                                 <button className="text-black hover:text-primary transition-colors">
                                     {t("orders.viewOrder")}
                                 </button>

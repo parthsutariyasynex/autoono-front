@@ -218,18 +218,18 @@ export default function MyForecastPage() {
     if (!customer) return null;
 
     return (
-        <div className="flex flex-col lg:flex-row min-h-screen">
+        <div className="flex flex-col lg:flex-row flex-1 min-h-0 w-full bg-[#fcfcfc]">
             <Sidebar />
 
-            <main className="flex-1 p-4 md:p-8 bg-surfaceWarm min-h-screen" dir={isRtl ? "rtl" : "ltr"}>
+            <main className="flex-1 w-full px-4 md:px-6 lg:px-8 py-4 md:py-6 lg:py-10 bg-surfacePage min-w-0" dir={isRtl ? "rtl" : "ltr"}>
                 {/* Header with Refresh */}
-                <div className="flex justify-between items-center mb-6 md:mb-8">
-                    <h1 className="text-[18px] md:text-h3 font-black text-black uppercase tracking-tight">
+                <div className="flex justify-between items-center mb-6 md:mb-10">
+                    <h1 className="text-h3 md:text-[26px] font-black text-black uppercase tracking-wide">
                         {t("forecast.title")}
                     </h1>
                     <button
                         onClick={() => pullForecasts(currentPage, pageSize)}
-                        className="bg-white border border-gray-300 text-label md:text-body-sm font-black px-3 md:px-4 py-1.5 uppercase hover:bg-gray-100 transition-all shadow-sm flex items-center gap-2"
+                        className="bg-white border border-gray-200 text-label md:text-body-sm font-black px-3 md:px-4 py-1.5 uppercase hover:bg-gray-100 transition-all shadow-sm flex items-center gap-2"
                     >
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8" /><path d="M21 3v5h-5" /></svg>
                         {t("forecast.refresh")}
@@ -243,7 +243,7 @@ export default function MyForecastPage() {
 
                 <div className="bg-white border border-gray-200 rounded-sm mb-8 md:mb-12 shadow-sm overflow-hidden">
                     <div className="p-4 md:p-8">
-                        <div className="border-2 border-dashed border-gray-300 rounded-sm bg-surfaceDp px-4 md:px-6 py-6 md:py-8 flex flex-col items-center gap-4 md:gap-6">
+                        <div className="border-2 border-dashed border-gray-200 rounded-sm bg-surfaceDp px-4 md:px-6 py-6 md:py-8 flex flex-col items-center gap-4 md:gap-6">
                             <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
                                 <span className="text-body md:text-body-lg font-medium text-black">{t("forecast.dropFiles")}</span>
                                 <input
@@ -285,18 +285,18 @@ export default function MyForecastPage() {
                 </div>
 
                 {/* Desktop Table Header */}
-                <div className="hidden sm:grid grid-cols-2 bg-surfacePage border border-gray-100 py-3 md:py-4 mb-2">
+                <div className="hidden sm:grid grid-cols-2 bg-surfacePage border border-gray-200 py-3 md:py-4 mb-2">
                     <span className="text-body-sm md:text-body font-black text-black px-4 md:px-6 ltr:text-left rtl:text-right">{t("forecast.fileName")}</span>
-                    <span className={`text-body-sm md:text-body font-black text-black text-center ${isRtl ? 'border-r' : 'border-l'} border-gray-100`}>{t("forecast.uploadedDate")}</span>
+                    <span className={`text-body-sm md:text-body font-black text-black text-center ${isRtl ? 'border-r' : 'border-l'} border-gray-200`}>{t("forecast.uploadedDate")}</span>
                 </div>
 
                 {/* Mobile Header */}
-                <div className="sm:hidden bg-surfacePage border border-gray-100 py-3 mb-2 px-4">
+                <div className="sm:hidden bg-surfacePage border border-gray-200 py-3 mb-2 px-4">
                     <span className="text-body-sm font-black text-black">{t("forecast.files")}</span>
                 </div>
 
                 {/* Files List */}
-                <div className="bg-white border border-gray-100 border-t-0 rounded-sm overflow-hidden">
+                <div className="bg-white border border-gray-200 border-t-0 rounded-sm overflow-hidden">
                     {forecasts.length > 0 ? forecasts.map((file, idx) => {
                         const fileId = file.forecast_id || file.entity_id || file.id || file.file_id;
                         return (
@@ -366,7 +366,7 @@ export default function MyForecastPage() {
                         <button
                             onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
                             disabled={currentPage === 1}
-                            className="px-3 sm:px-4 py-1.5 bg-white border border-gray-300 text-label md:text-body-sm font-black disabled:opacity-30 disabled:cursor-not-allowed hover:bg-gray-50 transition-all rounded-sm shadow-sm"
+                            className="px-3 sm:px-4 py-1.5 bg-white border border-gray-200 text-label md:text-body-sm font-black disabled:opacity-30 disabled:cursor-not-allowed hover:bg-gray-50 transition-all rounded-sm shadow-sm"
                         >
                             {t("forecast.prev")}
                         </button>
@@ -376,7 +376,7 @@ export default function MyForecastPage() {
                         <button
                             onClick={() => setCurrentPage(prev => prev + 1)}
                             disabled={forecasts.length < pageSize}
-                            className="px-3 sm:px-4 py-1.5 bg-white border border-gray-300 text-label md:text-body-sm font-black disabled:opacity-30 disabled:cursor-not-allowed hover:bg-gray-50 transition-all rounded-sm shadow-sm"
+                            className="px-3 sm:px-4 py-1.5 bg-white border border-gray-200 text-label md:text-body-sm font-black disabled:opacity-30 disabled:cursor-not-allowed hover:bg-gray-50 transition-all rounded-sm shadow-sm"
                         >
                             {t("forecast.next")}
                         </button>

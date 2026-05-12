@@ -151,7 +151,7 @@ export default function DashboardPage() {
 
                     {/* Sub-account Identity Banner */}
                     {isSubAccountSession && (
-                        <div className={`bg-green-50/80 ${isRtl ? 'border-r-4' : 'border-l-4'} border-green-500 text-green-800 p-4 mb-8 ${isRtl ? 'rounded-l-lg' : 'rounded-r-lg'} flex items-center gap-3 animate-in fade-in slide-in-from-top duration-500 shadow-sm border border-gray-100`} role="alert">
+                        <div className={`bg-green-50/80 ${isRtl ? 'border-r-4' : 'border-l-4'} border-green-500 text-green-800 p-4 mb-8 ${isRtl ? 'rounded-l-lg' : 'rounded-r-lg'} flex items-center gap-3 animate-in fade-in slide-in-from-top duration-500 shadow-sm border border-gray-200`} role="alert">
                             <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center text-white text-caption font-bold">&#10004;</div>
                             <p className="text-body-lg font-bold tracking-tight uppercase">{t("dashboard.subAccountBanner")}</p>
                         </div>
@@ -280,9 +280,9 @@ export default function DashboardPage() {
                             {/* BOTTOM FILTERS */}
                             <section className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-4">
                                 {/* Product Group Filter */}
-                                <div className="flex flex-col gap-4">
-                                    <h3 className="text-body font-black text-black uppercase tracking-widest ltr:text-left rtl:text-right opacity-60">{t("dashboard.productGroupLabel")}</h3>
-                                    <div className="bg-white border border-border rounded-xl shadow-sm overflow-hidden group hover:shadow-md transition-all">
+                                <div className="flex flex-col gap-4 group">
+                                    <h3 className="text-body font-black text-black uppercase tracking-widest ltr:text-left rtl:text-right opacity-60 group-hover:opacity-100 transition-opacity">{t("dashboard.productGroupLabel")}</h3>
+                                    <div className="bg-white border border-border rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-all">
                                         <div className="bg-gray-50 border-b border-border h-12 px-5 flex items-center relative">
                                             <PortalDropdown
                                                 value={selectedProductGroup}
@@ -306,9 +306,9 @@ export default function DashboardPage() {
                                 </div>
 
                                 {/* Tyre Size Filter */}
-                                <div className="flex flex-col gap-4">
-                                    <h3 className="text-body font-black text-black uppercase tracking-widest ltr:text-left rtl:text-right opacity-60">{t("dashboard.tyreSizeLabel")}</h3>
-                                    <div className="bg-white border border-border rounded-xl shadow-sm overflow-hidden group hover:shadow-md transition-all">
+                                <div className="flex flex-col gap-4 group">
+                                    <h3 className="text-body font-black text-black uppercase tracking-widest ltr:text-left rtl:text-right opacity-60 group-hover:opacity-100 transition-opacity">{t("dashboard.tyreSizeLabel")}</h3>
+                                    <div className="bg-white border border-border rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-all">
                                         <div className="bg-gray-50 border-b border-border h-12 px-5 flex items-center relative">
                                             <PortalDropdown
                                                 value={selectedTyreSize}
@@ -337,7 +337,7 @@ export default function DashboardPage() {
                     {/* COMPARISON DETAILS SECTION (Chart & Table) */}
                     {isCompare && (
                         <section className="bg-white border border-border rounded-xl shadow-lg p-0 mb-16 overflow-hidden animate-in fade-in slide-in-from-bottom duration-500">
-                            <div className="p-6 md:p-10 border-b border-surfacePage bg-gray-50/50">
+                            <div className="p-6 md:p-10 border-b border-gray-200 bg-gray-50/50">
                                 <h2 className="text-lg md:text-xl font-black text-black uppercase tracking-tight ltr:text-left rtl:text-right">
                                     {isRtl ? `مقارنة ${searchYear} مع ${compareYear}` : `COMPARE ${searchYear} WITH ${compareYear}`}
                                 </h2>
@@ -348,14 +348,14 @@ export default function DashboardPage() {
                                 <button
                                     onClick={() => setActiveTab('quarterly')}
                                     className={`px-6 md:px-10 py-3 md:py-4 text-label font-black uppercase tracking-widest cursor-pointer transition-all rounded-t-lg
-                                        ${activeTab === 'quarterly' ? 'bg-white text-black border-x border-t border-border' : 'bg-transparent text-black/50 hover:text-black/70'}`}
+                                        ${activeTab === 'quarterly' ? 'bg-white text-black border-x border-t border-border' : 'bg-transparent text-black/50 hover:text-black'}`}
                                 >
                                     {t("dashboard.quarterlySalesData")}
                                 </button>
                                 <button
                                     onClick={() => setActiveTab('monthly')}
                                     className={`px-6 md:px-10 py-3 md:py-4 text-label font-black uppercase tracking-widest cursor-pointer transition-all rounded-t-lg
-                                        ${activeTab === 'monthly' ? 'bg-white text-black border-x border-t border-border' : 'bg-transparent text-black/50 hover:text-black/70'}`}
+                                        ${activeTab === 'monthly' ? 'bg-white text-black border-x border-t border-border' : 'bg-transparent text-black/50 hover:text-black'}`}
                                 >
                                     {t("dashboard.monthlySalesData")}
                                 </button>
@@ -420,7 +420,7 @@ export default function DashboardPage() {
                                                 <th className="py-4 px-6 text-label font-black text-black uppercase tracking-widest text-right">{isRtl ? 'التغيير' : 'CHANGE'}</th>
                                             </tr>
                                         </thead>
-                                        <tbody className="divide-y divide-gray-50 bg-white">
+                                        <tbody className="divide-y divide-gray-200 bg-white">
                                             {(activeTab === 'quarterly' ? [1, 2, 3, 4] : [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]).map((p, idx) => {
                                                 const val1 = Number((activeTab === 'quarterly' ? dashboardData?.compare_quarterly : dashboardData?.compare_monthly)
                                                     ?.find((d: any) => Number(d.year) === searchYear && Number(d.period) === p)?.qty) || 0;
@@ -434,10 +434,10 @@ export default function DashboardPage() {
                                                 const change = val2 > 0 ? ((val1 - val2) / val2 * 100).toFixed(1) : (val1 > 0 ? "100" : "0");
 
                                                 return (
-                                                    <tr key={p} className="hover:bg-primary/5 transition-colors h-[60px]">
+                                                    <tr key={p} className="hover:bg-primary/5 group transition-colors h-[60px]">
                                                         <td className="py-4 px-6 font-black text-black text-body uppercase">{label}</td>
                                                         <td className="py-4 px-6 text-body-lg font-black text-black text-center">{val1}</td>
-                                                        <td className="py-4 px-6 text-body-lg font-bold text-black/50 text-center">{val2}</td>
+                                                        <td className="py-4 px-6 text-body-lg font-bold text-black/50 group-hover:text-black transition-colors text-center">{val2}</td>
                                                         <td className="py-4 px-6 text-right">
                                                             <span className={`text-label font-black px-2 py-1 rounded ${Number(change) >= 0 ? 'text-green-600 bg-green-50' : 'text-red-600 bg-red-50'}`}>
                                                                 {Number(change) >= 0 ? '+' : ''}{change}%
@@ -465,7 +465,7 @@ function QtyCard({ label, value, isRtl }: { label: string; value: string; isRtl:
     return (
         <div className="bg-white border border-border rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-all transform hover:-translate-y-1 group">
             <div className="bg-gray-50 h-10 px-5 flex justify-between items-center text-black border-b border-border group-hover:bg-primary transition-colors">
-                <span className="text-caption font-black uppercase tracking-widest text-black/60 group-hover:text-primary">{label}</span>
+                <span className="text-caption font-black uppercase tracking-widest text-black/60 group-hover:text-black transition-colors">{label}</span>
                 <div className="w-1.5 h-1.5 rounded-full bg-primary"></div>
             </div>
             <div className="py-10 px-4 text-center">
@@ -479,7 +479,7 @@ function ValueCard({ label, value, isRtl }: { label: string; value: string; isRt
     return (
         <div className="bg-white border border-border rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-all transform hover:-translate-y-1 group">
             <div className="bg-gray-50 h-10 px-5 flex justify-between items-center text-black border-b border-border group-hover:bg-primary transition-colors">
-                <span className="text-caption font-black uppercase tracking-widest text-black/60 group-hover:text-primary">{label}</span>
+                <span className="text-caption font-black uppercase tracking-widest text-black/60 group-hover:text-black transition-colors">{label}</span>
                 <div className="w-1.5 h-1.5 rounded-full bg-primary"></div>
             </div>
             <div className="py-10 px-4 text-center">

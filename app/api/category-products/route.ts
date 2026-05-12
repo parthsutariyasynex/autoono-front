@@ -142,9 +142,11 @@ export async function GET(request: NextRequest) {
         // URLs like /rest/en/ don't work with the kleverapi category-products endpoint.
         const effectiveStoreCode = storeCode || "";
         const LOCALE_CODES = ["en", "ar"];
+        // Warehouse code (e.g. V101_en) → store-specific base URL
+        // Locale-only code (en/ar) or empty → locale-based base URL (/rest/en/V1/kleverapi)
         const primaryBaseUrl = (effectiveStoreCode && !LOCALE_CODES.includes(effectiveStoreCode))
             ? getStoreBaseUrl(effectiveStoreCode)
-            : getGlobalBaseUrl(request);
+            : getBaseUrl(request);
         // Always use /category-products so search runs within the current
         // category & store scope (matches the live storefront's `?searchBy=…` URL).
         const magentoEndpoint = "category-products";
@@ -182,15 +184,8 @@ export async function GET(request: NextRequest) {
         if (!res.ok) {
             const errBody = await res.text();
             console.error(`[category-products] Magento ${res.status} for URL: ${magentoUrlStr} — ${errBody.slice(0, 300)}`);
-            // 400 = missing/invalid params (e.g. no categoryId for this store context).
-            // Return empty results so the UI shows "no products" instead of crashing.
-            if (res.status === 400) {
-                return Response.json({ products: [], items: [], total_count: 0, filters: [] });
-            }
-            return Response.json(
-                { error: "Magento API error", details: errBody },
-                { status: res.status }
-            );
+            // Return empty results for any error so the UI shows "no products" instead of crashing.
+            return Response.json({ products: [], items: [], total_count: 0, filters: [] });
         }
 
         const data = await res.json();
@@ -289,9 +284,6 @@ export async function GET(request: NextRequest) {
 
     } catch (error: any) {
         console.error("category-products route error:", error.message);
-        return Response.json(
-            { error: "Failed to fetch products", message: error.message },
-            { status: 500 }
-        );
+        return Response.json({ products: [], items: [], total_count: 0, filters: [] });
     }
 }

@@ -114,7 +114,8 @@ export default function FavouriteProducts({ title }: { title?: React.ReactNode }
                 };
             });
 
-            const total = typeof data.total_count === "number" ? data.total_count : items.length;
+            const rawTotal = data.total_count ?? data.totalCount ?? data.total ?? null;
+            const total = rawTotal != null ? Number(rawTotal) : items.length;
 
             setFavProducts(items);
             setTotalCount(total);
@@ -306,11 +307,11 @@ export default function FavouriteProducts({ title }: { title?: React.ReactNode }
                                     </div>
                                     {product.offer && <p className="text-caption font-bold text-red-600 uppercase mt-1">{product.offer}</p>}
                                 </div>
-                                <div className="w-14 h-14 flex-shrink-0 rounded-lg border border-gray-100 overflow-hidden bg-gray-50 flex items-center justify-center cursor-pointer" onClick={() => { setSelectedImage(product.image_url); setPreviewProduct(product); setIsImageModalOpen(true); }}>
+                                <div className="w-14 h-14 flex-shrink-0 rounded-lg border border-gray-200 overflow-hidden bg-gray-50 flex items-center justify-center cursor-pointer" onClick={() => { setSelectedImage(product.image_url); setPreviewProduct(product); setIsImageModalOpen(true); }}>
                                     <img src={product.image_url} alt={product.name} className="w-full h-full object-contain" />
                                 </div>
                             </div>
-                            <div className="flex items-center justify-between border-t border-gray-100 pt-2.5 mt-1 gap-2">
+                            <div className="flex items-center justify-between border-t border-gray-200 pt-2.5 mt-1 gap-2">
                                 <div className="flex flex-col">
                                     {product.original_price && product.original_price > product.final_price ? (
                                         <>
@@ -337,7 +338,7 @@ export default function FavouriteProducts({ title }: { title?: React.ReactNode }
                                             <Info size={14} strokeWidth={2.5} />
                                         </button>
                                     )}
-                                    <button onClick={() => handleRemove(product)} disabled={removing === product.product_id} className={`w-9 h-9 rounded-lg flex items-center justify-center active:scale-95 cursor-pointer flex-shrink-0 ${removing === product.product_id ? "bg-gray-100 text-black/50" : "bg-white text-black/50 border border-gray-100 hover:text-red-500"}`}>
+                                    <button onClick={() => handleRemove(product)} disabled={removing === product.product_id} className={`w-9 h-9 rounded-lg flex items-center justify-center active:scale-95 cursor-pointer flex-shrink-0 ${removing === product.product_id ? "bg-gray-100 text-black/50" : "bg-white text-black/50 border border-gray-200 hover:text-red-500"}`}>
                                         {removing === product.product_id ? <div className="w-3.5 h-3.5 border-2 border-gray-300 border-t-red-500 rounded-full animate-spin"></div> : <Trash2 size={16} strokeWidth={2.5} />}
                                     </button>
                                 </div>
@@ -347,14 +348,14 @@ export default function FavouriteProducts({ title }: { title?: React.ReactNode }
                 })}
             </div>
 
-            <div className="hidden xl:flex flex-col bg-white border border-border overflow-hidden rounded-t-lg">
+            <div className="hidden xl:flex flex-col bg-white border border-gray-200 overflow-hidden rounded-t-lg">
                 <div className="flex-1 overflow-x-auto">
                     <table className="w-full border-collapse table-fixed min-w-[950px]">
                         <colgroup>
                             {COL_WIDTHS.map((w, i) => <col key={i} style={{ width: w }} />)}
                         </colgroup>
                         <thead className="sticky top-0 z-20">
-                            <tr className="bg-gray-50/80 text-black text-label font-semibold uppercase tracking-widest h-[60px] border-b border-border">
+                            <tr className="bg-gray-50/80 text-black text-label font-semibold uppercase tracking-widest h-[60px] border-b border-gray-200">
                                 {TABLE_HEADER_KEYS.map(key => (
                                     <th key={key} className="px-2 md:px-4 text-center">
                                         {t(key)}
@@ -396,7 +397,7 @@ export default function FavouriteProducts({ title }: { title?: React.ReactNode }
                                                             <img
                                                                 src={product.image_url}
                                                                 alt={product.name}
-                                                                className="w-12 h-12 object-contain rounded border border-gray-100 shadow-sm"
+                                                                className="w-12 h-12 object-contain rounded border border-gray-200 shadow-sm"
                                                             />
                                                             <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/img:opacity-100 transition-all duration-300 flex items-center justify-center rounded">
                                                                 <div className="w-6 h-6 bg-primary rounded-full flex items-center justify-center text-black font-bold text-body-lg shadow-lg transform scale-50 group-hover/img:scale-100 transition-transform duration-300">
@@ -477,25 +478,16 @@ export default function FavouriteProducts({ title }: { title?: React.ReactNode }
                 </div>
             </div>
 
-            {/* Bottom Toolbar */}
-            <div className="bg-surfaceHover border border-border px-4 py-2 flex justify-between items-center mt-0 rounded-b-lg">
-                <div className="text-body-sm font-semibold text-black uppercase tracking-tight">
-                    {totalCount} {totalCount === 1 ? t("m.item") : t("m.items")}
-                </div>
-            </div>
-
-            {/* Standard Pagination below */}
+            {/* Pagination — item count + page controls + per-page selector */}
             {totalCount > 0 && (
-                <div className="mt-4">
-                    <Pagination
-                        currentPage={currentPage}
-                        totalPages={totalPages}
-                        totalItems={totalCount}
-                        pageSize={pageSize}
-                        onPageChange={setCurrentPage}
-                        onPageSizeChange={setPageSize}
-                    />
-                </div>
+                <Pagination
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    totalItems={totalCount}
+                    pageSize={pageSize}
+                    onPageChange={setCurrentPage}
+                    onPageSizeChange={setPageSize}
+                />
             )}
             {/* Inquiry Modal */}
             {

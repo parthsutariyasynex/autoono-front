@@ -25,6 +25,12 @@ export function getClientLocale(): string {
  * If no token found, waits briefly and retries (handles post-login race condition).
  */
 async function getAuthToken(attempt = 0): Promise<string | null> {
+    // Sub-account override: while impersonating a sub-account, use their token
+    if (typeof window !== "undefined" && localStorage.getItem("isSubAccount") === "true") {
+        const subToken = localStorage.getItem("subAccountToken");
+        if (subToken) return subToken;
+    }
+
     // Try NextAuth session first
     try {
         const session: any = await getSession();

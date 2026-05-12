@@ -170,8 +170,8 @@ export default function MyStatementPage() {
                 <Sidebar />
 
                 {/* Right Content */}
-                <main className="flex-1 p-4 md:p-6 lg:p-8 bg-surfacePage min-h-0">
-                    <h1 className="text-[18px] sm:text-h3 md:text-h2 font-black text-black tracking-tight uppercase mb-4 md:mb-8">
+                <main className="flex-1 w-full px-4 md:px-6 lg:px-8 py-4 md:py-6 lg:py-10 bg-surfacePage min-w-0">
+                    <h1 className="text-h3 md:text-[26px] font-black text-black mb-6 md:mb-10 uppercase tracking-wide">
                         {t("statement.title")}
                     </h1>
 
@@ -195,7 +195,7 @@ export default function MyStatementPage() {
                                         type="date"
                                         value={startDate}
                                         onChange={(e) => setStartDate(e.target.value)}
-                                        className="w-full h-[45px] px-4 border border-gray-300 text-body-lg text-black/80 focus:outline-none focus:border-primary transition-colors"
+                                        className="w-full h-[45px] px-4 border border-gray-200 text-body-lg text-black/80 focus:outline-none focus:border-primary transition-colors"
                                     />
                                 </div>
 
@@ -208,7 +208,7 @@ export default function MyStatementPage() {
                                         type="date"
                                         value={endDate}
                                         onChange={(e) => setEndDate(e.target.value)}
-                                        className="w-full h-[45px] px-4 border border-gray-300 text-body-lg text-black/80 focus:outline-none focus:border-primary transition-colors"
+                                        className="w-full h-[45px] px-4 border border-gray-200 text-body-lg text-black/80 focus:outline-none focus:border-primary transition-colors"
                                     />
                                 </div>
                             </div>
@@ -223,7 +223,7 @@ export default function MyStatementPage() {
                                     onChange={(val) => setStatementType(val)}
                                     options={statementTypes}
                                     placeholder={statementTypes.length > 0 ? t("m.select") : t("common.loading")}
-                                    buttonClassName="w-full h-[45px] px-4 border border-gray-300 text-body-lg text-black/80 focus:outline-none focus:border-primary transition-colors bg-white font-medium shadow-sm flex items-center justify-between cursor-pointer"
+                                    buttonClassName="w-full h-[45px] px-4 border border-gray-200 text-body-lg text-black/80 focus:outline-none focus:border-primary transition-colors bg-white font-medium shadow-sm flex items-center justify-between cursor-pointer"
                                 />
                             </div>
 

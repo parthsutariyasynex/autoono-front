@@ -7,45 +7,238 @@ const LOCALES = ["en", "ar"] as const;
 type Locale = (typeof LOCALES)[number];
 const DEFAULT_LOCALE: Locale = "en";
 const LOCALE_COOKIE = "NEXT_LOCALE";
+const STORE_CODE_COOKIE = "NEXT_STORE";
+const MAGENTO_BASE = process.env.NEXT_PUBLIC_MAGENTO_BASE_URL || "https://autoono-demo.btire.com";
 
 function isValidLocale(value: string): value is Locale {
     return LOCALES.includes(value as Locale);
 }
 
-// Magento warehouse store codes look like V101_en, V102_ar, Anwar_en, etc.
-// They always end with _en or _ar.
-const STORE_CODE_RE = /^[A-Za-z0-9]+_(en|ar)$/;
+// Store codes: V101_en, V102_ar, Anwar_en, etc.
+const STORE_CODE_RE = /^[A-Za-z0-9_]+_(en|ar)$/;
 function isStoreCode(value: string): boolean {
     return STORE_CODE_RE.test(value);
 }
 
 // ─── Route config ───────────────────────────────────────────────────────────
-const PUBLIC_ROUTES = ["/login", "/forgot-password", "/about", "/locations", "/guides", "/catalogue", "/privacy-policy", "/return-exchange-policy", "/terms-conditions"];
+const APP_ROUTES = new Set([
+    "login", "register", "forgot-password", "change-password",
+    "products", "cart", "checkout", "favorites", "quick-order",
+    "my-account", "my-orders", "customer", "subaccount",
+    "multi-location-delivery", "popup-demo",
+    "sales", "wishlist",
+    "about", "locations", "guides", "catalogue",
+    "privacy-policy", "return-exchange-policy", "terms-conditions",
+    "address-book",
+]);
+
+const PUBLIC_ROUTES = [
+    "/login", "/register", "/forgot-password",
+    "/about", "/locations", "/guides", "/catalogue",
+    "/privacy-policy", "/return-exchange-policy", "/terms-conditions",
+];
+
 const SKIP_PATHS = ["/api", "/_next", "/favicon.ico", "/logo", "/images", "/locales"];
 
-// Magento SEO paths → Next.js internal routes (prefix match).
-const MAGENTO_PATH_REWRITES: Record<string, string> = {
-    "/all-tyres": "/products",
-    "/all-lubricants": "/products",
-    "/lubricants": "/products",
-    "/tyres": "/products",
-    "/about-us": "/about",
-    "/branch-locations": "/locations",
-    "/user-guides": "/guides",
-    "/product-catalogue": "/catalogue",
+// ─── CMS slug → Next.js route map ───────────────────────────────────────────
+// Checked right-to-left against URL segments before hitting GraphQL, so
+// /en/customer/account/index → "index" miss, "account" → /my-account.
+const CMS_SLUG_TO_ROUTE: Record<string, string> = {
+    "about": "/about",
+    "about-us": "/about",
+    "locations": "/locations",
+    "branch-locations": "/locations",
+    "branches": "/locations",
+    "our-branches": "/locations",
+    "contact": "/locations",
+    "contact-us": "/locations",
+    "guides": "/guides",
+    "user-guides": "/guides",
+    "tyre-guides": "/guides",
+    "catalogue": "/catalogue",
+    "catalog": "/catalogue",
+    "product-catalogue": "/catalogue",
+    "product-catalog": "/catalogue",
+    "privacy-policy": "/privacy-policy",
+    "privacy": "/privacy-policy",
+    "return-exchange-policy": "/return-exchange-policy",
+    "returns-exchange": "/return-exchange-policy",
+    "terms-conditions": "/terms-conditions",
+    "terms": "/terms-conditions",
+    "terms-of-service": "/terms-conditions",
+    "mystatement": "/customer/statement",
+    "my-statement": "/customer/statement",
+    "statement": "/customer/statement",
+    "customer-account": "/my-account",
+    "account": "/my-account",
+    "order-attachments": "/customer/order-attachments",
+    "my-order-attachments": "/customer/order-attachments",
+    "orderupload": "/customer/order-attachments",
+    "notifications": "/customer/notifications",
+    "my-notifications": "/customer/notifications",
+    "usernotifications": "/customer/notifications",
+    "address-book": "/customer/address-book",
+    "favourite-products": "/favorites",
+    "favorite-products": "/favorites",
+    "favorites": "/favorites",
+    "wishlist": "/favorites",
+    "my-forecast": "/customer/forecast",
+    "viewforcast": "/customer/forecast",
+    "business-overview": "/customer/dashboard",
+    "dashboard": "/customer/dashboard",
+    "customertarget": "/customer/dashboard",
+    "orders": "/my-orders",
+    "sales": "/my-orders",
+    "history": "/my-orders",
+    "manage-accounts": "/customer/subaccounts/manage",
+    "subaccounts": "/customer/subaccounts/manage",
+    "manage": "/customer/subaccounts/manage",
 };
 
-function applyPathRewrites(cleanPath: string): string {
-    for (const [from, to] of Object.entries(MAGENTO_PATH_REWRITES)) {
-        if (cleanPath === from || cleanPath.startsWith(from + "/")) return to;
-    }
-    return cleanPath;
+// ─── URL resolution ──────────────────────────────────────────────────────────
+type ResolvedUrl =
+    | { kind: "category"; categoryId: string }
+    | { kind: "cms"; nextjsPath: string }
+    | { kind: "unknown" };
+
+// Cache keyed by "storeCode:slugPath" so different stores resolve independently.
+const urlResolutionCache = new Map<string, ResolvedUrl>();
+
+const defaultLandingCache = new Map<string, { path: string; expires: number }>();
+const LANDING_CACHE_TTL_MS = 60 * 60 * 1000;
+
+async function getDefaultLandingPath(request: NextRequest, locale: string): Promise<string | null> {
+    const cached = defaultLandingCache.get(locale);
+    if (cached && cached.expires > Date.now()) return cached.path;
+
+    try {
+        const jwt = await getToken({
+            req: request,
+            secret: process.env.NEXTAUTH_SECRET,
+            secureCookie: process.env.NODE_ENV === "production",
+            cookieName: SESSION_COOKIE_NAME,
+        });
+        const accessToken = (jwt as any)?.accessToken;
+        if (!accessToken) return null;
+
+        const res = await fetch(`${MAGENTO_BASE}/rest/${locale}/V1/kleverapi/menu`, {
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${accessToken}`,
+            },
+            cache: "no-store",
+        });
+        if (!res.ok) return null;
+
+        const items = await res.json();
+        if (!Array.isArray(items)) return null;
+
+        for (const item of items) {
+            const url = item?.url || "";
+            if (typeof url === "string" && url.endsWith(".html")) {
+                try {
+                    const parsed = new URL(url);
+                    const path = parsed.pathname;
+                    defaultLandingCache.set(locale, { path, expires: Date.now() + LANDING_CACHE_TTL_MS });
+                    return path;
+                } catch { /* ignore */ }
+            }
+        }
+    } catch { /* fall through */ }
+
+    return null;
 }
 
+// storeCode is passed as the Magento "Store" header so store-specific category
+// URLs (e.g. V101_en/lubricants.html) resolve to the correct categoryId.
+// Checks CMS_SLUG_TO_ROUTE right-to-left before hitting GraphQL.
+async function resolveMagentoUrl(slugPath: string, storeCode: string): Promise<ResolvedUrl> {
+    // Check CMS slug map right-to-left before any network call
+    const bare = slugPath.replace(/\.html$/, "");
+    const segs = bare.split("/").filter(Boolean);
+    for (let i = segs.length - 1; i >= 0; i--) {
+        const seg = segs[i].toLowerCase();
+        if (CMS_SLUG_TO_ROUTE[seg]) {
+            return { kind: "cms", nextjsPath: CMS_SLUG_TO_ROUTE[seg] };
+        }
+    }
+
+    const cacheKey = `${storeCode}:${slugPath}`;
+    const cached = urlResolutionCache.get(cacheKey);
+    if (cached) return cached;
+
+    const queryUrl = slugPath.endsWith(".html") ? slugPath : `${slugPath}.html`;
+    try {
+        const res = await fetch(`${MAGENTO_BASE}/graphql`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Store": storeCode,
+            },
+            body: JSON.stringify({
+                query: `{ urlResolver(url: "${queryUrl.replace(/"/g, '\\"')}") { type entity_uid } }`,
+            }),
+            cache: "no-store",
+        });
+        if (res.ok) {
+            const data = await res.json();
+            const r = data?.data?.urlResolver;
+            if (r?.entity_uid) {
+                if (r.type === "CATEGORY") {
+                    let id = String(r.entity_uid);
+                    if (!/^\d+$/.test(id)) {
+                        try { id = Buffer.from(id, "base64").toString("utf-8"); } catch { }
+                    }
+                    if (/^\d+$/.test(id)) {
+                        const result: ResolvedUrl = { kind: "category", categoryId: id };
+                        urlResolutionCache.set(cacheKey, result);
+                        return result;
+                    }
+                }
+                if (r.type === "CMS_PAGE") {
+                    const result: ResolvedUrl = { kind: "cms", nextjsPath: "/products" };
+                    urlResolutionCache.set(cacheKey, result);
+                    return result;
+                }
+            }
+        }
+    } catch { /* fall through */ }
+
+    const fallback: ResolvedUrl = { kind: "unknown" };
+    urlResolutionCache.set(cacheKey, fallback);
+    return fallback;
+}
+
+async function checkAuth(request: NextRequest): Promise<boolean> {
+    try {
+        const token = await getToken({
+            req: request,
+            secret: process.env.NEXTAUTH_SECRET,
+            secureCookie: process.env.NODE_ENV === "production",
+            cookieName: SESSION_COOKIE_NAME,
+        });
+        if (!token?.accessToken) return false;
+        // Reject if Magento token has already expired
+        const exp = (token as any).magentoTokenExp;
+        if (exp && typeof exp === "number" && exp * 1000 < Date.now()) return false;
+        return true;
+    } catch { }
+    return false;
+}
+
+function withCookies(response: NextResponse, locale: string, storeCode?: string): NextResponse {
+    response.cookies.set(LOCALE_COOKIE, locale, { path: "/", maxAge: 60 * 60 * 24 * 365, sameSite: "lax" });
+    if (storeCode) {
+        response.cookies.set(STORE_CODE_COOKIE, storeCode, { path: "/", maxAge: 60 * 60 * 24 * 365, sameSite: "lax" });
+    }
+    return response;
+}
+
+// ─── Middleware ───────────────────────────────────────────────────────────────
 export async function middleware(request: NextRequest) {
     const { pathname } = request.nextUrl;
 
-    // ── 1. Skip static assets & API routes ──────────────────────────────
+    // ── 1. Skip static assets; forward API routes with locale header ─────
     if (SKIP_PATHS.some((p) => pathname.startsWith(p))) {
         if (pathname.startsWith("/api")) {
             const clientLocale = request.headers.get("x-locale");
@@ -55,7 +248,6 @@ export async function middleware(request: NextRequest) {
                 : (localeCookie && isValidLocale(localeCookie))
                     ? localeCookie
                     : DEFAULT_LOCALE;
-
             const requestHeaders = new Headers(request.headers);
             requestHeaders.set("x-locale", locale);
             return NextResponse.next({ request: { headers: requestHeaders } });
@@ -67,118 +259,144 @@ export async function middleware(request: NextRequest) {
     const firstSegment = segments[0];
 
     // ── 2a. Store-code prefix (/V101_en/..., /V102_ar/...) ──────────────
-    // These match the live Magento site URL format.
+    // Mirrors the live Magento site URL. Browser URL is preserved while we
+    // rewrite internally to the matching Next.js page.
     if (firstSegment && isStoreCode(firstSegment)) {
         const storeCode = firstSegment;
-        // Extract locale from store code suffix (V101_en → en, V102_ar → ar)
         const localeSuffix = storeCode.split("_").pop() || DEFAULT_LOCALE;
         const locale: Locale = isValidLocale(localeSuffix) ? localeSuffix : DEFAULT_LOCALE;
 
         const rawPath = "/" + segments.slice(1).join("/") || "/";
-        const cleanPath = rawPath.replace(/\.html$/, "");
-        const targetPath = applyPathRewrites(cleanPath);
-
-        const url = request.nextUrl.clone();
-        url.pathname = targetPath;
+        const slugPath = rawPath.replace(/^\//, "");
 
         const requestHeaders = new Headers(request.headers);
         requestHeaders.set("x-locale", locale);
         requestHeaders.set("x-store-code", storeCode);
 
-        const response = NextResponse.rewrite(url, { request: { headers: requestHeaders } });
+        const rewriteTo = (internalPath: string, extraParams?: Record<string, string>) => {
+            const url = request.nextUrl.clone();
+            url.pathname = internalPath;
+            if (extraParams) Object.entries(extraParams).forEach(([k, v]) => url.searchParams.set(k, v));
+            return withCookies(NextResponse.rewrite(url, { request: { headers: requestHeaders } }), locale, storeCode);
+        };
 
-        // Set locale cookie (not the store code)
-        response.cookies.set(LOCALE_COOKIE, locale, { path: "/", maxAge: 60 * 60 * 24 * 365, sameSite: "lax" });
-
-        // Public routes — no auth needed
-        if (PUBLIC_ROUTES.some((r) => targetPath.startsWith(r))) return response;
-
-        // Protected routes — require auth
-        const isAuthenticated = await checkAuth(request);
-        if (!isAuthenticated) {
-            const loginUrl = request.nextUrl.clone();
-            loginUrl.pathname = `/${locale}/login`;
-            loginUrl.search = "";
-            loginUrl.searchParams.set("callbackUrl", `${pathname}${request.nextUrl.search}`);
-            return NextResponse.redirect(loginUrl);
-        }
-
-        return response;
-    }
-
-    // ── 2b. Locale prefix (/en/..., /ar/...) ────────────────────────────
-    if (firstSegment && isValidLocale(firstSegment)) {
-        const locale = firstSegment;
-        const rawPathWithoutLocale = "/" + segments.slice(1).join("/") || "/";
-
-        const cleanPath = rawPathWithoutLocale.replace(/\.html$/, "");
-        const pathnameWithoutLocale = applyPathRewrites(cleanPath);
-
-        const url = request.nextUrl.clone();
-        url.pathname = pathnameWithoutLocale;
-
-        const requestHeaders = new Headers(request.headers);
-        requestHeaders.set("x-locale", locale);
-
-        const response = NextResponse.rewrite(url, { request: { headers: requestHeaders } });
-
-        response.cookies.set(LOCALE_COOKIE, locale, { path: "/", maxAge: 60 * 60 * 24 * 365, sameSite: "lax" });
-        response.headers.append("Set-Cookie", `${LOCALE_COOKIE}=${locale}; Path=/; Max-Age=${60 * 60 * 24 * 365}; SameSite=Lax`);
-
-        // Root path "/" → redirect to login or products based on auth
-        if (pathnameWithoutLocale === "/") {
+        const guardedRewrite = async (internalPath: string, extraParams?: Record<string, string>) => {
+            if (PUBLIC_ROUTES.some((r) => internalPath.startsWith(r))) return rewriteTo(internalPath, extraParams);
             const isAuthenticated = await checkAuth(request);
+            if (!isAuthenticated) {
+                const loginUrl = request.nextUrl.clone();
+                loginUrl.pathname = `/${locale}/login`;
+                loginUrl.search = "";
+                loginUrl.searchParams.set("callbackUrl", `${pathname}${request.nextUrl.search}`);
+                return withCookies(NextResponse.redirect(loginUrl), locale, storeCode);
+            }
+            return rewriteTo(internalPath, extraParams);
+        };
+
+        // Root store-code path → first Magento menu category
+        if (!slugPath || slugPath === "/") {
+            const isAuthenticated = await checkAuth(request);
+            if (!isAuthenticated) {
+                const loginUrl = request.nextUrl.clone();
+                loginUrl.pathname = `/${locale}/login`;
+                return withCookies(NextResponse.redirect(loginUrl), locale, storeCode);
+            }
+            const landing = await getDefaultLandingPath(request, locale);
             const redirectUrl = request.nextUrl.clone();
-            redirectUrl.pathname = isAuthenticated ? `/${locale}/products` : `/${locale}/login`;
-            return NextResponse.redirect(redirectUrl);
+            redirectUrl.pathname = landing ?? `/${locale}/products`;
+            return withCookies(NextResponse.redirect(redirectUrl), locale, storeCode);
         }
 
-        // Public routes — no auth needed
-        if (PUBLIC_ROUTES.some((route) => pathnameWithoutLocale.startsWith(route))) return response;
+        // Known internal app route — but first check CMS map for multi-segment
+        // Magento account paths like /customer/account → /my-account
+        if (segments[1] && APP_ROUTES.has(segments[1])) {
+            if (segments.length > 2) {
+                const cmsResolved = await resolveMagentoUrl(slugPath, storeCode);
+                if (cmsResolved.kind === "cms") return guardedRewrite(cmsResolved.nextjsPath);
+            }
+            return guardedRewrite(rawPath);
+        }
 
-        // Protected routes — require auth
+        // Resolve slug using this store's GraphQL urlResolver ("Store: V101_en")
+        const resolved = await resolveMagentoUrl(slugPath, storeCode);
+        if (resolved.kind === "category") return guardedRewrite("/products", { categoryId: resolved.categoryId });
+        if (resolved.kind === "cms") return guardedRewrite(resolved.nextjsPath);
+
+        // Fallback
+        return guardedRewrite("/products");
+    }
+
+    // ── 2b. No locale prefix → redirect to /{locale}/... ────────────────
+    if (!firstSegment || !isValidLocale(firstSegment)) {
+        const cookieLocale = request.cookies.get(LOCALE_COOKIE)?.value;
+        const localeToUse = (cookieLocale && isValidLocale(cookieLocale)) ? cookieLocale : DEFAULT_LOCALE;
+        const url = request.nextUrl.clone();
+        url.pathname = `/${localeToUse}${pathname === "/" ? "" : pathname}`;
+        return withCookies(NextResponse.redirect(url), localeToUse);
+    }
+
+    // ── 3. Locale-prefixed URL (/en/..., /ar/...) ────────────────────────
+    const locale = firstSegment as Locale;
+    const restSegments = segments.slice(1);
+    const pathnameWithoutLocale = "/" + restSegments.join("/") || "/";
+
+    // Read active store code from cookie (saved when user last visited a store-code URL).
+    // Falls back to locale ("en"/"ar") so the default Magento store is used.
+    const activeStoreCode = request.cookies.get(STORE_CODE_COOKIE)?.value || locale;
+
+    const requestHeaders = new Headers(request.headers);
+    requestHeaders.set("x-locale", locale);
+    requestHeaders.set("x-store-code", activeStoreCode);
+
+    const rewriteTo = (internalPath: string, extraParams?: Record<string, string>) => {
+        const url = request.nextUrl.clone();
+        url.pathname = internalPath;
+        if (extraParams) Object.entries(extraParams).forEach(([k, v]) => url.searchParams.set(k, v));
+        return withCookies(NextResponse.rewrite(url, { request: { headers: requestHeaders } }), locale);
+    };
+
+    const guardedRewrite = async (internalPath: string, extraParams?: Record<string, string>) => {
+        if (PUBLIC_ROUTES.some((r) => internalPath.startsWith(r))) return rewriteTo(internalPath, extraParams);
         const isAuthenticated = await checkAuth(request);
         if (!isAuthenticated) {
             const loginUrl = request.nextUrl.clone();
             loginUrl.pathname = `/${locale}/login`;
             loginUrl.search = "";
             loginUrl.searchParams.set("callbackUrl", `${pathname}${request.nextUrl.search}`);
-            return NextResponse.redirect(loginUrl);
+            return withCookies(NextResponse.redirect(loginUrl), locale);
         }
+        return rewriteTo(internalPath, extraParams);
+    };
 
-        return response;
+    // ── 3a. Root /{locale}/ → login or first Magento menu category ───────
+    if (pathnameWithoutLocale === "/") {
+        const isAuthenticated = await checkAuth(request);
+        const redirectUrl = request.nextUrl.clone();
+        redirectUrl.search = "";
+        if (!isAuthenticated) {
+            redirectUrl.pathname = `/${locale}/login`;
+        } else {
+            const landing = await getDefaultLandingPath(request, locale);
+            redirectUrl.pathname = landing ?? `/${locale}/products`;
+        }
+        return withCookies(NextResponse.redirect(redirectUrl), locale);
     }
 
-    // ── 3. No prefix → redirect to /{locale}/... ────────────────────────
-    const cookieLocale = request.cookies.get(LOCALE_COOKIE)?.value;
-    const localeToUse = (cookieLocale && isValidLocale(cookieLocale)) ? cookieLocale : DEFAULT_LOCALE;
+    // ── 3b. Internal app routes (/en/products, /en/login, etc.) ─────────
+    if (restSegments[0] && APP_ROUTES.has(restSegments[0])) {
+        return guardedRewrite(pathnameWithoutLocale);
+    }
 
-    const url = request.nextUrl.clone();
-    url.pathname = `/${localeToUse}${pathname === "/" ? "" : pathname}`;
+    // ── 3c. Magento SEO URL → resolve via GraphQL urlResolver ───────────
+    // Uses the active store code from cookie so store-specific URLs resolve correctly.
+    const slugPath = pathnameWithoutLocale.replace(/^\//, "");
+    const resolved = await resolveMagentoUrl(slugPath, activeStoreCode);
 
-    const response = NextResponse.redirect(url);
-    response.cookies.set(LOCALE_COOKIE, localeToUse, { path: "/", maxAge: 60 * 60 * 24 * 365, sameSite: "lax" });
+    if (resolved.kind === "category") return guardedRewrite("/products", { categoryId: resolved.categoryId });
+    if (resolved.kind === "cms") return guardedRewrite(resolved.nextjsPath);
 
-    return response;
-}
-
-async function checkAuth(request: NextRequest): Promise<boolean> {
-    try {
-        const token = await getToken({
-            req: request,
-            secret: process.env.NEXTAUTH_SECRET,
-            secureCookie: process.env.NODE_ENV === "production",
-            cookieName: SESSION_COOKIE_NAME,
-        });
-
-        // Reject if no token at all, or if the jwt callback marked it expired.
-        if (!token?.accessToken) return false;
-        if (token?.error === "MagentoTokenExpired") return false;
-
-        return true;
-    } catch { }
-
-    return false;
+    // ── 3d. Unknown slug — fall back to products page ───────────────────
+    return guardedRewrite("/products");
 }
 
 export const config = {

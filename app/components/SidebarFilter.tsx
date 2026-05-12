@@ -336,7 +336,7 @@ function SidebarFilter({
                         <Link href={lp("/guides")}>
                             <div className="bg-primary rounded-sm p-4 flex items-center gap-4 cursor-pointer hover:bg-black group transition-all">
                                 <FileText size={20} className="text-white group-hover:scale-110 transition-transform" />
-                                <span className="font-semibold text-black group-hover:text-white text-xs uppercase">{t("guides.title")}</span>
+                                <span className="font-semibold text-white group-hover:text-white text-xs uppercase">{t("guides.title")}</span>
                             </div>
                         </Link>
                     </div>
