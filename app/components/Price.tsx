@@ -1,3 +1,32 @@
+// "use client";
+
+// import { formatPrice } from "@/utils/helpers";
+// import { useLocale } from "@/lib/i18n/client";
+
+// interface PriceProps {
+//     amount: number | string | null | undefined;
+//     className?: string;
+//     symbolClassName?: string;
+// }
+
+// export default function Price({ amount, className = "", symbolClassName = "" }: PriceProps) {
+//     const locale = useLocale();
+//     const formatted = formatPrice(amount, locale);
+
+//     const parts = formatted.split(" ");
+//     const value = parts.length > 1 ? parts.slice(1).join(" ") : formatted;
+
+//     const weightClass = className.includes("font-") ? "" : "font-semibold";
+
+//     return (
+//         <span dir="ltr" className={`inline-flex items-center gap-1 ${weightClass} ${className}`}>
+//             <span className={`currency-riyal ${symbolClassName}`}>{""}</span>
+//             <span>{value}</span>
+//         </span>
+//     );
+// }
+
+
 "use client";
 
 import { formatPrice } from "@/utils/helpers";
@@ -21,8 +50,8 @@ export default function Price({ amount, className = "", symbolClassName = "" }: 
     // Mapping for the Saudi Riyal custom font icon
     const riyalIcon = "\uE900";
 
-    // If className doesn't specify a font weight, default to font-semibold
-    const weightClass = className.includes("font-") ? "" : "font-semibold";
+    // If className doesn't specify a font weight, default to font-bold
+    const weightClass = className.includes("font-") ? "" : "font-bold";
 
     return (
         <span dir="ltr" className={`inline-flex items-center gap-1 ${weightClass} ${className}`}>

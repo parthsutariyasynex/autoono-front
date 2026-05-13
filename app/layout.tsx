@@ -10,6 +10,7 @@ import "./globals.css";
 import { Toaster } from "react-hot-toast";
 import { NextAuthProvider } from "@/components/providers/NextAuthProvider";
 import DirectionSync from "@/app/components/DirectionSync";
+import PriceIconObserver from "@/app/components/PriceIconObserver";
 import {
   localeDirection,
   isValidLocale,
@@ -69,6 +70,7 @@ export default async function RootLayout({
                 <CartProvider>
                   <GiftProvider>
                     <DirectionSync />
+                    <PriceIconObserver />
                     <Toaster position="top-right" reverseOrder={false} />
                     <ProtectedLayout>
                       {children}

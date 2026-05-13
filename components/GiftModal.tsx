@@ -2,16 +2,7 @@
 
 import React, { useState } from "react";
 import { X, Check } from "lucide-react";
-import Price from "@/app/components/Price";
-
-interface GiftItem {
-    id: string;
-    sku: string;
-    name: string;
-    image: string;
-    qty_available: number;
-    group_name: string;
-}
+import { GiftItem } from "@/modules/cart/context/GiftContext";
 
 interface GiftModalProps {
     isOpen: boolean;

@@ -229,7 +229,7 @@ export default function FavouriteProducts({ title }: { title?: React.ReactNode }
     if (loading && favProducts.length === 0) {
         return (
             <div className="flex justify-center items-center py-20">
-                <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#f5a623]"></div>
+                <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary"></div>
             </div>
         );
     }
@@ -251,7 +251,7 @@ export default function FavouriteProducts({ title }: { title?: React.ReactNode }
                         </h1>
                     )}
                 </div>
-                <div className="h-[2px] flex-1 bg-gradient-to-r from-yellow-400 to-transparent"></div>
+                <div className="h-[2px] flex-1 bg-gradient-to-r from-primary to-transparent"></div>
             </div>
 
             {/* Mobile/Tablet Card List */}
@@ -306,11 +306,11 @@ export default function FavouriteProducts({ title }: { title?: React.ReactNode }
                                 </div>
                                 <div className="flex items-center gap-1 flex-shrink-0">
                                     {!isOutOfStock ? (
-                                        <button onClick={() => onAddToCart(product)} disabled={addingToCart === product.sku} className={`h-9 px-2.5 rounded-lg flex items-center gap-1.5 text-[11px] font-black uppercase shadow-sm active:scale-95 cursor-pointer flex-shrink-0 bg-[#f5a623] text-black`}>
+                                        <button onClick={() => onAddToCart(product)} disabled={addingToCart === product.sku} className={`h-9 px-2.5 rounded-lg flex items-center gap-1.5 text-[11px] font-black uppercase shadow-sm active:scale-95 cursor-pointer flex-shrink-0 bg-primary text-black`}>
                                             {addingToCart === product.sku ? <div className="w-3.5 h-3.5 border-2 border-black border-t-transparent rounded-full animate-spin"></div> : <><ShoppingCart size={14} strokeWidth={2.5} /></>}
                                         </button>
                                     ) : (
-                                        <button onClick={() => { setInquiryProduct(product); setIsInquiryModalOpen(true); }} className="h-9 px-2.5 bg-[#f5a623] text-black rounded-lg flex items-center gap-1.5 text-[11px] font-black uppercase shadow-sm active:scale-95 cursor-pointer flex-shrink-0">
+                                        <button onClick={() => { setInquiryProduct(product); setIsInquiryModalOpen(true); }} className="h-9 px-2.5 bg-primary text-black rounded-lg flex items-center gap-1.5 text-[11px] font-black uppercase shadow-sm active:scale-95 cursor-pointer flex-shrink-0">
                                             <Info size={14} strokeWidth={2.5} />
                                         </button>
                                     )}
@@ -364,7 +364,7 @@ export default function FavouriteProducts({ title }: { title?: React.ReactNode }
                                                     <span dir="ltr" className="text-[12px] font-bold text-gray-900 tracking-tight">{product.tyre_size}</span>
                                                     <div
                                                         onClick={() => handleShowProductDetail(product)}
-                                                        className={`w-3.5 h-3.5 bg-gray-900 rounded-full flex items-center justify-center text-[8px] font-black text-white cursor-pointer hover:bg-[#f5a623] hover:text-black transition-all shadow-sm flex-shrink-0`}
+                                                        className={`w-3.5 h-3.5 bg-gray-900 rounded-full flex items-center justify-center text-[8px] font-black text-white cursor-pointer hover:bg-primary hover:text-black transition-all shadow-sm flex-shrink-0`}
                                                     >
                                                         i
                                                     </div>
@@ -390,7 +390,7 @@ export default function FavouriteProducts({ title }: { title?: React.ReactNode }
                                                                 className="w-10 h-10 object-contain rounded border border-gray-100 shadow-sm"
                                                             />
                                                             <div className="absolute inset-0 bg-black/50 opacity-0 group-hover/img:opacity-100 transition-all duration-300 flex items-center justify-center rounded">
-                                                                <div className="w-5 h-5 bg-yellow-400 rounded-full flex items-center justify-center text-black font-bold text-[10px] shadow-lg transform scale-50 group-hover/img:scale-100 transition-transform duration-300">+</div>
+                                                                <div className="w-5 h-5 bg-primary rounded-full flex items-center justify-center text-black font-bold text-[10px] shadow-lg transform scale-50 group-hover/img:scale-100 transition-transform duration-300">+</div>
                                                             </div>
                                                         </div>
                                                     ) : (
@@ -453,7 +453,7 @@ export default function FavouriteProducts({ title }: { title?: React.ReactNode }
                                                         <button
                                                             onClick={() => onAddToCart(product)}
                                                             disabled={addingToCart === product.sku}
-                                                            className="w-8 h-8 bg-[#f5a623] hover:bg-[#e0951d] text-black rounded-md flex items-center justify-center shadow-sm active:scale-95 transition-all disabled:opacity-50"
+                                                            className="w-8 h-8 bg-primary hover:bg-primaryHover text-black rounded-md flex items-center justify-center shadow-sm active:scale-95 transition-all disabled:opacity-50"
                                                             title={t("m.add-to-cart")}
                                                         >
                                                             {addingToCart === product.sku ? (
@@ -465,7 +465,7 @@ export default function FavouriteProducts({ title }: { title?: React.ReactNode }
                                                     ) : (
                                                         <button
                                                             onClick={() => { setInquiryProduct(product); setIsInquiryModalOpen(true); }}
-                                                            className="w-8 h-8 bg-[#f5a623] hover:bg-[#e0951d] text-black rounded-md flex items-center justify-center shadow-sm active:scale-95 transition-all"
+                                                            className="w-8 h-8 bg-primary hover:bg-primaryHover text-black rounded-md flex items-center justify-center shadow-sm active:scale-95 transition-all"
                                                         >
                                                             <Info size={15} strokeWidth={2.5} />
                                                         </button>

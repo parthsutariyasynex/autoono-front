@@ -29,8 +29,13 @@ export async function POST(req: Request) {
         if (!response.ok) {
             const errBody = await response.text();
             console.error("Add to Cart API error:", response.status, errBody);
+            let message = "Failed to add to cart";
+            try {
+                const parsed = JSON.parse(errBody);
+                message = parsed.message || parsed.error || message;
+            } catch { /* errBody is plain text */ }
             return NextResponse.json(
-                { message: "Failed to add to cart", details: errBody },
+                { message, details: errBody },
                 { status: response.status }
             );
         }

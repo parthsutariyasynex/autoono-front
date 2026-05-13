@@ -23,6 +23,11 @@ const CartPage: React.FC = () => {
     const [pendingQtys, setPendingQtys] = React.useState<Record<number, number>>({});
     const [isStartingMultiShipping, setIsStartingMultiShipping] = React.useState(false);
 
+    // Always fetch fresh cart data when the cart page mounts
+    React.useEffect(() => {
+        refetchCart();
+    }, []);
+
 
     const handleUpdateQty = (id: number, qty: number) => {
         setPendingQtys(prev => ({ ...prev, [id]: qty }));

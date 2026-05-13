@@ -27,18 +27,18 @@ const APP_ROUTES = new Set([
     "my-account", "my-orders", "customer", "subaccount",
     "multi-location-delivery", "popup-demo",
     "sales", "wishlist",
-    "about", "locations", "guides", "catalogue",
+    "about", "about", "locations", "branch-locations", "contact", "contact-us", "guides", "catalogue",
     "privacy-policy", "return-exchange-policy", "terms-conditions",
     "address-book",
 ]);
 
 const PUBLIC_ROUTES = [
     "/login", "/register", "/forgot-password",
-    "/about", "/locations", "/guides", "/catalogue",
+    "/locations", "/branch-locations", "/contact", "/contact-us", "/guides", "/catalogue",
     "/privacy-policy", "/return-exchange-policy", "/terms-conditions",
 ];
 
-const SKIP_PATHS = ["/api", "/_next", "/favicon.ico", "/logo", "/images", "/locales"];
+const SKIP_PATHS = ["/api", "/_next", "/favicon.ico", "/logo", "/images", "/locales", "/fonts"];
 
 // ─── CMS slug → Next.js route map ───────────────────────────────────────────
 // Checked right-to-left against URL segments before hitting GraphQL, so
@@ -400,5 +400,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-    matcher: ["/((?!api|_next/static|_next/image|favicon.ico|logo|images).*)",],
+    matcher: ["/((?!api|_next/static|_next/image|favicon.ico|logo|images|fonts).*)",],
 };

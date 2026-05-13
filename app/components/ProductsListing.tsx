@@ -7,7 +7,7 @@ import Link from "next/link";
 import ProductDialog from "../components/ProductDialog";
 import ProductEnquiryModal from "../components/ProductEnquiryModal";
 import AddToCartPopup from "../components/AddToCartPopup";
-import { checkAuth } from "./api";
+import { checkAuth } from "../products/api";
 import { useCart } from "@/modules/cart/hooks/useCart";
 import SidebarFilter from "../components/SidebarFilter";
 import Drawer from "../components/Drawer";
@@ -412,7 +412,7 @@ export default function ProductsPage({ categoryId: propCategoryId, storeCode: pr
     } finally {
       setAddingToCart(null);
     }
-  }, [addToCart, router]);
+  }, [addToCart, router, productQtys]);
 
   // Map the API-provided stock_color string → Tailwind dot class.
   // This is a presentation concern only — the label text comes directly from the API.

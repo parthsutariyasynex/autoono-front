@@ -28,9 +28,28 @@ export default function ProtectedLayout({ children }: ProtectedLayoutProps) {
   // that happens before NextAuth reads the JWT cookie.
   const [wasAuthenticated, setWasAuthenticated] = useState(false);
 
-  // Strip locale prefix for route matching
-  const pathnameWithoutLocale = stripLocaleFromPath(pathname);
-  const publicPages = ['/login', '/register', '/forgot-password', '/about', '/catalogue', '/locations', '/guides', '/privacy-policy', '/return-exchange-policy', '/terms-conditions'];
+  // Strip locale prefix OR store-code prefix (e.g. V101_en, Anwar_ar) for route matching.
+  // stripLocaleFromPath only handles en/ar — store-code URLs like /V101_en/locations
+  // must also be stripped so public pages work without login on those URLs.
+  const STORE_CODE_RE = /^[A-Za-z0-9]+_(en|ar)$/;
+  const pathnameWithoutLocale = (() => {
+    const stripped = stripLocaleFromPath(pathname);
+    if (stripped !== pathname) return stripped;
+    const segs = pathname.split("/").filter(Boolean);
+    const first = segs[0] || "";
+    if (first && STORE_CODE_RE.test(first)) return "/" + segs.slice(1).join("/") || "/";
+    return pathname;
+  })();
+  const publicPages = [
+    '/login', '/register', '/forgot-password',
+    // Locations page — also reachable via Magento CMS slugs /contact, /contact-us, /branch-locations, /our-branches
+    '/locations', '/branch-locations', '/contact',
+    '/catalogue', '/catalog',
+    '/guides',
+    '/privacy-policy', '/privacy',
+    '/return-exchange-policy', '/returns-exchange',
+    '/terms-conditions', '/terms',
+  ];
   const isPublicPage = publicPages.some(p => pathnameWithoutLocale.startsWith(p));
 
   // Sync NextAuth session with Redux & LocalStorage

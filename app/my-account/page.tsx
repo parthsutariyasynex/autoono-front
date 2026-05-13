@@ -13,6 +13,9 @@ import Link from "next/link";
 import BusinessOverviewEditModal from "@/components/BusinessOverviewEditModal";
 import { redirectToLogin } from "@/utils/helpers";
 import PortalDropdown from "@/components/PortalDropdown";
+import CreditLimit from "@/app/components/CreditLimit";
+import Price from "@/app/components/Price";
+
 
 type CustomAttribute = {
     attribute_code: string;
@@ -270,14 +273,14 @@ export default function MyAccountPage() {
                                             <>
                                                 <p>{t("m.sales-targets")}: {targets.sales_target || "0"}</p>
                                                 <p>{t("m.achievements")}: {targets.achievement || "0"}</p>
-                                                <p>{t("m.incentive")}: SAR {formatCurrency(targets.incentive)}</p>
+                                                <p>{t("m.incentive")}: <Price amount={targets.incentive} /></p>
                                                 {targets.remarks && <p className="text-primary font-bold">{t("m.comment")}: {targets.remarks}</p>}
                                             </>
                                         ) : (
                                             <>
                                                 <p>{t("m.sales-targets")}: {getAttr("sales_targets")}</p>
                                                 <p>{t("m.achievements")}: {getAttr("achievements")}</p>
-                                                <p>{t("m.incentive")}: SAR {formatCurrency(getAttr("incentive"))}</p>
+                                                <p>{t("m.incentive")}: <Price amount={getAttr("incentive")} /></p>
                                             </>
                                         )}
                                     </div>
@@ -289,11 +292,16 @@ export default function MyAccountPage() {
                                     </div>
                                     <div className="p-3 md:p-5 text-body text-black/80 space-y-2.5 font-medium leading-relaxed">
                                         <p>{t("m.payment-historydso")}: {getAttr("payment_history")}</p>
-                                        <p>{t("m.credit-limit")}: SAR {formatCurrency(getAttr("total_credit_limit"))}</p>
+                                        <p>{t("m.credit-limit")}: <Price amount={getAttr("total_credit_limit")} /></p>
                                         <p>{t("m.credit-period")}: {getAttr("credit_period")} {t("account.days")}</p>
                                     </div>
                                 </div>
                             </div>
+
+
+                            {/* CREDIT ACCOUNT INFORMATION */}
+                            <CreditLimit />
+
 
                             {/* ADDRESS BOOK */}
                             <div>

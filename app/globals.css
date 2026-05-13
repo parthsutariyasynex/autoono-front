@@ -309,7 +309,7 @@
 @font-face {
   font-family: 'saudi-riyal';
   src: url('/fonts/saudi-riyal 1.woff2') format('woff2'),
-    url('/fonts/saudi-riyal 1.woff') format('woff');
+    url('/fonts/saudi-riyal1.woff') format('woff');
   font-weight: normal;
   font-style: normal;
   font-display: swap;

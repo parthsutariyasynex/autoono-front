@@ -76,15 +76,39 @@ function LoginPageContent() {
     }
   }, [searchParams]);
 
+  const getMobileRequirements = (code: string) => {
+    if (code === "+966") return { length: 9, start: "5", example: "5xxxxxxxx" };
+    if (code === "+971") return { length: 9, start: "5", example: "5xxxxxxxx" };
+    if (code === "+91") return { length: 10, start: "6-9", example: "9xxxxxxxxx" };
+    return { length: 8, start: "", example: "" };
+  };
+
+  const validateMobile = (number: string, code: string) => {
+    const req = getMobileRequirements(code);
+    if (number.length !== req.length) return false;
+    if (code === "+966" || code === "+971") return /^5/.test(number);
+    if (code === "+91") return /^[6-9]/.test(number);
+    return true;
+  };
+
   const validate = () => {
     const newErrors: { [key: string]: string } = {};
     if (mode === "password") {
-      if (!email) newErrors.email = "Email is required";
-      else if (!/\S+@\S+\.\S+/.test(email)) newErrors.email = "Invalid email format";
-      if (!password) newErrors.password = "Password is required";
+      if (!email) newErrors.email = t("forgotPassword.emailRequired") || "Email is required";
+      else if (!/\S+@\S+\.\S+/.test(email)) newErrors.email = t("forgotPassword.emailInvalid") || "Invalid email format";
+      if (!password) newErrors.password = t("forgotPassword.passwordRequired") || "Password is required";
     } else {
-      if (!mobileNumber) newErrors.mobile = "Mobile number is required";
-      if (otpSent && !otp) newErrors.otp = "OTP is required";
+      if (!mobileNumber) {
+        newErrors.mobile = t("forgotPassword.mobileRequired") || "Mobile number is required";
+      } else {
+        const req = getMobileRequirements(countryCode);
+        if (mobileNumber.length !== req.length) {
+          newErrors.mobile = `${t("login.mustBe") || "Must be"} ${req.length} ${t("login.digits") || "digits"}`;
+        } else if (!validateMobile(mobileNumber, countryCode)) {
+          newErrors.mobile = `${t("login.invalidMobileFormat") || "Invalid format"}. ${t("login.example") || "Example"}: ${req.example}`;
+        }
+      }
+      if (otpSent && !otp) newErrors.otp = t("forgotPassword.otpRequired") || "OTP is required";
     }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -93,16 +117,35 @@ function LoginPageContent() {
   const handleSendOtp = async (e: React.MouseEvent) => {
     e.preventDefault();
     setErrors({});
+    
     if (!mobileNumber) {
-      setErrors({ mobile: "Mobile number is required" });
+      setErrors({ mobile: t("forgotPassword.mobileRequired") || "Mobile number is required" });
       return;
     }
+
+    const req = getMobileRequirements(countryCode);
+    if (mobileNumber.length !== req.length) {
+      setErrors({ mobile: `${t("login.mustBe") || "Must be"} ${req.length} ${t("login.digits") || "digits"}` });
+      return;
+    }
+
+    if (!validateMobile(mobileNumber, countryCode)) {
+      setErrors({ mobile: `${t("login.invalidMobileFormat") || "Invalid format"}. ${t("login.example") || "Example"}: ${req.example}` });
+      return;
+    }
+
     dispatch(sendOtp(mobileNumber, countryCode, (err, data) => {
       if (!err) {
         toast.success(t("login.otpSent"));
         setOtpSent(true);
       } else {
-        toast.error(err || "Failed to send OTP");
+        // Specifically handle "not found" or "not registered" messages if they come from the API
+        const errMsg = String(err).toLowerCase();
+        if (errMsg.includes("not exist") || errMsg.includes("not found") || errMsg.includes("not registered")) {
+          setErrors({ mobile: t("login.mobileNotFound") || "This mobile number is not registered." });
+        } else {
+          toast.error(err || "Failed to send OTP");
+        }
       }
     }));
   };
@@ -281,6 +324,7 @@ function LoginPageContent() {
                         type="tel"
                         dir="ltr"
                         inputMode="numeric"
+                        maxLength={getMobileRequirements(countryCode).length}
                         placeholder={t("login.mobilePlaceholder")}
                         value={mobileNumber}
                         onChange={(e) => { setMobileNumber(e.target.value.replace(/\D/g, "")); if (errors.mobile) setErrors({ ...errors, mobile: '' }); }}

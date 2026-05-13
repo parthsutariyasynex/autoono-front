@@ -86,10 +86,16 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const [error, setError] = useState<string | null>(null);
 
   const isFetching = useRef(false);
+  const pendingFetch = useRef(false);
   const fetchCart = useCallback(async (showLoader = true, _retry = 0) => {
-    if (isFetching.current) return;
+    // If already fetching, mark a pending fetch so we re-run once current one finishes
+    if (isFetching.current) {
+      pendingFetch.current = true;
+      return;
+    }
     try {
       isFetching.current = true;
+      pendingFetch.current = false;
       if (showLoader) setIsLoading(true);
       setError(null);
 
@@ -164,6 +170,11 @@ export function CartProvider({ children }: { children: ReactNode }) {
     } finally {
       isFetching.current = false;
       if (showLoader) setIsLoading(false);
+      // If another fetch was requested while we were running, do it now
+      if (pendingFetch.current) {
+        pendingFetch.current = false;
+        fetchCart(false);
+      }
     }
   }, []);
 

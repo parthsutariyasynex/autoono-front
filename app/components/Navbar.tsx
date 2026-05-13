@@ -431,7 +431,7 @@ export default function Navbar() {
                   {isProfileOpen && (
                     <div className="absolute right-0 mt-2 w-48 bg-white rounded-sm shadow-2xl border border-gray-200 py-1 z-[100]" dir={isRtl ? "rtl" : "ltr"}>
                       <Link
-                        href={lp("/my-account")}
+                        href={lp("/customer/account")}
                         className="block px-4 py-2.5 text-body font-semibold text-black hover:bg-gray-50 transition-colors ltr:text-left rtl:text-right"
                         onClick={() => setIsProfileOpen(false)}
                       >
@@ -439,7 +439,7 @@ export default function Navbar() {
                       </Link>
                       {isSubAccount && (
                         <Link
-                          href={lp("/my-account")}
+                          href={lp("/customer/account")}
                           className="block px-4 py-2.5 text-body font-semibold text-red-600 hover:bg-red-50 transition-colors border-t border-gray-100 ltr:text-left rtl:text-right"
                           onClick={() => {
                             setIsProfileOpen(false);
@@ -465,10 +465,10 @@ export default function Navbar() {
                 </div>
               )}
 
-              {/* Store Switcher — fully dynamic from permitted_stores API */}
-              {isAuthenticated && pathname !== "/login" && currentStore && allPermittedStores.length > 0 && (
-                <div className="hidden lg:block" ref={storeDropRef}>
-                  {(() => {
+              {/* Language / Store Switcher */}
+              <div className="hidden lg:block" ref={storeDropRef}>
+                {isAuthenticated && pathname !== "/login" && currentStore && allPermittedStores.length > 0 ? (
+                  (() => {
                     // 1. Find the current store entry from the API
                     const currentEntry = allPermittedStores.find(
                       (s) => String(s.store_code) === currentStore
@@ -490,7 +490,6 @@ export default function Navbar() {
 
                     // 4. Label — locale-only stores (en/ar): show opposite store_name so user
                     //    knows what they are switching TO (e.g. on "en" → show "Arabic").
-                    //    Warehouse stores (V101_en etc.): show current store_name as identifier.
                     const isLocaleOnly = isValidLocale(currentStore);
                     const buttonLabel = isLocaleOnly
                       ? String(oppositeEntry.store_name || oppositeCode)
@@ -521,9 +520,33 @@ export default function Navbar() {
                         <span>{buttonLabel}</span>
                       </Link>
                     );
-                  })()}
-                </div>
-              )}
+                  })()
+                ) : (
+                  // Simple Language Toggle for Login Page or Unauthenticated
+                  (() => {
+                    const targetLocale = locale === "en" ? "ar" : "en";
+                    const targetLabel = locale === "en" ? "Arabic" : "English";
+                    // Build path for toggle
+                    const base = pathname || "/";
+                    const targetPath = base.startsWith(`/${locale}`)
+                      ? base.replace(`/${locale}`, `/${targetLocale}`)
+                      : `/${targetLocale}${base === "/" ? "" : base}`;
+
+                    return (
+                      <Link
+                        href={targetPath}
+                        onClick={() => {
+                          setLocaleCookie(targetLocale);
+                          i18n.changeLanguage(targetLocale);
+                        }}
+                        className="flex items-center gap-1.5 rounded px-3 py-1.5 text-body font-semibold text-black hover:bg-gray-50 transition-colors"
+                      >
+                        <span>{targetLabel}</span>
+                      </Link>
+                    );
+                  })()
+                )}
+              </div>
 
               {/* Search Icon */}
               {isAuthenticated && pathname !== "/login" && (
@@ -782,6 +805,25 @@ export default function Navbar() {
               <div className="px-4 py-3 mt-1 border-t border-gray-100">
                 <span className="text-micro font-bold text-black/50 uppercase tracking-[0.2em] block mb-2">{t("nav.quickActions")}</span>
 
+                {/* Mobile Language Switcher — fallback for unauthenticated or login page */}
+                {(!isAuthenticated || pathname === "/login" || allPermittedStores.length === 0) && (
+                  <Link
+                    href={pathname.startsWith(`/${locale}`) ? pathname.replace(`/${locale}`, `/${locale === "en" ? "ar" : "en"}`) : `/${locale === "en" ? "ar" : "en"}${pathname}`}
+                    onClick={() => {
+                      const target = locale === "en" ? "ar" : "en";
+                      setLocaleCookie(target);
+                      i18n.changeLanguage(target);
+                      setIsMenuOpen(false);
+                    }}
+                    className="py-2.5 text-body font-semibold text-black/80 flex items-center gap-3 w-full"
+                  >
+                    <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center text-[10px] font-bold text-primary">
+                      {locale === "en" ? "AR" : "EN"}
+                    </div>
+                    {locale === "en" ? "العربية" : "English"}
+                  </Link>
+                )}
+
                 {isAuthenticated && pathname !== "/login" && (
                   <>
                     <button
@@ -797,7 +839,7 @@ export default function Navbar() {
                     >
                       <Bell size={16} /> {t("nav.notifications")} ({unreadCount})
                     </button>
-                    <Link href={lp("/my-account")} className="py-2.5 text-body font-semibold text-black/80 flex items-center gap-3" onClick={() => setIsMenuOpen(false)}>
+                    <Link href={lp("/customer/account")} className="py-2.5 text-body font-semibold text-black/80 flex items-center gap-3" onClick={() => setIsMenuOpen(false)}>
 
                       <UserCircle size={16} /> {t("nav.myAccount")}
                     </Link>

@@ -59,15 +59,19 @@ export const sendOtp = (
         console.log("Response Status:", response.status);
         console.log("Response Data:", data);
 
-        if (response.ok) {
+        // Some APIs return 200 OK but with an error message in the body
+        const isError = !response.ok || data.status === "error" || data.success === false || (data.message && (data.message.toLowerCase().includes("not found") || data.message.toLowerCase().includes("not exist")));
+
+        if (!isError) {
             dispatch({ type: Types.SEND_OTP_SUCCESS, payload: data });
             if (cb) cb(null, data);
         } else {
+            const errorMessage = data.message || "Error sending OTP";
             dispatch({
                 type: Types.SEND_OTP_FAILURE,
-                payload: data.message || "Error sending OTP",
+                payload: errorMessage,
             });
-            if (cb) cb(data.message || "Error sending OTP");
+            if (cb) cb(errorMessage);
         }
 
     } catch (err: any) {
