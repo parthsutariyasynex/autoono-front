@@ -6,18 +6,20 @@ import CartSummary from "./CartSummary";
 import CartActions from "./CartActions";
 import Navbar from "@/app/components/Navbar";
 import Link from "next/link";
-import { ArrowRight, ShoppingBag, Loader2 } from "lucide-react";
+import { ArrowRight, ShoppingBag, Loader2, Gift, Pencil } from "lucide-react";
 import { useCart } from "@/modules/cart/hooks/useCart";
 import { useCheckout } from "@/modules/checkout/hooks/useCheckout";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useLocalePath } from "@/hooks/useLocalePath";
+import { useGift } from "@/modules/cart/context/GiftContext";
 
 const CartPage: React.FC = () => {
     const router = useRouter();
     const { t } = useTranslation();
     const lp = useLocalePath();
+    const { openGiftModal, availableGifts, hasGifts } = useGift();
     const { cart, isLoading, error, removeFromCart, updateCartItem, clearCart, refetchCart } = useCart();
     const { startMultiShipping } = useCheckout({ skipInitialFetch: true });
     const [pendingQtys, setPendingQtys] = React.useState<Record<number, number>>({});
@@ -151,11 +153,47 @@ const CartPage: React.FC = () => {
 
                 {/* Breadcrumbs & Title Section */}
                 <div className="mb-10 md:mb-14 text-center">
-                    <h1 className="text-xl md:text-2xl font-black text-black uppercase tracking-tight mb-2">
+                    <h1 className="text-xl md:text-2xl font-bold text-black uppercase tracking-tight mb-2">
                         {t("cart.title")}
                     </h1>
                     <div className="h-1 w-12 bg-primary mx-auto"></div>
                 </div>
+
+                {/* Free Gift Banner — shown whenever gift options are available from API */}
+                {availableGifts.length > 0 && (
+                    <button
+                        onClick={openGiftModal}
+                        className={`w-full mb-8 active:scale-[0.99] transition-all duration-200 py-3.5 px-6 flex items-center justify-center gap-3 cursor-pointer ${
+                            hasGifts
+                                ? "bg-white border-2 border-[#008a00] hover:bg-green-50"
+                                : "bg-[#008a00] hover:bg-[#006e00]"
+                        }`}
+                    >
+                        {hasGifts ? (
+                            <>
+                                <Gift size={18} className="text-[#008a00]" />
+                                <span className="text-[#008a00] font-bold text-[15px] tracking-wide">
+                                    Free Gift Added —{" "}
+                                    <span className="underline decoration-dashed underline-offset-4 font-bold">
+                                        Edit Selection
+                                    </span>
+                                </span>
+                                <Pencil size={14} className="text-[#008a00]" />
+                            </>
+                        ) : (
+                            <>
+                                <Gift size={18} className="text-white" />
+                                <span className="text-white font-bold text-[15px] tracking-wide">
+                                    Select your{" "}
+                                    <span className="underline decoration-dashed underline-offset-4 font-bold">
+                                        FREE GIFT
+                                    </span>
+                                    !
+                                </span>
+                            </>
+                        )}
+                    </button>
+                )}
 
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 xl:gap-16 items-start">
 
@@ -196,12 +234,12 @@ const CartPage: React.FC = () => {
                                     {/* Multiple Address Section Bar */}
                                     <div className="border border-primary bg-white rounded-xl flex flex-col md:flex-row items-stretch justify-between overflow-hidden shadow-xl shadow-primary/5">
                                         <div className="px-6 py-4 flex items-center bg-gray-50/50 flex-1">
-                                            <h4 className="text-caption font-black text-black uppercase tracking-wider">{t("cart.multiAddressShipping")}</h4>
+                                            <h4 className="text-caption font-bold text-black uppercase tracking-wider">{t("cart.multiAddressShipping")}</h4>
                                         </div>
                                         <button
                                             onClick={handleStartMultiShipping}
                                             disabled={isStartingMultiShipping}
-                                            className="bg-primary text-black font-black py-4 px-10 uppercase tracking-widest text-caption hover:bg-black hover:text-white transition-all duration-300 disabled:opacity-70 disabled:cursor-not-allowed w-full md:w-auto shadow-none"
+                                            className="bg-primary font-bold py-4 px-10 uppercase tracking-widest text-caption hover:bg-black hover:text-white transition-all duration-300 disabled:opacity-70 disabled:cursor-not-allowed w-full md:w-auto shadow-none"
                                         >
                                             {isStartingMultiShipping ? (
                                                 <Loader2 className="animate-spin" size={14} />
@@ -223,6 +261,7 @@ const CartPage: React.FC = () => {
                             taxLabel={cart.tax_label}
                             grandTotal={cart.grand_total}
                             currencyCode={cart.currency_code}
+                            discountAmount={cart.discount_amount}
                         />
                     </div>
                 </div>

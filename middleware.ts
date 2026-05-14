@@ -27,13 +27,14 @@ const APP_ROUTES = new Set([
     "my-account", "my-orders", "customer", "subaccount",
     "multi-location-delivery", "popup-demo",
     "sales", "wishlist",
-    "about", "about", "locations", "branch-locations", "contact", "contact-us", "guides", "catalogue",
+    "about", "locations", "branch-locations", "guides", "catalogue",
     "privacy-policy", "return-exchange-policy", "terms-conditions",
     "address-book",
 ]);
 
 const PUBLIC_ROUTES = [
     "/login", "/register", "/forgot-password",
+    "/about",
     "/locations", "/branch-locations", "/contact", "/contact-us", "/guides", "/catalogue",
     "/privacy-policy", "/return-exchange-policy", "/terms-conditions",
 ];
@@ -248,11 +249,20 @@ export async function middleware(request: NextRequest) {
                 : (localeCookie && isValidLocale(localeCookie))
                     ? localeCookie
                     : DEFAULT_LOCALE;
+            const storeCode = request.cookies.get(STORE_CODE_COOKIE)?.value || "";
             const requestHeaders = new Headers(request.headers);
             requestHeaders.set("x-locale", locale);
+            if (storeCode) requestHeaders.set("x-store-code", storeCode);
             return NextResponse.next({ request: { headers: requestHeaders } });
         }
         return NextResponse.next();
+    }
+
+    // ── Strip .html suffix → 301 redirect ───────────────────────────────
+    if (pathname.endsWith(".html")) {
+        const url = request.nextUrl.clone();
+        url.pathname = pathname.slice(0, -5);
+        return NextResponse.redirect(url, 301);
     }
 
     const segments = pathname.split("/").filter(Boolean);

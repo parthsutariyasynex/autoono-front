@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from "react";
+import React, { createContext, useContext, useState, useEffect, useCallback, useRef, ReactNode } from "react";
 import { useCart } from "../hooks/useCart";
 import GiftModal from "@/components/GiftModal";
 import toast from "react-hot-toast";
@@ -21,27 +21,48 @@ interface GiftContextType {
     isGiftModalOpen: boolean;
     setIsGiftModalOpen: (open: boolean) => void;
     openGiftModal: () => void;
+    availableGifts: GiftItem[];
+    hasGifts: boolean;
+    fetchDiscountPopup: () => Promise<void>;
 }
 
 const GiftContext = createContext<GiftContextType | undefined>(undefined);
 
 async function getAuthToken(): Promise<string | null> {
-    const session = await getSession();
-    return (session as any)?.accessToken || null;
+    const session: any = await getSession();
+    if (session?.accessToken) return session.accessToken;
+    if (typeof window !== "undefined") {
+        const local = localStorage.getItem("token");
+        if (local) return local;
+    }
+    return null;
 }
 
-/** Parse the promo_rules array from the discount-popup response into GiftItems */
 function parsePromoRules(promoRules: any[]): { gifts: GiftItem[]; maxQty: number } {
     const gifts: GiftItem[] = [];
     let maxQty = 0;
 
     for (const rule of promoRules) {
         const ruleId: number = rule.rule_id ?? rule.id ?? 0;
-        const ruleName: string = rule.name ?? rule.label ?? `Rule ${ruleId}`;
-        const ruleMaxQty: number = rule.max_qty ?? rule.qty ?? rule.common_qty ?? 1;
+        const ruleName: string = rule.name ?? rule.label ?? rule.title ?? `Rule ${ruleId}`;
+        const ruleMaxQty: number = rule.max_qty ?? rule.qty ?? rule.common_qty ?? rule.free_qty ?? 1;
         maxQty += ruleMaxQty;
 
-        const items: any[] = rule.items ?? rule.products ?? rule.gift_items ?? [];
+        const items: any[] = rule.items ?? rule.products ?? rule.gift_items ?? rule.free_products ?? [];
+
+        if (items.length === 0 && rule.sku) {
+            gifts.push({
+                id: `${ruleId}_${rule.sku}`,
+                sku: rule.sku,
+                name: rule.name ?? rule.sku,
+                image: rule.image_url ?? rule.image ?? rule.thumbnail ?? "/logo/auttono-logo.jpg",
+                qty_available: rule.qty_available ?? rule.stock_qty ?? ruleMaxQty,
+                group_name: `${ruleName} (${ruleMaxQty})`,
+                rule_id: ruleId,
+            });
+            continue;
+        }
+
         for (const item of items) {
             gifts.push({
                 id: `${ruleId}_${item.sku}`,
@@ -58,82 +79,173 @@ function parsePromoRules(promoRules: any[]): { gifts: GiftItem[]; maxQty: number
     return { gifts, maxQty: maxQty || 3 };
 }
 
+function loadSavedSelections(): Record<string, number> {
+    if (typeof window === "undefined") return {};
+    try {
+        const raw = localStorage.getItem("free_gift_selections");
+        return raw ? JSON.parse(raw) : {};
+    } catch { return {}; }
+}
+
 export function GiftProvider({ children }: { children: ReactNode }) {
     const { cart, refetchCart } = useCart();
     const pathname = usePathname();
 
     const [isGiftModalOpen, setIsGiftModalOpen] = useState(false);
-    const [hasSeenGiftModal, setHasSeenGiftModal] = useState(false);
+    const hasSeenRef = useRef(false);
     const [availableGifts, setAvailableGifts] = useState<GiftItem[]>([]);
     const [maxGifts, setMaxGifts] = useState(3);
+    const [savedSelections, setSavedSelections] = useState<Record<string, number>>(loadSavedSelections);
 
-    const openGiftModal = () => {
-        setIsGiftModalOpen(true);
-        setHasSeenGiftModal(true);
-    };
+    // Computed here so it's available to everything below
+    const giftSkus = availableGifts.map(g => g.sku);
+    const hasGifts = cart?.items?.some(item => giftSkus.includes(item.sku)) || false;
 
-    /** Fetch gift options from discount-popup API */
-    const fetchDiscountPopup = useCallback(async () => {
+    // Persist selections to localStorage whenever they change
+    useEffect(() => {
+        if (typeof window === "undefined") return;
+        try {
+            localStorage.setItem("free_gift_selections", JSON.stringify(savedSelections));
+        } catch { }
+    }, [savedSelections]);
+
+    // Internal fetch — returns parsed gifts so openGiftModal can use them immediately
+    const fetchDiscountPopupAndReturn = useCallback(async (): Promise<GiftItem[] | null> => {
         const token = await getAuthToken();
-        if (!token) return;
+        if (!token) {
+            console.warn("[GiftContext] fetchDiscountPopup: no token");
+            return null;
+        }
+
+        const storeCode = typeof window !== "undefined"
+            ? (localStorage.getItem("selectedStoreCode") ||
+               document.cookie.match(/NEXT_STORE=([^;]+)/)?.[1] ||
+               document.cookie.match(/NEXT_LOCALE=([^;]+)/)?.[1] || "")
+            : "";
+        const storeParam = storeCode ? `?store=${encodeURIComponent(storeCode)}` : "";
 
         try {
-            const res = await fetch("/api/kleverapi/cart/discount-popup", {
+            const res = await fetch(`/api/kleverapi/cart/discount-popup${storeParam}`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                     "Content-Type": "application/json",
                 },
             });
-            if (!res.ok) return;
+            console.log("[GiftContext] discount-popup status:", res.status);
+            if (!res.ok) {
+                console.warn("[GiftContext] discount-popup not ok:", res.status);
+                return null;
+            }
 
             const data = await res.json();
-            const promoRules: any[] = data.promo_rules ?? [];
+            console.log("[GiftContext] discount-popup data:", JSON.stringify(data).slice(0, 500));
+
+            let promoRules: any[] = [];
+            if (Array.isArray(data)) {
+                promoRules = data;
+            } else if (Array.isArray(data.promo_rules)) {
+                promoRules = data.promo_rules;
+            } else if (Array.isArray(data.rules)) {
+                promoRules = data.rules;
+            } else if (Array.isArray(data.items)) {
+                promoRules = data.items;
+            } else if (data.data && Array.isArray(data.data)) {
+                promoRules = data.data;
+            } else if (data.popup_data) {
+                promoRules = data.popup_data.promo_rules ?? data.popup_data.rules ?? [];
+            }
+            console.log("[GiftContext] promo_rules count:", promoRules.length);
 
             if (promoRules.length === 0) {
                 setAvailableGifts([]);
-                return;
+                return null;
             }
 
             const { gifts, maxQty } = parsePromoRules(promoRules);
             setAvailableGifts(gifts);
             setMaxGifts(maxQty);
 
-            // Auto-open if the API says so
-            if (data.auto_open_popup && !hasSeenGiftModal) {
+            // Auto-open when gifts are available and user hasn't seen modal yet
+            if (gifts.length > 0 && !hasSeenRef.current && (data.auto_open_popup ?? true)) {
                 setIsGiftModalOpen(true);
+                hasSeenRef.current = true;
             }
+
+            return gifts;
         } catch (err) {
             console.error("[GiftContext] fetchDiscountPopup error:", err);
+            return null;
         }
-    }, [hasSeenGiftModal]);
+    }, []);
 
-    // Fetch gift options when cart changes (items added/removed)
+    // Public API wrapper
+    const fetchDiscountPopup = useCallback(async (): Promise<void> => {
+        await fetchDiscountPopupAndReturn();
+    }, [fetchDiscountPopupAndReturn]);
+
+    // Build selections seeded from current cart gift items (for editing existing gifts)
+    const buildEditSelections = useCallback((gifts: GiftItem[]): Record<string, number> => {
+        if (!cart?.items || !gifts.length) return {};
+        const result: Record<string, number> = {};
+        for (const gift of gifts) {
+            const cartItem = cart.items.find(ci => ci.sku === gift.sku);
+            if (cartItem && cartItem.qty > 0) result[gift.id] = cartItem.qty;
+        }
+        return result;
+    }, [cart?.items]);
+
+    const openGiftModal = useCallback(async () => {
+        const latestGifts = await fetchDiscountPopupAndReturn();
+        const gifts = latestGifts ?? availableGifts;
+
+        // Pre-populate from cart when user wants to edit already-selected gifts
+        if (hasGifts && gifts.length > 0) {
+            const editSelections = buildEditSelections(gifts);
+            if (Object.keys(editSelections).length > 0) {
+                setSavedSelections(editSelections);
+            }
+        }
+
+        setIsGiftModalOpen(true);
+        hasSeenRef.current = true;
+    }, [fetchDiscountPopupAndReturn, availableGifts, hasGifts, buildEditSelections]);
+
+    // Fetch when cart qty changes; reset hasSeenRef so popup can reopen if no gifts in cart
     useEffect(() => {
         if (cart?.items_count && cart.items_count > 0) {
+            const cartHasGifts = cart?.items?.some(item => giftSkus.includes(item.sku));
+            if (!cartHasGifts) hasSeenRef.current = false;
             fetchDiscountPopup();
         } else {
             setAvailableGifts([]);
         }
     }, [cart?.items_count, fetchDiscountPopup]);
 
-    // Auto-open on cart page when conditions are met
+    // Re-fetch when navigating to cart page
+    useEffect(() => {
+        const isCartPage = pathname?.endsWith("/cart") || pathname === "/cart";
+        if (isCartPage && (cart?.items_count || 0) > 0) {
+            fetchDiscountPopup();
+        }
+    }, [pathname]);
+
+    // Auto-open on cart page as secondary trigger (after availableGifts update)
     useEffect(() => {
         const isCartPage = pathname?.endsWith("/cart") || pathname === "/cart";
         const totalUnits = cart?.items_count || 0;
+        const cartHasGifts = cart?.items?.some(item => giftSkus.includes(item.sku));
 
-        const giftSkus = availableGifts.map(g => g.sku);
-        const hasGifts = cart?.items?.some(item => giftSkus.includes(item.sku));
-
-        if (isCartPage && totalUnits >= 5 && availableGifts.length > 0 && !hasGifts && !hasSeenGiftModal) {
+        if (isCartPage && totalUnits > 0 && availableGifts.length > 0 && !cartHasGifts && !hasSeenRef.current) {
             setIsGiftModalOpen(true);
+            hasSeenRef.current = true;
         }
-    }, [cart?.items_count, cart?.items, availableGifts, hasSeenGiftModal, pathname]);
+    }, [cart?.items_count, cart?.items, availableGifts, pathname]);
 
     const handleSelectGifts = async (selections: Record<string, number>) => {
         const selectedEntries = Object.entries(selections).filter(([_, qty]) => qty > 0);
         if (selectedEntries.length === 0) {
             setIsGiftModalOpen(false);
-            setHasSeenGiftModal(true);
+            hasSeenRef.current = true;
             return;
         }
 
@@ -145,7 +257,6 @@ export function GiftProvider({ children }: { children: ReactNode }) {
 
         const toastId = toast.loading("Adding your free gifts...");
 
-        // Build batch payload: [{ sku, rule_id, qty }]
         const items = selectedEntries
             .map(([id, qty]) => {
                 const gift = availableGifts.find(g => g.id === id);
@@ -154,8 +265,14 @@ export function GiftProvider({ children }: { children: ReactNode }) {
             })
             .filter(Boolean);
 
+        const addStoreCode = typeof window !== "undefined"
+            ? (localStorage.getItem("selectedStoreCode") ||
+               document.cookie.match(/NEXT_STORE=([^;]+)/)?.[1] || "")
+            : "";
+        const addStoreParam = addStoreCode ? `?store=${encodeURIComponent(addStoreCode)}` : "";
+
         try {
-            const res = await fetch("/api/kleverapi/cart/promo-items/add", {
+            const res = await fetch(`/api/kleverapi/cart/promo-items/add${addStoreParam}`, {
                 method: "POST",
                 headers: {
                     Authorization: `Bearer ${token}`,
@@ -170,6 +287,7 @@ export function GiftProvider({ children }: { children: ReactNode }) {
                 toast.error(data.message || "Failed to add gifts.", { id: toastId });
             } else {
                 toast.success("Free gifts added to your cart!", { id: toastId });
+                setSavedSelections({});
                 await refetchCart();
                 window.dispatchEvent(new Event("cart-updated"));
             }
@@ -179,18 +297,20 @@ export function GiftProvider({ children }: { children: ReactNode }) {
         }
 
         setIsGiftModalOpen(false);
-        setHasSeenGiftModal(true);
+        hasSeenRef.current = true;
     };
 
     return (
-        <GiftContext.Provider value={{ isGiftModalOpen, setIsGiftModalOpen, openGiftModal }}>
+        <GiftContext.Provider value={{ isGiftModalOpen, setIsGiftModalOpen, openGiftModal, availableGifts, hasGifts, fetchDiscountPopup }}>
             {children}
             <GiftModal
                 isOpen={isGiftModalOpen}
-                onClose={() => setIsGiftModalOpen(false)}
+                onClose={() => { setIsGiftModalOpen(false); hasSeenRef.current = true; }}
                 onSelectGifts={handleSelectGifts}
                 maxGifts={maxGifts}
                 availableGifts={availableGifts}
+                initialSelections={savedSelections}
+                onSelectionsChange={setSavedSelections}
             />
         </GiftContext.Provider>
     );

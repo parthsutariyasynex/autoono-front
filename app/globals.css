@@ -129,6 +129,20 @@
   .custom-scrollbar-hide::-webkit-scrollbar {
     display: none;
   }
+
+  /* ─── Global Contrast Fix for Primary Color ─── */
+  .bg-primary {
+    color: #ffffff !important;
+  }
+
+  .bg-primaryHover,
+  .hover\:bg-primaryHover:hover {
+    color: #ffffff !important;
+  }
+
+  .bg-primary * {
+    color: inherit;
+  }
 }
 
 /* --- Retro DatePicker (Grid Style) --- */
@@ -274,6 +288,11 @@
 /* Pickup datepicker wrapper */
 .pickup-datepicker .react-datepicker-wrapper {
   width: 100%;
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
 }
 
 @keyframes fadeInDown {

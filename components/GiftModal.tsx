@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
-import { X, Check } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { X } from "lucide-react";
 import { GiftItem } from "@/modules/cart/context/GiftContext";
 
 interface GiftModalProps {
@@ -10,6 +10,8 @@ interface GiftModalProps {
     onSelectGifts: (selections: Record<string, number>) => void;
     maxGifts: number;
     availableGifts: GiftItem[];
+    initialSelections?: Record<string, number>;
+    onSelectionsChange?: (selections: Record<string, number>) => void;
 }
 
 const GiftModal: React.FC<GiftModalProps> = ({
@@ -17,95 +19,107 @@ const GiftModal: React.FC<GiftModalProps> = ({
     onClose,
     onSelectGifts,
     maxGifts,
-    availableGifts
+    availableGifts,
+    initialSelections = {},
+    onSelectionsChange,
 }) => {
-    const [selections, setSelections] = useState<Record<string, number>>({});
+    const [selections, setSelections] = useState<Record<string, number>>(initialSelections);
+
+    // Sync initialSelections whenever the modal opens
+    useEffect(() => {
+        if (isOpen) {
+            setSelections(initialSelections);
+        }
+    }, [isOpen, initialSelections]);
+
+    // Notify parent of selection changes for persistence
+    useEffect(() => {
+        onSelectionsChange?.(selections);
+    }, [selections, onSelectionsChange]);
 
     if (!isOpen) return null;
 
-    const totalSelected = Object.values(selections).reduce((a, b) => a + b, 0);
-    const leftToSelect = maxGifts - totalSelected;
+    // ── helpers ──────────────────────────────────────────────────────────────
 
-    const getGroupLimit = (groupName: string) => {
-        if (groupName.includes("(2)")) return 2;
-        if (groupName.includes("(1)")) return 1;
-        return maxGifts;
-    };
-
-    const getGroupSelectedCount = (groupName: string) => {
-        const groupItems = groups[groupName] || [];
-        return groupItems.reduce((sum, item) => sum + (selections[item.id] || 0), 0);
-    };
-
-    const toggleSelection = (id: string, groupName: string) => {
-        const current = selections[id] || 0;
-        if (current > 0) {
-            setSelections({ ...selections, [id]: 0 });
-        } else {
-            const groupLimit = getGroupLimit(groupName);
-            const groupCount = getGroupSelectedCount(groupName);
-            if (groupCount >= groupLimit) return;
-            setSelections({ ...selections, [id]: 1 });
-        }
-    };
-
-    const handleQtyChange = (id: string, delta: number, groupName: string) => {
-        const current = selections[id] || 0;
-        const next = Math.max(0, current + delta);
-
-        if (delta > 0) {
-            const groupLimit = getGroupLimit(groupName);
-            const groupCount = getGroupSelectedCount(groupName);
-            if (groupCount >= groupLimit) return;
-        }
-
-        setSelections({
-            ...selections,
-            [id]: next
-        });
-    };
-
-    const handleConfirm = () => {
-        onSelectGifts(selections);
-        onClose();
-    };
-
-    // Group gifts by group_name
     const groups = availableGifts.reduce((acc, gift) => {
         if (!acc[gift.group_name]) acc[gift.group_name] = [];
         acc[gift.group_name].push(gift);
         return acc;
     }, {} as Record<string, GiftItem[]>);
 
+    const getGroupLimit = (groupName: string): number => {
+        const match = groupName.match(/\((\d+)\)\s*$/);
+        return match ? parseInt(match[1], 10) : maxGifts;
+    };
+
+    const getGroupSelectedCount = (groupName: string) =>
+        (groups[groupName] || []).reduce((sum, item) => sum + (selections[item.id] || 0), 0);
+
+    const totalSelected = Object.values(selections).reduce((a, b) => a + b, 0);
+
+    const updateSelections = (next: Record<string, number>) => {
+        setSelections(next);
+    };
+
+    const toggleCheckbox = (id: string, groupName: string) => {
+        const current = selections[id] || 0;
+        if (current > 0) {
+            updateSelections({ ...selections, [id]: 0 });
+        } else {
+            const groupLimit = getGroupLimit(groupName);
+            if (getGroupSelectedCount(groupName) >= groupLimit) return;
+            updateSelections({ ...selections, [id]: 1 });
+        }
+    };
+
+    const handleQtyInput = (id: string, value: string, groupName: string) => {
+        const num = Math.max(0, parseInt(value.replace(/\D/g, "") || "0", 10));
+        const groupLimit = getGroupLimit(groupName);
+        const current = selections[id] || 0;
+        const others = getGroupSelectedCount(groupName) - current;
+        const allowed = Math.min(num, groupLimit - others);
+        updateSelections({ ...selections, [id]: allowed });
+    };
+
+    const handleConfirm = () => {
+        if (totalSelected === 0) return;
+        onSelectGifts(selections);
+    };
+
+    const displayLabel = (groupName: string) => groupName.replace(/\s*\(\d+\)\s*$/, "");
+
+    // ── RENDER ───────────────────────────────────────────────────────────────
+
     return (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
-            <div className="bg-white w-full max-w-3xl rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh] animate-in zoom-in-95 duration-300">
+        <div className="fixed inset-0 z-[200] flex items-end sm:items-center justify-center sm:p-4 bg-black/60 backdrop-blur-sm transition-all duration-300">
+            <div className="bg-white w-full sm:max-w-2xl sm:rounded-lg shadow-2xl overflow-hidden flex flex-col max-h-[92vh] animate-in zoom-in-95 fade-in duration-300">
 
                 {/* Header */}
-                <div className="bg-primary px-6 py-3 flex items-center justify-between relative">
-                    <h2 className="flex-1 text-center text-xl md:text-2xl font-black text-black uppercase tracking-tight">
-                        Choose your free gift ( {leftToSelect} left )
+                <div className="bg-[#5b7fcf] px-4 sm:px-6 py-4 flex items-center justify-between">
+                    <h2 className="flex-1 text-center text-base sm:text-lg font-bold text-white uppercase tracking-wider">
+                        Choose your free gift
                     </h2>
                     <button
                         onClick={onClose}
-                        className="absolute right-6 p-2 hover:bg-black/10 rounded-full transition-colors"
+                        className="text-white hover:text-white/70 transition-colors ml-4"
+                        aria-label="Close"
                     >
-                        <X size={24} className="text-black" />
+                        <X size={22} />
                     </button>
                 </div>
 
-                {/* Table Layout */}
-                <div className="flex-1 overflow-y-auto custom-scrollbar">
-                    <table className="w-full text-left border-collapse">
-                        <thead className="sticky top-0 bg-white z-10 border-b border-gray-100 shadow-sm">
-                            <tr>
-                                <th className="px-4 py-3 text-[10px] font-bold text-black uppercase tracking-widest text-center">Select</th>
-                                <th className="px-3 py-3 text-[10px] font-bold text-black uppercase tracking-widest">Image</th>
-                                <th className="px-3 py-3 text-[10px] font-bold text-black uppercase tracking-widest">Name</th>
-                                <th className="px-4 py-3 text-[10px] font-bold text-black uppercase tracking-widest text-center">Qty</th>
+                {/* Table */}
+                <div className="flex-1 overflow-y-auto">
+                    <table className="w-full border-collapse text-sm">
+                        <thead className="sticky top-0 z-10">
+                            <tr className="border-b border-gray-200 bg-white">
+                                <th className="px-3 sm:px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider w-10 sm:w-14"></th>
+                                <th className="px-2 sm:px-3 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider w-14 sm:w-20">Image</th>
+                                <th className="px-2 sm:px-3 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Name</th>
+                                <th className="px-3 sm:px-4 py-3 text-center text-xs font-bold text-gray-500 uppercase tracking-wider w-24 sm:w-28">Qty</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-gray-50">
+                        <tbody>
                             {Object.entries(groups).map(([groupName, items]) => {
                                 const groupLimit = getGroupLimit(groupName);
                                 const groupCount = getGroupSelectedCount(groupName);
@@ -113,81 +127,103 @@ const GiftModal: React.FC<GiftModalProps> = ({
 
                                 return (
                                     <React.Fragment key={groupName}>
-                                        <tr className="bg-gray-100/80">
-                                            <td colSpan={4} className="px-6 py-2">
-                                                <span className="text-caption font-black text-black uppercase tracking-wider">
-                                                    {groupName}
-                                                </span>
+                                        {/* Group header row */}
+                                        <tr className="bg-gray-100 border-t border-gray-200">
+                                            <td colSpan={4} className="px-3 sm:px-4 py-2">
+                                                <div className="flex items-center justify-between gap-2">
+                                                    <span className="text-xs font-bold text-gray-700 uppercase tracking-widest truncate">
+                                                        {displayLabel(groupName)}
+                                                    </span>
+                                                    {/* <span className={`
+                                                        flex-shrink-0 text-[10px] font-bold px-3 py-0.5 rounded-full uppercase tracking-wider
+                                                        ${isGroupFull
+                                                            ? "bg-green-100 text-green-700"
+                                                            : "bg-blue-100 text-blue-600"}
+                                                    `}>
+                                                        {groupCount}/{groupLimit} selected
+                                                    </span> */}
+                                                </div>
                                             </td>
                                         </tr>
+
                                         {items.map((item) => {
                                             const qty = selections[item.id] || 0;
                                             const isSelected = qty > 0;
-                                            const isMaxReached = isGroupFull && !isSelected;
+                                            const isDisabled = isGroupFull && !isSelected;
 
                                             return (
-                                                <tr key={item.id} className={`transition-colors ${isSelected ? 'bg-primary/5' : 'hover:bg-gray-50'} ${isMaxReached ? 'opacity-60' : ''}`}>
-                                                    <td className="px-4 py-4 text-center">
-                                                        <div className="flex justify-center">
-                                                            <button
-                                                                onClick={() => toggleSelection(item.id, groupName)}
-                                                                disabled={isMaxReached}
-                                                                className={`w-5 h-5 border-2 rounded-md flex items-center justify-center transition-all ${isSelected ? 'bg-black border-black text-white' : 'border-gray-300'} ${isMaxReached ? 'cursor-not-allowed bg-gray-100' : 'cursor-pointer'}`}
-                                                            >
-                                                                {isSelected && <Check size={12} strokeWidth={4} />}
-                                                            </button>
-                                                        </div>
+                                                <tr
+                                                    key={item.id}
+                                                    onClick={() => !isDisabled && toggleCheckbox(item.id, groupName)}
+                                                    className={`
+                                                        border-b border-gray-100 transition-colors
+                                                        ${isSelected
+                                                            ? "bg-blue-50 hover:bg-blue-100 cursor-pointer"
+                                                            : isDisabled
+                                                                ? "bg-gray-50/70 cursor-not-allowed"
+                                                                : "hover:bg-gray-50 cursor-pointer"}
+                                                    `}
+                                                >
+                                                    {/* Checkbox */}
+                                                    <td
+                                                        className="px-3 sm:px-4 py-3 text-center"
+                                                        onClick={e => e.stopPropagation()}
+                                                    >
+                                                        <input
+                                                            type="checkbox"
+                                                            checked={isSelected}
+                                                            disabled={isDisabled}
+                                                            onChange={() => toggleCheckbox(item.id, groupName)}
+                                                            className="w-4 h-4 cursor-pointer accent-[#5b7fcf] disabled:cursor-not-allowed"
+                                                        />
                                                     </td>
-                                                    <td className="px-3 py-4">
-                                                        <div className="w-14 h-14 bg-white border border-gray-100 rounded-lg p-1.5 shadow-sm flex items-center justify-center overflow-hidden">
-                                                            <img src={item.image} alt={item.name} className="max-w-full max-h-full object-contain" />
-                                                        </div>
-                                                    </td>
-                                                    <td className="px-3 py-4">
-                                                        <div className="flex flex-col">
-                                                            <span className="text-body-sm font-bold text-black leading-tight mb-0.5">
-                                                                {item.name}
-                                                            </span>
-                                                            <span className="text-[10px] font-bold text-black/40 uppercase tracking-widest">
-                                                                SKU: {item.sku}
-                                                            </span>
-                                                        </div>
-                                                    </td>
-                                                    <td className="px-4 py-4 text-center">
-                                                        <div className="flex flex-col items-center gap-1.5">
-                                                            <div className="flex items-center justify-center bg-gray-50 border border-gray-100 rounded-lg p-1 min-w-[3rem]">
-                                                                <input
-                                                                    type="text"
-                                                                    value={qty}
-                                                                    onChange={(e) => {
-                                                                        const val = e.target.value.replace(/\D/g, '');
-                                                                        const num = parseInt(val) || 0;
-                                                                        const current = selections[item.id] || 0;
-                                                                        const groupLimit = getGroupLimit(groupName);
-                                                                        const groupCount = getGroupSelectedCount(groupName);
-                                                                        const delta = num - current;
 
-                                                                        if (num > current && groupCount + delta > groupLimit) {
-                                                                            const maxAllowed = groupLimit - (groupCount - current);
-                                                                            setSelections({ ...selections, [item.id]: maxAllowed });
-                                                                        } else {
-                                                                            setSelections({ ...selections, [item.id]: num });
-                                                                        }
-                                                                    }}
-                                                                    className="w-2 bg-transparent text-center text-body-sm font-black text-black outline-none border-none focus:ring-0"
-                                                                    onFocus={(e) => {
-                                                                        const target = e.target;
-                                                                        setTimeout(() => target.select(), 0);
-                                                                    }}
-                                                                    onClick={(e) => (e.target as HTMLInputElement).select()}
-                                                                    onKeyDown={(e) => {
-                                                                        if (e.key === "Enter") {
-                                                                            handleConfirm();
-                                                                        }
-                                                                    }}
-                                                                />
-                                                            </div>
-                                                            <span className="text-micro font-bold text-black/40 uppercase tracking-widest whitespace-nowrap">
+                                                    {/* Image */}
+                                                    <td
+                                                        className="px-2 sm:px-3 py-3"
+                                                        onClick={e => e.stopPropagation()}
+                                                    >
+                                                        <div className={`
+                                                            w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center overflow-hidden rounded bg-white border
+                                                            ${isSelected ? "ring-2 ring-[#5b7fcf] ring-offset-1 border-[#5b7fcf]" : "border-gray-100"}
+                                                            ${isDisabled ? "opacity-40" : ""}
+                                                        `}>
+                                                            <img
+                                                                src={item.image}
+                                                                alt={item.name}
+                                                                className="max-w-full max-h-full object-contain"
+                                                                onError={(e) => { (e.target as HTMLImageElement).src = "/logo/auttono-logo.jpg"; }}
+                                                            />
+                                                        </div>
+                                                    </td>
+
+                                                    {/* Name + SKU */}
+                                                    <td className="px-2 sm:px-3 py-3">
+                                                        <p className={`text-[13px] font-bold leading-snug uppercase tracking-tight ${isDisabled ? "text-gray-400" : "text-black"}`}>
+                                                            {item.name}
+                                                        </p>
+                                                        {item.sku && (
+                                                            <p className={`text-[10px] font-medium mt-1 uppercase tracking-widest ${isDisabled ? "text-gray-300" : "text-gray-400"}`}>
+                                                                {item.sku}
+                                                            </p>
+                                                        )}
+                                                    </td>
+
+                                                    {/* Qty input + "X left" */}
+                                                    <td
+                                                        className="px-3 sm:px-4 py-3"
+                                                        onClick={e => e.stopPropagation()}
+                                                    >
+                                                        <div className="flex items-center justify-center gap-1 sm:gap-2">
+                                                            <input
+                                                                type="text"
+                                                                inputMode="numeric"
+                                                                value={qty}
+                                                                onChange={(e) => handleQtyInput(item.id, e.target.value, groupName)}
+                                                                disabled={isDisabled}
+                                                                className="w-9 sm:w-10 h-8 border border-gray-300 rounded text-center text-sm font-bold text-black outline-none focus:border-[#5b7fcf] disabled:bg-gray-100 disabled:cursor-not-allowed"
+                                                            />
+                                                            <span className={`text-[10px] font-bold uppercase tracking-widest whitespace-nowrap hidden sm:inline ${isDisabled ? "text-gray-300" : "text-black/40"}`}>
                                                                 {item.qty_available} left
                                                             </span>
                                                         </div>
@@ -200,20 +236,19 @@ const GiftModal: React.FC<GiftModalProps> = ({
                             })}
                         </tbody>
                     </table>
-
                 </div>
 
-                {/* Footer */}
-                <div className="bg-black p-6 flex justify-center border-t border-gray-100">
+                {/* Footer — sticky at bottom on mobile */}
+                <div className="bg-black p-4 flex items-center justify-center gap-4 safe-area-bottom">
+
                     <button
                         onClick={handleConfirm}
                         disabled={totalSelected === 0}
-                        className="bg-primary text-black px-12 py-3 rounded-md font-black text-caption uppercase tracking-[0.2em] hover:scale-105 active:scale-95 transition-all disabled:opacity-50 disabled:grayscale disabled:scale-100"
+                        className="bg-primary text-white px-10 sm:px-16 py-3.5 text-xs font-bold uppercase tracking-[0.2em] hover:bg-primaryHover transition-all disabled:opacity-40 disabled:cursor-not-allowed flex-1 sm:flex-none shadow-lg"
                     >
                         ADD TO CART
                     </button>
                 </div>
-
             </div>
         </div>
     );

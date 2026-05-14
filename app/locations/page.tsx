@@ -3,54 +3,58 @@ import { useTranslation } from "@/hooks/useTranslation";
 import React from "react";
 import ContactForm from "./components/ContactForm";
 import MapSection from "./components/MapSection";
+import { MapPin } from "lucide-react";
 
-export default function BranchLocationsPage() {
+export default function ContactPage() {
     const { t, isRtl } = useTranslation();
 
     return (
-        <div className="min-h-screen bg-white font-sans text-black overflow-x-hidden selection:bg-primary/30">
+        <div className="min-h-screen bg-white text-black overflow-x-hidden" dir={isRtl ? "rtl" : "ltr"}>
 
-            {/* Full Width Map Section */}
-            <div className="w-full">
+            {/* Full-width Map */}
+            <div className="w-full h-[300px] sm:h-[420px] border-b border-gray-100">
                 <MapSection />
             </div>
 
-            {/* Main Content Area */}
-            <main className="w-full max-w-[1200px] mx-auto px-4 sm:px-6 py-12 md:py-20 lg:py-24" dir={isRtl ? "rtl" : "ltr"}>
+            <div className="max-w-[1170px] mx-auto px-4 sm:px-6 lg:px-8 py-14 sm:py-20">
 
                 {/* Title */}
-                <h1 className="text-h3 md:text-h1 font-black text-center mb-16 tracking-tight text-black uppercase">
-                    {t("locations.title")}
+                <h1 className="text-2xl sm:text-3xl font-black text-center uppercase tracking-widest text-black mb-14">
+                    {t("contact.getInTouch")}
                 </h1>
 
-                <div className="max-w-[850px] mx-auto">
+                {/* Address + Form */}
+                <div className="grid grid-cols-1 md:grid-cols-12 gap-10 lg:gap-16">
+
                     {/* Address Card */}
-                    <div className="w-full max-w-[400px] border border-gray-100 mb-12 shadow-sm">
-                        <div className="p-6">
-                            <h2 className="text-body font-black mb-4 text-black uppercase">{t("locations.westRegion")}</h2>
-                            <p className="text-body-lg leading-[1.6] text-black/80 whitespace-pre-line font-normal mb-0">
+                    <div className="md:col-span-4">
+                        <div className="border border-gray-100 p-6 sm:p-8 shadow-sm">
+                            <h5 className="text-base font-bold uppercase tracking-wide text-black mb-3">
+                                {t("locations.westRegion")}
+                            </h5>
+                            <p className="text-sm text-black/70 font-medium leading-relaxed mb-6 whitespace-pre-line">
                                 {t("locations.westAddress")}
                             </p>
+                            <a
+                                href="https://goo.gl/maps/5pjGk1qLgGv8AdRL7"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-2 text-sm font-semibold text-black hover:text-primary transition-colors"
+                            >
+                                <MapPin className="w-4 h-4 flex-shrink-0" />
+                                <span className="border-b border-black/20 hover:border-primary transition-colors">
+                                    {t("locations.googleMap")}
+                                </span>
+                            </a>
                         </div>
-                        {/* Map Link Row */}
-                        <a
-                            href="https://maps.google.com"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="bg-gray-50 flex items-center gap-3 px-6 py-3 border-t border-gray-100 hover:bg-gray-100 transition-colors group"
-                        >
-                            <svg className="w-4 h-4 text-black" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-                                <circle cx="12" cy="10" r="3" />
-                            </svg>
-                            <span className="text-body-lg font-medium text-black group-hover:text-primary transition-colors">{t("locations.googleMap")}</span>
-                        </a>
                     </div>
 
-                    {/* Contact Form Section */}
-                    <ContactForm />
+                    {/* Contact Form */}
+                    <div className="md:col-span-8">
+                        <ContactForm />
+                    </div>
                 </div>
-            </main>
+            </div>
         </div>
     );
 }

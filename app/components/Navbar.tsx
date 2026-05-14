@@ -111,6 +111,7 @@ export default function Navbar() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [storeName, setStoreName] = useState<string>("");
 
+
   const [subAccountName, setSubAccountName] = useState<string | null>(null);
   const [isSubAccount, setIsSubAccount] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
@@ -275,6 +276,12 @@ export default function Navbar() {
         const data = await res.json();
         if (cancelled) return;
 
+        const fallbackLinks: NavLink[] = [
+          { label: t("nav.aboutUs") || "About Us", href: lp("/about") },
+          { label: t("nav.branchLocations") || "Locations", href: lp("/locations") },
+          { label: t("nav.productCatalogue") || "Catalogue", href: lp("/catalogue") },
+        ];
+
         if (Array.isArray(data) && data.length > 0) {
           const links = toLinks(data);
           applyLinks(links);
@@ -283,12 +290,17 @@ export default function Navbar() {
             localStorage.setItem(CACHE_KEY, JSON.stringify({ items: links, expires: Date.now() + CACHE_TTL }));
           } catch { }
         } else if (!localCached) {
-          setNavLinks([]);
+          applyLinks(fallbackLinks);
         }
       } catch (err) {
         console.error("[Navbar] Menu fetch error:", err);
+        const fallbackLinks: NavLink[] = [
+          { label: t("nav.aboutUs") || "About Us", href: lp("/about") },
+          { label: t("nav.branchLocations") || "Locations", href: lp("/locations") },
+          { label: t("nav.productCatalogue") || "Catalogue", href: lp("/catalogue") },
+        ];
         // Keep the locally-cached links if we had them; only clear if nothing
-        if (!cancelled && !localCached) setNavLinks([]);
+        if (!cancelled && !localCached) applyLinks(fallbackLinks);
       } finally {
         if (!cancelled) setNavLoading(false);
       }
@@ -371,7 +383,14 @@ export default function Navbar() {
   // This runs at render time, so toggling /en ↔ /ar re-renders labels instantly
   // without waiting for the menu re-fetch to complete.
   const resolveLabel = (item: { code?: string; href?: string; label?: string }): string => {
-    return item.label || "";
+    const label = item.label || "";
+    const lower = label.toLowerCase().trim();
+    if (lower === "about us" || lower === "about") return t("nav.aboutUs") || label;
+    if (lower === "locations" || lower === "branch locations" || lower === "branches") return t("nav.branchLocations") || label;
+    if (lower === "catalogue" || lower === "product catalogue" || lower === "catalog") return t("nav.productCatalogue") || label;
+    if (lower === "all lubricants" || lower === "lubricants") return t("nav.allLubricants") || label;
+    if (lower === "all tyres" || lower === "tyres") return t("nav.allTyres") || label;
+    return label;
   };
 
 
@@ -432,7 +451,7 @@ export default function Navbar() {
                     <div className="absolute right-0 mt-2 w-48 bg-white rounded-sm shadow-2xl border border-gray-200 py-1 z-[100]" dir={isRtl ? "rtl" : "ltr"}>
                       <Link
                         href={lp("/customer/account")}
-                        className="block px-4 py-2.5 text-body font-semibold text-black hover:bg-gray-50 transition-colors ltr:text-left rtl:text-right"
+                        className="block px-4 py-2.5 text-body font-semibold text-black hover:bg-primary transition-colors ltr:text-left rtl:text-right"
                         onClick={() => setIsProfileOpen(false)}
                       >
                         {t("nav.myAccount")}
@@ -456,7 +475,7 @@ export default function Navbar() {
                       )}
                       <button
                         onClick={handleLogout}
-                        className="w-full ltr:text-left rtl:text-right px-4 py-2.5 text-body font-semibold text-black hover:bg-gray-50 transition-colors cursor-pointer border-t border-gray-100"
+                        className="w-full ltr:text-left rtl:text-right px-4 py-2.5 text-body font-semibold text-black hover:bg-primary transition-colors cursor-pointer border-t border-gray-100"
                       >
                         {t("nav.signOut")}
                       </button>
@@ -514,7 +533,7 @@ export default function Navbar() {
                           setLocaleCookie(targetLocale);
                           i18n.changeLanguage(targetLocale);
                         }}
-                        className="flex items-center gap-1.5 rounded px-3 py-1.5 text-body font-semibold text-black hover:bg-gray-50 transition-colors"
+                        className="flex items-center gap-1.5 rounded px-3 py-1.5 text-body font-semibold text-black hover:bg-primary transition-colors"
                         title={`Switch to ${oppositeEntry.store_name || oppositeCode}`}
                       >
                         <span>{buttonLabel}</span>
@@ -539,7 +558,7 @@ export default function Navbar() {
                           setLocaleCookie(targetLocale);
                           i18n.changeLanguage(targetLocale);
                         }}
-                        className="flex items-center gap-1.5 rounded px-3 py-1.5 text-body font-semibold text-black hover:bg-gray-50 transition-colors"
+                        className="flex items-center gap-1.5 rounded px-3 py-1.5 text-body font-semibold text-black hover:bg-primary transition-colors"
                       >
                         <span>{targetLabel}</span>
                       </Link>
@@ -648,7 +667,7 @@ export default function Navbar() {
                       href={href}
                       className={`py-3 flex items-center h-full px-2.5 lg:px-7 text-body font-semibold capitalize transition-all duration-200 whitespace-nowrap ${isActive
                         ? "bg-black text-white"
-                        : "text-white hover:bg-black hover:text-white"
+                        : "text-black hover:bg-black hover:text-white"
                         }`}
                     >
                       {resolveLabel(item)}
@@ -658,6 +677,7 @@ export default function Navbar() {
                     {hasChildren && isOpen && (
                       <div className="absolute top-full left-0 w-56 bg-white shadow-[0_8px_24px_rgba(0,0,0,0.08)] z-[100]">
                         <div className="flex flex-col py-1">
+
                           {isWarehouse
                             ? [...warehouseItems]
                               .sort((a, b) => {
@@ -684,7 +704,7 @@ export default function Navbar() {
                                       document.cookie = `NEXT_STORE=${w.code};path=/;max-age=${60 * 60 * 24 * 365};samesite=lax`;
                                       setOpenWarehouseMenu(null);
                                     }}
-                                    className={`text-start px-6 py-2.5 text-body font-semibold transition-colors cursor-pointer ${isSelected ? "bg-primary/10 text-primary" : "text-black hover:bg-gray-50"}`}
+                                    className={`text-start px-6 py-2.5 text-body font-bold transition-colors cursor-pointer !text-black ${isSelected ? "bg-primary  border-l-2 border-black" : "hover:bg-primary"}`}
                                   >
                                     {w.label}
                                   </Link>
@@ -699,7 +719,7 @@ export default function Navbar() {
                                   key={idx}
                                   href={childHref}
                                   onClick={() => setOpenWarehouseMenu(null)}
-                                  className="px-6 py-2.5 text-body font-semibold text-black hover:bg-gray-50 transition-colors"
+                                  className="px-6 py-2.5 text-body font-semibold text-black hover:bg-primary transition-colors"
                                 >
                                   {child.label}
                                 </Link>
@@ -722,7 +742,7 @@ export default function Navbar() {
 
               {/* User info */}
               {isAuthenticated && pathname !== "/login" && (
-                <div className="px-4 py-3 bg-gray-50 border-b border-gray-100 mb-1">
+                <div className="px-4 py-3 bg-primary border-b border-gray-100 mb-1">
                   <div className="flex items-center gap-3">
                     <div className="flex flex-col overflow-hidden">
                       <span className="text-micro text-black/50 font-semibold uppercase tracking-widest leading-none">{t("nav.loggedInAs")}</span>
@@ -788,7 +808,7 @@ export default function Navbar() {
                                     document.cookie = `NEXT_STORE=${w.code};path=/;max-age=${60 * 60 * 24 * 365};samesite=lax`;
                                     setIsMenuOpen(false);
                                   }}
-                                  className={`block w-full text-start py-2 text-label font-semibold cursor-pointer ${isSelected ? "text-primary" : "text-black/70 hover:text-primary"}`}
+                                  className={`block w-full text-start py-2 text-label font-semibold cursor-pointer !text-black ${isSelected ? "font-black" : "opacity-70 hover:opacity-100"}`}
                                 >
                                   {w.label}
                                 </Link>

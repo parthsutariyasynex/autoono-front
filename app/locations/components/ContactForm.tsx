@@ -41,12 +41,32 @@ const ContactForm: React.FC = () => {
         if (!validate()) return;
 
         setIsLoading(true);
-        setTimeout(() => {
+        try {
+            const res = await fetch("/api/kleverapi/contact", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    name: formData.name,
+                    email: formData.email,
+                    comment: formData.comment,
+                    telephone: formData.phone,
+                }),
+            });
+
+            const data = await res.json().catch(() => ({}));
+
+            if (!res.ok) {
+                setErrors({ comment: data?.message || "Failed to send. Please try again." });
+            } else {
+                setIsSubmitted(true);
+                setFormData({ name: "", phone: "", email: "", comment: "" });
+                setTimeout(() => setIsSubmitted(false), 8000);
+            }
+        } catch {
+            setErrors({ comment: "Network error. Please try again." });
+        } finally {
             setIsLoading(false);
-            setIsSubmitted(true);
-            setFormData({ name: "", phone: "", email: "", comment: "" });
-            setTimeout(() => setIsSubmitted(false), 8000);
-        }, 1500);
+        }
     };
 
     if (isSubmitted) {
@@ -55,7 +75,7 @@ const ContactForm: React.FC = () => {
                 <div className="flex justify-center mb-6">
                     <CheckCircle2 className="w-16 h-16 text-green-500 animate-bounce" />
                 </div>
-                <h3 className="text-h3 font-black text-green-800 mb-3 uppercase tracking-tight">{t("contact.success")}</h3>
+                <h3 className="text-h3 font-bold text-green-800 mb-3 uppercase tracking-tight">{t("contact.success")}</h3>
                 <p className="text-green-700 font-medium text-body">{t("contact.successDesc")}</p>
                 <button
                     onClick={() => setIsSubmitted(false)}
@@ -111,9 +131,9 @@ const ContactForm: React.FC = () => {
 
                 {/* Row 3: Message / Comment */}
                 <div className="relative border border-gray-100 rounded-sm">
-                    <div className="px-4 pt-3 pb-0 text-body text-black/50 font-medium">
+                    {/* <div className="px-4 pt-3 pb-0 text-body text-black/50 font-medium">
                         {t("contact.messagePlaceholder")}
-                    </div>
+                    </div> */}
                     <textarea
                         name="comment"
                         placeholder={t("contact.messagePlaceholder")}

@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getBaseUrl } from "@/lib/api/magento-url";
+import { getBaseUrl, getGlobalBaseUrl, getStoreBaseUrl } from "@/lib/api/magento-url";
 
 export async function POST(request: NextRequest) {
     try {
-        const BASE_URL = getBaseUrl(request);
         const authHeader = request.headers.get("authorization");
         if (!authHeader?.startsWith("Bearer ")) {
             return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
@@ -11,6 +10,14 @@ export async function POST(request: NextRequest) {
 
         const body = await request.json();
         // body: { items: [{ sku, rule_id, qty }] }
+
+        // Use store-specific URL when available (promo rules are per-warehouse store)
+        const { searchParams } = new URL(request.url);
+        const storeCode = searchParams.get("store") || request.headers.get("x-store-code") || "";
+        const LOCALE_CODES = new Set(["en", "ar"]);
+        const BASE_URL = (storeCode && !LOCALE_CODES.has(storeCode))
+            ? getStoreBaseUrl(storeCode)
+            : getBaseUrl(request);
 
         const res = await fetch(`${BASE_URL}/cart/promo-items/add`, {
             method: "POST",

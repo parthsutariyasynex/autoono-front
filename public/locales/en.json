@@ -9736,5 +9736,17 @@
   "terms.disclaimerTitle": "Disclaimer of Warranties and Limitation of Liability",
   "terms.disclaimerText": "THIS SITE IS PROVIDED BY B.Tire ON AN \"AS IS\" AND \"AS AVAILABLE\" BASIS. B.Tire MAKES NO REPRESENTATIONS OR WARRANTIES OF ANY KIND, EXPRESS OR IMPLIED, AS TO THE OPERATION OF THIS SITE OR THE INFORMATION, CONTENT, MATERIALS, OR PRODUCTS INCLUDED ON THIS SITE. YOU EXPRESSLY AGREE THAT YOUR USE OF THIS SITE IS AT YOUR SOLE RISK. TO THE FULL EXTENT PERMISSIBLE BY APPLICABLE LAW, B.Tire DISCLAIMS ALL WARRANTIES, EXPRESS OR IMPLIED, INCLUDING, BUT NOT LIMITED TO, IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE. B.Tire DOES NOT WARRANT THAT THIS SITE, ITS SERVERS, OR E-MAIL SENT FROM B.Tire ARE FREE OF VIRUSES OR OTHER HARMFUL COMPONENTS. B.Tire WILL NOT BE LIABLE FOR ANY DAMAGES OF ANY KIND ARISING FROM THE USE OF THIS SITE, INCLUDING, BUT NOT LIMITED TO DIRECT, INDIRECT, INCIDENTAL, PUNITIVE, AND CONSEQUENTIAL DAMAGES.",
   "terms.saudiLaw": "This terms and conditions is subject to the applicable laws and rules of Saudi Arabia.",
-  "nav.allLubricants": "All Lubricants"
+  "nav.allLubricants": "All Lubricants",
+  "contact.pageTitle": "Contact Us",
+  "contact.getInTouch": "GET IN TOUCH WITH US",
+  "contact.ourAddress": "Our Address",
+  "contact.phone": "Phone",
+  "contact.email": "Email",
+  "contact.phoneValue": "+966 12 000 0000",
+  "contact.emailValue": "info@autoono.com",
+  "contact.addressValue": "AL Sharifah, Palestine Street, Jeddah, KSA",
+  "contact.followUs": "Follow Us",
+  "contact.sendUsMessage": "Send Us a Message",
+  "contact.branches": "Our Branches",
+  "contact.formDesc": "Have a question or need assistance? Fill out the form below and our team will get back to you within 24 hours."
 }
