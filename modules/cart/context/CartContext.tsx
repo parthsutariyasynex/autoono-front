@@ -22,6 +22,7 @@ export interface CartItem {
   size_display?: string;
   pattern_display?: string;
   row_total: number;
+  discount_amount?: number;
 }
 
 export interface Cart {
@@ -33,6 +34,7 @@ export interface Cart {
   currency_code: string;
   items_count: number;
   cart_id: number | string | null;
+  discount_amount?: number;
 }
 
 interface CartContextType {
@@ -158,12 +160,16 @@ export function CartProvider({ children }: { children: ReactNode }) {
       const tax_label = data.tax_label ?? data.cart?.tax_label ?? "Tax";
       const grand_total = Number(data.grand_total ?? data.cart?.grand_total ?? subtotal);
       const currency_code = data.currency_code ?? data.cart?.currency_code ?? "SAR";
+      // Magento's kleverapi/cart does not return a discount field directly.
+      // Derive it from the totals: discount = subtotal + tax - grand_total (0 when no discount)
+      const derived = subtotal + tax_amount - grand_total;
+      const discount_amount = derived > 0.005 ? Math.round(derived * 100) / 100 : 0;
 
       // Calculate total units instead of unique SKUs for navbar count
       const items_count = items.reduce((sum: number, i: CartItem) => sum + i.qty, 0);
       const cart_id = data.cart_id ?? data.cart?.cart_id ?? null;
 
-      setCart({ items, subtotal, tax_amount, tax_label, grand_total, currency_code, items_count, cart_id });
+      setCart({ items, subtotal, tax_amount, tax_label, grand_total, currency_code, items_count, cart_id, discount_amount });
     } catch {
       // Network error or backend unreachable — fail silently
       setCart(null);
@@ -197,7 +203,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
       // Check if item already exists in cart to update its quantity instead of adding a duplicate
       const existingItem = cart?.items?.find((item) => item.sku === sku);
-      
+
       if (existingItem) {
         // Increment existing quantity
         const newQty = existingItem.qty + qty;

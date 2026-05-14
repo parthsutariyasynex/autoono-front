@@ -97,7 +97,7 @@ const CreditLimit = () => {
                             {t("m.total-credit-limit") || "Total Credit Limit"}
                         </span>
                         <div className="flex items-center gap-1 mt-1 md:mt-1.5">
-                            <Price amount={data.total_credit_limit} className="text-base md:text-xl font-black text-white" symbolClassName="text-white" />
+                            <Price amount={data.total_credit_limit} className="text-base md:text-xl font-bold text-white" symbolClassName="text-white" />
                         </div>
                     </div>
                 </div>
@@ -112,7 +112,7 @@ const CreditLimit = () => {
                             {t("m.used-credit-limit") || "Used Credit Limit"}
                         </span>
                         <div className="flex items-center gap-1 mt-1 md:mt-1.5">
-                            <Price amount={data.used_credit_limit} className="text-base md:text-xl font-black text-white" symbolClassName="text-white" />
+                            <Price amount={data.used_credit_limit} className="text-base md:text-xl font-bold text-white" symbolClassName="text-white" />
                         </div>
                     </div>
                 </div>
@@ -127,7 +127,7 @@ const CreditLimit = () => {
                             {t("m.available-credit-limit") || "Available Credit Limit"}
                         </span>
                         <div className="flex items-center gap-1 mt-1 md:mt-1.5">
-                            <Price amount={data.available_credit_limit} className="text-base md:text-xl font-black text-white" symbolClassName="text-white" />
+                            <Price amount={data.available_credit_limit} className="text-base md:text-xl font-bold text-white" symbolClassName="text-white" />
                         </div>
                     </div>
                 </div>

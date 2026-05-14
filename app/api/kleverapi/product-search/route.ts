@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getBaseUrl, getStoreBaseUrl } from "@/lib/api/magento-url";
+import { getBaseUrl, getGlobalBaseUrl, getStoreBaseUrl } from "@/lib/api/magento-url";
 
 export async function GET(request: Request) {
     try {
@@ -12,30 +12,38 @@ export async function GET(request: Request) {
         const { searchParams } = new URL(request.url);
         const storeCode = searchParams.get("store") || searchParams.get("storeCode");
 
-        // Use store-specific base URL if provided, otherwise fall back to locale-based base URL
-        const BASE_URL = storeCode ? getStoreBaseUrl(storeCode) : getBaseUrl(request);
-
-        // Strip routing-only params that belong in the URL path, not the query string.
-        // store/storeCode is already encoded in BASE_URL (e.g. /rest/V101/V1/…);
-        // forwarding them again as query params confuses Magento.
         const forwardParams = new URLSearchParams(searchParams.toString());
         forwardParams.delete("store");
         forwardParams.delete("storeCode");
         const queryString = forwardParams.toString();
-        const url = `${BASE_URL}/product-search${queryString ? `?${queryString}` : ""}`;
 
-        const t0 = Date.now();
-        const response = await fetch(url, {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: authHeader,
-                platform: "web",
-            },
-            cache: "no-store",
-        });
-        const tMagento = Date.now() - t0;
-        console.log(`[product-search] ⏱ Magento ${tMagento}ms (${response.status}) q=${searchParams.get("query")} → ${url}`);
+        const fetchHeaders = {
+            "Content-Type": "application/json",
+            Authorization: authHeader,
+            platform: "web",
+        };
+
+        // Try store URL first, then locale URL, then global V1 (matches live site)
+        const baseUrls: string[] = storeCode
+            ? [getStoreBaseUrl(storeCode), getGlobalBaseUrl(request)]
+            : [getBaseUrl(request), getGlobalBaseUrl(request)];
+
+        let response: Response | null = null;
+        let lastUrl = "";
+
+        for (const base of baseUrls) {
+            const url = `${base}/product-search${queryString ? `?${queryString}` : ""}`;
+            lastUrl = url;
+            const t0 = Date.now();
+            const res = await fetch(url, { method: "GET", headers: fetchHeaders, cache: "no-store" });
+            console.log(`[product-search] ⏱ ${Date.now() - t0}ms (${res.status}) q=${searchParams.get("query")} → ${url}`);
+            if (res.ok) { response = res; break; }
+            if (res.status !== 404) { response = res; break; } // non-404 error — don't retry
+        }
+
+        if (!response) {
+            return NextResponse.json({ message: "Product search failed" }, { status: 502 });
+        }
 
         const data = await response.json();
 

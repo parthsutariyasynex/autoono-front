@@ -171,7 +171,7 @@ export default function MyStatementPage() {
 
                 {/* Right Content */}
                 <main className="flex-1 w-full px-4 md:px-6 lg:px-8 py-4 md:py-6 lg:py-10 bg-surfacePage min-w-0">
-                    <h1 className="text-h3 md:text-[26px] font-black text-black mb-6 md:mb-10 uppercase tracking-wide">
+                    <h1 className="text-h3 md:text-[26px] font-bold text-black mb-6 md:mb-10 uppercase tracking-wide">
                         {t("statement.title")}
                     </h1>
 

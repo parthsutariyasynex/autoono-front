@@ -21,6 +21,7 @@ import { toast } from "react-hot-toast";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useLocalePath } from "@/hooks/useLocalePath";
 import { useLocale } from "@/lib/i18n/client";
+import { useSession } from "next-auth/react";
 
 const PAGE_SIZE = 20;
 
@@ -101,6 +102,7 @@ export default function ProductsPage({ categoryId: propCategoryId, storeCode: pr
   const { t, isRtl } = useTranslation();
   const lp = useLocalePath();
   const locale = useLocale();
+  const { data: session, status: sessionStatus } = useSession();
 
   // Store code lives in the URL path prefix (e.g. /V101_en/products) — read it here
   // so the products API always uses the right warehouse without a ?store= query param.
@@ -177,7 +179,7 @@ export default function ProductsPage({ categoryId: propCategoryId, storeCode: pr
         }
       }
 
-      const sb = searchParams.get("search") || searchParams.get("searchBy") || "";
+      const sb = searchParams.get("searchby") || searchParams.get("search") || searchParams.get("searchBy") || "";
       if (sb !== searchByTerm) {
         setSearchByTerm(sb);
         setCurrentPage(1);
@@ -241,7 +243,7 @@ export default function ProductsPage({ categoryId: propCategoryId, storeCode: pr
     const next = new URLSearchParams();
     if (currentPage > 1) next.set("page", String(currentPage));
     if (sortBy && sortBy !== "none") next.set("sortBy", sortBy);
-    if (searchByTerm) next.set("search", searchByTerm);
+    if (searchByTerm) next.set("searchby", searchByTerm);
     if (itemCodeTerm) next.set("item_code", itemCodeTerm);
 
     Object.entries(selectedFilters).forEach(([key, values]) => {
@@ -297,15 +299,15 @@ export default function ProductsPage({ categoryId: propCategoryId, storeCode: pr
   }, [selectedFilters, isInitialized]);
 
   useEffect(() => {
-    if (!isInitialized) return; // Don't fetch until URL params are parsed
+    if (!isInitialized) return;
+    if (sessionStatus === "loading") return; // Wait for session to resolve
     const abortController = new AbortController();
     const loadProducts = async () => {
       try {
         setLoading(true);
         setError("");
-        // Token comes from localStorage (set by ProtectedLayout after session sync).
-        // If token is missing, just skip the fetch silently (ProtectedLayout will set it).
-        const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+        // Get token directly from the reactive session (no race condition)
+        const token = (session as any)?.accessToken || localStorage.getItem("token");
         if (!token) return;
         // Derive locale from URL: handle both /ar/... and store-code URLs like /V102_ar/...
         const firstSeg = window.location.pathname.split("/").filter(Boolean)[0] || "";
@@ -316,38 +318,50 @@ export default function ProductsPage({ categoryId: propCategoryId, storeCode: pr
         const fetchLocale = pathLocale || cookieLocale || "en";
         const headers: HeadersInit = { "Content-Type": "application/json", "Authorization": `Bearer ${token}`, "x-locale": fetchLocale };
 
-        // Always use category-products: it handles search + filters simultaneously and
-        // returns filter groups in the response. product-search is only used in the
-        // search popup typeahead — it ignores filter params and returns no filter groups.
         const queryString = formatMagentoQueryParams(debouncedFilters, currentPage, sortBy);
 
         // Priority for categoryId: Prop > URL Param > Default (15)
         const categoryIdFromUrl = propCategoryId || urlCategoryId || "15";
 
-        // Restore storeParam calculation
         const pathStoreCodeFromUrl = window.location.pathname.split("/").filter(Boolean)[0];
-        // We avoid forcing a default warehouse code if none is active in the URL or props.
         const effectiveStoreCode = propStoreCode || (STORE_CODE_RE_PL.test(pathStoreCodeFromUrl) ? pathStoreCodeFromUrl : null) || selectedStoreCode || "";
         const storeParam = effectiveStoreCode ? `&storeCode=${encodeURIComponent(effectiveStoreCode)}` : "";
 
-        const searchByParam = searchByTerm ? `&search=${encodeURIComponent(searchByTerm)}` : "";
-        const itemCodeParam = itemCodeTerm ? `&item_code=${encodeURIComponent(itemCodeTerm)}` : "";
-        const url = `/api/category-products?${queryString ? queryString + "&" : ""}categoryId=${encodeURIComponent(categoryIdFromUrl)}&pageSize=${PAGE_SIZE}&lang=${fetchLocale}${storeParam}${searchByParam}${itemCodeParam}`;
+        // When an item code (SKU) is typed, use product-search — it matches exactly
+        // what the live Magento storefront does (/product-search?query=<sku>).
+        // category-products uses a different itemCode filter that the backend ignores.
+        let url: string;
+        if (itemCodeTerm) {
+          const psParams = new URLSearchParams();
+          psParams.set("query", itemCodeTerm);
+          psParams.set("pageSize", String(PAGE_SIZE));
+          psParams.set("page", String(currentPage));
+          if (effectiveStoreCode) psParams.set("store", effectiveStoreCode);
+          url = `/api/kleverapi/product-search?${psParams.toString()}`;
+        } else {
+          const searchByParam = searchByTerm ? `&searchby=${encodeURIComponent(searchByTerm)}` : "";
+          url = `/api/category-products?${queryString ? queryString + "&" : ""}categoryId=${encodeURIComponent(categoryIdFromUrl)}&pageSize=${PAGE_SIZE}&lang=${fetchLocale}${storeParam}${searchByParam}`;
+        }
+
         const res = await fetch(url, { headers, signal: abortController.signal });
         if (!res.ok) {
           if (res.status === 401) { localStorage.removeItem("token"); redirectToLogin(router); return; }
           throw new Error(`API Error: ${res.status}`);
         }
         const data = await res.json();
-        console.log("[PRODUCTS DEBUG] Response keys:", Object.keys(data), "products:", Array.isArray(data.products) ? data.products.length : "not array", "items:", Array.isArray(data.items) ? data.items.length : "not array", "total_count:", data.total_count);
-        const productArray = Array.isArray(data.products) ? data.products : (Array.isArray(data.items) ? data.items : []);
+        const productArray = Array.isArray(data) ? data
+          : Array.isArray(data.products) ? data.products
+          : Array.isArray(data.items) ? data.items
+          : Array.isArray(data.data) ? data.data
+          : [];
         const total = typeof data.total_count === "number" ? data.total_count : productArray.length;
 
-        // Normalise final_price only; keep all other API fields (show_old_price,
-        // original_price, stock_label, stock_color, is_action, etc.) exactly as returned.
         const mappedProducts = productArray.map((p: any) => ({
           ...p,
           final_price: Number(p.final_price ?? p.special_price ?? p.price ?? 0),
+          // product-search doesn't return is_action — default to "Yes" so the
+          // Action column (qty + cart + favourite) always shows for search results.
+          is_action: p.is_action ?? "Yes",
         }));
 
         if (abortController.signal.aborted) return;
@@ -366,7 +380,7 @@ export default function ProductsPage({ categoryId: propCategoryId, storeCode: pr
     };
     loadProducts();
     return () => abortController.abort();
-  }, [router, currentPage, debouncedFilters, sortBy, pathStoreCode, selectedStoreCode, searchByTerm, itemCodeTerm, isInitialized]);
+  }, [router, currentPage, debouncedFilters, sortBy, pathStoreCode, selectedStoreCode, searchByTerm, itemCodeTerm, isInitialized, sessionStatus, session]);
   // Note: locale intentionally excluded — fetchLocale reads from window.location directly
   // Adding locale here causes double-fetch and abort race condition
 
@@ -661,7 +675,7 @@ export default function ProductsPage({ categoryId: propCategoryId, storeCode: pr
             <div className="min-h-[38px] flex items-center">
               {(Object.keys(selectedFilterLabels).length > 0 || searchByTerm || itemCodeTerm || isFavorite) && (
                 <div className="flex items-center gap-2 overflow-x-auto custom-scrollbar-hide py-1 w-full">
-                  <span className="text-caption font-black text-black uppercase tracking-tight whitespace-nowrap px-1">
+                  <span className="text-caption font-bold text-black uppercase tracking-tight whitespace-nowrap px-1">
                     {t("products.yourSelections")} :
                   </span>
                   {searchByTerm && (
@@ -684,7 +698,7 @@ export default function ProductsPage({ categoryId: propCategoryId, storeCode: pr
                       {item.label} <button onClick={() => removeSpecificFilter(code, item.value)} className="text-black/50 ml-0.5"><X size={12} strokeWidth={3} /></button>
                     </div>
                   )))}
-                  <button onClick={clearAllFilters} className="text-caption font-black text-red-500 uppercase whitespace-nowrap flex-shrink-0 px-2 underline decoration-2 underline-offset-2">{t("products.clearAll")}</button>
+                  <button onClick={clearAllFilters} className="text-caption font-bold text-red-500 uppercase whitespace-nowrap flex-shrink-0 px-2 underline decoration-2 underline-offset-2">{t("products.clearAll")}</button>
                 </div>
               )}
             </div>
@@ -745,7 +759,7 @@ export default function ProductsPage({ categoryId: propCategoryId, storeCode: pr
                   </button>
                   <div className="flex flex-1 items-center gap-3 overflow-x-auto custom-scrollbar-hide max-w-[800px]">
                     {(searchByTerm || itemCodeTerm || isFavorite || Object.keys(selectedFilterLabels).length > 0) && (
-                      <span className="text-body-sm font-black text-black uppercase tracking-tight whitespace-nowrap">
+                      <span className="text-body-sm font-bold text-black uppercase tracking-tight whitespace-nowrap">
                         {t("products.yourSelections")} :
                       </span>
                     )}

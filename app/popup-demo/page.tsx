@@ -12,7 +12,7 @@ export default function PopupDemo() {
     return (
         <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-6 space-y-8">
             <div className="text-center space-y-2">
-                <h1 className="text-4xl font-black text-black tracking-tight">PREMIUM POPUPS</h1>
+                <h1 className="text-4xl font-bold text-black tracking-tight">PREMIUM POPUPS</h1>
                 <p className="text-black/60">Smooth, GPU-accelerated transitions powered by Framer Motion.</p>
             </div>
 
@@ -135,7 +135,7 @@ export default function PopupDemo() {
                     <div className="w-40 h-40 bg-emerald-100 rounded-full flex items-center justify-center mb-8">
                         <Info className="w-20 h-20 text-emerald-600" />
                     </div>
-                    <h2 className="text-4xl font-black text-black mb-4">All Systems Normal</h2>
+                    <h2 className="text-4xl font-bold text-black mb-4">All Systems Normal</h2>
                     <p className="text-black/60 max-w-xl text-lg">
                         Your application is running smoothly with optimized animations and high performance components.
                     </p>

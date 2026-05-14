@@ -45,23 +45,23 @@ export default function BusinessOverviewEditModal({ isOpen, onClose, initialData
         }
     }, [initialData, isOpen]);
 
-    const handleSave = async () => {
-        setIsSaving(true);
-        const toastId = toast.loading(t("m.business-overview-updating"));
+    // const handleSave = async () => {
+    //     setIsSaving(true);
+    //     const toastId = toast.loading(t("m.business-overview-updating"));
 
-        try {
-            await api.put("/kleverapi/business-overview", formData);
+    //     try {
+    //         await api.put("/kleverapi/business-overview", formData);
 
-            toast.success(t("m.business-overview-updated"), { id: toastId });
-            onSuccess();
-            onClose();
-        } catch (error: any) {
-            console.error("Save Error:", error);
-            toast.error(t("m.something-went-wrong"), { id: toastId });
-        } finally {
-            setIsSaving(false);
-        }
-    };
+    //         toast.success(t("m.business-overview-updated"), { id: toastId });
+    //         onSuccess();
+    //         onClose();
+    //     } catch (error: any) {
+    //         console.error("Save Error:", error);
+    //         toast.error(t("m.something-went-wrong"), { id: toastId });
+    //     } finally {
+    //         setIsSaving(false);
+    //     }
+    // };
 
     const inputClass = "w-full border border-gray-200 px-4 py-3 text-body-lg focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all rounded-sm bg-white font-medium text-black placeholder:text-black/40";
     const labelClass = "block text-body-sm font-bold text-black mb-1.5 uppercase tracking-wider";
@@ -71,9 +71,9 @@ export default function BusinessOverviewEditModal({ isOpen, onClose, initialData
             <div className="flex flex-col h-full bg-white" dir={isRtl ? "rtl" : "ltr"}>
                 {/* Header */}
                 <div className="bg-primary px-6 md:px-8 py-4 md:py-6 flex-shrink-0">
-                    <h2 className="text-[16px] md:text-[18px] font-black text-black uppercase tracking-widest text-center">
+                    {/* <h2 className="text-[16px] md:text-[18px] font-bold uppercase tracking-widest text-center">
                         {t("m.edit-business-overview")}
-                    </h2>
+                    </h2> */}
                 </div>
 
                 {/* Body */}
@@ -142,9 +142,9 @@ export default function BusinessOverviewEditModal({ isOpen, onClose, initialData
                 {/* Footer */}
                 <div className="bg-surfacePage px-6 md:px-8 py-5 border-t border-gray-100 flex justify-end gap-4 flex-shrink-0">
                     <button
-                        onClick={handleSave}
+                        // onClick={handleSave}
                         disabled={isSaving}
-                        className="bg-primary hover:bg-black hover:text-white text-black text-body font-bold px-10 py-2.5 uppercase transition-all shadow-lg shadow-primary/10 tracking-widest disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="bg-primary hover:bg-black hover:text-white text-body font-bold px-10 py-2.5 uppercase transition-all shadow-lg shadow-primary/10 tracking-widest disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                         {isSaving ? t("account.saving") : t("common.save")}
                     </button>

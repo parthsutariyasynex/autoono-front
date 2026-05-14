@@ -39,7 +39,7 @@ const SelectedAddressCard: React.FC<SelectedAddressCardProps> = ({ address, onEd
                     e.stopPropagation();
                     onEdit();
                 }}
-                className="bg-primary text-black text-caption font-black px-6 py-2 uppercase tracking-widest hover:bg-black hover:text-white transition-all duration-300 flex-shrink-0"
+                className="bg-primary text-caption font-bold px-6 py-2 uppercase tracking-widest hover:bg-black hover:text-white transition-all duration-300 flex-shrink-0"
             >
                 {t("addressBook.editAddress")}
             </button>

@@ -59,12 +59,12 @@ export function PageSizeSelect({ value, onChange }: { value: number; onChange: (
 
     return (
         <div className="flex items-center gap-2 md:gap-3">
-            <span className="text-caption md:text-label text-black/50 font-black uppercase tracking-wider">{t("favorites.show")}</span>
+            <span className="text-caption md:text-label text-black/50 font-bold uppercase tracking-wider">{t("favorites.show")}</span>
             <button
                 ref={triggerRef}
                 type="button"
                 onClick={handleToggle}
-                className={`h-8 md:h-9 px-3 bg-white border rounded text-body-sm md:text-body font-black text-black flex items-center gap-2 min-w-[60px] justify-between cursor-pointer transition-all shadow-sm ${isOpen ? "border-primary ring-1 ring-primary/20" : "border-gray-200 hover:border-primary hover:shadow-md"}`}
+                className={`h-8 md:h-9 px-3 bg-white border rounded text-body-sm md:text-body font-bold text-black flex items-center gap-2 min-w-[60px] justify-between cursor-pointer transition-all shadow-sm ${isOpen ? "border-primary ring-1 ring-primary/20" : "border-gray-200 hover:border-primary hover:shadow-md"}`}
             >
                 {value}
                 <ChevronDown size={12} className={`text-warningIcon transition-transform duration-300 ${isOpen ? "rotate-180" : ""}`} />
@@ -91,7 +91,7 @@ export function PageSizeSelect({ value, onChange }: { value: number; onChange: (
                 </>,
                 document.body
             )}
-            <span className="text-caption md:text-label text-black/50 font-black uppercase tracking-wider whitespace-nowrap">{t("common.perPage")}</span>
+            <span className="text-caption md:text-label text-black/50 font-bold uppercase tracking-wider whitespace-nowrap">{t("common.perPage")}</span>
         </div>
     );
 }

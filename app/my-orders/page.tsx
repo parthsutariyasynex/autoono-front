@@ -408,7 +408,7 @@ function MyOrdersPageContent() {
 
                 <main className="flex-1 w-full px-4 md:px-6 lg:px-8 py-4 md:py-8 lg:py-10">
                     <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-6 md:mb-10">
-                        <h1 className="text-h3 sm:text-h3 md:text-[26px] font-black text-black uppercase tracking-wide">
+                        <h1 className="text-h3 sm:text-h3 md:text-[26px] font-bold text-black uppercase tracking-wide">
                             {t("orders.title")}
                         </h1>
                         <button

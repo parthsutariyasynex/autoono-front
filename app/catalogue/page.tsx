@@ -21,7 +21,7 @@ export default function CataloguePage() {
             {/* Content Section */}
             <div className="max-w-[1200px] mx-auto px-6 mt-12 md:mt-20 pb-20 flex flex-col items-center" dir={isRtl ? "rtl" : "ltr"}>
                 <div className="relative mb-16">
-                    <h1 className="text-h2 md:text-[42px] font-black text-center tracking-tight text-black uppercase">
+                    <h1 className="text-h2 md:text-[42px] font-bold text-center tracking-tight text-black uppercase">
                         {t("catalogue.title")}
                     </h1>
                     <div className="w-24 h-2 bg-primary mx-auto mt-4 rounded-full" />
@@ -50,7 +50,7 @@ export default function CataloguePage() {
                             </div>
                         </div>
                         <div className="p-4 bg-white border-t border-gray-100 flex items-center justify-center group-hover:bg-gray-50 transition-colors">
-                            <span className="font-black text-black text-body-lg md:text-xl uppercase tracking-tighter text-center">
+                            <span className="font-bold text-black text-body-lg md:text-xl uppercase tracking-tighter text-center">
                                 {t("catalogue.maxxisCatalog")}
                             </span>
                         </div>

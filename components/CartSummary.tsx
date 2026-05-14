@@ -5,6 +5,7 @@ import { useTranslation } from "@/hooks/useTranslation";
 import React from "react";
 import { useRouter } from "next/navigation";
 import Price from "@/app/components/Price";
+import { useGift } from "@/modules/cart/context/GiftContext";
 
 interface CartSummaryProps {
     subtotal: number;
@@ -12,78 +13,110 @@ interface CartSummaryProps {
     taxLabel: string;
     grandTotal: number;
     currencyCode: string;
+    discountAmount?: number;
 }
 
-const CartSummary: React.FC<CartSummaryProps> = ({ subtotal, taxAmount, taxLabel, grandTotal, currencyCode }) => {
+const CartSummary: React.FC<CartSummaryProps> = ({ subtotal, taxAmount, taxLabel, grandTotal, currencyCode, discountAmount }) => {
     const router = useRouter();
     const lp = useLocalePath();
     const { t, isRtl } = useTranslation();
+    const { availableGifts, openGiftModal, hasGifts } = useGift();
+
+    const hasDiscount = !!discountAmount && discountAmount > 0;
 
     return (
         <div className="lg:sticky lg:top-28 self-start bg-white border border-gray-100 rounded-sm shadow-[0_10px_40px_rgba(0,0,0,0.05)] overflow-hidden">
             {/* Header */}
-            <div className="bg-surfacePage px-6 py-4 border-b border-gray-100">
-                <h2 className="text-label font-bold text-black uppercase tracking-[0.2em]">
-                    {t("m.order-summary")}
+            <div className="bg-gray-200 px-6 py-4 border-b border-gray-200 flex items-center justify-center">
+                <h2 className="text-[18px] font-[900] text-black uppercase tracking-tight">
+                    {t("orderDetails.orderSummary") === "ORDER SUMMARY" ? "SUMMARY" : (t("orderDetails.orderSummary") || "SUMMARY")}
                 </h2>
             </div>
 
-            <div className="p-4 md:p-6 lg:p-8 space-y-7">
+            <div className="px-6 py-5 space-y-0">
                 {/* Price Breakdown */}
-                <div className="space-y-3.5">
+                <div className="space-y-3 pb-4 border-b border-gray-100">
+                    {/* Items Total */}
                     <div className="flex justify-between items-center">
-                        <span className="text-black font-medium text-caption uppercase tracking-wider">{t("cart.subtotal")}</span>
-                        <span className="font-semibold text-black text-body-sm">
+                        <span className="text-[13px] font-[900] text-black uppercase tracking-tight">
+                            {t("multi.itemsTotal") || "ITEM(S) TOTAL:"}
+                        </span>
+                        <span className="text-[13px] font-[900] text-black">
                             <Price amount={subtotal} />
                         </span>
                     </div>
 
+                    {/* Discount — only shown when items have a discount applied */}
+                    {!!discountAmount && discountAmount > 0 && (
+                        <div className="flex justify-between items-center">
+                            <span className="text-[#008a00] font-[900] text-caption uppercase tracking-tight">
+                                {t("m.discount") || "DISCOUNT"}
+                            </span>
+                            <span className="font-[900] text-[#008a00] text-body-sm">
+                                - <Price amount={discountAmount} />
+                            </span>
+                        </div>
+                    )}
+
+                    {!hasGifts && availableGifts.length > 0 && (
+                        <div 
+                            onClick={openGiftModal}
+                            className="flex justify-between items-center p-3 bg-[#008a00]/5 border border-dashed border-[#008a00] rounded-lg cursor-pointer hover:bg-[#008a00]/10 transition-all group animate-pulse hover:animate-none"
+                        >
+                            <span className="text-[#008a00] font-[900] text-caption uppercase tracking-tight">
+                                {t("m.free-gift-available") || "FREE GIFT AVAILABLE"}
+                            </span>
+                            <span className="font-[900] text-[#008a00] text-xs underline uppercase group-hover:no-underline">
+                                {t("m.select-now") || "SELECT NOW"}
+                            </span>
+                        </div>
+                    )}
+
+                    {/* VAT */}
                     <div className="flex justify-between items-center">
-                        <span className="text-black font-medium text-caption uppercase tracking-wider">
-                            {isRtl ? t("m.tax") : (taxLabel || t("m.tax"))}
+                        <span className="text-[13px] font-[900] text-black uppercase tracking-tight">
+                            {isRtl ? t("m.tax") : (taxLabel?.toUpperCase().includes("VAT") ? taxLabel : "SAUDI VAT 15%")}
                         </span>
-                        <span className="font-semibold text-black text-body-sm">
+                        <span className="text-[13px] font-[900] text-black">
                             <Price amount={taxAmount} />
                         </span>
                     </div>
                 </div>
 
-                {/* Total Section */}
-                <div className="pt-5 border-t border-gray-100">
-                    <div className="flex justify-between items-center">
-                        <span className="text-black font-bold text-body uppercase tracking-tight">{t("common.grandTotal")}</span>
-                        <div className="text-right">
-                            <Price
-                                amount={grandTotal}
-                                symbolClassName="text-xs mr-1 font-bold text-black"
-                                className="font-bold text-black text-body-lg tracking-tight"
-                            />
-                        </div>
-                    </div>
+                {/* Grand Total */}
+                <div className="flex justify-between items-center pt-4">
+                    <span className="text-[14px] font-[900] text-black uppercase tracking-tight">
+                        {t("common.grandTotal") || "GRAND TOTAL"}
+                    </span>
+                    <span className="text-[14px] font-[900] text-black">
+                        <Price amount={grandTotal} />
+                    </span>
                 </div>
 
-                {/* Discount Code */}
-                <div className="pt-6 border-t border-gray-100 flex flex-col gap-2">
-                    <label className="text-black font-bold text-caption uppercase tracking-wider">{t("m.coupon-code")}</label>
-                    <div className="flex gap-2 items-stretch h-[46px]">
+                {/* Coupon Code */}
+                <div className="pt-5 border-t border-gray-100 flex flex-col gap-2 mt-4">
+                    <label className="text-[11px] font-[900] text-black uppercase tracking-widest">
+                        {t("m.coupon-code") || "Coupon Code"}
+                    </label>
+                    <div className="flex gap-2 items-stretch h-[44px]">
                         <input
                             type="text"
                             placeholder={t("m.enter-discount-code") || "Enter discount code"}
                             className="flex-1 min-w-0 px-4 text-sm font-medium text-black bg-white border border-gray-200 rounded focus:border-black focus:outline-none transition-all placeholder:text-black/40 placeholder:font-normal"
                         />
-                        <button className="px-6 bg-black text-white text-xs font-semibold uppercase tracking-wider hover:bg-gray-800 transition-all cursor-pointer rounded flex items-center justify-center shrink-0">
-                            {t("m.apply")}
+                        <button className="px-5 bg-black text-white text-xs font-[900] uppercase tracking-wider hover:bg-gray-800 transition-all cursor-pointer rounded flex items-center justify-center shrink-0">
+                            {t("m.apply") || "Apply"}
                         </button>
                     </div>
                 </div>
 
-                {/* Checkout Button — visible on all screens, below coupon */}
-                <div className="pt-2">
+                {/* Checkout Button */}
+                <div className="pt-4">
                     <button
                         onClick={() => router.push(lp("/checkout"))}
-                        className="w-full py-4 bg-primary text-black text-body-sm font-bold uppercase tracking-[0.2em] hover:bg-black hover:text-white active:scale-[0.98] transition-all duration-300 shadow-md rounded flex items-center justify-center gap-2"
+                        className="w-full py-4 bg-primary text-[13px] font-[900] uppercase tracking-[0.2em] hover:bg-black hover:text-white active:scale-[0.98] transition-all duration-300 shadow-md rounded flex items-center justify-center gap-2"
                     >
-                        {t("cart.proceedCheckout")} »
+                        {t("cart.proceedCheckout") || "PROCEED TO CHECKOUT"} »
                     </button>
                 </div>
             </div>

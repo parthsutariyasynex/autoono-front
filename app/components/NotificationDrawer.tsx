@@ -87,14 +87,14 @@ export default function NotificationDrawer({ isOpen, onClose }: NotificationDraw
                     {isLoading && notifications.length === 0 ? (
                         <div className="flex flex-col items-center justify-center py-20 animate-in fade-in duration-500">
                             <div className="w-10 h-10 border-3 border-primary border-t-transparent rounded-full animate-spin"></div>
-                            <p className="mt-4 text-label text-black/50 font-black uppercase tracking-[0.2em]">{t("common.loading")}</p>
+                            <p className="mt-4 text-label text-black/50 font-bold uppercase tracking-[0.2em]">{t("common.loading")}</p>
                         </div>
                     ) : notifications.length === 0 ? (
                         <div className="flex flex-col items-center justify-center py-32 px-10 text-center animate-in zoom-in-95 duration-500">
                             <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mb-6 shadow-inner">
                                 <BellIcon />
                             </div>
-                            <p className="text-h3-sm font-black text-black uppercase tracking-tight">{t("notifications.empty")}</p>
+                            <p className="text-h3-sm font-bold text-black uppercase tracking-tight">{t("notifications.empty")}</p>
                             <p className="text-xs text-black/50 mt-2 font-medium tracking-widest uppercase">{t("notifications.upToDate")}</p>
                         </div>
                     ) : (
@@ -107,7 +107,7 @@ export default function NotificationDrawer({ isOpen, onClose }: NotificationDraw
                                 >
                                     {/* Header Row: Title & Remove */}
                                     <div className="flex justify-between items-start gap-4">
-                                        <h3 className={`text-[15px] leading-snug ltr:pr-6 rtl:pl-6 ${!item.is_read ? "font-black text-black" : "font-bold text-black/80"}`}>
+                                        <h3 className={`text-[15px] leading-snug ltr:pr-6 rtl:pl-6 ${!item.is_read ? "font-bold text-black" : "font-bold text-black/80"}`}>
                                             {getOrderLink(item) ? (
                                                 <Link href={getOrderLink(item)!} onClick={onClose} className="hover:text-primary transition-colors hover:underline underline-offset-2">
                                                     {translateNotification(item.title)}
@@ -139,7 +139,7 @@ export default function NotificationDrawer({ isOpen, onClose }: NotificationDraw
 
                                     {/* Footer: Date & Mark as Read */}
                                     <div className="flex justify-between items-center mt-3">
-                                        <p className="text-label text-black/50 font-black uppercase tracking-widest">
+                                        <p className="text-label text-black/50 font-bold uppercase tracking-widest">
                                             {isRtl ? formatNotificationDate(item.date_added || item.date_added_formatted) : item.date_added_formatted}
                                         </p>
 
@@ -149,7 +149,7 @@ export default function NotificationDrawer({ isOpen, onClose }: NotificationDraw
                                                     e.stopPropagation();
                                                     markAsRead(item.notification_id);
                                                 }}
-                                                className="text-caption font-black uppercase tracking-widest pointer-events-auto text-primary hover:text-black transition-colors"
+                                                className="text-caption font-bold uppercase tracking-widest pointer-events-auto text-primary hover:text-black transition-colors"
                                             >
                                                 {t("notifications.markRead")}
                                             </button>
@@ -166,7 +166,7 @@ export default function NotificationDrawer({ isOpen, onClose }: NotificationDraw
                     <Link
                         href={lp("/customer/notifications")}
                         onClick={onClose}
-                        className="w-full h-[55px] bg-primary hover:bg-black text-black hover:text-white font-black rounded-sm transition-all duration-300 flex items-center justify-center shadow-lg hover:shadow-xl uppercase tracking-[0.2em] text-body-sm"
+                        className="w-full h-[55px] bg-primary hover:bg-black text-black hover:text-white font-bold rounded-sm transition-all duration-300 flex items-center justify-center shadow-lg hover:shadow-xl uppercase tracking-[0.2em] text-body-sm"
                     >
                         {t("common.view")} {t("nav.notifications")}
                     </Link>

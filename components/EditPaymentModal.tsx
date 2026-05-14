@@ -106,7 +106,7 @@ const EditPaymentModal: React.FC<EditPaymentModalProps> = ({ isOpen, onClose, pa
 
     if (!payment || !order) return null;
 
-    const labelClass = "text-label font-black text-black/80 uppercase tracking-widest block mb-1.5";
+    const labelClass = "text-label font-bold text-black/80 uppercase tracking-widest block mb-1.5";
     const inputClass = "w-full px-3 py-2.5 bg-white border border-gray-200 rounded-sm text-body text-black outline-none focus:border-black transition-colors";
     const readOnlyClass = "w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-sm text-body text-black/60 outline-none";
 

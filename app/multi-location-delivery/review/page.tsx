@@ -317,12 +317,12 @@ const MultiShippingReviewPage: React.FC = () => {
     return (
         <div className="bg-white min-h-screen font-sans pb-10 md:pb-20">
             <div className="w-full pt-6 md:pt-10 px-3 sm:px-4">
-                <h1 className="text-h3 sm:text-h2 md:text-h1-sm font-black text-black text-center uppercase mb-3 md:mb-4 tracking-tight">
+                <h1 className="text-h3 sm:text-h2 md:text-h1-sm font-bold text-black text-center uppercase mb-3 md:mb-4 tracking-tight">
                     {t("multi.reviewOrder")}
                 </h1>
 
                 {/* Billing Information Section */}
-                <h3 className="text-body-lg sm:text-[15px] md:text-[17px] font-black text-black text-center mb-5 md:mb-8 uppercase tracking-tight">
+                <h3 className="text-body-lg sm:text-[15px] md:text-[17px] font-bold text-black text-center mb-5 md:mb-8 uppercase tracking-tight">
                     {t("multi.billingInformation")}
                 </h3>
 
@@ -360,7 +360,7 @@ const MultiShippingReviewPage: React.FC = () => {
                         </div>
                         <div className="p-5 md:p-8 space-y-4 md:space-y-6">
                             <div className="text-center">
-                                <p className="text-body md:text-body-lg font-black text-black uppercase tracking-tight">
+                                <p className="text-body md:text-body-lg font-bold text-black uppercase tracking-tight">
                                     {(() => {
                                         const title = paymentMethod?.title;
                                         if (!title) return t("m.credit-account");
@@ -373,7 +373,7 @@ const MultiShippingReviewPage: React.FC = () => {
 
                             <div className="space-y-4">
                                 <div>
-                                    <p className="text-label font-black text-black uppercase tracking-widest mb-2">{t("multi.paymentCommitment")}</p>
+                                    <p className="text-label font-bold text-black uppercase tracking-widest mb-2">{t("multi.paymentCommitment")}</p>
                                     <div className="border-2 border-dashed border-gray-300 bg-white p-6 md:p-10 flex flex-col items-center justify-center text-center cursor-pointer hover:border-gray-400 transition-colors">
                                         <p className="text-body md:text-[15px] font-bold text-black mb-2">{t("multi.dropFiles")}</p>
                                         <p className="text-micro md:text-caption text-black/60 font-medium whitespace-pre-wrap">
@@ -383,7 +383,7 @@ const MultiShippingReviewPage: React.FC = () => {
                                 </div>
 
                                 <div>
-                                    <p className="text-label font-black text-black uppercase tracking-widest mb-2">{t("multi.leaveComment")}</p>
+                                    <p className="text-label font-bold text-black uppercase tracking-widest mb-2">{t("multi.leaveComment")}</p>
                                     <textarea
                                         value={generalComment}
                                         onChange={(e) => setGeneralComment(e.target.value)}
@@ -398,7 +398,7 @@ const MultiShippingReviewPage: React.FC = () => {
                 <hr className="border-transparent my-8 md:my-16" />
 
                 {/* Shipping Information Header */}
-                <h3 className="text-[17px] sm:text-[18px] md:text-h3 font-black text-black text-center mb-4 uppercase tracking-tighter">
+                <h3 className="text-[17px] sm:text-[18px] md:text-h3 font-bold text-black text-center mb-4 uppercase tracking-tighter">
                     {t("multi.shippingInformation")}
                 </h3>
 
@@ -440,7 +440,7 @@ const MultiShippingReviewPage: React.FC = () => {
                                     </div>
                                     <div className="p-5 md:p-8 space-y-4 md:space-y-6 flex-grow">
                                         <div>
-                                            <p className="text-label font-black text-black uppercase mb-2">{t("multi.poNumber")}</p>
+                                            <p className="text-label font-bold text-black uppercase mb-2">{t("multi.poNumber")}</p>
                                             <input
                                                 type="text"
                                                 value={groupData[group.address.id]?.poNumber || ""}
@@ -449,7 +449,7 @@ const MultiShippingReviewPage: React.FC = () => {
                                             />
                                         </div>
                                         <div>
-                                            <p className="text-label font-black text-black uppercase mb-2">{t("multi.uploadPo")}</p>
+                                            <p className="text-label font-bold text-black uppercase mb-2">{t("multi.uploadPo")}</p>
                                             <div className="border-2 border-dashed border-gray-300 bg-white p-5 md:p-8 flex flex-col items-center justify-center text-center">
                                                 <p className="text-body md:text-body-lg font-bold text-black mb-2">{t("multi.dropFiles")}</p>
                                                 <p className="text-micro text-black/50 font-medium uppercase tracking-tighter">
@@ -458,7 +458,7 @@ const MultiShippingReviewPage: React.FC = () => {
                                             </div>
                                         </div>
                                         <div>
-                                            <p className="text-label font-black text-black uppercase mb-2">{t("multi.orderComment")}</p>
+                                            <p className="text-label font-bold text-black uppercase mb-2">{t("multi.orderComment")}</p>
                                             <textarea
                                                 value={groupData[group.address.id]?.comment || ""}
                                                 onChange={(e) => handleDataChange(group.address.id, 'comment', e.target.value)}
@@ -474,10 +474,10 @@ const MultiShippingReviewPage: React.FC = () => {
                                         <table className="w-full text-left border-collapse min-w-[320px]">
                                             <thead>
                                                 <tr className="border-b border-transparent">
-                                                    <th className="py-3 md:py-4 px-3 md:px-6 text-label md:text-body-sm font-black text-black uppercase w-[40%] md:w-[50%]">{t("m.item")}</th>
-                                                    <th className="py-3 md:py-4 px-2 md:px-4 text-label md:text-body-sm font-black text-black uppercase text-right">{t("common.price")}</th>
-                                                    <th className="py-3 md:py-4 px-2 md:px-4 text-label md:text-body-sm font-black text-black uppercase text-right">{t("multi.qty")}</th>
-                                                    <th className="py-3 md:py-4 px-3 md:px-6 text-label md:text-body-sm font-black text-black uppercase text-right">{t("common.total")}</th>
+                                                    <th className="py-3 md:py-4 px-3 md:px-6 text-label md:text-body-sm font-bold text-black uppercase w-[40%] md:w-[50%]">{t("m.item")}</th>
+                                                    <th className="py-3 md:py-4 px-2 md:px-4 text-label md:text-body-sm font-bold text-black uppercase text-right">{t("common.price")}</th>
+                                                    <th className="py-3 md:py-4 px-2 md:px-4 text-label md:text-body-sm font-bold text-black uppercase text-right">{t("multi.qty")}</th>
+                                                    <th className="py-3 md:py-4 px-3 md:px-6 text-label md:text-body-sm font-bold text-black uppercase text-right">{t("common.total")}</th>
                                                 </tr>
                                             </thead>
                                             <tbody className="bg-transparent">
@@ -486,13 +486,13 @@ const MultiShippingReviewPage: React.FC = () => {
                                                         <td className="py-3 md:py-4 px-3 md:px-6 text-body-sm md:text-body font-medium text-black/70 align-top uppercase leading-tight">
                                                             {item.name}
                                                         </td>
-                                                        <td className="py-3 md:py-4 px-2 md:px-4 text-body-sm md:text-body font-black text-black text-right align-top">
+                                                        <td className="py-3 md:py-4 px-2 md:px-4 text-body-sm md:text-body font-bold text-black text-right align-top">
                                                             <Price amount={item.price} />
                                                         </td>
-                                                        <td className="py-3 md:py-4 px-2 md:px-4 text-body-sm md:text-body font-black text-black text-right align-top">
+                                                        <td className="py-3 md:py-4 px-2 md:px-4 text-body-sm md:text-body font-bold text-black text-right align-top">
                                                             {item.qty}
                                                         </td>
-                                                        <td className="py-3 md:py-4 px-3 md:px-6 text-body-sm md:text-body font-black text-black text-right align-top">
+                                                        <td className="py-3 md:py-4 px-3 md:px-6 text-body-sm md:text-body font-bold text-black text-right align-top">
                                                             <Price amount={item.price * item.qty} />
                                                         </td>
                                                     </tr>
@@ -501,15 +501,15 @@ const MultiShippingReviewPage: React.FC = () => {
                                             <tfoot>
                                                 <tr>
                                                     <td colSpan={3} className="py-2 px-3 md:px-6 text-right text-label md:text-body-sm font-[900] text-black uppercase">{t("multi.itemsTotal")}</td>
-                                                    <td className="py-2 px-3 md:px-6 text-right text-label md:text-body-sm font-black text-black"><Price amount={itemTotal} /></td>
+                                                    <td className="py-2 px-3 md:px-6 text-right text-label md:text-body-sm font-bold text-black"><Price amount={itemTotal} /></td>
                                                 </tr>
                                                 <tr>
                                                     <td colSpan={3} className="py-2 px-3 md:px-6 text-right text-label md:text-body-sm font-[900] text-black uppercase">{t("multi.vat")}</td>
-                                                    <td className="py-2 px-3 md:px-6 text-right text-label md:text-body-sm font-black text-black"><Price amount={vat} /></td>
+                                                    <td className="py-2 px-3 md:px-6 text-right text-label md:text-body-sm font-bold text-black"><Price amount={vat} /></td>
                                                 </tr>
                                                 <tr>
                                                     <td colSpan={3} className="py-4 md:py-6 px-3 md:px-6 text-right text-body-sm md:text-body-lg font-[900] text-black uppercase">{t("multi.totalForAddress")}</td>
-                                                    <td className="py-4 md:py-6 px-3 md:px-6 text-right text-body-sm md:text-body-lg font-black text-black"><Price amount={groupTotal} /></td>
+                                                    <td className="py-4 md:py-6 px-3 md:px-6 text-right text-body-sm md:text-body-lg font-bold text-black"><Price amount={groupTotal} /></td>
                                                 </tr>
                                             </tfoot>
                                         </table>
@@ -522,7 +522,7 @@ const MultiShippingReviewPage: React.FC = () => {
 
                 {/* Grand Total Area */}
                 <div className="mt-8 md:mt-12 mb-6 md:mb-8 flex justify-center md:justify-end">
-                    <p className="text-h3-sm sm:text-[18px] md:text-h3 font-black text-black uppercase">
+                    <p className="text-h3-sm sm:text-[18px] md:text-h3 font-bold text-black uppercase">
                         {t("multi.grandTotal")} <span className="ml-2 md:ml-4"><Price amount={grandTotal} /></span>
                     </p>
                 </div>
@@ -531,7 +531,7 @@ const MultiShippingReviewPage: React.FC = () => {
                 <div className="bg-surfaceDim p-4 sm:p-6 md:p-8 flex flex-col sm:flex-row justify-between items-center gap-3 sm:gap-4">
                     <button
                         onClick={() => router.push(lp('/multi-location-delivery/billing'))}
-                        className="w-full sm:w-auto bg-black text-white px-6 md:px-10 py-3.5 md:py-4 text-label font-black uppercase tracking-[0.15em] hover:opacity-90 transition-opacity text-center"
+                        className="w-full sm:w-auto bg-black text-white px-6 md:px-10 py-3.5 md:py-4 text-label font-bold uppercase tracking-[0.15em] hover:opacity-90 transition-opacity text-center"
                     >
                         {t("multi.backToBilling")}
                     </button>
@@ -539,7 +539,7 @@ const MultiShippingReviewPage: React.FC = () => {
                     <button
                         onClick={handlePlaceOrder}
                         disabled={isPlacingOrder}
-                        className="w-full sm:w-auto bg-primary text-black px-10 md:px-16 py-3.5 md:py-4 text-label font-black uppercase tracking-[0.15em] hover:bg-black hover:text-white transition-all shadow-sm flex items-center justify-center gap-2"
+                        className="w-full sm:w-auto bg-primary text-black px-10 md:px-16 py-3.5 md:py-4 text-label font-bold uppercase tracking-[0.15em] hover:bg-black hover:text-white transition-all shadow-sm flex items-center justify-center gap-2"
                     >
                         {isPlacingOrder && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
                         {t("multi.placeOrder")}

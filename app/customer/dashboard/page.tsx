@@ -158,7 +158,7 @@ export default function DashboardPage() {
                     )}
 
                     <div className="flex items-center gap-4 mb-2">
-                        <h1 className="text-2xl font-black text-black uppercase tracking-tight">
+                        <h1 className="text-2xl font-bold text-black uppercase tracking-tight">
                             {t("dashboard.title")}
                         </h1>
                         <div className="h-[2px] flex-1 bg-gradient-to-r from-primary to-transparent"></div>
@@ -181,7 +181,7 @@ export default function DashboardPage() {
                                     }}
                                     className="w-[18px] h-[18px] accent-primary cursor-pointer"
                                 />
-                                <label htmlFor="compare-toggle" className="text-label font-black uppercase text-black tracking-widest cursor-pointer select-none">{t("dashboard.compare")}</label>
+                                <label htmlFor="compare-toggle" className="text-label font-bold uppercase text-black tracking-widest cursor-pointer select-none">{t("dashboard.compare")}</label>
                             </div>
                         </div>
 
@@ -196,14 +196,14 @@ export default function DashboardPage() {
                                         setIsCompare(true);
                                     }}
                                     options={availableYears.map(y => ({ label: String(y), value: String(y) }))}
-                                    buttonClassName="w-full h-11 px-5 flex items-center justify-between gap-2 cursor-pointer bg-transparent outline-none ltr:text-left rtl:text-right font-black text-body uppercase tracking-wider text-black"
+                                    buttonClassName="w-full h-11 px-5 flex items-center justify-between gap-2 cursor-pointer bg-transparent outline-none ltr:text-left rtl:text-right font-bold text-body uppercase tracking-wider text-black"
                                     className="w-full h-full"
                                 />
                             </div>
 
                             {/* Constant "vs." label */}
                             <div className="flex items-center justify-center">
-                                <span className="bg-gray-100/80 px-4 py-1 rounded-full text-label font-black text-black uppercase tracking-tighter italic border border-gray-200">
+                                <span className="bg-gray-100/80 px-4 py-1 rounded-full text-label font-bold text-black uppercase tracking-tighter italic border border-gray-200">
                                     {isRtl ? "مقابل" : "vs."}
                                 </span>
                             </div>
@@ -217,7 +217,7 @@ export default function DashboardPage() {
                                         setIsCompare(true);
                                     }}
                                     options={availableYears.map(y => ({ label: String(y), value: String(y) }))}
-                                    buttonClassName="w-full h-11 px-5 flex items-center justify-between gap-2 cursor-pointer bg-transparent outline-none ltr:text-left rtl:text-right font-black text-body uppercase tracking-wider text-black"
+                                    buttonClassName="w-full h-11 px-5 flex items-center justify-between gap-2 cursor-pointer bg-transparent outline-none ltr:text-left rtl:text-right font-bold text-body uppercase tracking-wider text-black"
                                     className="w-full h-full"
                                 />
                             </div>
@@ -230,7 +230,7 @@ export default function DashboardPage() {
                             {/* TOTAL ORDER QTY SECTION */}
                             <section>
                                 <div className="flex items-center gap-4 mb-6">
-                                    <h2 className="text-lg font-black text-black uppercase tracking-tight">{t("m.total-order-qty")}</h2>
+                                    <h2 className="text-lg font-bold text-black uppercase tracking-tight">{t("m.total-order-qty")}</h2>
                                     <div className="h-[2px] w-12 bg-primary"></div>
                                 </div>
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -255,7 +255,7 @@ export default function DashboardPage() {
                             {/* TOTAL ORDER VALUE SECTION */}
                             <section>
                                 <div className="flex items-center gap-4 mb-6">
-                                    <h2 className="text-lg font-black text-black uppercase tracking-tight">{t("m.total-order-value")}</h2>
+                                    <h2 className="text-lg font-bold text-black uppercase tracking-tight">{t("m.total-order-value")}</h2>
                                     <div className="h-[2px] w-12 bg-primary"></div>
                                 </div>
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -281,7 +281,7 @@ export default function DashboardPage() {
                             <section className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-4">
                                 {/* Product Group Filter */}
                                 <div className="flex flex-col gap-4 group">
-                                    <h3 className="text-body font-black text-black uppercase tracking-widest ltr:text-left rtl:text-right opacity-60 group-hover:opacity-100 transition-opacity">{t("dashboard.productGroupLabel")}</h3>
+                                    <h3 className="text-body font-bold text-black uppercase tracking-widest ltr:text-left rtl:text-right opacity-60 group-hover:opacity-100 transition-opacity">{t("dashboard.productGroupLabel")}</h3>
                                     <div className="bg-white border border-border rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-all">
                                         <div className="bg-gray-50 border-b border-border h-12 px-5 flex items-center relative">
                                             <PortalDropdown
@@ -293,12 +293,12 @@ export default function DashboardPage() {
                                                         : dashboardData.product_groups.map((pg: any) => ({ label: translateData(pg.product_group), value: pg.product_group }))
                                                 }
                                                 placeholder={t("m.select")}
-                                                buttonClassName="w-full h-full flex items-center justify-between gap-2 cursor-pointer bg-transparent outline-none ltr:text-left rtl:text-right font-black text-body-sm uppercase tracking-wider text-black"
+                                                buttonClassName="w-full h-full flex items-center justify-between gap-2 cursor-pointer bg-transparent outline-none ltr:text-left rtl:text-right font-bold text-body-sm uppercase tracking-wider text-black"
                                                 className="w-full h-full"
                                             />
                                         </div>
                                         <div className="py-8 px-6 text-center">
-                                            <p className="text-3xl font-black text-black tracking-tight">
+                                            <p className="text-3xl font-bold text-black tracking-tight">
                                                 {dashboardData?.product_groups?.find((pg: any) => pg.product_group === selectedProductGroup)?.qty || "0"}
                                             </p>
                                         </div>
@@ -307,7 +307,7 @@ export default function DashboardPage() {
 
                                 {/* Tyre Size Filter */}
                                 <div className="flex flex-col gap-4 group">
-                                    <h3 className="text-body font-black text-black uppercase tracking-widest ltr:text-left rtl:text-right opacity-60 group-hover:opacity-100 transition-opacity">{t("dashboard.tyreSizeLabel")}</h3>
+                                    <h3 className="text-body font-bold text-black uppercase tracking-widest ltr:text-left rtl:text-right opacity-60 group-hover:opacity-100 transition-opacity">{t("dashboard.tyreSizeLabel")}</h3>
                                     <div className="bg-white border border-border rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-all">
                                         <div className="bg-gray-50 border-b border-border h-12 px-5 flex items-center relative">
                                             <PortalDropdown
@@ -319,12 +319,12 @@ export default function DashboardPage() {
                                                         : dashboardData.tyre_sizes.map((ts: any) => ({ label: translateData(ts.size_pattern), value: ts.size_pattern }))
                                                 }
                                                 placeholder={t("m.select")}
-                                                buttonClassName="w-full h-full flex items-center justify-between gap-2 cursor-pointer bg-transparent outline-none ltr:text-left rtl:text-right font-black text-body-sm uppercase tracking-wider text-black"
+                                                buttonClassName="w-full h-full flex items-center justify-between gap-2 cursor-pointer bg-transparent outline-none ltr:text-left rtl:text-right font-bold text-body-sm uppercase tracking-wider text-black"
                                                 className="w-full h-full"
                                             />
                                         </div>
                                         <div className="py-8 px-6 text-center">
-                                            <p className="text-3xl font-black text-black tracking-tight">
+                                            <p className="text-3xl font-bold text-black tracking-tight">
                                                 {dashboardData?.tyre_sizes?.find((ts: any) => ts.size_pattern === selectedTyreSize)?.qty || "0"}
                                             </p>
                                         </div>
@@ -338,7 +338,7 @@ export default function DashboardPage() {
                     {isCompare && (
                         <section className="bg-white border border-border rounded-xl shadow-lg p-0 mb-16 overflow-hidden animate-in fade-in slide-in-from-bottom duration-500">
                             <div className="p-6 md:p-10 border-b border-gray-200 bg-gray-50/50">
-                                <h2 className="text-lg md:text-xl font-black text-black uppercase tracking-tight ltr:text-left rtl:text-right">
+                                <h2 className="text-lg md:text-xl font-bold text-black uppercase tracking-tight ltr:text-left rtl:text-right">
                                     {isRtl ? `مقارنة ${searchYear} مع ${compareYear}` : `COMPARE ${searchYear} WITH ${compareYear}`}
                                 </h2>
                             </div>
@@ -347,14 +347,14 @@ export default function DashboardPage() {
                             <div className="flex px-4 pt-4 gap-2 bg-gray-50/50">
                                 <button
                                     onClick={() => setActiveTab('quarterly')}
-                                    className={`px-6 md:px-10 py-3 md:py-4 text-label font-black uppercase tracking-widest cursor-pointer transition-all rounded-t-lg
+                                    className={`px-6 md:px-10 py-3 md:py-4 text-label font-bold uppercase tracking-widest cursor-pointer transition-all rounded-t-lg
                                         ${activeTab === 'quarterly' ? 'bg-white text-black border-x border-t border-border' : 'bg-transparent text-black/50 hover:text-black'}`}
                                 >
                                     {t("dashboard.quarterlySalesData")}
                                 </button>
                                 <button
                                     onClick={() => setActiveTab('monthly')}
-                                    className={`px-6 md:px-10 py-3 md:py-4 text-label font-black uppercase tracking-widest cursor-pointer transition-all rounded-t-lg
+                                    className={`px-6 md:px-10 py-3 md:py-4 text-label font-bold uppercase tracking-widest cursor-pointer transition-all rounded-t-lg
                                         ${activeTab === 'monthly' ? 'bg-white text-black border-x border-t border-border' : 'bg-transparent text-black/50 hover:text-black'}`}
                                 >
                                     {t("dashboard.monthlySalesData")}
@@ -414,10 +414,10 @@ export default function DashboardPage() {
                                     <table className="w-full border-collapse">
                                         <thead>
                                             <tr className="bg-gray-50/80 border-b border-border h-[55px]">
-                                                <th className="py-4 px-6 text-label font-black text-black uppercase tracking-widest text-left">{activeTab === 'quarterly' ? t("dashboard.quarter") : t("dashboard.month")}</th>
-                                                <th className="py-4 px-6 text-label font-black text-black uppercase tracking-widest text-center">{searchYear} QTY</th>
-                                                <th className="py-4 px-6 text-label font-black text-black uppercase tracking-widest text-center">{compareYear} QTY</th>
-                                                <th className="py-4 px-6 text-label font-black text-black uppercase tracking-widest text-right">{isRtl ? 'التغيير' : 'CHANGE'}</th>
+                                                <th className="py-4 px-6 text-label font-bold text-black uppercase tracking-widest text-left">{activeTab === 'quarterly' ? t("dashboard.quarter") : t("dashboard.month")}</th>
+                                                <th className="py-4 px-6 text-label font-bold text-black uppercase tracking-widest text-center">{searchYear} QTY</th>
+                                                <th className="py-4 px-6 text-label font-bold text-black uppercase tracking-widest text-center">{compareYear} QTY</th>
+                                                <th className="py-4 px-6 text-label font-bold text-black uppercase tracking-widest text-right">{isRtl ? 'التغيير' : 'CHANGE'}</th>
                                             </tr>
                                         </thead>
                                         <tbody className="divide-y divide-gray-200 bg-white">
@@ -435,11 +435,11 @@ export default function DashboardPage() {
 
                                                 return (
                                                     <tr key={p} className="hover:bg-primary/5 group transition-colors h-[60px]">
-                                                        <td className="py-4 px-6 font-black text-black text-body uppercase">{label}</td>
-                                                        <td className="py-4 px-6 text-body-lg font-black text-black text-center">{val1}</td>
+                                                        <td className="py-4 px-6 font-bold text-black text-body uppercase">{label}</td>
+                                                        <td className="py-4 px-6 text-body-lg font-bold text-black text-center">{val1}</td>
                                                         <td className="py-4 px-6 text-body-lg font-bold text-black/50 group-hover:text-black transition-colors text-center">{val2}</td>
                                                         <td className="py-4 px-6 text-right">
-                                                            <span className={`text-label font-black px-2 py-1 rounded ${Number(change) >= 0 ? 'text-green-600 bg-green-50' : 'text-red-600 bg-red-50'}`}>
+                                                            <span className={`text-label font-bold px-2 py-1 rounded ${Number(change) >= 0 ? 'text-green-600 bg-green-50' : 'text-red-600 bg-red-50'}`}>
                                                                 {Number(change) >= 0 ? '+' : ''}{change}%
                                                             </span>
                                                         </td>
@@ -465,11 +465,11 @@ function QtyCard({ label, value, isRtl }: { label: string; value: string; isRtl:
     return (
         <div className="bg-white border border-border rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-all transform hover:-translate-y-1 group">
             <div className="bg-gray-50 h-10 px-5 flex justify-between items-center text-black border-b border-border group-hover:bg-primary transition-colors">
-                <span className="text-caption font-black uppercase tracking-widest text-black/60 group-hover:text-black transition-colors">{label}</span>
+                <span className="text-caption font-bold uppercase tracking-widest text-black/60 group-hover:text-black transition-colors">{label}</span>
                 <div className="w-1.5 h-1.5 rounded-full bg-primary"></div>
             </div>
             <div className="py-10 px-4 text-center">
-                <p className="text-4xl font-black text-black tracking-tighter">{value}</p>
+                <p className="text-4xl font-bold text-black tracking-tighter">{value}</p>
             </div>
         </div>
     );
@@ -479,11 +479,11 @@ function ValueCard({ label, value, isRtl }: { label: string; value: string; isRt
     return (
         <div className="bg-white border border-border rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-all transform hover:-translate-y-1 group">
             <div className="bg-gray-50 h-10 px-5 flex justify-between items-center text-black border-b border-border group-hover:bg-primary transition-colors">
-                <span className="text-caption font-black uppercase tracking-widest text-black/60 group-hover:text-black transition-colors">{label}</span>
+                <span className="text-caption font-bold uppercase tracking-widest text-black/60 group-hover:text-black transition-colors">{label}</span>
                 <div className="w-1.5 h-1.5 rounded-full bg-primary"></div>
             </div>
             <div className="py-10 px-4 text-center">
-                <p className="text-2xl font-black text-black tracking-tight">{value}</p>
+                <p className="text-2xl font-bold text-black tracking-tight">{value}</p>
             </div>
         </div>
     );

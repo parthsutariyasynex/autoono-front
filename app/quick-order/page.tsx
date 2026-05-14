@@ -436,17 +436,17 @@ export default function QuickOrderPage() {
 
                 {/* Top Header */}
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 md:mb-10 gap-4 md:gap-6">
-                    <h1 className="text-h2 sm:text-h1-sm md:text-[36px] font-black text-black uppercase tracking-[-0.04em]">{t("quickOrder.title")}</h1>
+                    <h1 className="text-h2 sm:text-h1-sm md:text-[36px] font-bold text-black uppercase tracking-[-0.04em]">{t("quickOrder.title")}</h1>
                     <div className="flex gap-3 md:gap-4 w-full sm:w-auto">
                         <button
                             onClick={handleAddToCart}
-                            className="flex-1 sm:flex-none h-[38px] md:h-[40px] px-4 md:px-6 bg-black text-white text-caption md:text-label font-black uppercase tracking-[0.15em] rounded-sm hover:translate-y-[-2px] active:scale-95 transition-all disabled:opacity-30 disabled:cursor-not-allowed shadow-[0_4px_14px_rgba(0,0,0,0.1)]"
+                            className="flex-1 sm:flex-none h-[38px] md:h-[40px] px-4 md:px-6 bg-black text-white text-caption md:text-label font-bold uppercase tracking-[0.15em] rounded-sm hover:translate-y-[-2px] active:scale-95 transition-all disabled:opacity-30 disabled:cursor-not-allowed shadow-[0_4px_14px_rgba(0,0,0,0.1)]"
                         >
                             {t("quickOrder.addToCart")}
                         </button>
                         <button
                             onClick={handleCheckout}
-                            className="flex-1 sm:flex-none h-[38px] md:h-[40px] px-4 md:px-6 bg-black text-white text-caption md:text-label font-black uppercase tracking-[0.15em] rounded-sm hover:translate-y-[-2px] active:scale-95 transition-all shadow-[0_4px_14px_rgba(0,0,0,0.1)]"
+                            className="flex-1 sm:flex-none h-[38px] md:h-[40px] px-4 md:px-6 bg-black text-white text-caption md:text-label font-bold uppercase tracking-[0.15em] rounded-sm hover:translate-y-[-2px] active:scale-95 transition-all shadow-[0_4px_14px_rgba(0,0,0,0.1)]"
                         >
                             {t("quickOrder.checkout")}
                         </button>
@@ -482,18 +482,18 @@ export default function QuickOrderPage() {
                                     </div>
                                     <div className="ltr:ml-5 rtl:mr-5 flex-1 min-w-0">
                                         <div className="flex items-center gap-2">
-                                            <p className="text-body font-black text-black uppercase tracking-tight">{p.sku}</p>
+                                            <p className="text-body font-bold text-black uppercase tracking-tight">{p.sku}</p>
                                             {p.item_code && p.item_code !== p.sku && (
                                                 <span className="text-micro font-bold text-black/50 bg-gray-100 px-1.5 py-0.5 rounded">{p.item_code}</span>
                                             )}
                                             {p.is_in_stock === false && (
-                                                <span className="text-[8px] font-black text-red-500 bg-red-50 px-1.5 py-0.5 rounded uppercase">{t("quickOrder.outOfStock")}</span>
+                                                <span className="text-[8px] font-bold text-red-500 bg-red-50 px-1.5 py-0.5 rounded uppercase">{t("quickOrder.outOfStock")}</span>
                                             )}
                                         </div>
                                         <p className="text-label text-black/50 font-medium truncate">{p.name}</p>
                                     </div>
                                     <div className="ltr:ml-6 rtl:mr-6 flex-shrink-0">
-                                        <span className="w-8 h-8 bg-primary text-black rounded flex items-center justify-center font-black text-h3-sm hover:bg-black hover:text-white transition-all shadow-sm active:scale-90">+</span>
+                                        <span className="w-8 h-8 bg-primary text-black rounded flex items-center justify-center font-bold text-h3-sm hover:bg-black hover:text-white transition-all shadow-sm active:scale-90">+</span>
                                     </div>
                                 </div>
                             ))}
@@ -503,7 +503,7 @@ export default function QuickOrderPage() {
                     {/* No Results */}
                     {searchTerm.length >= 2 && !isSearching && searchResults.length === 0 && (
                         <div className="absolute top-[calc(100%+8px)] left-0 right-0 bg-white border border-gray-100 rounded-sm shadow-xl z-[100] py-8 text-center">
-                            <p className="text-label font-black text-black/40 uppercase tracking-widest">{t("quickOrder.noProducts")}</p>
+                            <p className="text-label font-bold text-black/40 uppercase tracking-widest">{t("quickOrder.noProducts")}</p>
                         </div>
                     )}
                 </div>
@@ -515,11 +515,11 @@ export default function QuickOrderPage() {
                         <table className="w-full border-collapse">
                             <thead className="sticky top-0 z-20 bg-white">
                                 <tr className="border-b-2 border-gray-50 bg-white">
-                                    <th className="px-6 lg:px-8 py-4 text-body-sm font-black text-black uppercase tracking-[0.2em] w-[45%] ltr:text-left rtl:text-right">{t("quickOrder.items")}</th>
-                                    <th className="px-4 lg:px-6 py-4 text-body-sm font-black text-black uppercase tracking-[0.2em] text-center">{t("quickOrder.skus")}</th>
-                                    <th className="px-4 lg:px-6 py-4 text-body-sm font-black text-black uppercase tracking-[0.2em] text-center">{t("quickOrder.qty")}</th>
-                                    <th className="px-6 lg:px-8 py-4 text-body-sm font-black text-black uppercase tracking-[0.2em] ltr:text-right rtl:text-left">{t("quickOrder.itemsTotal")}</th>
-                                    <th className="px-4 lg:px-6 py-4 text-body-sm font-black text-black uppercase tracking-[0.2em] text-center">{t("quickOrder.action")}</th>
+                                    <th className="px-6 lg:px-8 py-4 text-body-sm font-bold text-black uppercase tracking-[0.2em] w-[45%] ltr:text-left rtl:text-right">{t("quickOrder.items")}</th>
+                                    <th className="px-4 lg:px-6 py-4 text-body-sm font-bold text-black uppercase tracking-[0.2em] text-center">{t("quickOrder.skus")}</th>
+                                    <th className="px-4 lg:px-6 py-4 text-body-sm font-bold text-black uppercase tracking-[0.2em] text-center">{t("quickOrder.qty")}</th>
+                                    <th className="px-6 lg:px-8 py-4 text-body-sm font-bold text-black uppercase tracking-[0.2em] ltr:text-right rtl:text-left">{t("quickOrder.itemsTotal")}</th>
+                                    <th className="px-4 lg:px-6 py-4 text-body-sm font-bold text-black uppercase tracking-[0.2em] text-center">{t("quickOrder.action")}</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-50">
@@ -530,7 +530,7 @@ export default function QuickOrderPage() {
                                                 <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mb-4">
                                                     <Plus size={24} className="text-black/40" />
                                                 </div>
-                                                <p className="text-caption font-black text-black/50 uppercase tracking-widest max-w-[300px]">
+                                                <p className="text-caption font-bold text-black/50 uppercase tracking-widest max-w-[300px]">
                                                     {t("quickOrder.emptyList")}
                                                 </p>
                                             </div>
@@ -548,7 +548,7 @@ export default function QuickOrderPage() {
                                                 </div>
                                             </td>
                                             <td className="px-4 lg:px-6 py-4 text-center">
-                                                <span className="text-caption font-black text-black uppercase tracking-tight">{item.sku}</span>
+                                                <span className="text-caption font-bold text-black uppercase tracking-tight">{item.sku}</span>
                                             </td>
                                             <td className="px-4 lg:px-6 py-4">
                                                 <div className="flex items-center justify-center">
@@ -557,12 +557,12 @@ export default function QuickOrderPage() {
                                                         min="1"
                                                         value={item.qty}
                                                         onChange={(e) => updateQty(item.sku, parseInt(e.target.value) || 1)}
-                                                        className="w-14 h-10 border border-gray-100 text-center text-caption font-black text-black focus:outline-none focus:border-primary focus:bg-white bg-gray-50/50 transition-all rounded-sm"
+                                                        className="w-14 h-10 border border-gray-100 text-center text-caption font-bold text-black focus:outline-none focus:border-primary focus:bg-white bg-gray-50/50 transition-all rounded-sm"
                                                     />
                                                 </div>
                                             </td>
                                             <td className="px-6 lg:px-8 py-4 ltr:text-right rtl:text-left">
-                                                <span className="text-caption font-black text-black">
+                                                <span className="text-caption font-bold text-black">
                                                     <Price amount={item.price * item.qty} />
                                                 </span>
                                             </td>
@@ -590,7 +590,7 @@ export default function QuickOrderPage() {
                                     <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mb-4">
                                         <Plus size={24} className="text-black/40" />
                                     </div>
-                                    <p className="text-caption font-black text-black/50 uppercase tracking-widest max-w-[300px]">
+                                    <p className="text-caption font-bold text-black/50 uppercase tracking-widest max-w-[300px]">
                                         {t("quickOrder.emptyList")}
                                     </p>
                                 </div>
@@ -603,20 +603,20 @@ export default function QuickOrderPage() {
                                             {item.image ? <img src={item.image} alt={item.sku} className="w-10 h-10 object-contain" /> : <Loader2 size={12} className="text-black/20" />}
                                         </div>
                                         <div className="flex-1 min-w-0">
-                                            <p className="text-label font-black text-black uppercase tracking-tight">{item.sku}</p>
+                                            <p className="text-label font-bold text-black uppercase tracking-tight">{item.sku}</p>
                                             <p className="text-caption font-bold text-black/60 leading-snug line-clamp-1 mt-0.5">{item.name}</p>
                                             <div className="flex items-center justify-between mt-3">
                                                 <div className="flex items-center gap-2">
-                                                    <span className="text-micro font-black text-black/50 uppercase">{t("quickOrder.qty")}:</span>
+                                                    <span className="text-micro font-bold text-black/50 uppercase">{t("quickOrder.qty")}:</span>
                                                     <input
                                                         type="number"
                                                         min="1"
                                                         value={item.qty}
                                                         onChange={(e) => updateQty(item.sku, parseInt(e.target.value) || 1)}
-                                                        className="w-14 h-8 border border-gray-100 text-center text-label font-black text-black focus:outline-none focus:border-primary bg-gray-50/50 rounded-sm"
+                                                        className="w-14 h-8 border border-gray-100 text-center text-label font-bold text-black focus:outline-none focus:border-primary bg-gray-50/50 rounded-sm"
                                                     />
                                                 </div>
-                                                <span className="text-body-sm font-black text-black">
+                                                <span className="text-body-sm font-bold text-black">
                                                     <Price amount={item.price * item.qty} />
                                                 </span>
                                             </div>
@@ -637,21 +637,21 @@ export default function QuickOrderPage() {
                     {/* Fixed Summary Bar */}
                     <div className="px-4 md:px-8 py-4 md:py-6 bg-white border-t border-gray-100 flex flex-col md:flex-row justify-between items-center gap-4 md:gap-6">
                         <div className="flex items-center gap-3 md:gap-4 w-full md:w-auto justify-between md:justify-start">
-                            <span className="text-label md:text-body-sm font-black text-black/50 uppercase tracking-[0.2em]">{t("quickOrder.grandTotal")}</span>
-                            <span className="text-h3 md:text-h2 font-black text-black">
+                            <span className="text-label md:text-body-sm font-bold text-black/50 uppercase tracking-[0.2em]">{t("quickOrder.grandTotal")}</span>
+                            <span className="text-h3 md:text-h2 font-bold text-black">
                                 <Price amount={totalAmount} />
                             </span>
                         </div>
                         <div className="flex items-center gap-3 md:gap-4 w-full md:w-auto">
                             <button
                                 onClick={handleAddToCart}
-                                className="flex-1 md:flex-none h-[44px] md:h-[48px] px-6 md:px-10 bg-white border-2 border-black text-black text-label md:text-body-sm font-black uppercase tracking-[0.15em] rounded-sm hover:bg-black hover:text-white transition-all disabled:opacity-20 shadow-sm whitespace-nowrap"
+                                className="flex-1 md:flex-none h-[44px] md:h-[48px] px-6 md:px-10 bg-white border-2 border-black text-black text-label md:text-body-sm font-bold uppercase tracking-[0.15em] rounded-sm hover:bg-black hover:text-white transition-all disabled:opacity-20 shadow-sm whitespace-nowrap"
                             >
                                 {t("quickOrder.addToCart")}
                             </button>
                             <button
                                 onClick={handleCheckout}
-                                className="flex-1 md:flex-none h-[44px] md:h-[48px] px-6 md:px-12 bg-black text-white text-label md:text-body-sm font-black uppercase tracking-[0.2em] rounded-sm hover:-translate-y-1 active:scale-95 transition-all shadow-xl whitespace-nowrap"
+                                className="flex-1 md:flex-none h-[44px] md:h-[48px] px-6 md:px-12 bg-black text-white text-label md:text-body-sm font-bold uppercase tracking-[0.2em] rounded-sm hover:-translate-y-1 active:scale-95 transition-all shadow-xl whitespace-nowrap"
                             >
                                 {t("quickOrder.checkout")}
                             </button>
@@ -660,14 +660,14 @@ export default function QuickOrderPage() {
                 </div>
 
                 {/* Section: ADD MULTIPLE PRODUCTS */}
-                <h2 className={`text-h3 md:text-h1-sm font-black text-black uppercase tracking-tight mb-6 md:mb-10 ${isRtl ? 'border-r-[6px] border-primary pr-4 md:pr-6' : 'border-l-[6px] border-primary pl-4 md:pl-6'}`}>{t("quickOrder.addMultiple")}</h2>
+                <h2 className={`text-h3 md:text-h1-sm font-bold text-black uppercase tracking-tight mb-6 md:mb-10 ${isRtl ? 'border-r-[6px] border-primary pr-4 md:pr-6' : 'border-l-[6px] border-primary pl-4 md:pl-6'}`}>{t("quickOrder.addMultiple")}</h2>
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-10 mb-12 md:mb-20">
 
                     {/* Box: Enter multiple SKUs */}
                     <div className="bg-white border border-gray-100 rounded-sm shadow-[0_4px_25px_rgba(0,0,0,0.03)] p-5 md:p-10 flex flex-col group hover:shadow-xl transition-all duration-300">
                         <div className="flex items-center gap-3 mb-6">
                             <Plus size={18} className="text-primary" strokeWidth={3} />
-                            <h3 className="text-body-lg font-black text-black uppercase tracking-widest">{t("quickOrder.enterSkus")}</h3>
+                            <h3 className="text-body-lg font-bold text-black uppercase tracking-widest">{t("quickOrder.enterSkus")}</h3>
                         </div>
                         <textarea
                             placeholder={t("m.enter-sku-or-product-name")}
@@ -676,11 +676,11 @@ export default function QuickOrderPage() {
                             className="w-full h-48 bg-gray-50/30 border border-gray-100 rounded-sm p-6 text-body font-medium focus:outline-none focus:border-primary focus:bg-white transition-all mb-6 resize-none placeholder:text-black/30 ltr:text-left rtl:text-right"
                         />
                         <div className="flex flex-col sm:flex-row justify-between items-center gap-6 mt-auto">
-                            <p className="text-caption font-black text-black/50 uppercase tracking-widest bg-gray-100 px-3 py-1.5 rounded-full">{t("quickOrder.formatHint")}</p>
+                            <p className="text-caption font-bold text-black/50 uppercase tracking-widest bg-gray-100 px-3 py-1.5 rounded-full">{t("quickOrder.formatHint")}</p>
                             <button
                                 onClick={handleAddMultipleSkus}
                                 disabled={loading}
-                                className="w-full sm:w-auto h-[40px] px-10 bg-black text-white text-label font-black uppercase tracking-[0.15em] rounded-sm hover:translate-x-1 transition-all disabled:opacity-50 flex items-center justify-center gap-2 group/btn"
+                                className="w-full sm:w-auto h-[40px] px-10 bg-black text-white text-label font-bold uppercase tracking-[0.15em] rounded-sm hover:translate-x-1 transition-all disabled:opacity-50 flex items-center justify-center gap-2 group/btn"
                             >
                                 {loading ? <Loader2 size={16} className="animate-spin" /> : t("quickOrder.addToList")}
                                 {!loading && <ArrowIcon size={14} className="group-hover/btn:translate-x-1 transition-transform" />}
@@ -692,7 +692,7 @@ export default function QuickOrderPage() {
                     <div className="bg-white border border-gray-100 rounded-sm shadow-[0_4px_25px_rgba(0,0,0,0.03)] p-5 md:p-10 flex flex-col group hover:shadow-xl transition-all duration-300">
                         <div className="flex items-center gap-3 mb-6">
                             <Upload size={18} className="text-primary" strokeWidth={3} />
-                            <h3 className="text-body-lg font-black text-black uppercase tracking-widest">{t("quickOrder.addFromFile")}</h3>
+                            <h3 className="text-body-lg font-bold text-black uppercase tracking-widest">{t("quickOrder.addFromFile")}</h3>
                         </div>
                         <div className="flex-1 mb-8">
                             <div
@@ -711,13 +711,13 @@ export default function QuickOrderPage() {
                                         <div className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center mb-3 shadow-lg">
                                             <Check size={18} className="text-white" strokeWidth={3} />
                                         </div>
-                                        <p className="text-body font-black text-black text-center max-w-[200px] truncate">{file.name}</p>
-                                        <button onClick={(e) => { e.stopPropagation(); setFile(null); }} className="text-micro font-black text-red-500 uppercase mt-2 hover:underline">{t("quickOrder.removeFile")}</button>
+                                        <p className="text-body font-bold text-black text-center max-w-[200px] truncate">{file.name}</p>
+                                        <button onClick={(e) => { e.stopPropagation(); setFile(null); }} className="text-micro font-bold text-red-500 uppercase mt-2 hover:underline">{t("quickOrder.removeFile")}</button>
                                     </div>
                                 ) : (
                                     <div className="flex flex-col items-center animate-in fade-in duration-300">
                                         <Upload size={32} className="text-black/30 mb-3 group-hover:text-primary transition-colors" />
-                                        <p className="text-body-sm font-black text-black/50 uppercase tracking-widest">{t("quickOrder.dropCsv")}</p>
+                                        <p className="text-body-sm font-bold text-black/50 uppercase tracking-widest">{t("quickOrder.dropCsv")}</p>
                                     </div>
                                 )}
                             </div>
@@ -727,7 +727,7 @@ export default function QuickOrderPage() {
                             <button
                                 onClick={handleDownloadSampleCsv}
                                 disabled={loading}
-                                className="text-label font-black text-green-600 hover:text-green-700 flex items-center gap-2 transition-all group/dl disabled:opacity-50"
+                                className="text-label font-bold text-green-600 hover:text-green-700 flex items-center gap-2 transition-all group/dl disabled:opacity-50"
                             >
                                 <FileDown size={18} className="group-hover/dl:translate-y-0.5 transition-transform" />
                                 <span className="underline underline-offset-4 tracking-tight uppercase tracking-wider">{t("quickOrder.downloadSample")}</span>
@@ -735,7 +735,7 @@ export default function QuickOrderPage() {
                             <button
                                 onClick={processFile}
                                 disabled={loading}
-                                className="w-full sm:w-auto h-[40px] px-10 bg-black text-white text-label font-black uppercase tracking-[0.15em] rounded-sm hover:-translate-y-1 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                                className="w-full sm:w-auto h-[40px] px-10 bg-black text-white text-label font-bold uppercase tracking-[0.15em] rounded-sm hover:-translate-y-1 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
                             >
                                 {loading ? <Loader2 size={16} className="animate-spin" /> : <><Upload size={14} /> {t("quickOrder.uploadNow")}</>}
                             </button>
@@ -747,7 +747,7 @@ export default function QuickOrderPage() {
                     <button
                         onClick={handleClearAll}
                         disabled={loading}
-                        className="flex items-center gap-4 text-label font-black text-black uppercase tracking-[0.2em] hover:text-red-600 transition-all hover:-translate-y-1 active:scale-95 disabled:opacity-50 group"
+                        className="flex items-center gap-4 text-label font-bold text-black uppercase tracking-[0.2em] hover:text-red-600 transition-all hover:-translate-y-1 active:scale-95 disabled:opacity-50 group"
                     >
                         <div className="w-12 h-12 border-2 border-black rounded-full flex items-center justify-center group-hover:border-red-600 group-hover:shadow-lg transition-all duration-300">
                             {loading ? <Loader2 size={20} className="animate-spin text-black/40" /> : <X size={20} />}

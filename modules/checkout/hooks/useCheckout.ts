@@ -51,6 +51,7 @@ export interface CheckoutTotals {
     subtotal: number;
     tax_amount: number;
     shipping_amount?: number;
+    discount_amount?: number;
     grand_total: number;
     currency_code: string;
 }
@@ -124,7 +125,16 @@ export function useCheckout(options: UseCheckoutOptions = {}) {
             const data = await res.json();
 
             if (res.ok) {
-                setTotals(data);
+                // Map discount_amount if present
+                const mappedTotals: CheckoutTotals = {
+                    subtotal: Number(data.subtotal || 0),
+                    tax_amount: Number(data.tax_amount || 0),
+                    shipping_amount: Number(data.shipping_amount || 0),
+                    discount_amount: Math.abs(Number(data.discount_amount || 0)),
+                    grand_total: Number(data.grand_total || 0),
+                    currency_code: data.currency_code || "SAR"
+                };
+                setTotals(mappedTotals);
             }
         } catch (err) {
             console.error("Fetch Totals Error:", err);

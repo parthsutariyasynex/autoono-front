@@ -30,7 +30,7 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders, onViewOrder, onReorde
             <div className="hidden md:block overflow-x-auto">
                 <table className="w-full text-body text-left border-collapse min-w-[700px]">
                     <thead>
-                        <tr className="bg-primary text-black text-label uppercase font-bold tracking-widest">
+                        <tr className="bg-primary text-label uppercase font-bold tracking-widest">
                             <th className="px-2 lg:px-4 py-4 border border-warning/30">{t("orders.orderId")}</th>
                             <th className="px-2 lg:px-4 py-4 border border-warning/30 whitespace-nowrap text-center">{t("orders.date")}</th>
                             <th className="px-2 lg:px-4 py-4 border border-warning/30 whitespace-nowrap text-right">{t("orders.grandTotal")}</th>

@@ -545,7 +545,7 @@ export default function OrderDetailsPage() {
                             <p className="text-xs">{error}</p>
                             <button
                                 onClick={fetchOrderDetails}
-                                className="mt-6 px-6 md:px-8 py-2.5 bg-red-600 text-white rounded-md font-black text-caption uppercase tracking-widest hover:bg-red-700 transition-all active:scale-95 w-full sm:w-auto"
+                                className="mt-6 px-6 md:px-8 py-2.5 bg-red-600 text-white rounded-md font-bold text-caption uppercase tracking-widest hover:bg-red-700 transition-all active:scale-95 w-full sm:w-auto"
                             >
                                 {t("orderDetails.tryAgain")}
 
@@ -596,7 +596,7 @@ export default function OrderDetailsPage() {
                         <div className="flex flex-col sm:flex-row justify-start items-stretch sm:items-center gap-3 w-full">
                             <button
                                 onClick={handleReorder}
-                                className="bg-primary hover:bg-primary text-black font-black py-2.5 px-6 md:px-8 rounded-md text-body-sm uppercase tracking-widest transition-all shadow-sm active:scale-95 border border-primary w-full sm:w-auto"
+                                className="bg-primary hover:bg-primary text-black font-bold py-2.5 px-6 md:px-8 rounded-md text-body-sm uppercase tracking-widest transition-all shadow-sm active:scale-95 border border-primary w-full sm:w-auto"
                             >
                                 {safeTranslate("reorder", "REORDER")}
 
@@ -606,7 +606,7 @@ export default function OrderDetailsPage() {
                             {/* {!isPaid && (
                                 <button
                                     onClick={() => setIsPaymentModalOpen(true)}
-                                    className="bg-primary hover:bg-primaryHover text-white font-black py-2.5 px-6 md:px-8 rounded-md text-label uppercase tracking-widest transition-all shadow-sm active:scale-95 border border-primary w-full sm:w-auto"
+                                    className="bg-primary hover:bg-primaryHover text-white font-bold py-2.5 px-6 md:px-8 rounded-md text-label uppercase tracking-widest transition-all shadow-sm active:scale-95 border border-primary w-full sm:w-auto"
                                 >
                                     {t("orders.makePayment")}
                                 </button>
@@ -622,7 +622,7 @@ export default function OrderDetailsPage() {
                                     <button
                                         onClick={handleCancelOrder}
                                         disabled={isCancelling}
-                                        className={`bg-red-600 hover:bg-red-700 text-white font-black py-2.5 px-6 md:px-8 rounded-md text-body-sm uppercase tracking-widest transition-all shadow-sm active:scale-95 border border-red-600 flex items-center justify-center gap-2 no-print w-full sm:w-auto ${isCancelling ? 'opacity-70 cursor-not-allowed' : ''}`}
+                                        className={`bg-red-600 hover:bg-red-700 text-white font-bold py-2.5 px-6 md:px-8 rounded-md text-body-sm uppercase tracking-widest transition-all shadow-sm active:scale-95 border border-red-600 flex items-center justify-center gap-2 no-print w-full sm:w-auto ${isCancelling ? 'opacity-70 cursor-not-allowed' : ''}`}
                                     >
                                         {isCancelling ? (
                                             <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
@@ -639,7 +639,7 @@ export default function OrderDetailsPage() {
                             <button
                                 onClick={handlePrintOrder}
                                 disabled={isPrinting}
-                                className={`bg-white hover:bg-gray-50 text-black font-black py-2.5 px-6 md:px-8 rounded-md text-label uppercase tracking-widest transition-all border border-border shadow-sm flex items-center justify-center gap-2 no-print active:scale-95 w-full sm:w-auto ${isPrinting ? 'opacity-70 cursor-not-allowed' : ''}`}
+                                className={`bg-white hover:bg-gray-50 text-black font-bold py-2.5 px-6 md:px-8 rounded-md text-label uppercase tracking-widest transition-all border border-border shadow-sm flex items-center justify-center gap-2 no-print active:scale-95 w-full sm:w-auto ${isPrinting ? 'opacity-70 cursor-not-allowed' : ''}`}
                             >
                                 {isPrinting ? (
                                     <div className="animate-spin rounded-full h-4 w-4 border-2 border-black border-t-transparent"></div>
@@ -659,14 +659,14 @@ export default function OrderDetailsPage() {
                     {/* Items Ordered Table */}
                     <div className="bg-white rounded-md border border-border overflow-hidden mb-10 shadow-sm">
                         <div className="border-b border-border px-3 md:px-6 py-3 md:py-4 bg-gray-50">
-                            <h2 className="text-xs font-black text-black uppercase tracking-widest">
+                            <h2 className="text-xs font-bold text-black uppercase tracking-widest">
                                 {safeTranslate("itemsOrdered", "Items Ordered")}
                             </h2>
                         </div>
                         {/* Desktop Table */}
                         <div className="hidden md:block overflow-x-auto">
                             <table className="w-full text-start min-w-[500px]">
-                                <thead className="bg-gray-50/50 text-label font-black text-black uppercase border-b border-border">
+                                <thead className="bg-gray-50/50 text-label font-bold text-black uppercase border-b border-border">
                                     <tr>
                                         <th className="px-3 md:px-6 py-3 md:py-4 tracking-widest text-start">{safeTranslate("productName", "Product Name")}</th>
                                         <th className="px-3 md:px-6 py-3 md:py-4 tracking-widest text-center">{safeTranslate("sku", "SKU")}</th>
@@ -690,7 +690,7 @@ export default function OrderDetailsPage() {
                                             <td className="px-3 md:px-6 py-3 md:py-5 text-center text-black/60 font-bold uppercase">
                                                 {Math.round(item.qty_ordered)}
                                             </td>
-                                            <td className="px-3 md:px-6 py-3 md:py-5 text-end font-black text-black">
+                                            <td className="px-3 md:px-6 py-3 md:py-5 text-end font-bold text-black">
 
                                                 {formatCurrency(item.row_total)}
                                             </td>
@@ -704,7 +704,7 @@ export default function OrderDetailsPage() {
                         <div className="md:hidden divide-y divide-border">
                             {order.items?.map((item: any, idx: number) => (
                                 <div key={item.item_id || item.id} className={`p-4 text-xs ${idx % 2 !== 0 ? 'bg-gray-50' : 'bg-white'}`}>
-                                    <p className="text-black font-black text-sm mb-2">{item.name}</p>
+                                    <p className="text-black font-bold text-sm mb-2">{item.name}</p>
                                     <p className="text-black/50 font-bold uppercase tracking-widest text-caption mb-3">{safeTranslate("sku", "SKU")}: {item.sku}</p>
 
                                     <div className="flex justify-between items-center mb-1">
@@ -718,9 +718,9 @@ export default function OrderDetailsPage() {
                                         <span className="text-black/60 font-bold">{Math.round(item.qty_ordered)}</span>
                                     </div>
                                     <div className="flex justify-between items-center pt-2 border-t border-gray-100">
-                                        <span className="text-black font-black uppercase tracking-widest">{safeTranslate("subtotal", "Subtotal")}</span>
+                                        <span className="text-black font-bold uppercase tracking-widest">{safeTranslate("subtotal", "Subtotal")}</span>
 
-                                        <span className="text-black font-black">{formatCurrency(item.row_total)}</span>
+                                        <span className="text-black font-bold">{formatCurrency(item.row_total)}</span>
                                     </div>
                                 </div>
                             ))}
@@ -732,7 +732,7 @@ export default function OrderDetailsPage() {
                                 <div className="flex justify-between items-center text-xs">
                                     <span className="text-black/50 font-bold uppercase tracking-widest flex-1 text-end me-10">{safeTranslate("itemsTotal", "Items Total")}</span>
 
-                                    <span className="font-black text-black w-[110px] text-end">
+                                    <span className="font-bold text-black w-[110px] text-end">
                                         {formatCurrency(order.subtotal)}
                                     </span>
                                 </div>
@@ -740,22 +740,22 @@ export default function OrderDetailsPage() {
                                 <div className="flex justify-between items-center text-xs">
                                     <span className="text-black/50 font-bold uppercase tracking-widest flex-1 text-end me-10">{safeTranslate("vat", "VAT (15%)")}</span>
 
-                                    <span className="font-black text-black w-[110px] text-end">
+                                    <span className="font-bold text-black w-[110px] text-end">
                                         {formatCurrency(order.tax_amount)}
                                     </span>
                                 </div>
 
                                 <div className="flex justify-between items-center text-black pt-4 border-t border-gray-200">
-                                    <span className="font-black uppercase tracking-tighter flex-1 text-end me-10 text-[15px]">{safeTranslate("grandTotal", "Grand Total")}</span>
-                                    <span className="font-black w-[110px] text-end text-[15px]">
+                                    <span className="font-bold uppercase tracking-tighter flex-1 text-end me-10 text-[15px]">{safeTranslate("grandTotal", "Grand Total")}</span>
+                                    <span className="font-bold w-[110px] text-end text-[15px]">
                                         {formatCurrency(order.grand_total)}
                                     </span>
                                 </div>
 
                                 <div className="flex justify-between items-center text-label pt-1 pt-4 opacity-50">
-                                    <span className="text-black/60 font-black uppercase tracking-widest flex-1 text-end me-10">{safeTranslate("totalQty", "Total Qty")}</span>
+                                    <span className="text-black/60 font-bold uppercase tracking-widest flex-1 text-end me-10">{safeTranslate("totalQty", "Total Qty")}</span>
 
-                                    <span className="font-black text-black w-[110px] text-end">
+                                    <span className="font-bold text-black w-[110px] text-end">
                                         {Math.round(order.total_item_count || order.items?.reduce((acc: number, item: any) => acc + (item.qty_ordered || 0), 0))}
                                     </span>
                                 </div>
@@ -766,7 +766,7 @@ export default function OrderDetailsPage() {
                     {/* Order Information Section */}
                     <div className="mb-10">
                         <div className="border-b-2 border-primary inline-block pb-1 mb-10">
-                            <h2 className="text-h3-sm md:text-[18px] font-black text-black uppercase tracking-tight">
+                            <h2 className="text-h3-sm md:text-[18px] font-bold text-black uppercase tracking-tight">
                                 {safeTranslate("orderInfo", "Order Information")}
                             </h2>
                         </div>
@@ -775,18 +775,18 @@ export default function OrderDetailsPage() {
                             {/* Shipping Address */}
                             <div className="bg-white border border-border rounded-md shadow-sm overflow-hidden">
                                 <div className="bg-gray-50 px-5 py-3 border-b border-border">
-                                    <h3 className="text-xs font-black text-black uppercase tracking-widest">{safeTranslate("shippingAddress", "Shipping Address")}</h3>
+                                    <h3 className="text-xs font-bold text-black uppercase tracking-widest">{safeTranslate("shippingAddress", "Shipping Address")}</h3>
                                 </div>
                                 <div className="p-4 md:p-6 text-xs text-black/70 leading-relaxed min-h-[140px]">
                                     {shippingAddress ? (
                                         <div className="space-y-1">
-                                            <p className="font-black text-black uppercase mb-2">{shippingAddress.firstname} {shippingAddress.lastname}</p>
+                                            <p className="font-bold text-black uppercase mb-2">{shippingAddress.firstname} {shippingAddress.lastname}</p>
                                             {shippingAddress.company && <p className="font-medium">{shippingAddress.company}</p>}
                                             <p className="font-medium">{shippingAddress.street?.join(", ")}</p>
                                             <p className="font-medium"><bdi dir="ltr">{shippingAddress.city}, {shippingAddress.postcode}</bdi></p>
                                             <p className="font-medium">{shippingAddress.country_id === "SA" ? t("data.Saudi Arabia") : shippingAddress.country_id}</p>
 
-                                            <p className="pt-2 text-black font-black">T: <span className="text-black/70 font-medium">{shippingAddress.telephone}</span></p>
+                                            <p className="pt-2 text-black font-bold">T: <span className="text-black/70 font-medium">{shippingAddress.telephone}</span></p>
                                         </div>
                                     ) : (
                                         <p className="text-black/50 italic">{safeTranslate("noShippingAddress", "No shipping address available")}</p>
@@ -798,14 +798,14 @@ export default function OrderDetailsPage() {
                             {/* Shipping Method */}
                             <div className="bg-white border border-border rounded-md shadow-sm overflow-hidden">
                                 <div className="bg-gray-50 px-5 py-3 border-b border-border">
-                                    <h3 className="text-xs font-black text-black uppercase tracking-widest">{safeTranslate("shippingMethod", "Shipping Method")}</h3>
+                                    <h3 className="text-xs font-bold text-black uppercase tracking-widest">{safeTranslate("shippingMethod", "Shipping Method")}</h3>
 
                                 </div>
                                 <div className="p-4 md:p-6 text-xs text-black/70 leading-relaxed min-h-[140px]">
-                                    <p className="font-black text-black uppercase mb-2">{translateDynamic(order.shipping_description || "Pickup from Warehouse")}</p>
+                                    <p className="font-bold text-black uppercase mb-2">{translateDynamic(order.shipping_description || "Pickup from Warehouse")}</p>
 
                                     <div className="mt-4 pt-4 border-t border-gray-100">
-                                        <p className="text-caption font-black text-black/50 uppercase tracking-widest mb-1">{safeTranslate("expectedDelivery", "Expected Delivery")}</p>
+                                        <p className="text-caption font-bold text-black/50 uppercase tracking-widest mb-1">{safeTranslate("expectedDelivery", "Expected Delivery")}</p>
 
                                         <p className="font-bold text-black">N/A</p>
                                     </div>
@@ -815,19 +815,19 @@ export default function OrderDetailsPage() {
                             {/* Billing Address */}
                             <div className="bg-white border border-border rounded-md shadow-sm overflow-hidden">
                                 <div className="bg-gray-50 px-5 py-3 border-b border-border">
-                                    <h3 className="text-xs font-black text-black uppercase tracking-widest">{safeTranslate("billingAddress", "Billing Address")}</h3>
+                                    <h3 className="text-xs font-bold text-black uppercase tracking-widest">{safeTranslate("billingAddress", "Billing Address")}</h3>
 
                                 </div>
                                 <div className="p-4 md:p-6 text-xs text-black/70 leading-relaxed min-h-[140px]">
                                     {billingAddress ? (
                                         <div className="space-y-1">
-                                            <p className="font-black text-black uppercase mb-2">{billingAddress.firstname} {billingAddress.lastname}</p>
+                                            <p className="font-bold text-black uppercase mb-2">{billingAddress.firstname} {billingAddress.lastname}</p>
                                             {billingAddress.company && <p className="font-medium">{billingAddress.company}</p>}
                                             <p className="font-medium">{billingAddress.street?.join(", ")}</p>
                                             <p className="font-medium"><bdi dir="ltr">{billingAddress.city}, {billingAddress.postcode}</bdi></p>
                                             <p className="font-medium">{billingAddress.country_id === "SA" ? t("data.Saudi Arabia") : billingAddress.country_id}</p>
 
-                                            <p className="pt-2 text-black font-black">T: <span className="text-black/70 font-medium">{billingAddress.telephone}</span></p>
+                                            <p className="pt-2 text-black font-bold">T: <span className="text-black/70 font-medium">{billingAddress.telephone}</span></p>
                                         </div>
                                     ) : (
                                         <p className="text-black/50 italic">{safeTranslate("noBillingAddress", "No billing address available")}</p>
@@ -839,15 +839,15 @@ export default function OrderDetailsPage() {
                             {/* Payment Method */}
                             <div className="bg-white border border-border rounded-md shadow-sm overflow-hidden">
                                 <div className="bg-gray-50 px-5 py-3 border-b border-border">
-                                    <h3 className="text-xs font-black text-black uppercase tracking-widest">{safeTranslate("paymentMethod", "Payment Method")}</h3>
+                                    <h3 className="text-xs font-bold text-black uppercase tracking-widest">{safeTranslate("paymentMethod", "Payment Method")}</h3>
 
                                 </div>
                                 <div className="p-4 md:p-6 text-xs text-black/70 leading-relaxed min-h-[140px]">
-                                    <p className="font-black text-black uppercase mb-1">{translateDynamic(order.payment?.method_title || paymentMethod)}</p>
+                                    <p className="font-bold text-black uppercase mb-1">{translateDynamic(order.payment?.method_title || paymentMethod)}</p>
 
                                     <div className="mt-4 pt-4 border-t border-gray-100 flex items-center gap-2">
                                         <div className="w-2 h-2 rounded-full bg-green-500"></div>
-                                        <span className="text-caption font-black text-black/50 uppercase tracking-widest">{safeTranslate("paymentConfirmed", "Payment Confirmed")}</span>
+                                        <span className="text-caption font-bold text-black/50 uppercase tracking-widest">{safeTranslate("paymentConfirmed", "Payment Confirmed")}</span>
                                     </div>
                                 </div>
                             </div>
@@ -857,7 +857,7 @@ export default function OrderDetailsPage() {
                     {/* Order Attachments Section */}
                     <div className="mb-12">
                         <div className="border-b-2 border-primary inline-block pb-1 mb-10">
-                            <h2 className="text-h3-sm md:text-[18px] font-black text-black uppercase tracking-tight">
+                            <h2 className="text-h3-sm md:text-[18px] font-bold text-black uppercase tracking-tight">
                                 {safeTranslate("orderAttachments", "Order Attachments")}
                             </h2>
                         </div>
@@ -877,11 +877,11 @@ export default function OrderDetailsPage() {
                                     <table className="w-full text-xs border-collapse">
                                         <thead className="bg-gray-50 border-b border-border">
                                             <tr className="h-[50px]">
-                                                <th className="px-3 md:px-6 py-3 md:py-4 font-black text-black text-left tracking-widest uppercase">{safeTranslate("fileName", "File Name")}</th>
-                                                <th className="px-3 md:px-6 py-3 md:py-4 font-black text-black text-center tracking-widest uppercase">{safeTranslate("type", "Type")}</th>
-                                                <th className="px-3 md:px-6 py-3 md:py-4 font-black text-black text-center tracking-widest uppercase">{safeTranslate("createdOn", "Created On")}</th>
-                                                <th className="px-3 md:px-6 py-3 md:py-4 font-black text-black text-center tracking-widest uppercase">{safeTranslate("dueDate", "Due Date")}</th>
-                                                <th className="px-3 md:px-6 py-3 md:py-4 font-black text-black text-center tracking-widest uppercase">{safeTranslate("payment", "Payment")}</th>
+                                                <th className="px-3 md:px-6 py-3 md:py-4 font-bold text-black text-left tracking-widest uppercase">{safeTranslate("fileName", "File Name")}</th>
+                                                <th className="px-3 md:px-6 py-3 md:py-4 font-bold text-black text-center tracking-widest uppercase">{safeTranslate("type", "Type")}</th>
+                                                <th className="px-3 md:px-6 py-3 md:py-4 font-bold text-black text-center tracking-widest uppercase">{safeTranslate("createdOn", "Created On")}</th>
+                                                <th className="px-3 md:px-6 py-3 md:py-4 font-bold text-black text-center tracking-widest uppercase">{safeTranslate("dueDate", "Due Date")}</th>
+                                                <th className="px-3 md:px-6 py-3 md:py-4 font-bold text-black text-center tracking-widest uppercase">{safeTranslate("payment", "Payment")}</th>
                                             </tr>
                                         </thead>
                                         <tbody className="divide-y divide-border">
@@ -909,7 +909,7 @@ export default function OrderDetailsPage() {
                                                             <button
                                                                 onClick={() => handleOpenAttachment(attachment)}
                                                                 disabled={isOpening}
-                                                                className="text-primary hover:text-black font-black break-all text-left cursor-pointer inline-flex items-center gap-2 disabled:opacity-60 disabled:cursor-wait underline underline-offset-4"
+                                                                className="text-primary hover:text-black font-bold break-all text-left cursor-pointer inline-flex items-center gap-2 disabled:opacity-60 disabled:cursor-wait underline underline-offset-4"
                                                             >
                                                                 {isOpening && (
                                                                     <span className="animate-spin rounded-full h-4 w-4 border-2 border-primary border-t-transparent flex-shrink-0"></span>
@@ -927,7 +927,7 @@ export default function OrderDetailsPage() {
                                                             {attachment.invoice_due ? formatDateDDMMYYYY(attachment.invoice_due) : "-"}
                                                         </td>
                                                         <td className="px-3 md:px-6 py-3 md:py-5 text-center">
-                                                            <span className="inline-flex px-2 py-1 bg-gray-100 text-black/70 rounded-full text-caption font-black uppercase tracking-widest">
+                                                            <span className="inline-flex px-2 py-1 bg-gray-100 text-black/70 rounded-full text-caption font-bold uppercase tracking-widest">
                                                                 {attachment.payment || attachment.payment_status || "-"}
                                                             </span>
                                                         </td>
@@ -949,7 +949,7 @@ export default function OrderDetailsPage() {
                     <div className="mb-12" id="payment-history-section">
                         <div className="flex items-center justify-between border-b border-gray-100 pb-2 mb-8">
                             <div className="border-b-2 border-primary inline-block pb-1">
-                                <h2 className="text-h3-sm md:text-[18px] font-black text-black uppercase tracking-tight">
+                                <h2 className="text-h3-sm md:text-[18px] font-bold text-black uppercase tracking-tight">
                                     {t("m.payment-historydso") || "Payment History"}
                                 </h2>
                             </div>
@@ -975,15 +975,15 @@ export default function OrderDetailsPage() {
                                 <table className="w-full text-xs border-collapse">
                                     <thead className="bg-gray-50 border-b border-border">
                                         <tr className="h-[50px]">
-                                            <th className="px-3 md:px-4 py-3 md:py-4 font-black text-black text-center tracking-widest uppercase">{safeTranslate("receiptNo", "Receipt No")}</th>
-                                            <th className="px-3 md:px-4 py-3 md:py-4 font-black text-black text-center tracking-widest uppercase">{safeTranslate("paymentDate", "Payment Date")}</th>
-                                            <th className="px-3 md:px-4 py-3 md:py-4 font-black text-black text-center tracking-widest uppercase">{safeTranslate("paymentMethod", "Payment Method")}</th>
-                                            <th className="px-3 md:px-4 py-3 md:py-4 font-black text-black text-center tracking-widest uppercase">{safeTranslate("invoiceAmount", "Invoice Amount")}</th>
-                                            <th className="px-3 md:px-4 py-3 md:py-4 font-black text-black text-center tracking-widest uppercase">{safeTranslate("paidAmount", "Paid Amount")}</th>
-                                            <th className="px-3 md:px-4 py-3 md:py-4 font-black text-black text-center tracking-widest uppercase">{safeTranslate("dueAmount", "Due Amount")}</th>
-                                            <th className="px-3 md:px-4 py-3 md:py-4 font-black text-black text-center tracking-widest uppercase">{t("orders.status")}</th>
-                                            <th className="px-3 md:px-4 py-3 md:py-4 font-black text-black text-center tracking-widest uppercase">{safeTranslate("proof", "Proof")}</th>
-                                            <th className="px-3 md:px-4 py-3 md:py-4 font-black text-black text-center tracking-widest uppercase">{safeTranslate("action", "Action")}</th>
+                                            <th className="px-3 md:px-4 py-3 md:py-4 font-bold text-black text-center tracking-widest uppercase">{safeTranslate("receiptNo", "Receipt No")}</th>
+                                            <th className="px-3 md:px-4 py-3 md:py-4 font-bold text-black text-center tracking-widest uppercase">{safeTranslate("paymentDate", "Payment Date")}</th>
+                                            <th className="px-3 md:px-4 py-3 md:py-4 font-bold text-black text-center tracking-widest uppercase">{safeTranslate("paymentMethod", "Payment Method")}</th>
+                                            <th className="px-3 md:px-4 py-3 md:py-4 font-bold text-black text-center tracking-widest uppercase">{safeTranslate("invoiceAmount", "Invoice Amount")}</th>
+                                            <th className="px-3 md:px-4 py-3 md:py-4 font-bold text-black text-center tracking-widest uppercase">{safeTranslate("paidAmount", "Paid Amount")}</th>
+                                            <th className="px-3 md:px-4 py-3 md:py-4 font-bold text-black text-center tracking-widest uppercase">{safeTranslate("dueAmount", "Due Amount")}</th>
+                                            <th className="px-3 md:px-4 py-3 md:py-4 font-bold text-black text-center tracking-widest uppercase">{t("orders.status")}</th>
+                                            <th className="px-3 md:px-4 py-3 md:py-4 font-bold text-black text-center tracking-widest uppercase">{safeTranslate("proof", "Proof")}</th>
+                                            <th className="px-3 md:px-4 py-3 md:py-4 font-bold text-black text-center tracking-widest uppercase">{safeTranslate("action", "Action")}</th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-border text-center">
@@ -1004,7 +1004,7 @@ export default function OrderDetailsPage() {
                                                     {formatCurrency(payment.due_payment)}
                                                 </td>
                                                 <td className="px-3 md:px-4 py-4">
-                                                    <span className={`inline-flex px-3 py-1 rounded-sm text-caption font-black uppercase tracking-tight border ${payment.payment_status === "Full Paid"
+                                                    <span className={`inline-flex px-3 py-1 rounded-sm text-caption font-bold uppercase tracking-tight border ${payment.payment_status === "Full Paid"
                                                         ? "bg-successBg text-successDark border-successBorder"
                                                         : "bg-warningLight text-warningOrange border-warningBar"
                                                         }`}>

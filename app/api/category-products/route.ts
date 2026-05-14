@@ -77,8 +77,8 @@ export async function GET(request: NextRequest) {
             arrays.forEach((arr) => arr?.forEach((v) => { if (v && !all.includes(v)) all.push(v); }));
             return all.join(",");
         };
-        const searchByParam = searchParams.get("search") || searchParams.get("searchBy") ||
-            joinValues(groupedParams["search"], groupedParams["searchBy"]) || "";
+        const searchByParam = searchParams.get("searchby") || searchParams.get("search") || searchParams.get("searchBy") ||
+            joinValues(groupedParams["searchby"], groupedParams["search"], groupedParams["searchBy"]) || "";
         const itemCodeParam = searchParams.get("item_code") || searchParams.get("itemCode") ||
             joinValues(groupedParams["item_code"], groupedParams["itemCode"]) || "";
         const isSearching = !!(searchByParam || itemCodeParam);
@@ -91,12 +91,12 @@ export async function GET(request: NextRequest) {
             `pageSize=${encodeURIComponent(pageSize)}`,
             `is_ajax=1`,
             ...(categoryId ? [`categoryId=${encodeURIComponent(categoryId)}`] : []),
-            ...(searchByParam ? [`query=${encodeURIComponent(searchByParam)}`] : []),
+            ...(searchByParam ? [`searchBy=${encodeURIComponent(searchByParam)}`] : []),
             ...(itemCodeParam ? [`itemCode=${encodeURIComponent(itemCodeParam)}`] : []),
         ];
 
         // Filters: mapping and joining grouped values
-        const reservedKeys = new Set(["categoryId", "page", "pageSize", "sortBy", "is_ajax", "storeCode", "store", "lang", "category", "searchBy", "search", "itemCode", "item_code"]);
+        const reservedKeys = new Set(["categoryId", "page", "pageSize", "sortBy", "is_ajax", "storeCode", "store", "lang", "category", "searchBy", "search", "searchby", "itemCode", "item_code"]);
 
         Object.entries(groupedParams).forEach(([key, values]) => {
             if (reservedKeys.has(key)) return;

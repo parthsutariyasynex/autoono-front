@@ -65,19 +65,19 @@ export default function InquiryModal({ product, isOpen, onClose }: InquiryModalP
                                 <h3 className="font-bold text-black text-base mb-2 italic uppercase">{product.name || "Product Inquiry"}</h3>
                                 <div className="grid grid-cols-2 gap-x-4 gap-y-3">
                                     <div className="space-y-0.5">
-                                        <p className="text-caption text-black/50 uppercase font-black tracking-widest">Brand</p>
+                                        <p className="text-caption text-black/50 uppercase font-bold tracking-widest">Brand</p>
                                         <p className="text-xs font-bold text-black/80">{product?.name ? product.name.split(' ')[0] : "N/A"}</p>
                                     </div>
                                     <div className="space-y-0.5">
-                                        <p className="text-caption text-black/50 uppercase font-black tracking-widest">Size</p>
+                                        <p className="text-caption text-black/50 uppercase font-bold tracking-widest">Size</p>
                                         <p className="text-xs font-bold text-black/80">{product.tyre_size}</p>
                                     </div>
                                     <div className="space-y-0.5">
-                                        <p className="text-caption text-black/50 uppercase font-black tracking-widest">Pattern</p>
+                                        <p className="text-caption text-black/50 uppercase font-bold tracking-widest">Pattern</p>
                                         <p className="text-xs font-bold text-black/80">{product.pattern || "N/A"}</p>
                                     </div>
                                     <div className="space-y-0.5">
-                                        <p className="text-sm font-black text-primary price currency-riyal"><Price amount={product.final_price || product.price} /></p>
+                                        <p className="text-sm font-bold text-primary price currency-riyal"><Price amount={product.final_price || product.price} /></p>
 
 
                                     </div>
@@ -148,7 +148,7 @@ export default function InquiryModal({ product, isOpen, onClose }: InquiryModalP
                         <button
                             type="submit"
                             disabled={isSubmitting}
-                            className="flex-[2] py-4 px-6 bg-primary hover:bg-primary text-black font-black rounded-lg transition-all shadow-md flex items-center justify-center gap-2 disabled:opacity-50 uppercase tracking-widest text-sm"
+                            className="flex-[2] py-4 px-6 bg-primary hover:bg-primary text-black font-bold rounded-lg transition-all shadow-md flex items-center justify-center gap-2 disabled:opacity-50 uppercase tracking-widest text-sm"
                         >
                             {isSubmitting ? (
                                 <div className="w-5 h-5 border-2 border-black border-t-transparent rounded-full animate-spin"></div>

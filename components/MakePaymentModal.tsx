@@ -116,7 +116,7 @@ const MakePaymentModal: React.FC<MakePaymentModalProps> = ({ isOpen, onClose, or
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                         {/* Order # */}
                         <div className="space-y-1.5">
-                            <label className="text-label font-black text-black/80 uppercase tracking-widest">{t("orders.orderId")}</label>
+                            <label className="text-label font-bold text-black/80 uppercase tracking-widest">{t("orders.orderId")}</label>
                             <input
                                 type="text"
                                 readOnly
@@ -127,7 +127,7 @@ const MakePaymentModal: React.FC<MakePaymentModalProps> = ({ isOpen, onClose, or
 
                         {/* Customer Name */}
                         <div className="space-y-1.5">
-                            <label className="text-label font-black text-black/80 uppercase tracking-widest">{t("m.customer-name") || "Customer Name"}</label>
+                            <label className="text-label font-bold text-black/80 uppercase tracking-widest">{t("m.customer-name") || "Customer Name"}</label>
                             <input
                                 type="text"
                                 readOnly
@@ -138,7 +138,7 @@ const MakePaymentModal: React.FC<MakePaymentModalProps> = ({ isOpen, onClose, or
 
                         {/* Customer Code */}
                         <div className="space-y-1.5">
-                            <label className="text-label font-black text-black/80 uppercase tracking-widest">{t("m.customer-code")}</label>
+                            <label className="text-label font-bold text-black/80 uppercase tracking-widest">{t("m.customer-code")}</label>
                             <input
                                 type="text"
                                 readOnly
@@ -149,7 +149,7 @@ const MakePaymentModal: React.FC<MakePaymentModalProps> = ({ isOpen, onClose, or
 
                         {/* SAP Invoice No */}
                         <div className="space-y-1.5">
-                            <label className="text-label font-black text-black/80 uppercase tracking-widest">{t("orderDetails.sapInvoiceNo")}</label>
+                            <label className="text-label font-bold text-black/80 uppercase tracking-widest">{t("orderDetails.sapInvoiceNo")}</label>
                             <input
                                 type="text"
                                 value={formData.sap_invoice_no}
@@ -160,7 +160,7 @@ const MakePaymentModal: React.FC<MakePaymentModalProps> = ({ isOpen, onClose, or
 
                         {/* Payment Date */}
                         <div className="space-y-1.5">
-                            <label className="text-label font-black text-black/80 uppercase tracking-widest">{t("orderDetails.paymentDate")}</label>
+                            <label className="text-label font-bold text-black/80 uppercase tracking-widest">{t("orderDetails.paymentDate")}</label>
                             <input
                                 type="date"
                                 value={formData.payment_date}
@@ -171,7 +171,7 @@ const MakePaymentModal: React.FC<MakePaymentModalProps> = ({ isOpen, onClose, or
 
                         {/* Payment Method */}
                         <div className="space-y-1.5">
-                            <label className="text-label font-black text-black/80 uppercase tracking-widest">{t("orderDetails.paymentMethod")}</label>
+                            <label className="text-label font-bold text-black/80 uppercase tracking-widest">{t("orderDetails.paymentMethod")}</label>
                             <select
                                 value={formData.payment_method}
                                 onChange={(e) => setFormData({ ...formData, payment_method: e.target.value })}
@@ -186,7 +186,7 @@ const MakePaymentModal: React.FC<MakePaymentModalProps> = ({ isOpen, onClose, or
 
                         {/* Invoice Amount */}
                         <div className="space-y-1.5">
-                            <label className="text-label font-black text-black/80 uppercase tracking-widest">{t("orderDetails.invoiceAmount")}</label>
+                            <label className="text-label font-bold text-black/80 uppercase tracking-widest">{t("orderDetails.invoiceAmount")}</label>
                             <input
                                 type="text"
                                 readOnly
@@ -197,7 +197,7 @@ const MakePaymentModal: React.FC<MakePaymentModalProps> = ({ isOpen, onClose, or
 
                         {/* Receivable Payment */}
                         <div className="space-y-1.5">
-                            <label className="text-label font-black text-black/80 uppercase tracking-widest">{t("orderDetails.receivablePayment")}</label>
+                            <label className="text-label font-bold text-black/80 uppercase tracking-widest">{t("orderDetails.receivablePayment")}</label>
                             <input
                                 type="text"
                                 readOnly
@@ -208,7 +208,7 @@ const MakePaymentModal: React.FC<MakePaymentModalProps> = ({ isOpen, onClose, or
 
                         {/* Paid Payment */}
                         <div className="space-y-1.5">
-                            <label className="text-label font-black text-black/80 uppercase tracking-widest">{t("orderDetails.paidPayment")} <span className="text-red-500 inline">*</span></label>
+                            <label className="text-label font-bold text-black/80 uppercase tracking-widest">{t("orderDetails.paidPayment")} <span className="text-red-500 inline">*</span></label>
                             <input
                                 type="number"
                                 required
@@ -220,7 +220,7 @@ const MakePaymentModal: React.FC<MakePaymentModalProps> = ({ isOpen, onClose, or
 
                         {/* Remarks */}
                         <div className="space-y-1.5">
-                            <label className="text-label font-black text-black/80 uppercase tracking-widest">{t("orderDetails.remarks")}</label>
+                            <label className="text-label font-bold text-black/80 uppercase tracking-widest">{t("orderDetails.remarks")}</label>
                             <textarea
                                 value={formData.remarks}
                                 onChange={(e) => setFormData({ ...formData, remarks: e.target.value })}

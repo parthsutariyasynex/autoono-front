@@ -40,13 +40,13 @@ type AddressCardProps = {
 function AddressCard({ title, address, onEdit, buttonLabel, t, isRtl }: AddressCardProps) {
   return (
     <div className="bg-white border border-border rounded-xl shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden flex flex-col h-full group">
-      <div className="bg-gray-50/80 px-5 py-4 border-b border-border uppercase text-label font-black text-black tracking-widest ltr:text-left rtl:text-right group-hover:bg-primary/50 transition-colors">
+      <div className="bg-gray-50/80 px-5 py-4 border-b border-border uppercase text-label font-bold text-black tracking-widest ltr:text-left rtl:text-right group-hover:bg-primary/50 transition-colors">
         {title}
       </div>
       <div className="p-6 flex-grow ltr:text-left rtl:text-right">
         {address ? (
           <div className="space-y-1.5 text-body text-black/70">
-            <p className="font-black text-black uppercase mb-3 text-sm tracking-tight leading-tight">
+            <p className="font-bold text-black uppercase mb-3 text-sm tracking-tight leading-tight">
               {address.firstname} {address.lastname}
             </p>
             {address.company && <p className="font-medium">{address.company}</p>}
@@ -56,14 +56,14 @@ function AddressCard({ title, address, onEdit, buttonLabel, t, isRtl }: AddressC
             </p>
             <p className="font-medium">{address.country_id === 'SA' ? t("addressBook.saudiArabia") : address.country_id}</p>
             <div className="pt-3 flex items-center gap-2">
-              <span className="text-label font-black text-black uppercase tracking-wider">{t("addressBook.phone")}:</span>
+              <span className="text-label font-bold text-black uppercase tracking-wider">{t("addressBook.phone")}:</span>
               <span className="text-black/70 font-bold hover:text-primary cursor-pointer transition-colors duration-200" dir="ltr">{address.telephone}</span>
             </div>
             {buttonLabel && (
               <div className="pt-8 mt-auto">
                 <button
                   type="button"
-                  className="bg-primary hover:bg-primaryHover text-black text-label font-black px-10 py-3.5 uppercase transition-all rounded-lg shadow-sm tracking-widest active:scale-95 flex items-center gap-2"
+                  className="bg-primary hover:bg-primaryHover text-black text-label font-bold px-10 py-3.5 uppercase transition-all rounded-lg shadow-sm tracking-widest active:scale-95 flex items-center gap-2"
                   onClick={() => onEdit?.(address.id)}
                 >
                   {buttonLabel}
@@ -162,7 +162,7 @@ export default function Addresses() {
       <div className="p-6 flex justify-center items-center min-h-[400px]">
         <div className="flex flex-col items-center gap-4">
           <div className="animate-spin rounded-full h-10 w-10 border-4 border-gray-100 border-t-primary"></div>
-          <p className="text-black/50 text-xs font-black uppercase tracking-widest">{t("addressBook.loadingAddresses")}</p>
+          <p className="text-black/50 text-xs font-bold uppercase tracking-widest">{t("addressBook.loadingAddresses")}</p>
         </div>
       </div>
     );
@@ -173,7 +173,7 @@ export default function Addresses() {
       {/* Section 1: Default Addresses */}
       <section>
         <div className="flex items-center gap-4 mb-8">
-          <h2 className="text-xl font-black text-black uppercase tracking-tight">{t("addressBook.defaultAddresses")}</h2>
+          <h2 className="text-xl font-bold text-black uppercase tracking-tight">{t("addressBook.defaultAddresses")}</h2>
           <div className="h-[2px] flex-1 bg-gradient-to-r from-primary to-transparent"></div>
         </div>
 
@@ -198,7 +198,7 @@ export default function Addresses() {
       {/* Section 2: Additional Addresses */}
       <section>
         <div className="flex items-center gap-4 mb-8">
-          <h2 className="text-xl font-black text-black uppercase tracking-tight">{t("addressBook.additionalAddresses")}</h2>
+          <h2 className="text-xl font-bold text-black uppercase tracking-tight">{t("addressBook.additionalAddresses")}</h2>
           <div className="h-[2px] flex-1 bg-gradient-to-r from-primary to-transparent"></div>
         </div>
 
@@ -206,7 +206,7 @@ export default function Addresses() {
           <div className="overflow-x-auto">
             <table className="w-full border-collapse min-w-[650px]">
               <thead>
-                <tr className="bg-gray-50/80 border-b border-border text-black text-label font-black uppercase tracking-widest h-[60px]">
+                <tr className="bg-gray-50/80 border-b border-border text-black text-label font-bold uppercase tracking-widest h-[60px]">
                   <th className="px-6 py-4 ltr:text-left rtl:text-right">{t("addressBook.firstName")}</th>
                   <th className="px-6 py-4 ltr:text-left rtl:text-right">{t("addressBook.lastName")}</th>
                   <th className="px-6 py-4 ltr:text-left rtl:text-right">{t("addressBook.streetAddress")}</th>
@@ -221,7 +221,7 @@ export default function Addresses() {
                   <tr>
                     <td colSpan={6} className="px-6 py-24 text-center">
                       <div className="flex flex-col items-center gap-2">
-                        <span className="text-red-500 text-xs font-black uppercase tracking-widest">{t("common.error")}</span>
+                        <span className="text-red-500 text-xs font-bold uppercase tracking-widest">{t("common.error")}</span>
                         <p className="text-black/60 text-body">{error}</p>
                       </div>
                     </td>
@@ -230,7 +230,7 @@ export default function Addresses() {
                 {filteredAddresses.length === 0 && !loading && !error && (
                   <tr>
                     <td colSpan={6} className="px-6 py-24 text-center">
-                      <p className="text-black/50 text-xs italic tracking-[0.2em] uppercase font-black">
+                      <p className="text-black/50 text-xs italic tracking-[0.2em] uppercase font-bold">
                         {t("addressBook.noAdditionalAddresses")}
                       </p>
                     </td>
@@ -239,8 +239,8 @@ export default function Addresses() {
 
                 {filteredAddresses.slice((currentPage - 1) * pageSize, currentPage * pageSize).map((address: any, idx: number) => (
                   <tr key={address.id} className="hover:bg-primary/5 transition-colors text-body group h-[70px]">
-                    <td className="px-6 py-4 font-black text-black uppercase ltr:text-left rtl:text-right">{address.firstname}</td>
-                    <td className="px-6 py-4 font-black text-black uppercase ltr:text-left rtl:text-right">{address.lastname}</td>
+                    <td className="px-6 py-4 font-bold text-black uppercase ltr:text-left rtl:text-right">{address.firstname}</td>
+                    <td className="px-6 py-4 font-bold text-black uppercase ltr:text-left rtl:text-right">{address.lastname}</td>
                     <td className="px-6 py-4 text-black/60 font-medium ltr:text-left rtl:text-right">{Array.isArray(address.street) ? address.street.join(", ") : address.street || "-"}</td>
                     <td className="px-6 py-4 uppercase font-bold text-black ltr:text-left rtl:text-right">{address.city}</td>
                     <td className="px-6 py-4 font-bold text-black/80 ltr:text-left rtl:text-right group-hover:text-black transition-colors"><span dir="ltr">{address.postcode}</span></td>

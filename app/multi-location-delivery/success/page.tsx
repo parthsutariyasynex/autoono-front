@@ -95,7 +95,7 @@ const MultiShippingSuccessContent = () => {
             <div className="min-h-screen flex items-center justify-center bg-white">
                 <div className="flex flex-col items-center gap-4">
                     <div className="w-12 h-12 border-4 border-gray-200 border-t-primary rounded-full animate-spin" />
-                    <p className="text-label font-black text-black/50 uppercase tracking-widest">{t("multi.verifying")}</p>
+                    <p className="text-label font-bold text-black/50 uppercase tracking-widest">{t("multi.verifying")}</p>
                 </div>
             </div>
         );
@@ -107,7 +107,7 @@ const MultiShippingSuccessContent = () => {
 
                 {/* Header */}
                 <div className="text-center mb-10 md:mb-16">
-                    <h1 className="text-h2 md:text-h1 font-black text-black uppercase tracking-tight mb-4">
+                    <h1 className="text-h2 md:text-h1 font-bold text-black uppercase tracking-tight mb-4">
                         {t("multi.thankYou")}
                     </h1>
                     <p className="text-body md:text-body-lg text-black font-medium max-w-4xl mx-auto leading-relaxed">
@@ -125,8 +125,8 @@ const MultiShippingSuccessContent = () => {
                 <div className="border border-gray-200 shadow-sm overflow-hidden">
                     {/* Table Header */}
                     <div className="flex bg-surfaceMuted border-b border-gray-200 py-3 px-6">
-                        <div className="w-[180px] md:w-[220px] flex-shrink-0 text-body-sm md:text-body font-black text-black">{t("multi.orderId")}</div>
-                        <div className="flex-1 text-body-sm md:text-body font-black text-black">{t("multi.shipTo")}</div>
+                        <div className="w-[180px] md:w-[220px] flex-shrink-0 text-body-sm md:text-body font-bold text-black">{t("multi.orderId")}</div>
+                        <div className="flex-1 text-body-sm md:text-body font-bold text-black">{t("multi.shipTo")}</div>
                     </div>
 
                     {/* Table Body */}
@@ -137,7 +137,7 @@ const MultiShippingSuccessContent = () => {
                                 className="flex border-b border-gray-100 last:border-b-0 border-l-4 border-l-primary py-5 px-6 items-start bg-surfaceGhost"
                             >
                                 <div className="w-[180px] md:w-[220px] flex-shrink-0">
-                                    <span className="text-body md:text-body-lg font-black text-black">
+                                    <span className="text-body md:text-body-lg font-bold text-black">
                                         {order.order_increment_id}
                                     </span>
                                 </div>
@@ -158,7 +158,7 @@ const MultiShippingSuccessContent = () => {
                     <div className="bg-surfaceDim p-4 flex justify-end">
                         <Link
                             href={lp("/products")}
-                            className="bg-primary text-black px-8 md:px-12 py-3 text-label font-black uppercase tracking-[0.1em] hover:bg-black hover:text-white transition-all shadow-sm"
+                            className="bg-primary text-black px-8 md:px-12 py-3 text-label font-bold uppercase tracking-[0.1em] hover:bg-black hover:text-white transition-all shadow-sm"
                         >
                             {t("multi.continueShopping")}
                         </Link>

@@ -164,14 +164,14 @@ function EditAddressPageContent() {
                 <Sidebar />
 
                 <main className="flex-1 w-full min-w-0 p-4 md:p-10 bg-surfaceOverlay">
-                    <h1 className="text-h3 md:text-h1 font-black text-black uppercase tracking-tight mb-6 md:mb-10 px-1 md:px-0 ltr:text-left rtl:text-right">
+                    <h1 className="text-h3 md:text-h1 font-bold text-black uppercase tracking-tight mb-6 md:mb-10 px-1 md:px-0 ltr:text-left rtl:text-right">
                         {t("addressBook.editAddress")}
                     </h1>
 
                     <div className="bg-white border border-gray-200 shadow-sm rounded-sm overflow-hidden max-w-4xl">
                         {/* Section Header */}
                         <div className="bg-white px-5 md:px-8 py-3.5 md:py-4 border-b border-gray-200">
-                            <h2 className="text-body-lg md:text-h3-sm font-black text-black uppercase tracking-tight ltr:text-left rtl:text-right">
+                            <h2 className="text-body-lg md:text-h3-sm font-bold text-black uppercase tracking-tight ltr:text-left rtl:text-right">
                                 {t("addressBook.contactInformation")}
                             </h2>
                         </div>

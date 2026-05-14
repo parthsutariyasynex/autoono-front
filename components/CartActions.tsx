@@ -19,19 +19,19 @@ const CartActions: React.FC<CartActionsProps> = ({ itemsCount, onClearCart, onUp
             <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
                 <Link
                     href={lp("/products")}
-                    className="flex-1 md:flex-none px-4 py-2 bg-black text-white text-micro font-black uppercase tracking-[0.2em] hover:bg-gray-800 transition-all cursor-pointer rounded-lg text-center active:scale-95 shadow-sm"
+                    className="flex-1 md:flex-none px-4 py-2 bg-black text-white text-micro font-bold uppercase tracking-[0.2em] hover:bg-gray-800 transition-all cursor-pointer rounded-lg text-center active:scale-95 shadow-sm"
                 >
                     {t("common.continueShopping")}
                 </Link>
                 <button
                     onClick={onClearCart}
-                    className="flex-1 md:flex-none px-4 py-2 bg-white text-black text-micro font-black uppercase tracking-[0.2em] hover:bg-gray-50 transition-all border border-gray-100 cursor-pointer rounded-lg active:scale-95 shadow-sm"
+                    className="flex-1 md:flex-none px-4 py-2 bg-white text-black text-micro font-bold uppercase tracking-[0.2em] hover:bg-gray-50 transition-all border border-gray-100 cursor-pointer rounded-lg active:scale-95 shadow-sm"
                 >
                     {t("cart.clearCart")}
                 </button>
                 <button
                     onClick={onUpdateCart}
-                    className="flex-1 md:flex-none px-4 py-2 bg-primary text-black text-micro font-black uppercase tracking-[0.2em] hover:bg-primaryHover transition-all cursor-pointer rounded-lg active:scale-95 shadow-md shadow-black/5"
+                    className="flex-1 md:flex-none px-4 py-2 bg-primary text-micro font-bold uppercase tracking-[0.2em] hover:bg-primaryHover transition-all cursor-pointer rounded-lg active:scale-95 shadow-md shadow-black/5"
                 >
                     {t("cart.updateCart")}
                 </button>
@@ -39,15 +39,15 @@ const CartActions: React.FC<CartActionsProps> = ({ itemsCount, onClearCart, onUp
 
             <div className="flex items-center gap-4">
                 <div className="text-right">
-                    <span className="text-micro font-black text-black uppercase tracking-widest block mb-0.5">
+                    <span className="text-micro font-bold text-black uppercase tracking-widest block mb-0.5">
                         {t("cart.itemsInCart")}
                     </span>
-                    <span className="text-micro font-black text-black/50 uppercase tracking-widest block leading-none">
+                    <span className="text-micro font-bold text-black/50 uppercase tracking-widest block leading-none">
 
                     </span>
                 </div>
                 <div className="w-8 h-8 bg-white border border-gray-100 rounded-lg flex items-center justify-center shadow-sm">
-                    <span className="text-sm font-black text-black">
+                    <span className="text-sm font-bold text-black">
                         {itemsCount}
                     </span>
                 </div>

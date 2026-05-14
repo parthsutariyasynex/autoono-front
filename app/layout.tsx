@@ -71,7 +71,13 @@ export default async function RootLayout({
                   <GiftProvider>
                     <DirectionSync />
                     <PriceIconObserver />
-                    <Toaster position="top-right" reverseOrder={false} />
+                    {/* <Toaster position="top-right" reverseOrder={false} /> */}
+                    <Toaster
+                      toastOptions={{
+                        success: { duration: 6000 },
+                        error: { duration: 5000 },
+                      }}
+                    />
                     <ProtectedLayout>
                       {children}
                     </ProtectedLayout>

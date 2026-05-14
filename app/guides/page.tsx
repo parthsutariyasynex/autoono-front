@@ -19,7 +19,7 @@ export default function UserGuidesPage() {
 
             {/* Content Section */}
             <div className="max-w-[1200px] mx-auto px-6 mt-16 md:mt-20 pb-10 sm:pb-16 md:pb-20" dir={isRtl ? "rtl" : "ltr"}>
-                <h1 className="text-h3 sm:text-[26px] md:text-h1 font-black text-center mb-16 tracking-wide text-black uppercase">
+                <h1 className="text-h3 sm:text-[26px] md:text-h1 font-bold text-center mb-16 tracking-wide text-black uppercase">
                     {t("guides.title")}
                 </h1>
 

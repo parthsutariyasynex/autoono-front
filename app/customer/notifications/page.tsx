@@ -149,7 +149,7 @@ export default function NotificationsPage() {
 
                     {/* MAIN CONTENT */}
                     <main className="flex-1 min-w-0 px-4 md:px-6 lg:px-8">
-                        <h1 className="text-h3 md:text-[26px] font-black text-black mb-6 md:mb-10 uppercase tracking-wide">
+                        <h1 className="text-h3 md:text-[26px] font-bold text-black mb-6 md:mb-10 uppercase tracking-wide">
                             {t('notifications.title')}
                         </h1>
 
@@ -159,10 +159,10 @@ export default function NotificationsPage() {
                                 <table className="w-full text-left border-collapse table-fixed min-w-[600px]">
                                     <thead>
                                         <tr className="border-b border-border">
-                                            <th className="px-6 py-4 text-body font-black text-black uppercase text-center w-[15%] border-r border-border">{t('common.date')}</th>
-                                            <th className="px-6 py-4 text-body font-black text-black uppercase text-center w-[20%] border-r border-border">{t('m.title')}</th>
-                                            <th className="px-6 py-4 text-body font-black text-black uppercase text-center w-[45%] border-r border-border">{t('m.message')}</th>
-                                            <th className="px-6 py-4 text-body font-black text-black uppercase text-center w-[20%]">{t('common.action')}</th>
+                                            <th className="px-6 py-4 text-body font-bold text-black uppercase text-center w-[15%] border-r border-border">{t('common.date')}</th>
+                                            <th className="px-6 py-4 text-body font-bold text-black uppercase text-center w-[20%] border-r border-border">{t('m.title')}</th>
+                                            <th className="px-6 py-4 text-body font-bold text-black uppercase text-center w-[45%] border-r border-border">{t('m.message')}</th>
+                                            <th className="px-6 py-4 text-body font-bold text-black uppercase text-center w-[20%]">{t('common.action')}</th>
                                         </tr>
                                     </thead>
                                     <tbody className="bg-white">

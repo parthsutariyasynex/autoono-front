@@ -105,7 +105,7 @@ function LoginPageContent() {
         if (mobileNumber.length !== req.length) {
           newErrors.mobile = `${t("login.mustBe") || "Must be"} ${req.length} ${t("login.digits") || "digits"}`;
         } else if (!validateMobile(mobileNumber, countryCode)) {
-          newErrors.mobile = `${t("login.invalidMobileFormat") || "Invalid format"}. ${t("login.example") || "Example"}: ${req.example}`;
+          newErrors.mobile = t("login.invalidMobileFormat") || "Invalid format";
         }
       }
       if (otpSent && !otp) newErrors.otp = t("forgotPassword.otpRequired") || "OTP is required";
@@ -130,7 +130,7 @@ function LoginPageContent() {
     }
 
     if (!validateMobile(mobileNumber, countryCode)) {
-      setErrors({ mobile: `${t("login.invalidMobileFormat") || "Invalid format"}. ${t("login.example") || "Example"}: ${req.example}` });
+      setErrors({ mobile: t("login.invalidMobileFormat") || "Invalid format" });
       return;
     }
 
@@ -242,7 +242,7 @@ function LoginPageContent() {
         <div className="w-full max-w-[440px] bg-white rounded-[3px] shadow-[0_10px_40px_rgba(0,0,0,0.08)] border border-gray-100">
           <div className="px-4 sm:px-6 md:px-8 pt-5 sm:pt-7 pb-4 sm:pb-5">
             <div className="text-left">
-              <h1 className="text-[17px] sm:text-[18px] font-black tracking-[0.5px] uppercase text-black">
+              <h1 className="text-[17px] sm:text-[18px] font-bold tracking-[0.5px] uppercase text-black">
                 {t("login.title")}
               </h1>
             </div>

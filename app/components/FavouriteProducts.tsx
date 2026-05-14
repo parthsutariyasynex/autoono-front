@@ -294,7 +294,7 @@ export default function FavouriteProducts({ title }: { title?: React.ReactNode }
                             <div className="flex gap-3">
                                 <div className="flex-1 min-w-0">
                                     <p className="text-caption font-semibold text-black/50 uppercase tracking-wider">{t(`data.${brandName}`) !== `data.${brandName}` ? t(`data.${brandName}`) : brandName}</p>
-                                    <p className="text-body-sm font-black text-black leading-tight mt-0.5 truncate">{product.pattern || product.name || "—"}</p>
+                                    <p className="text-body-sm font-bold text-black leading-tight mt-0.5 truncate">{product.pattern || product.name || "—"}</p>
                                     <div className="flex items-center gap-1.5 mt-1">
                                         <span className="text-body-sm font-semibold text-black">{product.tyre_size || "—"}</span>
                                         <div onClick={() => handleShowProductDetail(product)} className="w-4 h-4 bg-gray-900 rounded-full flex items-center justify-center text-micro font-semibold text-white cursor-pointer active:scale-95 flex-shrink-0">i</div>
@@ -330,11 +330,11 @@ export default function FavouriteProducts({ title }: { title?: React.ReactNode }
                                 </div>
                                 <div className="flex items-center gap-1 flex-shrink-0">
                                     {!isOutOfStock ? (
-                                        <button onClick={() => onAddToCart(product)} disabled={addingToCart === product.sku} className={`h-9 px-2.5 rounded-lg flex items-center gap-1.5 text-label font-black uppercase shadow-sm active:scale-95 cursor-pointer flex-shrink-0 bg-primary text-black`}>
+                                        <button onClick={() => onAddToCart(product)} disabled={addingToCart === product.sku} className={`h-9 px-2.5 rounded-lg flex items-center gap-1.5 text-label font-bold uppercase shadow-sm active:scale-95 cursor-pointer flex-shrink-0 bg-primary text-black`}>
                                             {addingToCart === product.sku ? <div className="w-3.5 h-3.5 border-2 border-black border-t-transparent rounded-full animate-spin"></div> : <><ShoppingCart size={14} strokeWidth={2.5} /></>}
                                         </button>
                                     ) : (
-                                        <button onClick={() => { setInquiryProduct(product); setIsInquiryModalOpen(true); }} className="h-9 px-2.5 bg-primary text-black rounded-lg flex items-center gap-1.5 text-label font-black uppercase shadow-sm active:scale-95 cursor-pointer flex-shrink-0">
+                                        <button onClick={() => { setInquiryProduct(product); setIsInquiryModalOpen(true); }} className="h-9 px-2.5 bg-primary text-black rounded-lg flex items-center gap-1.5 text-label font-bold uppercase shadow-sm active:scale-95 cursor-pointer flex-shrink-0">
                                             <Info size={14} strokeWidth={2.5} />
                                         </button>
                                     )}
@@ -367,7 +367,7 @@ export default function FavouriteProducts({ title }: { title?: React.ReactNode }
                             {favProducts.length === 0 ? (
                                 <tr>
                                     <td colSpan={6} className="px-5 py-24 text-center">
-                                        <p className="text-xs font-black text-black/50 uppercase tracking-[0.2em]">{t("favorites.empty")}</p>
+                                        <p className="text-xs font-bold text-black/50 uppercase tracking-[0.2em]">{t("favorites.empty")}</p>
                                     </td>
                                 </tr>
                             ) : (
@@ -406,7 +406,7 @@ export default function FavouriteProducts({ title }: { title?: React.ReactNode }
                                                             </div>
                                                         </div>
                                                     ) : (
-                                                        <span className="text-caption text-black/40 font-black uppercase leading-[40px]">{t("m.no-image")}</span>
+                                                        <span className="text-caption text-black/40 font-bold uppercase leading-[40px]">{t("m.no-image")}</span>
                                                     )}
                                                 </div>
                                             </td>
@@ -528,7 +528,7 @@ export default function FavouriteProducts({ title }: { title?: React.ReactNode }
             >
                 <div className="flex flex-col h-full bg-white">
                     <div className="bg-primary px-4 md:px-8 py-4 md:py-6 flex items-center justify-center relative flex-shrink-0">
-                        <h2 className="text-body-lg md:text-[17px] font-black text-black text-center uppercase tracking-tight">
+                        <h2 className="text-body-lg md:text-[17px] font-bold text-black text-center uppercase tracking-tight">
                             {previewProduct ? `${previewProduct.pattern || '-'} - ${previewProduct.tyre_size || '-'}` : t("m.preview")}
                         </h2>
                     </div>
@@ -537,7 +537,7 @@ export default function FavouriteProducts({ title }: { title?: React.ReactNode }
                             <img src={selectedImage || ''} alt={previewProduct ? `${previewProduct.pattern} - ${previewProduct.tyre_size}` : t("m.preview")} className="max-w-full max-h-[60vh] md:max-h-[75vh] object-contain rounded-lg" />
                         </div>
                         <div className="mt-6 md:mt-10 w-full">
-                            <button onClick={() => setIsImageModalOpen(false)} className="w-full py-3 md:py-4 bg-black text-white text-body-sm md:text-sm font-black uppercase tracking-widest rounded shadow-xl hover:bg-gray-800 transition-all cursor-pointer active:scale-95">Close Preview</button>
+                            <button onClick={() => setIsImageModalOpen(false)} className="w-full py-3 md:py-4 bg-black text-white text-body-sm md:text-sm font-bold uppercase tracking-widest rounded shadow-xl hover:bg-gray-800 transition-all cursor-pointer active:scale-95">Close Preview</button>
                         </div>
                     </div>
                 </div>

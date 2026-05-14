@@ -60,25 +60,37 @@ const SearchPopup: React.FC<SearchPopupProps> = ({ isOpen, onClose }) => {
         const params = new URLSearchParams();
         // Drop all prior search/filter state — each new search starts clean.
         // store/category/storeCode are kept so search stays within the current scope.
-        const skip = new Set(["page", "sortBy", "search", "searchBy", "width", "height", "rim", "item_code", "itemCode"]);
+        const skip = new Set(["page", "sortBy", "searchby", "search", "searchBy", "width", "height", "rim", "item_code", "itemCode"]);
         searchParams?.forEach((v, k) => { if (!skip.has(k)) params.append(k, v); });
         return params;
     };
 
     const handleSearch = (e?: React.FormEvent, term?: string) => {
         if (e) e.preventDefault();
-        const searchVal = term || query;
-        if (!searchVal.trim()) return;
+        const searchVal = (term || query).trim();
+        if (!searchVal) return;
 
-        const parsed = parseTyreSize(searchVal.trim());
         const params = buildParamsWithContext();
 
+        const parsed = parseTyreSize(searchVal);
         if (parsed) {
             params.set("width", parsed.width);
             if (parsed.height) params.set("height", parsed.height);
             if (parsed.rim) params.set("rim", parsed.rim);
         } else {
-            params.set("search", searchVal.trim());
+            // If the query exactly matches a suggestion's SKU, route as item_code.
+            // Otherwise if it looks like an item code (no spaces, mix of letters+digits),
+            // also route as item_code — matching live site ?item_code= URL format.
+            const matchedSku = suggestions.find(s => s.sku && s.sku.toLowerCase() === searchVal.toLowerCase())?.sku;
+            const looksLikeItemCode = !searchVal.includes(" ") && /[A-Za-z]/.test(searchVal) && /\d/.test(searchVal);
+
+            if (matchedSku) {
+                params.set("item_code", matchedSku);
+            } else if (looksLikeItemCode) {
+                params.set("item_code", searchVal.toUpperCase());
+            } else {
+                params.set("searchby", searchVal);
+            }
         }
 
         router.push(lp(`/products?${params.toString()}`));
@@ -95,7 +107,7 @@ const SearchPopup: React.FC<SearchPopupProps> = ({ isOpen, onClose }) => {
         if (suggestion.sku) {
             params.set("item_code", suggestion.sku);
         } else {
-            params.set("search", suggestion.label);
+            params.set("searchby", suggestion.label);
         }
 
         router.push(lp(`/products?${params.toString()}`));
@@ -110,7 +122,7 @@ const SearchPopup: React.FC<SearchPopupProps> = ({ isOpen, onClose }) => {
     // Skip listing-UI state (`page`, `sortBy`) and any prior search term.
     const contextParamsKey = (() => {
         if (!searchParams) return "";
-        const skip = new Set(["page", "sortBy", "search", "searchBy"]);
+        const skip = new Set(["page", "sortBy", "searchby", "search", "searchBy"]);
         const entries: [string, string][] = [];
         searchParams.forEach((v, k) => { if (!skip.has(k)) entries.push([k, v]); });
         entries.sort(([a], [b]) => a.localeCompare(b));

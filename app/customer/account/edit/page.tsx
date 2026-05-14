@@ -131,7 +131,7 @@ function EditAccountPageContent() {
 
     const inputClass = "w-full border border-gray-200 px-4 py-2 text-body-lg focus:border-primary outline-none transition-all rounded-sm bg-white font-medium text-black placeholder:text-black/40";
     const labelClass = "block text-body font-bold text-black mb-1.5";
-    const sectionHeader = "bg-white px-4 md:px-6 py-2.5 md:py-3 border-b border-gray-100 text-black font-black uppercase text-body md:text-[15px] tracking-tight";
+    const sectionHeader = "bg-white px-4 md:px-6 py-2.5 md:py-3 border-b border-gray-100 text-black font-bold uppercase text-body md:text-[15px] tracking-tight";
 
     return (
         <div className="flex flex-col lg:flex-row flex-1 min-h-0 min-w-full">
@@ -139,7 +139,7 @@ function EditAccountPageContent() {
 
             <main className="flex-1 p-6 md:p-12 min-h-0 bg-surfaceOverlay">
                 <div className="w-full">
-                    <h1 className="text-h3 sm:text-h2 md:text-h1-sm font-black text-black mb-6 md:mb-10 uppercase tracking-tight">
+                    <h1 className="text-h3 sm:text-h2 md:text-h1-sm font-bold text-black mb-6 md:mb-10 uppercase tracking-tight">
                         {t("account.editTitle")}
                     </h1>
 
@@ -310,7 +310,7 @@ function EditAccountPageContent() {
                             <button
                                 onClick={handleSave}
                                 disabled={isSaving}
-                                className="bg-primary hover:bg-black hover:text-white text-black text-body md:text-[15px] font-black px-8 md:px-12 py-3 md:py-3.5 uppercase transition-all rounded-sm shadow-md tracking-wider active:scale-95 w-full sm:w-auto"
+                                className="bg-primary hover:bg-black hover:text-white text-black text-body md:text-[15px] font-bold px-8 md:px-12 py-3 md:py-3.5 uppercase transition-all rounded-sm shadow-md tracking-wider active:scale-95 w-full sm:w-auto"
                             >
                                 {isSaving ? t("account.saving") : t("common.save")}
                             </button>

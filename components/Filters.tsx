@@ -325,7 +325,7 @@ const Filters: React.FC<FiltersProps> = ({
             <div className="flex flex-col md:flex-row gap-5 items-end">
                 {/* Status Dropdown */}
                 <div className="flex flex-col gap-1.5 min-w-[180px]">
-                    <label className="text-xs font-black text-black uppercase tracking-wide">
+                    <label className="text-xs font-bold text-black uppercase tracking-wide">
                         {t("common.filter")} {t("common.status")}
                     </label>
                     <div className="relative" ref={statusRef}>
@@ -358,8 +358,8 @@ const Filters: React.FC<FiltersProps> = ({
                                                     setIsStatusOpen(false);
                                                 }}
                                                 className={`w-full text-start px-4 py-2 text-xs transition-colors truncate ${status === optionValue
-                                                    ? "bg-primary text-black font-bold"
-                                                    : "text-black/80 hover:bg-primary hover:text-black"
+                                                    ? "bg-primary font-bold"
+                                                    : "text-black/80 hover:bg-primary"
                                                     }`}
                                             >
                                                 {t(`data.${optionLabel.trim()}`) !== `data.${optionLabel.trim()}` ? t(`data.${optionLabel.trim()}`) : optionLabel}
@@ -374,7 +374,7 @@ const Filters: React.FC<FiltersProps> = ({
 
                 {/* Search By Order # (Text Input) */}
                 <div className="flex-1 min-w-[200px]">
-                    <label className="block text-xs font-black text-black mb-1.5 uppercase tracking-wide">
+                    <label className="block text-xs font-bold text-black mb-1.5 uppercase tracking-wide">
                         {t("common.filter")} {t("orders.orderId")}
                     </label>
                     <div className="relative">
@@ -397,7 +397,7 @@ const Filters: React.FC<FiltersProps> = ({
                 <div className="flex gap-2 min-w-fit">
                     <button
                         onClick={onApplySearch}
-                        className="h-[38px] px-6 bg-primary hover:bg-primary text-black text-xs font-bold uppercase tracking-wider transition-all rounded-md shadow-sm active:scale-95"
+                        className="h-[38px] px-6 bg-primary hover:bg-primary text-xs font-bold uppercase tracking-wider transition-all rounded-md shadow-sm active:scale-95"
                     >
                         {t("m.search")}
                     </button>
