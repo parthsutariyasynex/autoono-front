@@ -19,7 +19,7 @@ const CartPage: React.FC = () => {
     const router = useRouter();
     const { t } = useTranslation();
     const lp = useLocalePath();
-    const { openGiftModal, availableGifts, hasGifts } = useGift();
+    const { openGiftModal, availableGifts, hasGifts, isAllGiftsSelected } = useGift();
     const { cart, isLoading, error, removeFromCart, updateCartItem, clearCart, refetchCart } = useCart();
     const { startMultiShipping } = useCheckout({ skipInitialFetch: true });
     const [pendingQtys, setPendingQtys] = React.useState<Record<number, number>>({});
@@ -159,8 +159,8 @@ const CartPage: React.FC = () => {
                     <div className="h-1 w-12 bg-primary mx-auto"></div>
                 </div>
 
-                {/* Free Gift Banner — shown whenever gift options are available from API */}
-                {availableGifts.length > 0 && (
+                {/* Free Gift Banner — shown when gifts available and not all selected */}
+                {availableGifts.length > 0 && !isAllGiftsSelected && (
                     <button
                         onClick={openGiftModal}
                         className={`w-full mb-8 active:scale-[0.99] transition-all duration-200 py-3.5 px-6 flex items-center justify-center gap-3 cursor-pointer ${

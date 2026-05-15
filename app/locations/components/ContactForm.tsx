@@ -131,9 +131,6 @@ const ContactForm: React.FC = () => {
 
                 {/* Row 3: Message / Comment */}
                 <div className="relative border border-gray-100 rounded-sm">
-                    {/* <div className="px-4 pt-3 pb-0 text-body text-black/50 font-medium">
-                        {t("contact.messagePlaceholder")}
-                    </div> */}
                     <textarea
                         name="comment"
                         placeholder={t("contact.messagePlaceholder")}

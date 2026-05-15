@@ -26,12 +26,34 @@ const GiftModal: React.FC<GiftModalProps> = ({
     const [selections, setSelections] = useState<Record<string, number>>(initialSelections);
 
     // Sync initialSelections whenever the modal opens
-    useEffect(() => {
-        if (isOpen) {
-            setSelections(initialSelections);
-        }
-    }, [isOpen, initialSelections]);
+    // useEffect(() => {
+    //     if (isOpen) {
+    //         setSelections(initialSelections);
+    //     }
+    // }, [isOpen, initialSelections]);
 
+
+    useEffect(() => {
+        if (!isOpen) return;
+
+        const sanitized: Record<string, number> = {};
+
+        Object.entries(initialSelections).forEach(([id, qty]) => {
+            const gift = availableGifts.find(g => g.id === id);
+
+            if (!gift) return;
+
+            sanitized[id] = Math.min(qty, gift.qty_available);
+        });
+
+        const current = JSON.stringify(selections);
+        const next = JSON.stringify(sanitized);
+
+        if (current !== next) {
+            setSelections(sanitized);
+        }
+
+    }, [isOpen]);
     // Notify parent of selection changes for persistence
     useEffect(() => {
         onSelectionsChange?.(selections);
@@ -72,13 +94,39 @@ const GiftModal: React.FC<GiftModalProps> = ({
         }
     };
 
+    // const handleQtyInput = (id: string, value: string, groupName: string) => {
+    //     const num = Math.max(0, parseInt(value.replace(/\D/g, "") || "0", 10));
+    //     const groupLimit = getGroupLimit(groupName);
+    //     const current = selections[id] || 0;
+    //     const others = getGroupSelectedCount(groupName) - current;
+    //     const allowed = Math.min(num, groupLimit - others);
+    //     updateSelections({ ...selections, [id]: allowed });
+    //     console.log("qty change", selections);
+    // };
+
     const handleQtyInput = (id: string, value: string, groupName: string) => {
         const num = Math.max(0, parseInt(value.replace(/\D/g, "") || "0", 10));
+
         const groupLimit = getGroupLimit(groupName);
+
         const current = selections[id] || 0;
+
         const others = getGroupSelectedCount(groupName) - current;
-        const allowed = Math.min(num, groupLimit - others);
-        updateSelections({ ...selections, [id]: allowed });
+
+        const gift = availableGifts.find(g => g.id === id);
+
+        const maxAllowedForItem = gift?.qty_available || 0;
+
+        const allowed = Math.min(
+            num,
+            groupLimit - others,
+            maxAllowedForItem
+        );
+
+        updateSelections({
+            ...selections,
+            [id]: allowed
+        });
     };
 
     const handleConfirm = () => {
@@ -224,7 +272,7 @@ const GiftModal: React.FC<GiftModalProps> = ({
                                                                 className="w-9 sm:w-10 h-8 border border-gray-300 rounded text-center text-sm font-bold text-black outline-none focus:border-[#5b7fcf] disabled:bg-gray-100 disabled:cursor-not-allowed"
                                                             />
                                                             <span className={`text-[10px] font-bold uppercase tracking-widest whitespace-nowrap hidden sm:inline ${isDisabled ? "text-gray-300" : "text-black/40"}`}>
-                                                                {item.qty_available} left
+                                                                {item.qty_available}
                                                             </span>
                                                         </div>
                                                     </td>
