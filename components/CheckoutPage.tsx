@@ -72,6 +72,8 @@ const CheckoutPageUI: React.FC = () => {
         totals,
         isLoading: isCheckoutLoading,
         isTotalsLoading,
+        error,
+        sourcePermission,
         setShippingAddress,
         addAddress,
         placeOrder,
@@ -125,6 +127,21 @@ const CheckoutPageUI: React.FC = () => {
     const timeRef = useRef<HTMLDivElement>(null);
     const dateRef = useRef<HTMLDivElement>(null);
     const datePickerRef = useRef<any>(null);
+
+    // New Address Form State
+    const [showNewAddressForm, setShowNewAddressForm] = useState(false);
+    const [newAddress, setNewAddress] = useState({
+        firstname: "",
+        lastname: "",
+        street: "",
+        city: "",
+        country_id: "SA",
+        telephone: "",
+        postcode: "",
+        region_ship_to_party: "",
+        store_view: "",
+    });
+    const [isAddingAddress, setIsAddingAddress] = useState(false);
 
     // Close dropdowns on click outside
     useEffect(() => {
@@ -233,6 +250,29 @@ const CheckoutPageUI: React.FC = () => {
             router.push(lp("/cart"));
         }
     }, [cart, isCartLoading, router]);
+
+
+    // Pre-fill form from totals if available
+    useEffect(() => {
+        if (totals?.shipping_address) {
+            const addr = totals.shipping_address;
+            const regionAttr = addr.custom_attributes?.find((ca: any) => ca.attribute_code === 'region_ship_to_party')?.value || "";
+            const storeAttr = addr.custom_attributes?.find((ca: any) => ca.attribute_code === 'store_view')?.value || "";
+
+            setNewAddress(prev => ({
+                ...prev,
+                firstname: addr.firstname || prev.firstname,
+                lastname: addr.lastname || prev.lastname,
+                street: Array.isArray(addr.street) ? addr.street[0] : (addr.street || prev.street),
+                city: addr.city || prev.city,
+                telephone: addr.telephone || prev.telephone,
+                postcode: addr.postcode || prev.postcode,
+                country_id: addr.country_id || prev.country_id,
+                region_ship_to_party: regionAttr || prev.region_ship_to_party,
+                store_view: storeAttr || prev.store_view,
+            }));
+        }
+    }, [totals]);
 
     // Defaults
     useEffect(() => {
@@ -640,6 +680,49 @@ const CheckoutPageUI: React.FC = () => {
             toast.error(error.message || "Failed to update shipping method");
         }
     };
+
+    const handleAddNewAddress = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setIsAddingAddress(true);
+        try {
+            const addressData: any = {
+                firstname: newAddress.firstname,
+                lastname: newAddress.lastname,
+                street: [newAddress.street],
+                city: newAddress.city,
+                country_id: newAddress.country_id,
+                telephone: newAddress.telephone,
+                postcode: newAddress.postcode,
+                custom_attributes: [
+                    { attribute_code: 'region_ship_to_party', value: newAddress.region_ship_to_party },
+                    { attribute_code: 'store_view', value: newAddress.store_view }
+                ].filter(attr => attr.value)
+            };
+
+            const result = await addAddress(addressData);
+            toast.success(t("addressBook.addressAdded"));
+            setShowNewAddressForm(false);
+            setNewAddress({
+                firstname: "",
+                lastname: "",
+                street: "",
+                city: "",
+                country_id: "SA",
+                telephone: "",
+                postcode: "",
+                region_ship_to_party: "",
+                store_view: "",
+            });
+            // Automatically select the new address
+            if (result && result.id) {
+                handleAddressSelect(result.id.toString());
+            }
+        } catch (error: any) {
+            toast.error(error.message || "Failed to add address");
+        } finally {
+            setIsAddingAddress(false);
+        }
+    };
     if (isCartLoading || status === "loading") {
         return (
             <div className="min-h-screen flex items-center justify-center bg-surfaceWarm">
@@ -710,15 +793,23 @@ const CheckoutPageUI: React.FC = () => {
                             <SectionHeader title={t("checkout.shippingAddress")} step={1} />
                             <div className="p-4">
                                 {/* Search */}
-                                <div className="mb-6">
+                                {/* <div className="mb-6 flex gap-3">
                                     <input
                                         type="text"
                                         placeholder={t("m.search")}
-                                        className="w-full px-4 py-2.5 bg-gray-50/50 border border-border rounded-xl outline-none text-body-sm font-medium transition-all placeholder:text-black/50 focus:bg-white focus:border-primary shadow-sm focus:ring-4 focus:ring-primary/10"
+                                        className="flex-1 px-4 py-2.5 bg-gray-50/50 border border-border rounded-xl outline-none text-body-sm font-medium transition-all placeholder:text-black/50 focus:bg-white focus:border-primary shadow-sm focus:ring-4 focus:ring-primary/10"
                                         value={searchQuery}
                                         onChange={(e) => setSearchQuery(e.target.value)}
                                     />
-                                </div>
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowNewAddressForm(!showNewAddressForm)}
+                                        className={`flex items-center gap-2 px-6 py-2.5 rounded-xl font-bold uppercase tracking-widest transition-all active:scale-95 shadow-sm border ${showNewAddressForm ? "bg-primary text-black border-primary" : "bg-white text-black border-border hover:bg-gray-50"}`}
+                                    >
+                                        <Plus size={18} />
+                                        <span className="hidden sm:inline">{t("m.add-new")}</span>
+                                    </button>
+                                </div> */}
 
                                 {/* Address List Container */}
                                 <div className="max-h-[300px] sm:max-h-[380px] md:max-h-[460px] overflow-y-auto pr-1 card-scrollbar space-y-4">
@@ -783,10 +874,213 @@ const CheckoutPageUI: React.FC = () => {
                                         )
                                     ))}
 
-                                    {filteredAddresses.length === 0 && (
-                                        <div className="text-center py-16 bg-white border border-dashed border-gray-200 rounded-sm">
-                                            <p className="text-black/50 text-label font-bold uppercase tracking-widest">{t("common.noDataFound")}</p>
-                                        </div>
+
+                                    {/* New Address Form as per image */}
+                                    {(showNewAddressForm || filteredAddresses.length === 0) && (
+                                        <form onSubmit={handleAddNewAddress} className="space-y-6 pt-2">
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                {/* First Name */}
+                                                <div className="space-y-2">
+                                                    <label className="text-caption font-bold text-black/70 uppercase tracking-widest flex items-center gap-1">
+                                                        First Name <span className="text-red-500">*</span>
+                                                    </label>
+                                                    <input
+                                                        type="text"
+                                                        required
+                                                        className="w-full px-4 py-3 bg-white border border-border rounded-xl outline-none text-body font-medium transition-all focus:border-primary focus:ring-4 focus:ring-primary/10 shadow-sm"
+                                                        value={newAddress.firstname}
+                                                        onChange={(e) => setNewAddress(prev => ({ ...prev, firstname: e.target.value }))}
+                                                        placeholder="Mohamed"
+                                                    />
+                                                </div>
+
+                                                {/* Last Name */}
+                                                <div className="space-y-2">
+                                                    <label className="text-caption font-bold text-black/70 uppercase tracking-widest flex items-center gap-1">
+                                                        Last Name <span className="text-red-500">*</span>
+                                                    </label>
+                                                    <input
+                                                        type="text"
+                                                        required
+                                                        className="w-full px-4 py-3 bg-white border border-border rounded-xl outline-none text-body font-medium transition-all focus:border-primary focus:ring-4 focus:ring-primary/10 shadow-sm"
+                                                        value={newAddress.lastname}
+                                                        onChange={(e) => setNewAddress(prev => ({ ...prev, lastname: e.target.value }))}
+                                                        placeholder="BinQirat"
+                                                    />
+                                                </div>
+
+                                                {/* Street Address */}
+                                                <div className="space-y-2">
+                                                    <label className="text-caption font-bold text-black/70 uppercase tracking-widest flex items-center gap-1">
+                                                        Street Address <span className="text-red-500">*</span>
+                                                    </label>
+                                                    <input
+                                                        type="text"
+                                                        required
+                                                        className="w-full px-4 py-3 bg-white border border-border rounded-xl outline-none text-body font-medium transition-all focus:border-primary focus:ring-4 focus:ring-primary/10 shadow-sm"
+                                                        value={newAddress.street}
+                                                        onChange={(e) => setNewAddress(prev => ({ ...prev, street: e.target.value }))}
+                                                        placeholder="25 Palestine Streed"
+                                                    />
+                                                </div>
+
+                                                {/* Country */}
+                                                <div className="space-y-2">
+                                                    <label className="text-caption font-bold text-black/70 uppercase tracking-widest flex items-center gap-1">
+                                                        Country <span className="text-red-500">*</span>
+                                                    </label>
+                                                    <div className="relative">
+                                                        <select
+                                                            required
+                                                            className="w-full px-4 py-3 bg-white border border-border rounded-xl outline-none text-body font-medium transition-all focus:border-primary focus:ring-4 focus:ring-primary/10 shadow-sm appearance-none"
+                                                            value={newAddress.country_id}
+                                                            onChange={(e) => setNewAddress(prev => ({ ...prev, country_id: e.target.value }))}
+                                                        >
+                                                            {(totals as any)?.permitted_countries?.map((c: any) => (
+                                                                <option key={c.id || c.country_id} value={c.id || c.country_id}>
+                                                                    {c.name || c.full_name_english || c.id}
+                                                                </option>
+                                                            )) || (
+                                                                    <>
+                                                                        <option value="SA">Saudi Arabia</option>
+                                                                        <option value="AE">United Arab Emirates</option>
+                                                                        <option value="IN">India</option>
+                                                                    </>
+                                                                )}
+                                                        </select>
+                                                        <ChevronDown size={18} className="absolute right-4 top-1/2 -translate-y-1/2 text-black/40 pointer-events-none" />
+                                                    </div>
+                                                </div>
+
+                                                {/* Phone Number */}
+                                                <div className="space-y-2">
+                                                    <label className="text-caption font-bold text-black/70 uppercase tracking-widest flex items-center gap-1">
+                                                        Phone Number <span className="text-red-500">*</span>
+                                                    </label>
+                                                    <div className="flex gap-0 border border-border rounded-xl overflow-hidden focus-within:border-primary focus-within:ring-4 focus-within:ring-primary/10 shadow-sm">
+                                                        <div className="bg-gray-50 px-4 py-3 flex items-center gap-2 border-r border-border min-w-[100px]">
+                                                            <img
+                                                                src={`https://flagcdn.com/w20/${newAddress.country_id.toLowerCase()}.png`}
+                                                                className="w-5 h-auto rounded-sm"
+                                                                alt={newAddress.country_id}
+                                                                onError={(e: any) => e.target.src = "https://flagcdn.com/w20/sa.png"}
+                                                            />
+                                                            <span className="text-body font-bold text-black">
+                                                                {newAddress.country_id === 'SA' ? '+966' :
+                                                                    newAddress.country_id === 'AE' ? '+971' :
+                                                                        newAddress.country_id === 'IN' ? '+91' : '+'}
+                                                            </span>
+                                                            <ChevronDown size={14} className="text-black/40" />
+                                                        </div>
+                                                        <input
+                                                            type="tel"
+                                                            required
+                                                            className="flex-1 px-4 py-3 bg-white outline-none text-body font-medium"
+                                                            value={newAddress.telephone}
+                                                            onChange={(e) => setNewAddress(prev => ({ ...prev, telephone: e.target.value }))}
+                                                            placeholder="0544472854"
+                                                        />
+                                                    </div>
+                                                </div>
+
+                                                {/* Zip Code */}
+                                                <div className="space-y-2">
+                                                    <label className="text-caption font-bold text-black/70 uppercase tracking-widest flex items-center gap-1">
+                                                        Zip/Postal Code
+                                                    </label>
+                                                    <input
+                                                        type="text"
+                                                        className="w-full px-4 py-3 bg-white border border-border rounded-xl outline-none text-body font-medium transition-all focus:border-primary focus:ring-4 focus:ring-primary/10 shadow-sm"
+                                                        value={newAddress.postcode}
+                                                        onChange={(e) => setNewAddress(prev => ({ ...prev, postcode: e.target.value }))}
+                                                        placeholder="12345"
+                                                    />
+                                                </div>
+
+                                                {/* Region Ship To Party */}
+                                                <div className="space-y-2">
+                                                    <label className="text-caption font-bold text-black/70 uppercase tracking-widest flex items-center gap-1">
+                                                        Region Ship To Party
+                                                    </label>
+                                                    <input
+                                                        type="text"
+                                                        className="w-full px-4 py-3 bg-white border border-border rounded-xl outline-none text-body font-medium transition-all focus:border-primary focus:ring-4 focus:ring-primary/10 shadow-sm"
+                                                        value={newAddress.region_ship_to_party}
+                                                        onChange={(e) => setNewAddress(prev => ({ ...prev, region_ship_to_party: e.target.value }))}
+                                                        placeholder="region_ship_to_party..."
+                                                    />
+                                                </div>
+
+                                                {/* City */}
+                                                <div className="space-y-2">
+                                                    <label className="text-caption font-bold text-black/70 uppercase tracking-widest flex items-center gap-1">
+                                                        City <span className="text-red-500">*</span>
+                                                    </label>
+                                                    <input
+                                                        type="text"
+                                                        required
+                                                        className="w-full px-4 py-3 bg-white border border-border rounded-xl outline-none text-body font-medium transition-all focus:border-primary focus:ring-4 focus:ring-primary/10 shadow-sm"
+                                                        value={newAddress.city}
+                                                        onChange={(e) => setNewAddress(prev => ({ ...prev, city: e.target.value }))}
+                                                        placeholder="Jeddah"
+                                                    />
+                                                </div>
+
+                                                {/* Store View */}
+                                                <div className="space-y-2 md:col-span-2">
+                                                    <label className="text-caption font-bold text-black/70 uppercase tracking-widest flex items-center gap-1">
+                                                        Store View
+                                                    </label>
+                                                    <div className="relative">
+                                                        <select
+                                                            className="w-full px-4 py-3 bg-white border border-border rounded-xl outline-none text-body font-medium transition-all focus:border-primary focus:ring-4 focus:ring-primary/10 shadow-sm appearance-none"
+                                                            value={newAddress.store_view}
+                                                            onChange={(e) => setNewAddress(prev => ({ ...prev, store_view: e.target.value }))}
+                                                        >
+                                                            <option value="">--- Select ---</option>
+                                                            {(sourcePermission as any)?.permitted_stores?.map((s: any) => (
+                                                                <option key={s.store_code} value={s.store_code}>
+                                                                    {s.store_name || s.group_name || s.store_code}
+                                                                </option>
+                                                            ))}
+                                                            {!(sourcePermission as any)?.permitted_stores && (
+                                                                <>
+                                                                    <option value="default">Default Store View</option>
+                                                                    <option value="arabic">Arabic Store View</option>
+                                                                </>
+                                                            )}
+                                                        </select>
+                                                        <ChevronDown size={18} className="absolute right-4 top-1/2 -translate-y-1/2 text-black/40 pointer-events-none" />
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div className="flex gap-4 pt-4">
+                                                {/* <button
+                                                    type="submit"
+                                                    disabled={isAddingAddress}
+                                                    className="flex-1 bg-black text-white px-8 py-4 rounded-xl font-bold uppercase tracking-[0.2em] hover:bg-primary hover:text-black transition-all active:scale-95 shadow-lg disabled:opacity-50 flex items-center justify-center gap-2"
+                                                >
+                                                    {isAddingAddress ? (
+                                                        <Loader2 size={20} className="animate-spin" />
+                                                    ) : (
+                                                        <>
+                                                            <Check size={20} />
+                                                            {t("m.save-and-ship-here")}
+                                                        </>
+                                                    )}
+                                                </button> */}
+                                                {filteredAddresses.length > 0 && (
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setShowNewAddressForm(false)}
+                                                        className="px-8 py-4 rounded-xl font-bold uppercase tracking-[0.2em] border border-border hover:bg-gray-50 transition-all active:scale-95"
+                                                    >
+                                                        {t("m.cancel")}
+                                                    </button>
+                                                )}
+                                            </div>
+                                        </form>
                                     )}
                                 </div>
                             </div>
@@ -1336,7 +1630,7 @@ const CheckoutPageUI: React.FC = () => {
                                     )}
 
                                     {!hasGifts && availableGifts.length > 0 && (
-                                        <div 
+                                        <div
                                             onClick={openGiftModal}
                                             className="flex justify-between items-center p-3 bg-[#008a00]/5 border border-dashed border-[#008a00] rounded-lg cursor-pointer hover:bg-[#008a00]/10 transition-all group animate-pulse hover:animate-none"
                                         >

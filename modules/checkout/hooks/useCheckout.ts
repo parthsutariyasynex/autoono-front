@@ -54,6 +54,7 @@ export interface CheckoutTotals {
     discount_amount?: number;
     grand_total: number;
     currency_code: string;
+    [key: string]: any; // Allow for custom attributes from the API
 }
 
 async function getAuthToken(): Promise<string | null> {
@@ -107,6 +108,7 @@ export function useCheckout(options: UseCheckoutOptions = {}) {
     const [isLoading, setIsLoading] = useState(false);
     const [isTotalsLoading, setIsTotalsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [sourcePermission, setSourcePermission] = useState<any>(null);
 
     // ─── Fetch Checkout Totals ───
     const fetchTotals = useCallback(async () => {
@@ -127,6 +129,7 @@ export function useCheckout(options: UseCheckoutOptions = {}) {
             if (res.ok) {
                 // Map discount_amount if present
                 const mappedTotals: CheckoutTotals = {
+                    ...data, // Include any extra fields from API
                     subtotal: Number(data.subtotal || 0),
                     tax_amount: Number(data.tax_amount || 0),
                     shipping_amount: Number(data.shipping_amount || 0),
@@ -292,6 +295,28 @@ export function useCheckout(options: UseCheckoutOptions = {}) {
                 { code: "banktransfer", title: "Bank Transfer Payment" },
                 { code: "mageworx_ordereditor", title: "MageWorx Payment method" },
             ]);
+        }
+    }, []);
+
+
+    // ─── Fetch Source Permission ───
+    const fetchSourcePermission = useCallback(async () => {
+        try {
+            const token = await getAuthToken();
+            if (!token) return;
+
+            const res = await fetch("/api/kleverapi/source-permission", {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    "x-locale": getClientLocale()
+                }
+            });
+            if (res.ok) {
+                const data = await res.json();
+                setSourcePermission(data);
+            }
+        } catch (err) {
+            console.error("Fetch Source Permission Error:", err);
         }
     }, []);
 
@@ -960,7 +985,8 @@ export function useCheckout(options: UseCheckoutOptions = {}) {
         fetchTotals();
         fetchShippingMethods();
         fetchPaymentMethods();
-    }, [fetchAddresses, fetchTotals, fetchShippingMethods, fetchPaymentMethods, options.skipInitialFetch]);
+        fetchSourcePermission();
+    }, [fetchAddresses, fetchTotals, fetchShippingMethods, fetchPaymentMethods, fetchSourcePermission, options.skipInitialFetch]);
 
     return {
         addresses,
@@ -971,6 +997,7 @@ export function useCheckout(options: UseCheckoutOptions = {}) {
         isLoading,
         isTotalsLoading,
         error,
+        sourcePermission,
         refetchAddresses: fetchAddresses,
         refetchTotals: fetchTotals,
         refetchShippingMethods: fetchShippingMethods,
