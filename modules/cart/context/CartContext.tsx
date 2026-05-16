@@ -9,7 +9,8 @@ import {
   ReactNode,
   useRef,
 } from "react";
-import { getSession, signOut } from "next-auth/react";
+import { signOut } from "next-auth/react";
+import { getAuthToken } from "@/lib/api/api-client";
 
 export interface CartItem {
   item_id: number;
@@ -49,24 +50,6 @@ interface CartContextType {
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
-
-async function getAuthToken(): Promise<string | null> {
-  // Try NextAuth session first
-  const session: any = await getSession();
-
-  // If session is definitively null, user is logged out — don't use localStorage
-  if (session === null) return null;
-
-  if (session?.accessToken) return session.accessToken;
-
-  // Fallback: localStorage (may be set before NextAuth session syncs on first load)
-  if (typeof window !== "undefined") {
-    const localToken = localStorage.getItem("token");
-    if (localToken) return localToken;
-  }
-
-  return null;
-}
 
 function isAuthError(status: number): boolean {
   return status === 401 || status === 403;

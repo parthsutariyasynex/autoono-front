@@ -198,6 +198,10 @@ const GiftModal: React.FC<GiftModalProps> = ({
                                             const qty = selections[item.id] || 0;
                                             const isSelected = qty > 0;
                                             const isDisabled = isGroupFull && !isSelected;
+                                            if (item.qty_available === 0) {
+                                                console.log("item..qty_available::", item.qty_available);
+                                                return null;
+                                            }
 
                                             return (
                                                 <tr

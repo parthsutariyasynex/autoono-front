@@ -60,11 +60,22 @@ const CartItem: React.FC<CartItemProps> = ({ item, currencyCode, onUpdateQty, on
                                     {item.size_display}
                                 </span>
                             )}
+                            {item.pattern_display && (
+                                <span className="text-[8px] font-bold text-black/50 bg-gray-50 px-1 py-0.5 rounded uppercase">
+                                    {item.pattern_display}
+                                </span>
+                            )}
                         </div>
                         <div className="flex items-center justify-between">
-                            <span className="text-sm font-bold text-black">
-                                <Price amount={item.price} />
-                            </span>
+                            <div className="flex flex-col">
+                                <span className="text-[10px] text-black/40 font-bold uppercase">{t("m.unit-price") || "Unit"}</span>
+                                <span className="text-xs font-bold text-black/60">
+                                    <Price amount={item.price} />
+                                </span>
+                                <span className="text-sm font-bold text-black mt-0.5">
+                                    <Price amount={item.row_total} />
+                                </span>
+                            </div>
                             <div className="flex items-center border border-gray-100 bg-white rounded-lg shadow-sm">
                                 <button
                                     onClick={() => handleQtyChange(localQty - 1)}
@@ -112,6 +123,11 @@ const CartItem: React.FC<CartItemProps> = ({ item, currencyCode, onUpdateQty, on
                             {item.size_display && (
                                 <span className="text-micro font-bold text-black/50 bg-gray-50 border border-gray-100 px-1.5 py-0.5 rounded-md uppercase">
                                     {item.size_display}
+                                </span>
+                            )}
+                            {item.pattern_display && (
+                                <span className="text-micro font-bold text-black/50 bg-gray-50 border border-gray-100 px-1.5 py-0.5 rounded-md uppercase">
+                                    {item.pattern_display}
                                 </span>
                             )}
                         </div>

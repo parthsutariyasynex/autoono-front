@@ -162,20 +162,22 @@ export function useCheckout(options: UseCheckoutOptions = {}) {
             const addressesData = Array.isArray(data) ? data : (data.addresses || []);
 
             if (res.ok) {
-                const mapped: Address[] = addressesData.map((addr: any) => ({
-                    id: (addr.id || addr.entity_id || "").toString(),
-                    firstname: addr.firstname || "",
-                    lastname: addr.lastname || "",
-                    company: addr.company || "",
-                    street: Array.isArray(addr.street) ? addr.street.join(", ") : (addr.street || ""),
-                    city: addr.city || "",
-                    region: typeof addr.region === 'string' ? addr.region : (addr.region?.region || addr.region?.region_code || ""),
-                    postcode: addr.postcode || "",
-                    country_id: addr.country_id || "SA",
-                    telephone: addr.telephone || "",
-                    isDefault: !!(addr.default_shipping || addr.is_default_shipping),
-                    custom_attributes: addr.custom_attributes || [],
-                }));
+                const mapped: Address[] = addressesData.map((addr: any) => (
+                    console.log('addr :: ', addr),
+                    {
+                        id: (addr.id || addr.entity_id || "").toString(),
+                        firstname: addr.firstname || "",
+                        lastname: addr.lastname || "",
+                        company: addr.company || "",
+                        street: Array.isArray(addr.street) ? addr.street.join(", ") : (addr.street || ""),
+                        city: addr.city || "",
+                        region: typeof addr.region === 'string' ? addr.region : (addr.region?.region || addr.region?.region_code || ""),
+                        postcode: addr.postcode || "",
+                        country_id: addr.country_id || "SA",
+                        telephone: addr.telephone || "",
+                        isDefault: !!(addr.default_shipping || addr.is_default_shipping),
+                        custom_attributes: addr.custom_attributes || [],
+                    }));
                 setAddresses(mapped);
             }
         } catch (err) {
@@ -1061,7 +1063,7 @@ export function useCheckout(options: UseCheckoutOptions = {}) {
                     headers: {
                         Authorization: `Bearer ${token}`,
                         "x-locale": getClientLocale(),
-                    ...(getClientStoreCode() && { "x-store-code": getClientStoreCode() }),
+                        ...(getClientStoreCode() && { "x-store-code": getClientStoreCode() }),
                     },
                 });
                 const data = await res.json();

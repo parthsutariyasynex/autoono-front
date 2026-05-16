@@ -391,6 +391,10 @@ const CheckoutPageUI: React.FC = () => {
             setIsAddressSetOnBackend(false);
             const msg = err instanceof Error ? err.message : "Failed to update shipping address";
             console.error("handleAddressSelect failed:", msg);
+            if (msg === "Not authenticated") {
+                router.push(lp("/login?callback=/checkout"));
+                return;
+            }
             toast.error(msg);
         }
     };
@@ -416,9 +420,14 @@ const CheckoutPageUI: React.FC = () => {
                     toast.success(t("checkout.saveBillingInfo"));
                 } catch (err) {
                     const msg = err instanceof Error ? err.message : "Failed to sync shipping address";
-                    console.error("Address sync failed:", msg);
-                    toast.error(msg);
-                    return;
+                    if (msg === "Not authenticated") {
+                        router.push(lp("/login?callback=/checkout"));
+                        return;
+                    }
+                    // Server-side error (e.g. API permission issue) — log and continue;
+                    // placeOrder will surface the real error if the order also fails.
+                    console.warn("Address sync failed, continuing to place order:", msg);
+                    setSelectedAddressId(idToSet);
                 }
             } else {
                 toast.error("Please select a shipping address or add a new one.");

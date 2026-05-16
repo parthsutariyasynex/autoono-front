@@ -46,30 +46,53 @@ export function getClientStoreCode(): string {
  * Get auth token — tries NextAuth session first, falls back to localStorage.
  * If no token found, waits briefly and retries (handles post-login race condition).
  */
+function cleanToken(raw: string | null | undefined): string | null {
+    if (!raw) return null;
+    const cleaned = raw.replace(/['"]/g, "").trim();
+    if (!cleaned || cleaned === "null" || cleaned === "undefined") return null;
+    return cleaned;
+}
+
+function isTokenExpired(token: string): boolean {
+    try {
+        const parts = token.split(".");
+        if (parts.length !== 3) return false;
+        const payload = JSON.parse(atob(parts[1]));
+        if (!payload.exp) return false;
+        // Treat as expired 30 seconds before actual expiry to avoid race conditions
+        return Math.floor(Date.now() / 1000) >= (payload.exp - 30);
+    } catch {
+        return false;
+    }
+}
+
 export async function getAuthToken(attempt = 0): Promise<string | null> {
     // Sub-account override: while impersonating a sub-account, use their token
     if (typeof window !== "undefined" && localStorage.getItem("isSubAccount") === "true") {
-        const subToken = localStorage.getItem("subAccountToken");
-        if (subToken) return subToken;
+        const subToken = cleanToken(localStorage.getItem("subAccountToken"));
+        if (subToken && !isTokenExpired(subToken)) return subToken;
     }
 
     // Try NextAuth session first
     try {
         const session: any = await getSession();
         if (session?.accessToken) {
-            return session.accessToken;
+            const t = cleanToken(session.accessToken);
+            if (t && !isTokenExpired(t)) {
+                return t;
+            }
         }
     } catch {
         // getSession() can fail in non-browser contexts
     }
 
-    // Fallback: read from localStorage
+    // Fallback: read from localStorage (only if not expired)
     if (typeof window !== "undefined") {
-        const localToken = localStorage.getItem("token");
-        if (localToken) return localToken;
+        const localToken = cleanToken(localStorage.getItem("token"));
+        if (localToken && !isTokenExpired(localToken)) return localToken;
     }
 
-    // No token found — wait and retry (session may still be initializing after login)
+    // No valid token found — wait and retry (session may still be initializing after login)
     if (attempt < 2) {
         await new Promise(r => setTimeout(r, 500));
         return getAuthToken(attempt + 1);
@@ -98,7 +121,7 @@ async function apiClient(
     };
 
     if (token) {
-        config.headers.Authorization = `Bearer ${token.replace(/['"]/g, "").trim()}`;
+        config.headers.Authorization = `Bearer ${token}`;
     }
 
     if (body) {
@@ -150,6 +173,8 @@ async function apiClient(
         }
 
         throw new Error(data?.message || `API Error ${response.status}: ${response.statusText}`);
+        console.log("Response Status: ", response.status);
+        console.log("Response Data: ", data);
     } catch (error: any) {
         console.error(`[api-client] Fetch Error at ${endpoint}:`, error);
         return Promise.reject(error.message || error);

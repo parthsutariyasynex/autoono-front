@@ -385,7 +385,7 @@ import { useCart } from "../hooks/useCart";
 import GiftModal from "@/components/GiftModal";
 import toast from "react-hot-toast";
 import { usePathname } from "next/navigation";
-import { getSession } from "next-auth/react";
+import { getAuthToken } from "@/lib/api/api-client";
 
 export interface GiftItem {
     id: string;
@@ -408,24 +408,6 @@ interface GiftContextType {
 }
 
 const GiftContext = createContext<GiftContextType | undefined>(undefined);
-
-async function getAuthToken(): Promise<string | null> {
-    const session: any = await getSession();
-
-    if (session?.accessToken) {
-        return session.accessToken;
-    }
-
-    if (typeof window !== "undefined") {
-        const local = localStorage.getItem("token");
-
-        if (local) {
-            return local;
-        }
-    }
-
-    return null;
-}
 
 function parsePromoRules(
     promoRules: any[]
@@ -470,7 +452,7 @@ function parsePromoRules(
                     rule.thumbnail ??
                     "/logo/auttono-logo.jpg",
                 qty_available:
-                    rule.qty_available ??
+                    rule.available_qty ??
                     rule.stock_qty ??
                     ruleMaxQty,
                 group_name: `${ruleName} (${ruleMaxQty})`,
@@ -492,7 +474,7 @@ function parsePromoRules(
                     item.thumbnail ??
                     "/logo/auttono-logo.jpg",
                 qty_available:
-                    item.qty_available ??
+                    item.available_qty ??
                     item.stock_qty ??
                     ruleMaxQty,
                 group_name: `${ruleName} (${ruleMaxQty})`,
@@ -797,7 +779,7 @@ export function GiftProvider({
         if (
             maxGifts > prevMaxGiftsRef.current ||
             availableGifts.length >
-                prevAvailableCountRef.current
+            prevAvailableCountRef.current
         ) {
             hasSeenRef.current = false;
         }
