@@ -641,8 +641,8 @@ export default function Navbar() {
               navLinks.map((item) => {
                 const isWarehouse = isWarehouseCategory(item);
                 // Strip prefix/extension, rebuild as /{storeOrLocale}/{path}.html
-                let cleanItemPath = stripPrefix(item.href.split("?")[0] || "/").replace(/\.html$/, "") || "/";
-                let seoItemPath = cleanItemPath === "/" ? cleanItemPath : `${cleanItemPath}.html`;
+                const cleanItemPath = stripPrefix(item.href.split("?")[0] || "/").replace(/\.html$/, "") || "/";
+                const seoItemPath = cleanItemPath === "/" ? cleanItemPath : `${cleanItemPath}.html`;
 
                 // On locale-only pages (e.g. /en/my-account), currentStore is "en"/"ar".
                 // We use the current store or fall back to the locale.
@@ -763,8 +763,8 @@ export default function Navbar() {
                 {navLinks.map((item) => {
                   const isWarehouse = isWarehouseCategory(item);
                   // Strip prefix/extension, rebuild as /{storeOrLocale}/{path}.html
-                  let cleanItemPath = stripPrefix(item.href.split("?")[0] || "/").replace(/\.html$/, "") || "/";
-                  let seoItemPath = cleanItemPath === "/" ? cleanItemPath : `${cleanItemPath}.html`;
+                  const cleanItemPath = stripPrefix(item.href.split("?")[0] || "/").replace(/\.html$/, "") || "/";
+                  const seoItemPath = cleanItemPath === "/" ? cleanItemPath : `${cleanItemPath}.html`;
 
                   const prefix = currentStore || locale;
                   const href = `/${prefix}${seoItemPath}`;

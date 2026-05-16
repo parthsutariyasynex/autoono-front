@@ -112,7 +112,13 @@ export default function MyStatementPage() {
 
             if (!response.ok) {
                 const data = await response.json().catch(() => ({ message: "Failed to download statement" }));
-                throw new Error(data.message || "Something went wrong. Please try again.");
+                let msg = data.message || "Something went wrong. Please try again.";
+                // Substitute Magento positional placeholders (%1, %2, ...)
+                if (data.parameters) {
+                    const params = Array.isArray(data.parameters) ? data.parameters : Object.values(data.parameters);
+                    params.forEach((p: any, i: number) => { msg = msg.replace(`%${i + 1}`, String(p)); });
+                }
+                throw new Error(msg);
             }
 
             const contentType = response.headers.get("content-type");

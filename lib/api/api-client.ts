@@ -20,11 +20,33 @@ export function getClientLocale(): string {
     return match?.[1] || "en";
 }
 
+const STORE_CODE_RE = /^[A-Za-z0-9]+_(en|ar)$/;
+
+/**
+ * Read the active warehouse store code. Checks (in order):
+ *  1. URL path prefix (e.g. /V101_en/checkout → "V101_en")
+ *  2. localStorage selectedStoreCode (set by ProductsListing when browsing)
+ *  3. NEXT_STORE cookie (set by middleware on warehouse page visits)
+ * Returns empty string when no warehouse context exists.
+ */
+export function getClientStoreCode(): string {
+    if (typeof window === "undefined") return "";
+    const pathSegments = window.location.pathname.split("/").filter(Boolean);
+    if (pathSegments[0] && STORE_CODE_RE.test(pathSegments[0])) return pathSegments[0];
+    try {
+        const ls = localStorage.getItem("selectedStoreCode");
+        if (ls && STORE_CODE_RE.test(ls)) return ls;
+    } catch { }
+    const cookieMatch = document.cookie.match(/NEXT_STORE=([^;]+)/);
+    if (cookieMatch && STORE_CODE_RE.test(cookieMatch[1])) return cookieMatch[1];
+    return "";
+}
+
 /**
  * Get auth token — tries NextAuth session first, falls back to localStorage.
  * If no token found, waits briefly and retries (handles post-login race condition).
  */
-async function getAuthToken(attempt = 0): Promise<string | null> {
+export async function getAuthToken(attempt = 0): Promise<string | null> {
     // Sub-account override: while impersonating a sub-account, use their token
     if (typeof window !== "undefined" && localStorage.getItem("isSubAccount") === "true") {
         const subToken = localStorage.getItem("subAccountToken");

@@ -86,8 +86,8 @@ export default function ProtectedLayout({ children }: ProtectedLayoutProps) {
     }
   }, [status, isPublicPage, lp, pathname]);
 
-  // Show loading overlay while auth is checking on protected pages
-  if (isLoading && !isPublicPage) {
+  // Show loading overlay while auth is checking on protected pages (only on first load, not re-checks)
+  if (isLoading && !isPublicPage && !wasAuthenticated) {
     return (
       <div className="flex flex-col min-h-screen bg-white max-w-[1920px] mx-auto w-full">
         <Navbar />
@@ -100,7 +100,7 @@ export default function ProtectedLayout({ children }: ProtectedLayoutProps) {
   }
 
   // Don't render page content if unauthenticated on protected pages (redirecting to login)
-  const showContent = isPublicPage || status === 'authenticated' || isLoading;
+  const showContent = isPublicPage || status === 'authenticated' || isLoading || wasAuthenticated;
 
   return (
     <div className="flex flex-col min-h-screen bg-white max-w-[1920px] mx-auto w-full">

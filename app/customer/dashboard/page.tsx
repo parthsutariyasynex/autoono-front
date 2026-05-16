@@ -32,7 +32,12 @@ export default function DashboardPage() {
     const { data: customer, loading } = useSelector((state: RootState) => state.customer);
     const token = useSelector((state: RootState) => state.auth.token);
 
-    const [isSubAccountSession, setIsSubAccountSession] = useState(false);
+    const [isSubAccountSession, setIsSubAccountSession] = useState<boolean>(() => {
+        if (typeof window !== "undefined") {
+            return localStorage.getItem("isSubAccount") === "true" && !!localStorage.getItem("subAccountToken");
+        }
+        return false;
+    });
     const [dashboardData, setDashboardData] = useState<any>(null);
     const [loadingDashboard, setLoadingDashboard] = useState(true);
 
@@ -54,27 +59,29 @@ export default function DashboardPage() {
 
     useEffect(() => {
         if (typeof window !== "undefined") {
-            setIsSubAccountSession(localStorage.getItem("isSubAccount") === "true");
+            setIsSubAccountSession(localStorage.getItem("isSubAccount") === "true" && !!localStorage.getItem("subAccountToken"));
         }
     }, [pathname]);
 
+    // Derived: any valid auth — parent session OR active subaccount token
+    const hasValidAuth = (status === "authenticated" && !!token) || isSubAccountSession;
+
     useEffect(() => {
-        if (status === "unauthenticated") {
+        if (status === "unauthenticated" && !isSubAccountSession) {
             redirectToLogin(router);
             return;
         }
-
-        if (status === "authenticated" && token) {
+        if (hasValidAuth) {
             dispatch(fetchCustomerInfo());
         }
-    }, [status, token, dispatch, router]);
+    }, [hasValidAuth, status, isSubAccountSession, dispatch, router]);
 
     // Fetch dashboard data whenever year or compare settings change
     useEffect(() => {
-        if (status === "authenticated" && token) {
+        if (hasValidAuth) {
             fetchDashboard();
         }
-    }, [status, token, searchYear, compareYear, isCompare]);
+    }, [hasValidAuth, searchYear, compareYear, isCompare]);
 
     // Proper financial formatter (comas + 2 decimal places)
     const formatValue = (val: any) => {
@@ -113,7 +120,7 @@ export default function DashboardPage() {
         }
     };
 
-    if (loading || loadingDashboard) {
+    if (loadingDashboard) {
         return (
             <div className="min-h-screen bg-white">
                 <div className="flex items-center justify-center h-[60vh]">
@@ -122,8 +129,6 @@ export default function DashboardPage() {
             </div>
         );
     }
-
-    if (!customer) return null;
 
     const getAttr = (code: string) => {
         return (customer as any).custom_attributes?.find(
@@ -150,12 +155,12 @@ export default function DashboardPage() {
                 <div className="w-full space-y-12">
 
                     {/* Sub-account Identity Banner */}
-                    {isSubAccountSession && (
+                    {/* {isSubAccountSession && (
                         <div className={`bg-green-50/80 ${isRtl ? 'border-r-4' : 'border-l-4'} border-green-500 text-green-800 p-4 mb-8 ${isRtl ? 'rounded-l-lg' : 'rounded-r-lg'} flex items-center gap-3 animate-in fade-in slide-in-from-top duration-500 shadow-sm border border-gray-200`} role="alert">
                             <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center text-white text-caption font-bold">&#10004;</div>
                             <p className="text-body-lg font-bold tracking-tight uppercase">{t("dashboard.subAccountBanner")}</p>
                         </div>
-                    )}
+                    )} */}
 
                     <div className="flex items-center gap-4 mb-2">
                         <h1 className="text-2xl font-bold text-black uppercase tracking-tight">

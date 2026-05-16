@@ -51,17 +51,17 @@ export async function POST(req: Request) {
             return NextResponse.json({ message: "Unauthorized: Invalid token format" }, { status: 401 });
         }
 
-        const formData = await req.formData();
-        console.log(">>> PO Upload REQUEST: Multipart Data");
+        const body = await req.json();
+        console.log(">>> PO Upload REQUEST: JSON Pattern");
 
         const response = await fetch(`${BASE_URL}/checkout/po-upload`, {
             method: "POST",
             headers: {
+                "Content-Type": "application/json",
                 Authorization: authHeader,
                 platform: "web",
-                // Do not set Content-Type here, it will be set automatically with boundary for FormData
             },
-            body: formData,
+            body: JSON.stringify(body),
         });
 
         const data = await response.json();

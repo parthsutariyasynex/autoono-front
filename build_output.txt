@@ -1,0 +1,100 @@
+
+> my-app@0.1.0 build
+> next build
+
+   ▲ Next.js 15.5.15
+   - Environments: .env
+
+   Creating an optimized production build ...
+ ✓ Compiled successfully in 8.9s
+   Linting and checking validity of types ...
+
+Failed to compile.
+
+./app/checkout/success/page.tsx
+67:8  Warning: React Hook useEffect has missing dependencies: 'lp' and 't'. Either include them or remove the dependency array.  react-hooks/exhaustive-deps
+
+./app/components/FavouriteProducts.tsx
+137:8  Warning: React Hook useCallback has a missing dependency: 't'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+
+./app/components/Navbar.tsx
+147:6  Warning: React Hook useEffect has a missing dependency: 'handleLogout'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+311:6  Warning: React Hook useEffect has missing dependencies: 'lp' and 't'. Either include them or remove the dependency array.  react-hooks/exhaustive-deps
+644:21  Error: 'cleanItemPath' is never reassigned. Use 'const' instead.  prefer-const
+645:21  Error: 'seoItemPath' is never reassigned. Use 'const' instead.  prefer-const
+766:23  Error: 'cleanItemPath' is never reassigned. Use 'const' instead.  prefer-const
+767:23  Error: 'seoItemPath' is never reassigned. Use 'const' instead.  prefer-const
+
+./app/components/ProductsListing.tsx
+233:6  Warning: React Hook useEffect has missing dependencies: 'currentPage', 'itemCodeTerm', 'pathStoreCode', 'propStoreCode', 'searchByTerm', 'selectedFilters', 'selectedStoreCode', 'sortBy', and 'urlCategoryId'. Either include them or remove the dependency array.  react-hooks/exhaustive-deps
+383:6  Warning: React Hook useEffect has missing dependencies: 'STORE_CODE_RE_PL', 'propCategoryId', 'propStoreCode', 't', and 'urlCategoryId'. Either include them or remove the dependency array.  react-hooks/exhaustive-deps
+429:6  Warning: React Hook useCallback has a missing dependency: 'lp'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+
+./app/components/SearchPopup.tsx
+202:8  Warning: React Hook React.useEffect has a missing dependency: 'searchParams'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+
+./app/components/SidebarFilter.tsx
+192:8  Warning: React Hook useEffect has a missing dependency: 'selectedFilters'. Either include it or remove the dependency array. If 'setExpandedGroups' needs the current value of 'selectedFilters', you can also switch to useReducer instead of useState and read 'selectedFilters' in the reducer.  react-hooks/exhaustive-deps
+249:8  Warning: React Hook useEffect has missing dependencies: 'lp' and 'selectedFilters'. Either include them or remove the dependency array.  react-hooks/exhaustive-deps
+
+./app/customer/address-book/edit/[addressId]/page.tsx
+89:8  Warning: React Hook useEffect has a missing dependency: 't'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+
+./app/customer/dashboard/page.tsx
+77:8  Warning: React Hook useEffect has a missing dependency: 'fetchDashboard'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+
+./app/customer/favourite-products/page.tsx
+138:8  Warning: React Hook useCallback has a missing dependency: 't'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+
+./app/customer/forecast/page.tsx
+76:8  Warning: React Hook useEffect has a missing dependency: 'pullForecasts'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+
+./app/customer/orders/page.tsx
+92:8  Warning: React Hook useEffect has a missing dependency: 'lp'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+
+./app/customer/statement/page.tsx
+73:8  Warning: React Hook React.useEffect has a missing dependency: 'statementType'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+
+./app/customer/subaccounts/manage/page.tsx
+81:8  Warning: React Hook useEffect has a missing dependency: 'fetchSubAccounts'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+
+./app/multi-location-delivery/review/page.tsx
+129:8  Warning: React Hook useEffect has missing dependencies: 'lp' and 't'. Either include them or remove the dependency array.  react-hooks/exhaustive-deps
+
+./app/multi-location-delivery/shipping/page.tsx
+140:8  Warning: React Hook useEffect has missing dependencies: 'lp' and 't'. Either include them or remove the dependency array.  react-hooks/exhaustive-deps
+
+./app/multi-location-delivery/success/page.tsx
+91:8  Warning: React Hook useEffect has a missing dependency: 'lp'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+
+./app/my-account/page.tsx
+61:8  Warning: React Hook useEffect has a missing dependency: 'dispatch'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+
+./app/my-orders/[orderId]/page.tsx
+190:8  Warning: React Hook useCallback has a missing dependency: 'fetchPaymentHistory'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+284:8  Warning: React Hook useCallback has a missing dependency: 'locale'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+
+./app/my-orders/page.tsx
+241:8  Warning: React Hook useCallback has a missing dependency: 't'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+276:8  Warning: React Hook useCallback has missing dependencies: 'lp' and 't'. Either include them or remove the dependency array.  react-hooks/exhaustive-deps
+
+./app/quick-order/page.tsx
+116:8  Warning: React Hook useEffect has a missing dependency: 'router'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+
+./components/CartPage.tsx
+31:8  Warning: React Hook React.useEffect has a missing dependency: 'refetchCart'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+
+./components/CheckoutPage.tsx
+239:8  Warning: React Hook useEffect has a missing dependency: 'lp'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+247:8  Warning: React Hook useEffect has missing dependencies: 'lp' and 't'. Either include them or remove the dependency array.  react-hooks/exhaustive-deps
+
+./components/GiftModal.tsx
+56:8  Warning: React Hook useEffect has missing dependencies: 'availableGifts', 'initialSelections', and 'selections'. Either include them or remove the dependency array.  react-hooks/exhaustive-deps
+
+./components/Sidebar.tsx
+110:8  Warning: React Hook useMemo has a missing dependency: 'getInternalPath'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+
+./lib/i18n/LocaleProvider.tsx
+49:8  Warning: React Hook useEffect has a missing dependency: 'locale'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+
+info  - Need to disable some ESLint rules? Learn more here: https://nextjs.org/docs/app/api-reference/config/eslint#disabling-rules

@@ -193,7 +193,11 @@ export default function FavouriteProducts({ title }: { title?: React.ReactNode }
     // Fetch full product details for the popup (to get item_code, product_group, tyre_type, oem_marking)
     const handleShowProductDetail = async (product: Product) => {
         try {
-            const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+            const token = typeof window !== "undefined"
+                ? (localStorage.getItem("isSubAccount") === "true"
+                    ? (localStorage.getItem("subAccountToken") || localStorage.getItem("token"))
+                    : localStorage.getItem("token"))
+                : null;
             const fetchLocale = typeof window !== "undefined" && window.location.pathname.startsWith("/ar") ? "ar" : "en";
             const headers: HeadersInit = { "Content-Type": "application/json", "x-locale": fetchLocale };
             if (token) headers["Authorization"] = `Bearer ${token}`;
@@ -284,10 +288,12 @@ export default function FavouriteProducts({ title }: { title?: React.ReactNode }
                     <div className="py-16 text-center text-black/50 italic text-body">{t("favorites.empty")}</div>
                 ) : favProducts.map((product) => {
                     const brandName = product.brand || product.name.split(' ')[0] || "—";
-                    const isOutOfStock = product.stock_status === "Out of Stock" || product.stock_status === "Not Available" || Number(product.stock_qty || 0) <= 0;
-                    const isLimited = product.stock_qty > 0 && product.stock_qty <= 10;
-                    const dotColor = isOutOfStock ? "bg-red-500" : isLimited ? "bg-primary" : "bg-green-500";
-                    const stockLabel = isOutOfStock ? t("stock.not_available") : isLimited ? t("stock.limited") : t("stock.available");
+                    const isOutOfStock = product.is_in_stock === false || product.stock_label === "Not Available" || product.stock_status === "Out of Stock" || product.stock_status === "Not Available" || Number(product.stock_qty || 0) <= 0;
+                    const isLimited = !isOutOfStock && product.stock_qty > 0 && product.stock_qty <= 10;
+                    const dotColor = product.stock_color
+                        ? (() => { const c = (product.stock_color || "").toLowerCase(); return c === "green" ? "bg-green-500" : c === "yellow" || c === "orange" ? "bg-primary" : c === "red" ? "bg-red-500" : "bg-gray-400"; })()
+                        : isOutOfStock ? "bg-red-500" : isLimited ? "bg-primary" : "bg-green-500";
+                    const stockLabel = product.stock_label || (isOutOfStock ? t("stock.not_available") : isLimited ? t("stock.limited") : t("stock.available"));
 
                     return (
                         <div key={product.product_id} className="bg-white rounded-xl border border-gray-200 shadow-sm p-3 flex flex-col gap-2">
@@ -373,11 +379,12 @@ export default function FavouriteProducts({ title }: { title?: React.ReactNode }
                             ) : (
                                 favProducts.map((product) => {
                                     const brandName = product.brand || product.name.split(' ')[0] || "—";
-                                    const isOutOfStock = product.stock_status === "Out of Stock" || product.stock_status === "Not Available" || Number(product.stock_qty || 0) <= 0;
-                                    const isLimited = product.stock_qty > 0 && product.stock_qty <= 10;
-                                    // const stockColor = isOutOfStock ? "bg-red-500" : isLimited ? "bg-primary" : "bg-green-500";
-                                    const stockColor = isOutOfStock ? "bg-red-500" : isLimited ? "bg-yellow-400" : "bg-green-500";
-                                    const stockLabel = isOutOfStock ? t("stock.not_available") : isLimited ? t("stock.limited") : t("stock.available");
+                                    const isOutOfStock = product.is_in_stock === false || product.stock_label === "Not Available" || product.stock_status === "Out of Stock" || product.stock_status === "Not Available" || Number(product.stock_qty || 0) <= 0;
+                                    const isLimited = !isOutOfStock && product.stock_qty > 0 && product.stock_qty <= 10;
+                                    const stockColor = product.stock_color
+                                        ? (() => { const c = (product.stock_color || "").toLowerCase(); return c === "green" ? "bg-green-500" : c === "yellow" || c === "orange" ? "bg-yellow-400" : c === "red" ? "bg-red-500" : "bg-gray-400"; })()
+                                        : isOutOfStock ? "bg-red-500" : isLimited ? "bg-yellow-400" : "bg-green-500";
+                                    const stockLabel = product.stock_label || (isOutOfStock ? t("stock.not_available") : isLimited ? t("stock.limited") : t("stock.available"));
 
                                     return (
                                         <tr key={product.product_id} className={`hover:bg-primary/5 transition-colors group ${ROW_HEIGHT}`}>

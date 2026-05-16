@@ -93,6 +93,14 @@ export default function MyOrdersPage() {
     );
 }
 
+function getActiveToken(session: any): string | null {
+    if (typeof window !== "undefined" && localStorage.getItem("isSubAccount") === "true") {
+        const sub = localStorage.getItem("subAccountToken");
+        if (sub) return sub;
+    }
+    return session?.accessToken ?? null;
+}
+
 function MyOrdersPageContent() {
     const { data: session, status: authStatus } = useSession();
     const router = useRouter();
@@ -150,7 +158,7 @@ function MyOrdersPageContent() {
     }, [allOrdersForCounts]);
 
     const fetchAllOrdersForCounts = useCallback(async () => {
-        const token = (session as any)?.accessToken;
+        const token = getActiveToken(session);
         if (!token) return;
         try {
             // Fetch a large enough page size to get all orders for counts
@@ -167,7 +175,7 @@ function MyOrdersPageContent() {
     }, [session]);
 
     const fetchOrders = useCallback(async (search: string, status: string, page: number, size: number, company: string) => {
-        const token = (session as any)?.accessToken;
+        const token = getActiveToken(session);
         if (!token) return;
 
         setIsLoading(true);
@@ -315,7 +323,7 @@ function MyOrdersPageContent() {
     };
 
     const handleReorder = async (order: Order) => {
-        const token = (session as any)?.accessToken;
+        const token = getActiveToken(session);
         if (!token) {
             toast.error(t("orders.mustLoggedIn"));
             return;
@@ -340,7 +348,7 @@ function MyOrdersPageContent() {
     };
 
     const handleExportOrders = async () => {
-        const token = (session as any)?.accessToken;
+        const token = getActiveToken(session);
         if (!token) {
             toast.error(t("orders.mustLoggedInExport"));
             return;

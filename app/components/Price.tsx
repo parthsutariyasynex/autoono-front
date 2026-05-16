@@ -1,31 +1,3 @@
-// "use client";
-
-// import { formatPrice } from "@/utils/helpers";
-// import { useLocale } from "@/lib/i18n/client";
-
-// interface PriceProps {
-//     amount: number | string | null | undefined;
-//     className?: string;
-//     symbolClassName?: string;
-// }
-
-// export default function Price({ amount, className = "", symbolClassName = "" }: PriceProps) {
-//     const locale = useLocale();
-//     const formatted = formatPrice(amount, locale);
-
-//     const parts = formatted.split(" ");
-//     const value = parts.length > 1 ? parts.slice(1).join(" ") : formatted;
-
-//     const weightClass = className.includes("font-") ? "" : "font-semibold";
-
-//     return (
-//         <span dir="ltr" className={`inline-flex items-center gap-1 ${weightClass} ${className}`}>
-//             <span className={`currency-riyal ${symbolClassName}`}>{""}</span>
-//             <span>{value}</span>
-//         </span>
-//     );
-// }
-
 
 "use client";
 

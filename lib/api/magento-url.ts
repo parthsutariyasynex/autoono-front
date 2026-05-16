@@ -17,16 +17,28 @@ const DEFAULT_LOCALE = "en";
 
 /**
  * Extract the locale from a request and return the correct Magento base URL.
+ * Prefers the warehouse store code (x-store-code header, e.g. V101_en) over
+ * plain locale so that checkout/cart calls always hit the right Magento store view.
  *
  * @param request - The incoming Request object (available in API route handlers)
  * @returns The Magento base URL with the correct store code, e.g.:
- *   - `https://autoono-demo.btire.com/rest/en/V1/kleverapi`
+ *   - `https://autoono-demo.btire.com/rest/V101_en/V1/kleverapi`
+ *   - `https://autoono-demo.btire.com/rest/en/V1/kleverapi` (fallback)
  */
 export function getBaseUrl(request: Request): string {
-    const locale = getLocaleFromRequest(request);
     const domain =
         process.env.NEXT_PUBLIC_MAGENTO_BASE_URL ||
         "https://autoono-demo.btire.com";
+
+    // Middleware forwards x-store-code from the NEXT_STORE cookie.
+    // If it's a warehouse code (not just "en"/"ar"), use it so cart/checkout
+    // calls hit the same store view where the quote was created.
+    const storeCode = request.headers.get("x-store-code") || "";
+    if (storeCode && !VALID_LOCALES.includes(storeCode)) {
+        return `${domain}/rest/${encodeURIComponent(storeCode)}/V1/kleverapi`;
+    }
+
+    const locale = getLocaleFromRequest(request);
     return `${domain}/rest/${locale}/V1/kleverapi`;
 }
 

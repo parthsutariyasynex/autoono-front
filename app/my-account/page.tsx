@@ -173,112 +173,112 @@ export default function MyAccountPage() {
                                             <p>{t("m.location")}: {customerLocation}</p>
                                             <p>{t("account.contactInformation")}: <bdi dir="ltr">{(customer as any).email}</bdi> ,<bdi dir="ltr">{customerMobile}</bdi></p>
 
-                                            <div className="flex flex-col md:flex-row gap-3 pt-4 md:pt-6">
+                                            {/* <div className="flex flex-col md:flex-row gap-3 pt-4 md:pt-6">
                                                 <Link href={lp("/customer/account/edit")} className="w-full md:w-auto text-center bg-primary hover:bg-primaryHover text-black text-body-sm font-bold px-6 py-2 uppercase transition-all rounded-sm">
                                                     {t("m.edit")}
                                                 </Link>
                                                 <Link href={lp("/customer/account/edit?change=password")} className="w-full md:w-auto text-center bg-primary hover:bg-primaryHover text-black text-body-sm font-bold px-6 py-2 uppercase transition-all rounded-sm whitespace-nowrap">
                                                     {t("changePassword.title")}
                                                 </Link>
-                                            </div>
+                                            </div> */}
                                         </div>
                                     </div>
                                 </div>
                             </div>
                             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
-                                    {/* SALES DATA */}
-                                    <div className={cardBase}>
-                                        <div className={sectionHeader}>
-                                            {t("m.sales-data-qty")}
-                                        </div>
-                                        <div className="p-3 md:p-5 text-body text-black/80 space-y-2.5 font-medium leading-relaxed">
-                                            <p>{t("m.total-sales-qty")}: {getAttr("total_sales_qty", "0")}</p>
-                                            <p>{t("m.order-frequency")}: {getAttr("order_frequency", "0")} {t("account.ordersPerMonth")}</p>
-                                        </div>
+                                {/* SALES DATA */}
+                                <div className={cardBase}>
+                                    <div className={sectionHeader}>
+                                        {t("m.sales-data-qty")}
                                     </div>
-
-                                    {/* CUSTOMER BEHAVIOR */}
-                                    <div className={cardBase}>
-                                        <div className={sectionHeader}>
-                                            {t("m.customer-behavior")}
-                                        </div>
-                                        <div className="p-3 md:p-5 text-body text-black/80 space-y-2.5 font-medium leading-relaxed">
-                                            <p>{t("m.payment-historydso")}: {getAttr("payment_history")}</p>
-                                            <p>{t("m.credit-limit")}: <Price amount={getAttr("total_credit_limit")} /></p>
-                                            <p>{t("m.credit-period")}: {getAttr("credit_period")} {t("account.days")}</p>
-                                        </div>
+                                    <div className="p-3 md:p-5 text-body text-black/80 space-y-2.5 font-medium leading-relaxed">
+                                        <p>{t("m.total-sales-qty")}: {getAttr("total_sales_qty", "0")}</p>
+                                        <p>{t("m.order-frequency")}: {getAttr("order_frequency", "0")} {t("account.ordersPerMonth")}</p>
                                     </div>
                                 </div>
 
+                                {/* CUSTOMER BEHAVIOR */}
+                                <div className={cardBase}>
+                                    <div className={sectionHeader}>
+                                        {t("m.customer-behavior")}
+                                    </div>
+                                    <div className="p-3 md:p-5 text-body text-black/80 space-y-2.5 font-medium leading-relaxed">
+                                        <p>{t("m.payment-historydso")}: {getAttr("payment_history")}</p>
+                                        <p>{t("m.credit-limit")}: <Price amount={getAttr("total_credit_limit")} /></p>
+                                        <p>{t("m.credit-period")}: {getAttr("credit_period")} {t("account.days")}</p>
+                                    </div>
+                                </div>
+                            </div>
 
 
 
-                                {/* CREDIT ACCOUNT INFORMATION */}
-                                <CreditLimit />
+
+                            {/* CREDIT ACCOUNT INFORMATION */}
+                            <CreditLimit />
 
 
-                                {/* ADDRESS BOOK */}
-                                <div>
-                                    <h2 className="text-body-lg md:text-h3-sm font-bold text-black uppercase mb-3">{t("addressBook.title")}</h2>
-                                    <hr className="border-gray-200 mb-6" />
+                            {/* ADDRESS BOOK */}
+                            <div>
+                                <h2 className="text-body-lg md:text-h3-sm font-bold text-black uppercase mb-3">{t("addressBook.title")}</h2>
+                                <hr className="border-gray-200 mb-6" />
 
-                                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
-                                        {/* Default Billing Address Card */}
-                                        <div className={cardBase + " flex flex-col"}>
-                                            <div className={sectionHeader}>
-                                                {t("addressBook.defaultBillingAddress")}
-                                            </div>
-                                            <div className="p-3 md:p-5 flex flex-col flex-1">
-                                                {defaultBilling ? (
-                                                    <div className="text-body text-black leading-relaxed space-y-1 font-normal flex-1">
-                                                        <p>{defaultBilling.firstname} {defaultBilling.lastname}</p>
-                                                        <p>{defaultBilling.company}</p>
-                                                        {defaultBilling.street?.map((s: string, i: number) => <p key={i}>{s}</p>)}
-                                                        <p><bdi dir="ltr">{defaultBilling.city}, {defaultBilling.postcode}</bdi></p>
-                                                        <p>{defaultBilling.country_id === 'SA' ? t("data.Saudi Arabia") : defaultBilling.country_id}</p>
-                                                        <p>T: <bdi dir="ltr">{defaultBilling.telephone}</bdi></p>
-                                                    </div>
-                                                ) : (
-                                                    <p className="text-body text-black/60 italic flex-1">{t("addressBook.noBillingAddress")}</p>
-                                                )}
-                                            </div>
+                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
+                                    {/* Default Billing Address Card */}
+                                    <div className={cardBase + " flex flex-col"}>
+                                        <div className={sectionHeader}>
+                                            {t("addressBook.defaultBillingAddress")}
                                         </div>
-
-                                        {/* Default Shipping Address Card */}
-                                        <div className={cardBase + " flex flex-col"}>
-                                            <div className={sectionHeader}>
-                                                {t("addressBook.defaultShippingAddress")}
-                                            </div>
-                                            <div className="p-3 md:p-5 flex flex-col flex-1">
-                                                {defaultShipping ? (
-                                                    <div className="text-body text-black leading-relaxed space-y-1 font-normal flex-1">
-                                                        <p>{defaultShipping.firstname} {defaultShipping.lastname}</p>
-                                                        <p>{defaultShipping.company}</p>
-                                                        {defaultShipping.street?.map((s: string, i: number) => <p key={i}>{s}</p>)}
-                                                        <p><bdi dir="ltr">{defaultShipping.city}, {defaultShipping.postcode}</bdi></p>
-                                                        <p>{defaultShipping.country_id === 'SA' ? t("data.Saudi Arabia") : defaultShipping.country_id}</p>
-                                                        <p>T: <bdi dir="ltr">{defaultShipping.telephone}</bdi></p>
-                                                    </div>
-                                                ) : (
-                                                    <p className="text-body text-black/60 italic flex-1">{t("addressBook.noShippingAddress")}</p>
-                                                )}
-
-                                                <div className="pt-4 md:pt-8">
-                                                    {defaultShipping?.id ? (
-                                                        <Link href={lp(`/customer/address-book/edit/${defaultShipping.id}`)} className="w-full md:w-auto text-center bg-primary hover:bg-primaryHover text-black text-body font-bold px-4 md:px-8 py-2.5 uppercase transition-all rounded-none inline-block">
-                                                            {t("addressBook.editAddress")}
-                                                        </Link>
-                                                    ) : (
-                                                        <Link href={lp("/customer/address-book")} className="w-full md:w-auto text-center bg-primary hover:bg-primaryHover text-black text-body font-bold px-4 md:px-8 py-2.5 uppercase transition-all rounded-none inline-block">
-                                                            {t("addressBook.addAddress")}
-                                                        </Link>
-                                                    )}
+                                        <div className="p-3 md:p-5 flex flex-col flex-1">
+                                            {defaultBilling ? (
+                                                <div className="text-body text-black leading-relaxed space-y-1 font-normal flex-1">
+                                                    <p>{defaultBilling.firstname} {defaultBilling.lastname}</p>
+                                                    <p>{defaultBilling.company}</p>
+                                                    {defaultBilling.street?.map((s: string, i: number) => <p key={i}>{s}</p>)}
+                                                    <p><bdi dir="ltr">{defaultBilling.city}, {defaultBilling.postcode}</bdi></p>
+                                                    <p>{defaultBilling.country_id === 'SA' ? t("data.Saudi Arabia") : defaultBilling.country_id}</p>
+                                                    <p>T: <bdi dir="ltr">{defaultBilling.telephone}</bdi></p>
                                                 </div>
+                                            ) : (
+                                                <p className="text-body text-black/60 italic flex-1">{t("addressBook.noBillingAddress")}</p>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    {/* Default Shipping Address Card */}
+                                    <div className={cardBase + " flex flex-col"}>
+                                        <div className={sectionHeader}>
+                                            {t("addressBook.defaultShippingAddress")}
+                                        </div>
+                                        <div className="p-3 md:p-5 flex flex-col flex-1">
+                                            {defaultShipping ? (
+                                                <div className="text-body text-black leading-relaxed space-y-1 font-normal flex-1">
+                                                    <p>{defaultShipping.firstname} {defaultShipping.lastname}</p>
+                                                    <p>{defaultShipping.company}</p>
+                                                    {defaultShipping.street?.map((s: string, i: number) => <p key={i}>{s}</p>)}
+                                                    <p><bdi dir="ltr">{defaultShipping.city}, {defaultShipping.postcode}</bdi></p>
+                                                    <p>{defaultShipping.country_id === 'SA' ? t("data.Saudi Arabia") : defaultShipping.country_id}</p>
+                                                    <p>T: <bdi dir="ltr">{defaultShipping.telephone}</bdi></p>
+                                                </div>
+                                            ) : (
+                                                <p className="text-body text-black/60 italic flex-1">{t("addressBook.noShippingAddress")}</p>
+                                            )}
+
+                                            <div className="pt-4 md:pt-8">
+                                                {defaultShipping?.id ? (
+                                                    <Link href={lp(`/customer/address-book/edit/${defaultShipping.id}`)} className="w-full md:w-auto text-center bg-primary hover:bg-primaryHover text-black text-body font-bold px-4 md:px-8 py-2.5 uppercase transition-all rounded-none inline-block">
+                                                        {t("addressBook.editAddress")}
+                                                    </Link>
+                                                ) : (
+                                                    <Link href={lp("/customer/address-book")} className="w-full md:w-auto text-center bg-primary hover:bg-primaryHover text-black text-body font-bold px-4 md:px-8 py-2.5 uppercase transition-all rounded-none inline-block">
+                                                        {t("addressBook.addAddress")}
+                                                    </Link>
+                                                )}
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
+                        </div>
                     </main>
                 </div>
             </div>

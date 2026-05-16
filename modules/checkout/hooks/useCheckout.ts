@@ -1,8 +1,7 @@
 "use client";
 
 import { useState, useCallback, useEffect } from "react";
-import { getSession } from "next-auth/react";
-import { getClientLocale } from "@/lib/api/api-client";
+import { getClientLocale, getClientStoreCode, getAuthToken } from "@/lib/api/api-client";
 
 export interface CustomAttribute {
     attribute_code: string;
@@ -55,11 +54,6 @@ export interface CheckoutTotals {
     grand_total: number;
     currency_code: string;
     [key: string]: any; // Allow for custom attributes from the API
-}
-
-async function getAuthToken(): Promise<string | null> {
-    const session: any = await getSession();
-    return session?.accessToken ?? null;
 }
 
 /**
@@ -120,7 +114,8 @@ export function useCheckout(options: UseCheckoutOptions = {}) {
             const res = await fetch("/api/kleverapi/checkout/totals", {
                 headers: {
                     Authorization: `Bearer ${token}`,
-                    "x-locale": getClientLocale()
+                    "x-locale": getClientLocale(),
+                    ...(getClientStoreCode() && { "x-store-code": getClientStoreCode() })
                 },
                 cache: "no-store",
             });
@@ -156,7 +151,8 @@ export function useCheckout(options: UseCheckoutOptions = {}) {
             const res = await fetch("/api/kleverapi/addresses", {
                 headers: {
                     Authorization: `Bearer ${token}`,
-                    "x-locale": getClientLocale()
+                    "x-locale": getClientLocale(),
+                    ...(getClientStoreCode() && { "x-store-code": getClientStoreCode() })
                 },
             });
             const data = await res.json();
@@ -198,7 +194,8 @@ export function useCheckout(options: UseCheckoutOptions = {}) {
             const res = await fetch("/api/kleverapi/checkout/shipping-methods", {
                 headers: {
                     Authorization: `Bearer ${token}`,
-                    "x-locale": getClientLocale()
+                    "x-locale": getClientLocale(),
+                    ...(getClientStoreCode() && { "x-store-code": getClientStoreCode() })
                 },
             });
 
@@ -259,7 +256,8 @@ export function useCheckout(options: UseCheckoutOptions = {}) {
             const res = await fetch("/api/kleverapi/checkout/payment-methods", {
                 headers: {
                     Authorization: `Bearer ${token}`,
-                    "x-locale": getClientLocale()
+                    "x-locale": getClientLocale(),
+                    ...(getClientStoreCode() && { "x-store-code": getClientStoreCode() })
                 },
             });
 
@@ -308,7 +306,8 @@ export function useCheckout(options: UseCheckoutOptions = {}) {
             const res = await fetch("/api/kleverapi/source-permission", {
                 headers: {
                     Authorization: `Bearer ${token}`,
-                    "x-locale": getClientLocale()
+                    "x-locale": getClientLocale(),
+                    ...(getClientStoreCode() && { "x-store-code": getClientStoreCode() })
                 }
             });
             if (res.ok) {
@@ -329,7 +328,8 @@ export function useCheckout(options: UseCheckoutOptions = {}) {
             const res = await fetch("/api/kleverapi/checkout/pickup-stores", {
                 headers: {
                     Authorization: `Bearer ${token}`,
-                    "x-locale": getClientLocale()
+                    "x-locale": getClientLocale(),
+                    ...(getClientStoreCode() && { "x-store-code": getClientStoreCode() })
                 },
             });
 
@@ -368,7 +368,8 @@ export function useCheckout(options: UseCheckoutOptions = {}) {
             const res = await fetch(`/api/kleverapi/checkout/pickup-time-slots/${storeId}/${date}`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
-                    "x-locale": getClientLocale()
+                    "x-locale": getClientLocale(),
+                    ...(getClientStoreCode() && { "x-store-code": getClientStoreCode() })
                 },
             });
 
@@ -428,6 +429,7 @@ export function useCheckout(options: UseCheckoutOptions = {}) {
                     "Content-Type": "application/json",
                     Authorization: `Bearer ${token}`,
                     "x-locale": getClientLocale(),
+                    ...(getClientStoreCode() && { "x-store-code": getClientStoreCode() }),
                 },
                 body: JSON.stringify({ address_id: Number(addressId) }),
             });
@@ -486,6 +488,7 @@ export function useCheckout(options: UseCheckoutOptions = {}) {
                     "Content-Type": "application/json",
                     Authorization: `Bearer ${token}`,
                     "x-locale": getClientLocale(),
+                    ...(getClientStoreCode() && { "x-store-code": getClientStoreCode() }),
                 },
                 body: JSON.stringify({ address: addressData }),
             });
@@ -516,6 +519,7 @@ export function useCheckout(options: UseCheckoutOptions = {}) {
                     "Content-Type": "application/json",
                     Authorization: `Bearer ${token}`,
                     "x-locale": getClientLocale(),
+                    ...(getClientStoreCode() && { "x-store-code": getClientStoreCode() }),
                 },
                 body: JSON.stringify({ poNumber }),
             });
@@ -543,6 +547,7 @@ export function useCheckout(options: UseCheckoutOptions = {}) {
                     "Content-Type": "application/json",
                     Authorization: `Bearer ${token}`,
                     "x-locale": getClientLocale(),
+                    ...(getClientStoreCode() && { "x-store-code": getClientStoreCode() }),
                 },
                 body: JSON.stringify({ comment }),
             });
@@ -569,6 +574,7 @@ export function useCheckout(options: UseCheckoutOptions = {}) {
                 headers: {
                     Authorization: `Bearer ${token}`,
                     "x-locale": getClientLocale(),
+                    ...(getClientStoreCode() && { "x-store-code": getClientStoreCode() }),
                 },
             });
             const data = await res.json();
@@ -585,7 +591,7 @@ export function useCheckout(options: UseCheckoutOptions = {}) {
     }, []);
 
     // ─── Upload PO File ───
-    const uploadPoFile = useCallback(async (formData: FormData) => {
+    const uploadPoFile = useCallback(async (payload: { fileContent: string; fileName: string }) => {
         try {
             const token = await getAuthToken();
             if (!token) throw new Error("Not authenticated");
@@ -593,10 +599,12 @@ export function useCheckout(options: UseCheckoutOptions = {}) {
             const res = await fetch("/api/kleverapi/checkout/po-upload", {
                 method: "POST",
                 headers: {
+                    "Content-Type": "application/json",
                     Authorization: `Bearer ${token}`,
                     "x-locale": getClientLocale(),
+                    ...(getClientStoreCode() && { "x-store-code": getClientStoreCode() }),
                 },
-                body: formData,
+                body: JSON.stringify(payload),
             });
             const data = await res.json();
             if (!res.ok) {
@@ -621,6 +629,7 @@ export function useCheckout(options: UseCheckoutOptions = {}) {
                 headers: {
                     Authorization: `Bearer ${token}`,
                     "x-locale": getClientLocale(),
+                    ...(getClientStoreCode() && { "x-store-code": getClientStoreCode() }),
                 },
             });
             const data = await res.json();
@@ -643,6 +652,7 @@ export function useCheckout(options: UseCheckoutOptions = {}) {
                 headers: {
                     Authorization: `Bearer ${token}`,
                     "x-locale": getClientLocale(),
+                    ...(getClientStoreCode() && { "x-store-code": getClientStoreCode() }),
                 },
             });
             const data = await res.json();
@@ -672,6 +682,7 @@ export function useCheckout(options: UseCheckoutOptions = {}) {
                     "Content-Type": "application/json",
                     Authorization: `Bearer ${token}`,
                     "x-locale": getClientLocale(),
+                    ...(getClientStoreCode() && { "x-store-code": getClientStoreCode() }),
                 },
                 body: JSON.stringify({
                     carrier_code: carrierCode,
@@ -717,6 +728,7 @@ export function useCheckout(options: UseCheckoutOptions = {}) {
                     "Content-Type": "application/json",
                     Authorization: `Bearer ${token}`,
                     "x-locale": getClientLocale(),
+                    ...(getClientStoreCode() && { "x-store-code": getClientStoreCode() }),
                 },
                 body: JSON.stringify(extras),
             });
@@ -752,6 +764,7 @@ export function useCheckout(options: UseCheckoutOptions = {}) {
                     "Content-Type": "application/json",
                     Authorization: `Bearer ${token}`,
                     "x-locale": getClientLocale(),
+                    ...(getClientStoreCode() && { "x-store-code": getClientStoreCode() }),
                 },
                 body: JSON.stringify(orderData),
             });
@@ -780,6 +793,7 @@ export function useCheckout(options: UseCheckoutOptions = {}) {
                 headers: {
                     Authorization: `Bearer ${token}`,
                     "x-locale": getClientLocale(),
+                    ...(getClientStoreCode() && { "x-store-code": getClientStoreCode() }),
                 },
             });
 
@@ -808,6 +822,7 @@ export function useCheckout(options: UseCheckoutOptions = {}) {
                     "Content-Type": "application/json",
                     Authorization: `Bearer ${token}`,
                     "x-locale": getClientLocale(),
+                    ...(getClientStoreCode() && { "x-store-code": getClientStoreCode() }),
                 },
                 body: JSON.stringify({
                     request: {
@@ -842,6 +857,7 @@ export function useCheckout(options: UseCheckoutOptions = {}) {
                 headers: {
                     Authorization: `Bearer ${token}`,
                     "x-locale": getClientLocale(),
+                    ...(getClientStoreCode() && { "x-store-code": getClientStoreCode() }),
                 }
             });
 
@@ -894,6 +910,7 @@ export function useCheckout(options: UseCheckoutOptions = {}) {
                     "Content-Type": "application/json",
                     Authorization: `Bearer ${token}`,
                     "x-locale": getClientLocale(),
+                    ...(getClientStoreCode() && { "x-store-code": getClientStoreCode() }),
                 },
                 body: JSON.stringify({
                     request: {
@@ -935,6 +952,7 @@ export function useCheckout(options: UseCheckoutOptions = {}) {
                     "Content-Type": "application/json",
                     Authorization: `Bearer ${token}`,
                     "x-locale": getClientLocale(),
+                    ...(getClientStoreCode() && { "x-store-code": getClientStoreCode() }),
                 },
                 body: JSON.stringify(bodyData),
             });
@@ -1043,6 +1061,7 @@ export function useCheckout(options: UseCheckoutOptions = {}) {
                     headers: {
                         Authorization: `Bearer ${token}`,
                         "x-locale": getClientLocale(),
+                    ...(getClientStoreCode() && { "x-store-code": getClientStoreCode() }),
                     },
                 });
                 const data = await res.json();

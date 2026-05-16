@@ -86,8 +86,6 @@ const CheckoutPageUI: React.FC = () => {
         stores,
         refetchPickupStores,
         fetchPickupTimeSlots,
-        getOrderComment,
-        saveOrderComment,
     } = useCheckout();
 
     // --- State ---
@@ -100,7 +98,6 @@ const CheckoutPageUI: React.FC = () => {
     const [selectedShippingMethodCode, setSelectedShippingMethodCode] = useState("");
     const [isAddressSetOnBackend, setIsAddressSetOnBackend] = useState(false);
     const [paymentMethod, setPaymentMethod] = useState("checkmo");
-    const [comment, setComment] = useState("");
     const [isPlacingOrder, setIsPlacingOrder] = useState(false);
     const [isPoUploadOpen, setIsPoUploadOpen] = useState(false);
     const [uploadedPOs, setUploadedPOs] = useState<{ fileName: string }[]>([]);
@@ -153,25 +150,21 @@ const CheckoutPageUI: React.FC = () => {
                 setIsDateDropdownOpen(false);
             }
         };
-        document.addEventListener("mousedown", handleClickOutside);
-        return () => document.removeEventListener("mousedown", handleClickOutside);
+        document.addEventListener("click", handleClickOutside);
+        return () => document.removeEventListener("click", handleClickOutside);
     }, []);
 
-    // Generate next 45 days
+    // Generate next 45 days — runs once on mount
     useEffect(() => {
-        const dates = [];
+        const dates: Date[] = [];
         for (let i = 0; i < 45; i++) {
             const date = new Date();
             date.setDate(date.getDate() + i);
             dates.push(date);
         }
         setAvailableDates(dates);
-
-        // Auto-select today by default if nothing is selected
-        if (!pickupDate && dates.length > 0) {
-            setPickupDate(dates[0]);
-        }
-    }, [pickupDate]);
+        setPickupDate(prev => prev ?? dates[0]);
+    }, []);
     // Fetch stores if pickup is selected
     useEffect(() => {
         if (shippingType === "pickup" && stores.length === 0) {
@@ -224,11 +217,13 @@ const CheckoutPageUI: React.FC = () => {
         getSlots();
     }, [shippingType, selectedWarehouseId, pickupDate, fetchPickupTimeSlots]);
 
-    // Reset selected time if it's not in the new slots or disabled
+    // Reset selected time ONLY if we have new slots and the selection is invalid
     useEffect(() => {
-        const currentSlot = availableTimeSlots.find((s) => s.time === pickupTime);
-        if (pickupTime && (!currentSlot || !currentSlot.enabled)) {
-            setPickupTime("");
+        if (availableTimeSlots.length > 0 && pickupTime) {
+            const currentSlot = availableTimeSlots.find((s) => s.time === pickupTime);
+            if (!currentSlot || !currentSlot.enabled) {
+                setPickupTime("");
+            }
         }
     }, [availableTimeSlots, pickupTime]);
 
@@ -339,23 +334,6 @@ const CheckoutPageUI: React.FC = () => {
         }
     }, [shippingMethods, shippingType, selectedShippingMethodCode, setShippingMethod, isAddressSetOnBackend, isTotalsLoading, cart]);
 
-    // Fetch existing Order Comment
-    useEffect(() => {
-        const fetchExistingComment = async () => {
-            try {
-                const existingComment = await getOrderComment();
-                if (existingComment) {
-                    setComment(existingComment);
-                }
-            } catch (err) {
-                console.error("Failed to fetch order comment:", err);
-            }
-        };
-
-        if (status === "authenticated") {
-            fetchExistingComment();
-        }
-    }, [status, getOrderComment]);
 
     // Fetch existing PO Upload
     useEffect(() => {
@@ -409,9 +387,11 @@ const CheckoutPageUI: React.FC = () => {
         try {
             await setShippingAddress(id);
             setIsAddressSetOnBackend(true);
-        } catch {
+        } catch (err) {
             setIsAddressSetOnBackend(false);
-            toast.error("Failed to update shipping address");
+            const msg = err instanceof Error ? err.message : "Failed to update shipping address";
+            console.error("handleAddressSelect failed:", msg);
+            toast.error(msg);
         }
     };
 
@@ -435,8 +415,9 @@ const CheckoutPageUI: React.FC = () => {
                     setIsAddressSetOnBackend(true);
                     toast.success(t("checkout.saveBillingInfo"));
                 } catch (err) {
-                    console.error("Address sync failed:", err);
-                    toast.error("Failed to sync shipping address to backend");
+                    const msg = err instanceof Error ? err.message : "Failed to sync shipping address";
+                    console.error("Address sync failed:", msg);
+                    toast.error(msg);
                     return;
                 }
             } else {
@@ -517,10 +498,6 @@ const CheckoutPageUI: React.FC = () => {
                 });
             }
 
-            // 3. Save Order Comment
-            if (comment) {
-                await saveOrderComment(comment);
-            }
 
             // 4. Call Place Order
             const result = await placeOrder({
@@ -528,8 +505,7 @@ const CheckoutPageUI: React.FC = () => {
                 shipping_method: selectedShippingMethodCode,
                 payment_method: paymentMethod,
                 cart_id: cart?.cart_id,
-                po_number: poNumber,
-                comment: comment // Pass it just in case backend expects it here too
+                po_number: poNumber
             });
 
             // 4. Handle Success
@@ -568,15 +544,6 @@ const CheckoutPageUI: React.FC = () => {
         }
     };
 
-    const handleCommentBlur = async () => {
-        if (!comment) return;
-        try {
-            await saveOrderComment(comment);
-            toast.success(t("common.success"));
-        } catch (error: any) {
-            toast.error(error.message || "Failed to save order comment");
-        }
-    };
 
     const ALLOWED_TYPES = [
         "image/jpeg", "image/png", "application/zip", "application/x-rar-compressed",
@@ -623,11 +590,23 @@ const CheckoutPageUI: React.FC = () => {
                     continue;
                 }
 
-                const formData = new FormData();
-                formData.append("file", file);
-                formData.append("type", "po");
+                const base64Promise = new Promise<string>((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.readAsDataURL(file);
+                    reader.onload = () => {
+                        const result = reader.result as string;
+                        const base64 = result.split(",")[1];
+                        resolve(base64);
+                    };
+                    reader.onerror = error => reject(error);
+                });
 
-                await uploadPoFile(formData);
+                const base64Content = await base64Promise;
+
+                await (uploadPoFile as any)({
+                    fileContent: base64Content,
+                    fileName: file.name
+                });
                 setUploadedPOs(prev => [...prev, { fileName: file.name }]);
                 toast.success(`Uploaded: ${file.name}`);
             }
@@ -943,8 +922,7 @@ const CheckoutPageUI: React.FC = () => {
                                                             )) || (
                                                                     <>
                                                                         <option value="SA">Saudi Arabia</option>
-                                                                        <option value="AE">United Arab Emirates</option>
-                                                                        <option value="IN">India</option>
+
                                                                     </>
                                                                 )}
                                                         </select>
@@ -1112,11 +1090,11 @@ const CheckoutPageUI: React.FC = () => {
                                         className="bg-gray-50 px-5 py-3 flex items-center justify-between border-b border-gray-200 cursor-pointer hover:bg-white transition-colors"
                                         onClick={() => setIsPoUploadOpen(!isPoUploadOpen)}
                                     >
-                                        <span className="text-body-lg font-bold text-black capitalize">{t("m.upload-file")}</span>
+                                        {/* <span className="text-body-lg font-bold text-black capitalize">{t("m.upload-file")}</span>
                                         <ChevronDown
                                             size={18}
                                             className={`text-black/50 transition-transform duration-300 ${isPoUploadOpen ? "rotate-180" : ""}`}
-                                        />
+                                        /> */}
                                     </div>
                                     {isPoUploadOpen && (
                                         <div className="p-4 bg-white space-y-4">
@@ -1169,25 +1147,9 @@ const CheckoutPageUI: React.FC = () => {
                             </div>
                         </div>
 
-                        {/* 3. Order Comment */}
-                        <div className="bg-white border border-gray-200 shadow-sm rounded-xl overflow-hidden">
-                            <SectionHeader title={t("m.order-comment")} step={3} />
-                            <div className="p-4 sm:p-5">
-                                <div className="space-y-1.5">
-                                    <label className="text-caption font-bold text-black/50 uppercase tracking-widest">{t("checkout.additionalInformation")}</label>
-                                    <textarea
-                                        className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl outline-none text-body font-medium transition-all placeholder:text-black/40 focus:bg-white focus:border-black min-h-[80px] resize-none"
-                                        value={comment}
-                                        onChange={(e) => setComment(e.target.value)}
-                                        onBlur={handleCommentBlur}
-                                        placeholder={t("m.enter-your-comment")}
-                                    />
-                                </div>
-                            </div>
-                        </div>
 
                         <div className="bg-white border border-border shadow-sm rounded-xl overflow-hidden" id="step-3">
-                            <SectionHeader title={t("checkout.shippingMethod")} step={4} />
+                            <SectionHeader title={t("checkout.shippingMethod")} step={3} />
                             <div className="p-6">
                                 <div className="space-y-6">
                                     {/* Delivery Option */}
@@ -1434,7 +1396,7 @@ const CheckoutPageUI: React.FC = () => {
                         </div>
 
                         <div className="bg-white border border-border shadow-sm rounded-xl overflow-hidden">
-                            <SectionHeader title={t("checkout.paymentMethod")} step={5} />
+                            <SectionHeader title={t("checkout.paymentMethod")} step={4} />
 
                             <div className="p-5">
                                 <div className="space-y-4">
@@ -1662,18 +1624,6 @@ const CheckoutPageUI: React.FC = () => {
                                     </div>
                                 </div>
 
-                                {/* Order Comment */}
-                                <div className="p-6 pt-0">
-                                    <div className="bg-surfaceMuted p-4 rounded-sm border border-gray-100">
-                                        <textarea
-                                            placeholder={t("m.enter-your-comment")}
-                                            rows={4}
-                                            className="w-full p-4 border border-gray-200 bg-white focus:border-gray-400 outline-none text-body-lg font-medium resize-none transition-all"
-                                            value={comment}
-                                            onChange={(e) => setComment(e.target.value)}
-                                        />
-                                    </div>
-                                </div>
 
                                 {/* Place Order Button */}
                                 <div className="px-5 pb-6">

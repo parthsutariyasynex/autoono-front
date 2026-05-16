@@ -37,13 +37,14 @@ export async function GET(request: Request) {
 
         if (!response.ok) {
             const responseText = await response.text();
-            let errorData;
+            let errorData: any = { message: "Backend error" };
             try {
-                errorData = responseText ? JSON.parse(responseText) : {};
-            } catch (err) {
-                console.error(`<<< My Statement GET ERROR: ${response.status}`, responseText);
-                return NextResponse.json({ message: "Backend error" }, { status: response.status });
+                errorData = responseText ? JSON.parse(responseText) : errorData;
+            } catch {
+                // non-JSON body — wrap it
+                errorData = { message: responseText || "Backend error" };
             }
+            console.error(`<<< My Statement GET ERROR: ${response.status}`, errorData);
             return NextResponse.json(errorData, { status: response.status });
         }
 
