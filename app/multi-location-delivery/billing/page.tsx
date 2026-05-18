@@ -150,8 +150,8 @@ const MultiShippingBillingPage: React.FC = () => {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8 mb-8 md:mb-12">
                     {/* Billing Address Block */}
-                    <div className="flex flex-col bg-white border border-surfaceSoft shadow-sm">
-                        <div className="bg-surfaceStrong py-3 px-4 md:px-6 text-center">
+                    <div className="flex flex-col bg-gray-50 border border-gray-200 shadow-sm">
+                        <div className="bg-gray-200 py-3 px-4 md:px-6 text-center">
                             <h2 className="text-label font-bold text-black uppercase tracking-widest leading-none">
                                 {t("multi.billingAddress")}
                             </h2>
@@ -174,8 +174,8 @@ const MultiShippingBillingPage: React.FC = () => {
                     </div>
 
                     {/* Payment Method Block */}
-                    <div className="flex flex-col bg-white border border-surfaceSoft shadow-sm">
-                        <div className="bg-surfaceStrong py-3 px-4 md:px-6 text-center">
+                    <div className="flex flex-col bg-gray-50 border border-gray-200 shadow-sm">
+                        <div className="bg-gray-200 py-3 px-4 md:px-6 text-center">
                             <h2 className="text-label font-bold text-black uppercase tracking-widest leading-none">
                                 {t("multi.paymentMethod")}
                             </h2>

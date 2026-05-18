@@ -43,6 +43,46 @@ export function getBaseUrl(request: Request): string {
 }
 
 /**
+ * Return the standard Magento REST base (no /kleverapi) for the active store.
+ * Used as a fallback when a KleverAPI endpoint returns 404.
+ * Example: https://autoono-demo.btire.com/rest/V101_en/V1
+ */
+export function getStandardRestBase(request: Request): string {
+    const domain =
+        process.env.NEXT_PUBLIC_MAGENTO_BASE_URL ||
+        "https://autoono-demo.btire.com";
+    const storeCode = request.headers.get("x-store-code") || "";
+    if (storeCode && !VALID_LOCALES.includes(storeCode)) {
+        return `${domain}/rest/${encodeURIComponent(storeCode)}/V1`;
+    }
+    const locale = getLocaleFromRequest(request);
+    return `${domain}/rest/${locale}/V1`;
+}
+
+/**
+ * Extract the locale from a warehouse store code (e.g. "V101_en" → "en", "V102_ar" → "ar").
+ * Falls back to getLocaleFromRequest when the store code has no locale suffix.
+ * Use this for KleverAPI endpoints that only work with plain locale store views
+ * (en/ar), not warehouse store codes.
+ */
+export function getLocaleBaseUrl(request: Request): string {
+    const domain =
+        process.env.NEXT_PUBLIC_MAGENTO_BASE_URL ||
+        "https://autoono-demo.btire.com";
+    const storeCode = request.headers.get("x-store-code") || "";
+    // Extract locale suffix from warehouse store code: V101_en → en, V102_ar → ar
+    if (storeCode && !VALID_LOCALES.includes(storeCode)) {
+        const parts = storeCode.split("_");
+        const suffix = parts[parts.length - 1]?.toLowerCase();
+        if (suffix && VALID_LOCALES.includes(suffix)) {
+            return `${domain}/rest/${suffix}/V1/kleverapi`;
+        }
+    }
+    const locale = getLocaleFromRequest(request);
+    return `${domain}/rest/${locale}/V1/kleverapi`;
+}
+
+/**
  * Return the Magento base URL with V101 store code.
  * This is often the most reliable "global" context for KleverApi.
  */

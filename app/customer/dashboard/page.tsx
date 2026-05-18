@@ -170,9 +170,11 @@ export default function DashboardPage() {
                     </div>
 
                     {/* COMPARE SECTION */}
-                    <section className="bg-white border border-border rounded-xl shadow-sm mb-12 overflow-hidden transition-all duration-300 hover:shadow-md">
+                    {/* <section className="bg-white border border-border rounded-xl shadow-sm mb-12 overflow-hidden transition-all duration-300 hover:shadow-md"> */}
+                    <section className="bg-white w-1/2 border border-border rounded-xl shadow-sm mb-12 overflow-hidden transition-all duration-300 hover:shadow-md">
+
                         {/* Header Section */}
-                        <div className="bg-gray-50/80 p-4 px-6 border-b border-border flex items-center gap-4">
+                        <div className="bg-gray-100 p-4 px-6 border-b border-border flex items-center gap-4">
                             <div className="flex items-center gap-3">
                                 <input
                                     type="checkbox"
@@ -193,7 +195,7 @@ export default function DashboardPage() {
                         {/* Body Section */}
                         <div className="p-8 px-8 md:px-12 flex flex-col md:flex-row items-center justify-between gap-6 md:gap-12">
                             {/* First Selector */}
-                            <div className="flex-1 w-full bg-white border border-border rounded-lg shadow-sm hover:border-primary transition-all">
+                            <div className="flex-1 w-full bg-primary border border-border rounded-lg shadow-sm hover:border-primary transition-all">
                                 <PortalDropdown
                                     value={searchYear}
                                     onChange={(val) => {
@@ -208,13 +210,13 @@ export default function DashboardPage() {
 
                             {/* Constant "vs." label */}
                             <div className="flex items-center justify-center">
-                                <span className="bg-gray-100/80 px-4 py-1 rounded-full text-label font-bold text-black uppercase tracking-tighter italic border border-gray-200">
+                                <span className="bg-primary px-4 py-1 rounded-full text-label font-bold text-black uppercase tracking-tighter italic border border-gray-200">
                                     {isRtl ? "مقابل" : "vs."}
                                 </span>
                             </div>
 
                             {/* Second Selector */}
-                            <div className="flex-1 w-full bg-white border border-border rounded-lg shadow-sm hover:border-primary transition-all">
+                            <div className="flex-1 w-full bg-primary border border-border rounded-lg shadow-sm hover:border-primary transition-all">
                                 <PortalDropdown
                                     value={compareYear}
                                     onChange={(val) => {
@@ -238,7 +240,8 @@ export default function DashboardPage() {
                                     <h2 className="text-lg font-bold text-black uppercase tracking-tight">{t("m.total-order-qty")}</h2>
                                     <div className="h-[2px] w-12 bg-primary"></div>
                                 </div>
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                {/* <div className="grid grid-cols-1 md:grid-cols-3 gap-6"> */}
+                                <div className=" w-3/4 grid grid-cols-1 md:grid-cols-3 gap-6">
                                     <QtyCard
                                         label={`${t("dashboard.year")} - ${searchYear}`}
                                         value={dashboardData?.yearly_summary?.[0]?.qty || "0"}
@@ -263,7 +266,8 @@ export default function DashboardPage() {
                                     <h2 className="text-lg font-bold text-black uppercase tracking-tight">{t("m.total-order-value")}</h2>
                                     <div className="h-[2px] w-12 bg-primary"></div>
                                 </div>
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                {/* <div className="grid grid-cols-1 md:grid-cols-3 gap-6"> */}
+                                <div className=" w-3/4 grid grid-cols-1 md:grid-cols-3 gap-6">
                                     <ValueCard
                                         label={`${t("dashboard.year")} - ${searchYear}`}
                                         value={formatValue(dashboardData?.yearly_summary?.[0]?.amount)}
@@ -283,12 +287,12 @@ export default function DashboardPage() {
                             </section>
 
                             {/* BOTTOM FILTERS */}
-                            <section className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-4">
+                            <section className=" w-3/4 grid grid-cols-1 md:grid-cols-2 gap-8 pt-4">
                                 {/* Product Group Filter */}
                                 <div className="flex flex-col gap-4 group">
                                     <h3 className="text-body font-bold text-black uppercase tracking-widest ltr:text-left rtl:text-right opacity-60 group-hover:opacity-100 transition-opacity">{t("dashboard.productGroupLabel")}</h3>
                                     <div className="bg-white border border-border rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-all">
-                                        <div className="bg-gray-50 border-b border-border h-12 px-5 flex items-center relative">
+                                        <div className="bg-primary border-b border-border h-12 px-5 flex items-center relative">
                                             <PortalDropdown
                                                 value={selectedProductGroup}
                                                 onChange={(val) => setSelectedProductGroup(val)}
@@ -314,7 +318,7 @@ export default function DashboardPage() {
                                 <div className="flex flex-col gap-4 group">
                                     <h3 className="text-body font-bold text-black uppercase tracking-widest ltr:text-left rtl:text-right opacity-60 group-hover:opacity-100 transition-opacity">{t("dashboard.tyreSizeLabel")}</h3>
                                     <div className="bg-white border border-border rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-all">
-                                        <div className="bg-gray-50 border-b border-border h-12 px-5 flex items-center relative">
+                                        <div className="bg-primary border-b border-border h-12 px-5 flex items-center relative">
                                             <PortalDropdown
                                                 value={selectedTyreSize}
                                                 onChange={(val) => setSelectedTyreSize(val)}
@@ -469,7 +473,7 @@ export default function DashboardPage() {
 function QtyCard({ label, value, isRtl }: { label: string; value: string; isRtl: boolean }) {
     return (
         <div className="bg-white border border-border rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-all transform hover:-translate-y-1 group">
-            <div className="bg-gray-50 h-10 px-5 flex justify-between items-center text-black border-b border-border group-hover:bg-primary transition-colors">
+            <div className="bg-primary h-10 px-5 flex justify-between items-center text-black border-b border-border group-hover:bg-primary transition-colors">
                 <span className="text-caption font-bold uppercase tracking-widest text-black/60 group-hover:text-black transition-colors">{label}</span>
                 <div className="w-1.5 h-1.5 rounded-full bg-primary"></div>
             </div>
@@ -483,7 +487,7 @@ function QtyCard({ label, value, isRtl }: { label: string; value: string; isRtl:
 function ValueCard({ label, value, isRtl }: { label: string; value: string; isRtl: boolean }) {
     return (
         <div className="bg-white border border-border rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-all transform hover:-translate-y-1 group">
-            <div className="bg-gray-50 h-10 px-5 flex justify-between items-center text-black border-b border-border group-hover:bg-primary transition-colors">
+            <div className="bg-primary h-10 px-5 flex justify-between items-center text-black border-b border-border group-hover:bg-primary transition-colors">
                 <span className="text-caption font-bold uppercase tracking-widest text-black/60 group-hover:text-black transition-colors">{label}</span>
                 <div className="w-1.5 h-1.5 rounded-full bg-primary"></div>
             </div>

@@ -86,12 +86,15 @@ const CheckoutPageUI: React.FC = () => {
         stores,
         refetchPickupStores,
         fetchPickupTimeSlots,
+        saveOrderComment,
+        getOrderComment,
     } = useCheckout();
 
     // --- State ---
     const [selectedAddressId, setSelectedAddressId] = useState<string>("");
     const [searchQuery, setSearchQuery] = useState("");
     const [poNumber, setPoNumber] = useState("");
+    const [comment, setComment] = useState("");
     const [shippingType, setShippingType] = useState<"delivery" | "pickup">("delivery");
     const [selectedWarehouse, setSelectedWarehouse] = useState("");
     const [selectedWarehouseId, setSelectedWarehouseId] = useState("");
@@ -124,6 +127,7 @@ const CheckoutPageUI: React.FC = () => {
     const timeRef = useRef<HTMLDivElement>(null);
     const dateRef = useRef<HTMLDivElement>(null);
     const datePickerRef = useRef<any>(null);
+    const isCompletingOrderRef = useRef(false);
 
     // New Address Form State
     const [showNewAddressForm, setShowNewAddressForm] = useState(false);
@@ -238,8 +242,9 @@ const CheckoutPageUI: React.FC = () => {
         }
     }, [status, router]);
 
-    // Redirect if cart is empty
+    // Redirect if cart is empty (skip during order completion — clearCart sets items:[] before navigation)
     useEffect(() => {
+        if (isCompletingOrderRef.current) return;
         if (!isCartLoading && cart && cart.items.length === 0) {
             toast.error(t("checkout.yourOrderIsEmpty"));
             router.push(lp("/cart"));
@@ -371,6 +376,22 @@ const CheckoutPageUI: React.FC = () => {
             fetchPoUpload();
         }
     }, [status, getPoUpload]);
+
+    // Fetch existing Order Comment
+    useEffect(() => {
+        const fetchOrderComment = async () => {
+            try {
+                const data = await getOrderComment();
+                if (data) setComment(data);
+            } catch (err) {
+                console.error("Failed to fetch order comment:", err);
+            }
+        };
+
+        if (status === "authenticated") {
+            fetchOrderComment();
+        }
+    }, [status, getOrderComment]);
 
     // Memoized filtered addresses
     const filteredAddresses = useMemo(() => {
@@ -514,27 +535,38 @@ const CheckoutPageUI: React.FC = () => {
                 shipping_method: selectedShippingMethodCode,
                 payment_method: paymentMethod,
                 cart_id: cart?.cart_id,
-                po_number: poNumber
+                po_number: poNumber,
+                comment: comment
             });
 
             // 4. Handle Success
             toast.success(t("common.success"));
 
-            // Store technical order details for success page
+            // Normalize: API may return a plain value or an object with various field names
+            const orderId = typeof result === 'object' && result !== null
+                ? (result.order_id ?? result.entity_id ?? result.increment_id ?? result)
+                : result;
+            const orderIncrementId = typeof result === 'object' && result !== null
+                ? (result.order_increment_id ?? result.increment_id ?? String(orderId))
+                : String(result);
+
             const orderSummary = {
-                order_id: result.order_id,
-                order_increment_id: result.order_increment_id,
-                grand_total: result.grand_total,
-                currency_code: result.currency_code,
-                status: result.status
+                order_id: orderId,
+                order_increment_id: orderIncrementId,
+                grand_total: result?.grand_total,
+                currency_code: result?.currency_code,
+                status: result?.status
             };
 
             localStorage.setItem('last_order_summary', JSON.stringify(orderSummary));
 
+            // Set flag so the empty-cart guard does not redirect to /cart while we navigate to success
+            isCompletingOrderRef.current = true;
+
             // Clear cart after successful order
             try { await clearCart(); } catch { /* cart will refresh on next visit */ }
 
-            router.push(lp(`/checkout/success?order_id=${result.order_id}`));
+            router.push(lp(`/checkout/success?order_id=${orderId}`));
         } catch (error: any) {
             console.error("Place Order Error:", error);
             toast.error(error.message || "Failed to place order. Please try again.");
@@ -550,6 +582,16 @@ const CheckoutPageUI: React.FC = () => {
             toast.success("PO Number saved");
         } catch (error: any) {
             toast.error(error.message || "Failed to save PO number");
+        }
+    };
+
+    const handleCommentBlur = async () => {
+        if (!comment) return;
+        try {
+            await saveOrderComment(comment);
+            toast.success("Order comment saved");
+        } catch (error: any) {
+            toast.error(error.message || "Failed to save order comment");
         }
     };
 
@@ -1099,11 +1141,11 @@ const CheckoutPageUI: React.FC = () => {
                                         className="bg-gray-50 px-5 py-3 flex items-center justify-between border-b border-gray-200 cursor-pointer hover:bg-white transition-colors"
                                         onClick={() => setIsPoUploadOpen(!isPoUploadOpen)}
                                     >
-                                        {/* <span className="text-body-lg font-bold text-black capitalize">{t("m.upload-file")}</span>
+                                        <span className="text-body-lg font-bold text-black capitalize">{t("m.upload-file")}</span>
                                         <ChevronDown
                                             size={18}
                                             className={`text-black/50 transition-transform duration-300 ${isPoUploadOpen ? "rotate-180" : ""}`}
-                                        /> */}
+                                        />
                                     </div>
                                     {isPoUploadOpen && (
                                         <div className="p-4 bg-white space-y-4">
@@ -1155,7 +1197,6 @@ const CheckoutPageUI: React.FC = () => {
                                 </div>
                             </div>
                         </div>
-
 
                         <div className="bg-white border border-border shadow-sm rounded-xl overflow-hidden" id="step-3">
                             <SectionHeader title={t("checkout.shippingMethod")} step={3} />
@@ -1600,19 +1641,17 @@ const CheckoutPageUI: React.FC = () => {
                                         </div>
                                     )}
 
-                                    {!hasGifts && availableGifts.length > 0 && (
+                                    {/* {!hasGifts && availableGifts.length > 0 && (
                                         <div
                                             onClick={openGiftModal}
                                             className="flex justify-between items-center p-3 bg-[#008a00]/5 border border-dashed border-[#008a00] rounded-lg cursor-pointer hover:bg-[#008a00]/10 transition-all group animate-pulse hover:animate-none"
                                         >
-                                            <span className="text-[#008a00] font-[900] text-caption uppercase tracking-tight">
-                                                {t("m.free-gift-available") || "FREE GIFT AVAILABLE"}
-                                            </span>
+                                            
                                             <span className="font-[900] text-[#008a00] text-xs underline uppercase group-hover:no-underline">
                                                 {t("m.select-now") || "SELECT NOW"}
                                             </span>
                                         </div>
-                                    )}
+                                    )} */}
 
                                     <div className="flex justify-between items-center">
                                         <span className="text-[13px] font-[900] text-black uppercase tracking-tight">
@@ -1633,6 +1672,20 @@ const CheckoutPageUI: React.FC = () => {
                                     </div>
                                 </div>
 
+                                {/* Order Comment */}
+                                <div className="px-5 pb-5 pt-2 border-t border-gray-100">
+                                    {/* <span>Order Comment</span> */}
+                                    <div className="space-y-1.5">
+                                        <label className="text-[13px] font-black text-black uppercase tracking-widest">{t("ORDER COMMENT")}</label>
+                                        <textarea
+                                            className="w-full px-4 py-2.5 bg-gray-50 border border-border rounded-xl outline-none text-[13px] font-medium transition-all placeholder:text-gray-300 focus:bg-white focus:border-black min-h-[70px] resize-none shadow-sm"
+                                            value={comment}
+                                            onChange={(e) => setComment(e.target.value)}
+                                            onBlur={handleCommentBlur}
+                                            placeholder={t("m.enter-your-comment")}
+                                        />
+                                    </div>
+                                </div>
 
                                 {/* Place Order Button */}
                                 <div className="px-5 pb-6">

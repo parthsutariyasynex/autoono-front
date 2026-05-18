@@ -6,7 +6,7 @@ import CartSummary from "./CartSummary";
 import CartActions from "./CartActions";
 import Navbar from "@/app/components/Navbar";
 import Link from "next/link";
-import { ArrowRight, ShoppingBag, Loader2, Gift, Pencil } from "lucide-react";
+import { ArrowRight, ShoppingBag, Loader2, Gift, Pencil, CheckCircle2 } from "lucide-react";
 import { useCart } from "@/modules/cart/hooks/useCart";
 import { useCheckout } from "@/modules/checkout/hooks/useCheckout";
 import { useRouter } from "next/navigation";
@@ -24,6 +24,7 @@ const CartPage: React.FC = () => {
     const { startMultiShipping } = useCheckout({ skipInitialFetch: true });
     const [pendingQtys, setPendingQtys] = React.useState<Record<number, number>>({});
     const [isStartingMultiShipping, setIsStartingMultiShipping] = React.useState(false);
+    const [isClearingCart, setIsClearingCart] = React.useState(false);
 
     // Always fetch fresh cart data when the cart page mounts
     React.useEffect(() => {
@@ -54,42 +55,41 @@ const CartPage: React.FC = () => {
         const updateIds = Object.keys(pendingQtys);
         if (updateIds.length === 0) {
             await refetchCart();
-            toast.success(t("cart.updated"));
+            toast.success(t("cart.updated") || "Cart updated");
             return;
         }
 
         const toastId = toast.loading(t("cart.updating") || "Updating cart...");
         try {
-            // Process updates sequentially to avoid cart lock issues
+            // Process all qty changes sequentially to avoid cart lock issues
             for (const id of updateIds) {
                 await updateCartItem(Number(id), pendingQtys[Number(id)]);
             }
             setPendingQtys({});
+            // Single refetch at the end to get accurate totals from server
             await refetchCart();
-            toast.success(t("cart.updated"), { id: toastId });
-        } catch (err) {
-            toast.error(t("cart.updateFailed"), { id: toastId });
+            toast.success(t("cart.updated") || "Cart updated", { id: toastId });
+        } catch (err: any) {
+            const msg = err instanceof Error ? err.message : "Failed to update cart";
+            toast.error(msg, { id: toastId });
+            // Refetch even on error so UI shows the real server state
+            refetchCart();
         }
     };
 
 
     const handleClearCart = async () => {
+        // if (!window.confirm(t("cart.confirmClear") || "Clear all items from your cart?")) return;
+        const toastId = toast.loading(t("cart.clearing") || "Clearing cart...");
+        setIsClearingCart(true);
         try {
             await clearCart();
-            toast.success(t("cart.cartCleared"), {
-                icon: '🗑️',
-                style: {
-                    borderRadius: '16px',
-                    background: 'var(--color-text)',
-                    color: 'var(--color-text-inverse)',
-                    fontSize: '10px',
-                    fontWeight: 'black',
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.1em'
-                },
-            });
-        } catch (err) {
-            toast.error(t("cart.updateFailed"));
+            toast.success(t("cart.cartCleared") || "Cart cleared", { id: toastId });
+        } catch (err: any) {
+            const msg = err instanceof Error ? err.message : "Failed to clear cart";
+            toast.error(msg, { id: toastId });
+        } finally {
+            setIsClearingCart(false);
         }
     };
 
@@ -159,41 +159,53 @@ const CartPage: React.FC = () => {
                     <div className="h-1 w-12 bg-primary mx-auto"></div>
                 </div>
 
-                {/* Free Gift Banner — shown when gifts available and not all selected */}
-                {availableGifts.length > 0 && !isAllGiftsSelected && (
-                    <button
-                        onClick={openGiftModal}
-                        className={`w-full mb-8 active:scale-[0.99] transition-all duration-200 py-3.5 px-6 flex items-center justify-center gap-3 cursor-pointer ${
-                            hasGifts
+                {/* Free Gift Banner — always visible when gifts are available */}
+                {availableGifts.length > 0 && (() => {
+                    const selectedGiftNames = cart?.items
+                        ?.filter(item => availableGifts.some(g => g.sku === item.sku))
+                        .map(item => availableGifts.find(g => g.sku === item.sku)?.name)
+                        .filter(Boolean) || [];
+
+                    const messagePrefix = selectedGiftNames.length > 0
+                        ? (selectedGiftNames.length > 1
+                            ? `Free gifts ${selectedGiftNames.join(", ")} were added`
+                            : `Free gift ${selectedGiftNames[0]} was added`)
+                        : "Free Gift Added";
+
+                    return (
+                        <button
+                            onClick={openGiftModal}
+                            className={`w-full mb-8 active:scale-[0.99] transition-all duration-200 py-3.5 px-6 flex items-center justify-center gap-3 cursor-pointer ${hasGifts
                                 ? "bg-white border-2 border-[#008a00] hover:bg-green-50"
                                 : "bg-[#008a00] hover:bg-[#006e00]"
-                        }`}
-                    >
-                        {hasGifts ? (
-                            <>
-                                <Gift size={18} className="text-[#008a00]" />
-                                <span className="text-[#008a00] font-bold text-[15px] tracking-wide">
-                                    Free Gift Added —{" "}
-                                    <span className="underline decoration-dashed underline-offset-4 font-bold">
-                                        Edit Selection
+                                }`}
+                        >
+                            {hasGifts ? (
+                                <>
+                                    <Gift size={18} className="text-[#008a00]" />
+                                    <span className="text-[#008a00] font-bold text-[15px] tracking-wide">
+                                        {messagePrefix} {" "}
+                                        {/* <span className="underline decoration-dashed underline-offset-4 font-bold">
+                                            Edit Selection
+                                        </span> */}
                                     </span>
-                                </span>
-                                <Pencil size={14} className="text-[#008a00]" />
-                            </>
-                        ) : (
-                            <>
-                                <Gift size={18} className="text-white" />
-                                <span className="text-white font-bold text-[15px] tracking-wide">
-                                    Select your{" "}
-                                    <span className="underline decoration-dashed underline-offset-4 font-bold">
-                                        FREE GIFT
+                                    {/* <Pencil size={14} className="text-[#008a00]" /> */}
+                                </>
+                            ) : (
+                                <>
+                                    <Gift size={18} className="text-white" />
+                                    <span className="text-white font-bold text-[15px] tracking-wide">
+                                        Select your{" "}
+                                        <span className="underline decoration-dashed underline-offset-4 font-bold">
+                                            FREE GIFT
+                                        </span>
+
                                     </span>
-                                    !
-                                </span>
-                            </>
-                        )}
-                    </button>
-                )}
+                                </>
+                            )}
+                        </button>
+                    );
+                })()}
 
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 xl:gap-16 items-start">
 
@@ -229,6 +241,7 @@ const CartPage: React.FC = () => {
                                         itemsCount={cart.items_count}
                                         onClearCart={handleClearCart}
                                         onUpdateCart={handleUpdateCart}
+                                        isClearingCart={isClearingCart}
                                     />
 
                                     {/* Multiple Address Section Bar */}

@@ -385,11 +385,18 @@ export default function Navbar() {
   const resolveLabel = (item: { code?: string; href?: string; label?: string }): string => {
     const label = item.label || "";
     const lower = label.toLowerCase().trim();
-    if (lower === "about us" || lower === "about") return t("nav.aboutUs") || label;
-    if (lower === "locations" || lower === "branch locations" || lower === "branches") return t("nav.branchLocations") || label;
-    if (lower === "catalogue" || lower === "product catalogue" || lower === "catalog") return t("nav.productCatalogue") || label;
-    if (lower === "all lubricants" || lower === "lubricants") return t("nav.allLubricants") || label;
-    if (lower === "all tyres" || lower === "tyres") return t("nav.allTyres") || label;
+    const href = (item.href || "").toLowerCase();
+    const code = (item.code || "").toLowerCase();
+
+    const isMatch = (keywords: string[]) => 
+      keywords.some(k => lower.includes(k) || href.includes(k) || code.includes(k));
+
+    if (isMatch(["about us", "about-us", "/about"])) return t("nav.aboutUs") || label;
+    if (isMatch(["locations", "branch locations", "branches"])) return t("nav.branchLocations") || label;
+    if (isMatch(["catalogue", "catalog"])) return t("nav.productCatalogue") || label;
+    if (isMatch(["lubricants", "all lubricants"])) return t("nav.allLubricants") || label;
+    if (isMatch(["tyres", "all tyres", "tires"])) return t("nav.allTyres") || label;
+    
     return label;
   };
 

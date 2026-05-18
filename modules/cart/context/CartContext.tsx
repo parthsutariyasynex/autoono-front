@@ -10,7 +10,7 @@ import {
   useRef,
 } from "react";
 import { signOut } from "next-auth/react";
-import { getAuthToken } from "@/lib/api/api-client";
+import { getAuthToken, getClientStoreCode } from "@/lib/api/api-client";
 
 export interface CartItem {
   item_id: number;
@@ -92,10 +92,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
       // Read locale from URL (most up-to-date during language switch)
       const pathLocale = window.location.pathname.startsWith("/ar") ? "ar" : "en";
+      const storeCode = getClientStoreCode();
       const res = await fetch("/api/kleverapi/cart", {
         headers: {
           Authorization: `Bearer ${token}`,
           "x-locale": pathLocale,
+          ...(storeCode && { "x-store-code": storeCode }),
         },
         cache: "no-store",
       });
@@ -136,6 +138,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
         size_display: item.size_display,
         pattern_display: item.pattern_display,
         row_total: Number(item.row_total || 0),
+        discount_amount: item.discount_amount ? Number(item.discount_amount) : undefined,
       }));
 
       const subtotal = Number(data.subtotal ?? data.cart?.subtotal ?? 0);
@@ -194,11 +197,15 @@ export function CartProvider({ children }: { children: ReactNode }) {
         return;
       }
 
+      const pathLocale = window.location.pathname.startsWith("/ar") ? "ar" : "en";
+      const storeCode = getClientStoreCode();
       const res = await fetch("/api/kleverapi/cart/add", {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
+          "x-locale": pathLocale,
+          ...(storeCode && { "x-store-code": storeCode }),
         },
         body: JSON.stringify({ sku, qty }),
       });
@@ -230,13 +237,27 @@ export function CartProvider({ children }: { children: ReactNode }) {
         return;
       }
 
+      // Optimistically update local state so UI reflects change immediately
+      setCart(prev => {
+        if (!prev) return null;
+        const updatedItems = prev.items.map(i =>
+          i.item_id === itemId ? { ...i, qty, row_total: i.price * qty } : i
+        );
+        const items_count = updatedItems.reduce((s, i) => s + i.qty, 0);
+        return { ...prev, items: updatedItems, items_count };
+      });
+
+      const pathLocale = window.location.pathname.startsWith("/ar") ? "ar" : "en";
+      const storeCode = getClientStoreCode();
       const res = await fetch(`/api/kleverapi/cart/update/${itemId}`, {
         method: "PUT",
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
+          "x-locale": pathLocale,
+          ...(storeCode && { "x-store-code": storeCode }),
         },
-        body: JSON.stringify({ qty }),
+        body: JSON.stringify({ qty, cart_id: cart?.cart_id }),
       });
 
       if (!res.ok) {
@@ -245,8 +266,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
         throw new Error(data.message || "Failed to update cart");
       }
 
-      // Refetch without showing full-page loader
-      await fetchCart(false);
+      // Don't fetchCart here — caller (handleUpdateCart) does a single refetch at the end
       window.dispatchEvent(new Event("cart-updated"));
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to update cart");
@@ -260,10 +280,14 @@ export function CartProvider({ children }: { children: ReactNode }) {
       const token = await getAuthToken();
       if (!token) throw new Error("Not authenticated");
 
+      const pathLocale = window.location.pathname.startsWith("/ar") ? "ar" : "en";
+      const storeCode = getClientStoreCode();
       const res = await fetch(`/api/kleverapi/cart/remove/${itemId}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${token}`,
+          "x-locale": pathLocale,
+          ...(storeCode && { "x-store-code": storeCode }),
         },
       });
 
@@ -273,8 +297,17 @@ export function CartProvider({ children }: { children: ReactNode }) {
         throw new Error(data.message || "Failed to remove item");
       }
 
-      await fetchCart();
+      // Immediately remove from local state so the row disappears without waiting for re-fetch
+      setCart(prev => {
+        if (!prev) return null;
+        const updatedItems = prev.items.filter(i => i.item_id !== itemId);
+        const items_count = updatedItems.reduce((s, i) => s + i.qty, 0);
+        return { ...prev, items: updatedItems, items_count };
+      });
       window.dispatchEvent(new Event("cart-updated"));
+
+      // Background re-fetch to get updated totals from server
+      fetchCart(false);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to remove item");
       throw err;
@@ -287,21 +320,54 @@ export function CartProvider({ children }: { children: ReactNode }) {
       const token = await getAuthToken();
       if (!token) throw new Error("Not authenticated");
 
+      const pathLocale = window.location.pathname.startsWith("/ar") ? "ar" : "en";
+      const storeCode = getClientStoreCode();
+
+      // Try the dedicated clear endpoint first
       const res = await fetch("/api/kleverapi/cart/clear", {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
+          "x-locale": pathLocale,
+          ...(storeCode && { "x-store-code": storeCode }),
         },
       });
 
       if (!res.ok) {
         if (isAuthError(res.status)) { handleAuthError(); return; }
-        const data = await res.json();
-        throw new Error(data.message || "Failed to clear cart");
+
+        // Fallback: remove every item individually when the clear endpoint is unavailable
+        const items = cart?.items ?? [];
+        if (items.length === 0) {
+          setCart(null);
+          window.dispatchEvent(new Event("cart-updated"));
+          return;
+        }
+        for (const item of items) {
+          const removeRes = await fetch(`/api/kleverapi/cart/remove/${item.item_id}`, {
+            method: "DELETE",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "x-locale": pathLocale,
+              ...(storeCode && { "x-store-code": storeCode }),
+            },
+          });
+          if (!removeRes.ok && isAuthError(removeRes.status)) {
+            handleAuthError();
+            return;
+          }
+        }
       }
 
-      await fetchCart();
+      // Immediately clear local state so the UI empties without waiting for the re-fetch
+      setCart(prev => prev
+        ? { ...prev, items: [], items_count: 0, subtotal: 0, tax_amount: 0, grand_total: 0, discount_amount: 0 }
+        : null
+      );
       window.dispatchEvent(new Event("cart-updated"));
+
+      // Background re-fetch to sync with server (no loader since we already cleared the UI)
+      fetchCart(false);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to clear cart");
       throw err;

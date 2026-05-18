@@ -212,7 +212,7 @@ export default function MyOrdersPage() {
                         <div className="relative">
                             {(isLoading || (authStatus === "loading") || (authStatus === "authenticated" && !hasFetched)) ? (
                                 <div className="flex justify-center items-center py-20">
-                                    <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary"></div>
+                                    {/* <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary"></div> */}
                                 </div>
                             ) : error ? (
                                 <div className="text-center py-16 text-red-500">

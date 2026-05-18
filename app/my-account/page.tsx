@@ -173,14 +173,14 @@ export default function MyAccountPage() {
                                             <p>{t("m.location")}: {customerLocation}</p>
                                             <p>{t("account.contactInformation")}: <bdi dir="ltr">{(customer as any).email}</bdi> ,<bdi dir="ltr">{customerMobile}</bdi></p>
 
-                                            {/* <div className="flex flex-col md:flex-row gap-3 pt-4 md:pt-6">
+                                            <div className="flex flex-col md:flex-row gap-3 pt-4 md:pt-6">
                                                 <Link href={lp("/customer/account/edit")} className="w-full md:w-auto text-center bg-primary hover:bg-primaryHover text-black text-body-sm font-bold px-6 py-2 uppercase transition-all rounded-sm">
                                                     {t("m.edit")}
                                                 </Link>
                                                 <Link href={lp("/customer/account/edit?change=password")} className="w-full md:w-auto text-center bg-primary hover:bg-primaryHover text-black text-body-sm font-bold px-6 py-2 uppercase transition-all rounded-sm whitespace-nowrap">
                                                     {t("changePassword.title")}
                                                 </Link>
-                                            </div> */}
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -269,7 +269,7 @@ export default function MyAccountPage() {
                                                         {t("addressBook.editAddress")}
                                                     </Link>
                                                 ) : (
-                                                    <Link href={lp("/customer/address-book")} className="w-full md:w-auto text-center bg-primary hover:bg-primaryHover text-black text-body font-bold px-4 md:px-8 py-2.5 uppercase transition-all rounded-none inline-block">
+                                                    <Link href={lp("/customer/address-book/edit/new")} className="w-full md:w-auto text-center bg-primary hover:bg-primaryHover text-black text-body font-bold px-4 md:px-8 py-2.5 uppercase transition-all rounded-none inline-block">
                                                         {t("addressBook.addAddress")}
                                                     </Link>
                                                 )}

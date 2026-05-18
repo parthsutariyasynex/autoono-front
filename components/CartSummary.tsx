@@ -58,19 +58,19 @@ const CartSummary: React.FC<CartSummaryProps> = ({ subtotal, taxAmount, taxLabel
                         </div>
                     )}
 
-                    {!hasGifts && availableGifts.length > 0 && (
-                        <div 
-                            onClick={openGiftModal}
-                            className="flex justify-between items-center p-3 bg-[#008a00]/5 border border-dashed border-[#008a00] rounded-lg cursor-pointer hover:bg-[#008a00]/10 transition-all group animate-pulse hover:animate-none"
-                        >
-                            <span className="text-[#008a00] font-[900] text-caption uppercase tracking-tight">
-                                {t("m.free-gift-available") || "FREE GIFT AVAILABLE"}
-                            </span>
-                            <span className="font-[900] text-[#008a00] text-xs underline uppercase group-hover:no-underline">
-                                {t("m.select-now") || "SELECT NOW"}
-                            </span>
-                        </div>
-                    )}
+                    {/* {!hasGifts && availableGifts.length > 0 && (
+                        // <div
+                        //     onClick={openGiftModal}
+                        //     className="flex justify-between items-center p-3 bg-[#008a00]/5 border border-dashed border-[#008a00] rounded-lg cursor-pointer hover:bg-[#008a00]/10 transition-all group animate-pulse hover:animate-none"
+                        // >
+                        //     <span className="text-[#008a00] font-[900] text-caption uppercase tracking-tight">
+                        //         {t("m.free-gift-available") || "FREE GIFT AVAILABLE"}
+                        //     </span>
+                        //     <span className="font-[900] text-[#008a00] text-xs underline uppercase group-hover:no-underline">
+                        //         {t("m.select-now") || "SELECT NOW"}
+                        //     </span>
+                        // </div>
+                    )} */}
 
                     {/* VAT */}
                     <div className="flex justify-between items-center">

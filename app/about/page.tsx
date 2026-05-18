@@ -29,14 +29,14 @@ function Skeleton() {
 /** Split plain text into styled paragraphs around known section headers */
 function PlainTextContent({ text, isRtl }: { text: string; isRtl: boolean }) {
     // Section headings end with ":"  — split on them to create visual breaks
-    const sectionRe = /(?=\b(?:Vision and Mission|Vision|Mission|Our Products|Brands Owned|Core Values|Branch Network|Closing Statement)\s*:)/g;
+    const sectionRe = /(?=(?:Vision and Mission|Vision|Mission|Our Products|Brands Owned|Core Values|Branch Network|Closing Statement|الرؤية والرسالة|الرؤية|الرسالة|منتجاتنا|العلامات التجارية المعتمدة|القيم الأساسية|شبكة الفروع|التركيز على العملاء)\s*:)/g;
     const chunks = text.split(sectionRe).filter(Boolean);
 
     return (
         <div className={`space-y-6 text-[15px] leading-[1.9] text-black/75 font-medium ${isRtl ? "text-right" : "text-left"}`}>
             {chunks.map((chunk, i) => {
-                // Detect if the chunk starts with a heading (word(s) followed by ":")
-                const headingMatch = chunk.match(/^([A-Za-z &]+):\s*/);
+                // Detect if the chunk starts with a heading (letters + spaces + colon)
+                const headingMatch = chunk.match(/^([^:]+):\s*/);
                 if (headingMatch && i > 0) {
                     const heading = headingMatch[1].trim();
                     const body = chunk.slice(headingMatch[0].length).trim();
@@ -56,7 +56,7 @@ function PlainTextContent({ text, isRtl }: { text: string; isRtl: boolean }) {
 }
 
 export default function AboutPage() {
-    const { isRtl } = useTranslation();
+    const { t, isRtl } = useTranslation();
     const locale = useLocale();
 
     const [page, setPage] = useState<CmsPage | null>(null);
@@ -83,7 +83,10 @@ export default function AboutPage() {
             });
     }, [locale]);
 
-    const title = page?.content_heading || page?.title || "";
+    let title = page?.content_heading || page?.title || "";
+    if (title.toLowerCase().trim() === "about us") {
+        title = t("nav.aboutUs") || title;
+    }
     const content = page?.content || "";
     const isHtml = content.trimStart().startsWith("<");
 

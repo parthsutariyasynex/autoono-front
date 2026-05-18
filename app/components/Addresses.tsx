@@ -40,7 +40,7 @@ type AddressCardProps = {
 function AddressCard({ title, address, onEdit, buttonLabel, t, isRtl }: AddressCardProps) {
   return (
     <div className="bg-white border border-border rounded-xl shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden flex flex-col h-full group">
-      <div className="bg-gray-50/80 px-5 py-4 border-b border-border uppercase text-label font-bold text-black tracking-widest ltr:text-left rtl:text-right group-hover:bg-primary/50 transition-colors">
+      <div className="bg-primary px-5 py-4 border-b border-border uppercase text-label font-bold text-black tracking-widest ltr:text-left rtl:text-right group-hover:bg-primary/50 transition-colors">
         {title}
       </div>
       <div className="p-6 flex-grow ltr:text-left rtl:text-right">
@@ -170,6 +170,24 @@ export default function Addresses() {
 
   return (
     <div className="w-full space-y-12" dir={isRtl ? "rtl" : "ltr"}>
+      {/* Header with Add Address Button */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-6 border-b border-gray-200">
+        <div>
+          <h1 className="text-h3 md:text-h1-sm font-bold text-black uppercase tracking-tight">
+            {t("addressBook.title") || "ADDRESS BOOK"}
+          </h1>
+          {/* <p className="text-body text-black/60 mt-1 font-medium">
+            {t("addressBook.subtitle") || "Manage your shipping and billing addresses"}
+          </p> */}
+        </div>
+        {/* <button
+          onClick={() => router.push(lp("/customer/address-book/edit/new"))}
+          className="bg-primary hover:bg-primaryHover text-black text-label font-bold px-8 py-3.5 uppercase transition-all rounded-lg shadow-sm tracking-widest active:scale-95 flex items-center gap-2 cursor-pointer"
+        >
+          <span className="text-lg leading-none">+</span> {t("addressBook.addAddress") || "ADD NEW ADDRESS"}
+        </button> */}
+      </div>
+
       {/* Section 1: Default Addresses */}
       <section>
         <div className="flex items-center gap-4 mb-8">
@@ -206,7 +224,7 @@ export default function Addresses() {
           <div className="overflow-x-auto">
             <table className="w-full border-collapse min-w-[650px]">
               <thead>
-                <tr className="bg-gray-50/80 border-b border-border text-black text-label font-bold uppercase tracking-widest h-[60px]">
+                <tr className="bg-gray-100 border-b border-border text-black text-label font-bold uppercase tracking-widest h-[60px]">
                   <th className="px-6 py-4 ltr:text-left rtl:text-right">{t("addressBook.firstName")}</th>
                   <th className="px-6 py-4 ltr:text-left rtl:text-right">{t("addressBook.lastName")}</th>
                   <th className="px-6 py-4 ltr:text-left rtl:text-right">{t("addressBook.streetAddress")}</th>

@@ -36,6 +36,9 @@ interface Product {
     offer?: string;
     brand?: string;
     favorite_id?: number | string;
+    is_in_stock?: boolean;
+    stock_label?: string;
+    stock_color?: string;
 }
 
 const TABLE_HEADER_KEYS = ['m.brand', 'm.name', 'm.image', 'm.stock', 'm.price', 'm.action'] as const;
@@ -232,7 +235,7 @@ export default function FavouriteProducts({ title }: { title?: React.ReactNode }
     if (loading && favProducts.length === 0) {
         return (
             <div className="flex justify-center items-center py-20">
-                <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary"></div>
+                {/* <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary"></div> */}
             </div>
         );
     }

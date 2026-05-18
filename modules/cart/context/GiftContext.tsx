@@ -452,6 +452,7 @@ function parsePromoRules(
                     rule.thumbnail ??
                     "/logo/auttono-logo.jpg",
                 qty_available:
+                    rule.qty_available ??
                     rule.available_qty ??
                     rule.stock_qty ??
                     ruleMaxQty,
@@ -471,9 +472,10 @@ function parsePromoRules(
                 image:
                     item.image_url ??
                     item.image ??
-                    item.thumbnail ??
+                    // item.thumbnail ??
                     "/logo/auttono-logo.jpg",
                 qty_available:
+                    item.qty_available ??
                     item.available_qty ??
                     item.stock_qty ??
                     ruleMaxQty,
@@ -655,12 +657,7 @@ export function GiftProvider({
 
     const totalSelectedGifts = (cart?.items || [])
         .filter((item) =>
-            item.price === 0 &&
-            availableGifts.some(
-                (gift) =>
-                    gift.sku === item.sku ||
-                    item.sku.startsWith(gift.sku)
-            )
+            availableGifts.some((gift) => gift.sku === item.sku)
         )
         .reduce(
             (sum, item) => sum + Number(item.qty || 0),
@@ -816,7 +813,7 @@ export function GiftProvider({
                 console.log("[GiftContext] Triggering auto-open...");
                 setIsGiftModalOpen(true);
                 hasSeenRef.current = true;
-            }, 200);
+            }, 500);
 
             return () => clearTimeout(timer);
         }
@@ -926,8 +923,20 @@ export function GiftProvider({
                     }
                 );
             } else {
+                const addedGiftNames = selectedEntries
+                    .map(([id]) => {
+                        const gift = availableGifts.find((g) => g.id === id);
+                        return gift ? gift.name : null;
+                    })
+                    .filter(Boolean);
+
+                const successMessage =
+                    addedGiftNames.length > 1
+                        ? `Free gifts ${addedGiftNames.join(", ")} were added to your shopping cart`
+                        : `Free gift ${addedGiftNames[0]} was added to your shopping cart`;
+
                 toast.success(
-                    "Free gifts added to your cart!",
+                    successMessage,
                     {
                         id: toastId,
                     }

@@ -37,7 +37,17 @@ export async function POST(req: Request) {
             return NextResponse.json(errorData, { status: response.status });
         }
 
-        const data = JSON.parse(responseText);
+        let data: any;
+        try {
+            data = JSON.parse(responseText);
+        } catch {
+            return NextResponse.json({ message: "Invalid response from server" }, { status: 500 });
+        }
+
+        // Normalize: if Magento returns a plain order ID (number or string), wrap it
+        if (typeof data !== 'object' || data === null) {
+            data = { order_id: data, order_increment_id: String(data) };
+        }
         return NextResponse.json(data);
     } catch (error) {
         console.error("Proxy Place Order Error:", error);

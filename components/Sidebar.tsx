@@ -78,6 +78,13 @@ const Sidebar = () => {
 
         // Strip Magento .html SEO suffix — sidebar links are always internal routes
         href = href.replace(/\.html$/, "");
+        href = href.replace(/\/$/, "");
+
+        // Map Magento native routes to Next.js frontend routes
+        if (href === "/customer/address") href = "/customer/address-book";
+        if (href === "/sales/order/history") href = "/my-orders";
+        if (href === "/wishlist") href = "/customer/favourite-products";
+        if (href === "/customer/account") href = "/my-account";
 
         return lp(href);
     };
@@ -112,6 +119,25 @@ const Sidebar = () => {
     // Active item detection
     const activeCode = useMemo(() => {
         const normalizedPathname = pathname.replace(/\/$/, "");
+
+        // 1. Direct code overrides for common sections to guarantee 100% perfect matching
+        if (normalizedPathname.includes("/address")) return "address_book";
+        
+        // Match "My Orders" but prevent it from matching "My Order Attachments" (/orderupload or /order-attachments)
+        if (
+            (normalizedPathname.includes("/order") || normalizedPathname.includes("/my-orders") || normalizedPathname.includes("/sales/order")) && 
+            !normalizedPathname.includes("orderupload") && 
+            !normalizedPathname.includes("order-attachment")
+        ) {
+            return "my_orders";
+        }
+
+        if (normalizedPathname.includes("/statement")) return "statement";
+        if (normalizedPathname.includes("/favorite") || normalizedPathname.includes("/favourite") || normalizedPathname.includes("/wishlist")) return "favourite_products";
+        if (normalizedPathname.includes("/dashboard")) return "dashboard";
+        if (normalizedPathname.includes("/notification")) return "notifications";
+        if (normalizedPathname.includes("/my-account") || normalizedPathname.includes("/customer/account")) return "my_account";
+
         let bestCode = "";
         let bestMatchLength = -1;
 
@@ -140,7 +166,7 @@ const Sidebar = () => {
     if (loading) {
         return (
             <aside className="w-full lg:w-64 flex-shrink-0 bg-surfaceMuted border-b lg:border-b-0 ltr:lg:border-r rtl:lg:border-l border-gray-200 z-30 sticky top-[56px] sm:top-[64px] lg:top-[108px] h-auto lg:h-[calc(100vh-108px)] flex flex-col items-center justify-center p-10">
-                <Loader2 className="w-6 h-6 animate-spin text-primary mb-2" />
+                {/* <Loader2 className="w-6 h-6 animate-spin text-primary mb-2" /> */}
                 <span className="text-micro text-black/40 font-bold uppercase tracking-widest">{t("common.loading") || "Loading..."}</span>
             </aside>
         );

@@ -328,8 +328,8 @@ const MultiShippingReviewPage: React.FC = () => {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8 mb-8 md:mb-12">
                     {/* Billing Address */}
-                    <div className="flex flex-col bg-surfaceAlt border border-gray-100">
-                        <div className="bg-borderMedium py-3 md:py-3.5 px-4 md:px-6 text-center">
+                    <div className="flex flex-col bg-gray-50 border border-gray-200 shadow-sm">
+                        <div className="bg-gray-200 py-3 md:py-3.5 px-4 md:px-6 text-center">
                             <h2 className="text-label font-[900] text-black uppercase tracking-widest">
                                 {t("multi.billingAddress")}
                             </h2>
@@ -352,8 +352,8 @@ const MultiShippingReviewPage: React.FC = () => {
                     </div>
 
                     {/* Payment Method & Commitment */}
-                    <div className="flex flex-col bg-surfaceAlt border border-gray-100">
-                        <div className="bg-borderMedium py-3 md:py-3.5 px-4 md:px-6 text-center">
+                    <div className="flex flex-col bg-gray-50 border border-gray-200 shadow-sm">
+                        <div className="bg-gray-200 py-3 md:py-3.5 px-4 md:px-6 text-center">
                             <h2 className="text-label font-[900] text-black uppercase tracking-widest">
                                 {t("multi.paymentMethod")}
                             </h2>
@@ -388,6 +388,7 @@ const MultiShippingReviewPage: React.FC = () => {
                                         value={generalComment}
                                         onChange={(e) => setGeneralComment(e.target.value)}
                                         className="w-full border border-gray-300 p-3 md:p-4 min-h-[80px] md:min-h-[100px] outline-none focus:ring-1 focus:ring-black rounded-none resize-none"
+                                        placeholder={t("Enter Your Comment")}
                                     />
                                 </div>
                             </div>
@@ -416,8 +417,8 @@ const MultiShippingReviewPage: React.FC = () => {
 
                             <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 md:gap-4">
                                 {/* Column 1: Shipping To */}
-                                <div className="flex flex-col bg-surfaceAlt">
-                                    <div className="bg-surfaceBar py-2.5 px-4 md:px-6 text-center">
+                                <div className="flex flex-col bg-gray-50">
+                                    <div className="bg-gray-200 py-2.5 px-4 md:px-6 text-center">
                                         <h2 className="text-label font-[900] text-black uppercase tracking-widest">{t("multi.shippingTo")}</h2>
                                     </div>
                                     <div className="p-5 md:p-8 text-body md:text-body-lg text-black leading-[1.7] flex-grow">
@@ -434,7 +435,7 @@ const MultiShippingReviewPage: React.FC = () => {
                                 </div>
 
                                 {/* Column 2: PO Number & Upload */}
-                                <div className="flex flex-col bg-surfaceAlt">
+                                <div className="flex flex-col bg-gray">
                                     <div className="bg-surfaceBar py-2.5 px-4 md:px-6 text-center">
                                         <h2 className="text-label font-[900] text-black uppercase tracking-widest">{t("multi.customerPo")}</h2>
                                     </div>
@@ -469,7 +470,7 @@ const MultiShippingReviewPage: React.FC = () => {
                                 </div>
 
                                 {/* Column 3: Items Table */}
-                                <div className="flex flex-col bg-surfaceAlt">
+                                <div className="flex flex-col bg-gray">
                                     <div className="p-0 overflow-x-auto flex-grow">
                                         <table className="w-full text-left border-collapse min-w-[320px]">
                                             <thead>
@@ -480,7 +481,7 @@ const MultiShippingReviewPage: React.FC = () => {
                                                     <th className="py-3 md:py-4 px-3 md:px-6 text-label md:text-body-sm font-bold text-black uppercase text-right">{t("common.total")}</th>
                                                 </tr>
                                             </thead>
-                                            <tbody className="bg-transparent">
+                                            <tbody className="bg-gray">
                                                 {group.items.map((item) => (
                                                     <tr key={item.itemId}>
                                                         <td className="py-3 md:py-4 px-3 md:px-6 text-body-sm md:text-body font-medium text-black/70 align-top uppercase leading-tight">
