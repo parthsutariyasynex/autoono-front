@@ -31,6 +31,7 @@ export async function GET(request: Request) {
         magentoParams.append('currentPage', currentPage);
 
         const magentoUrl = `${BASE_URL}/orderupload/search${magentoParams.toString() ? `?${magentoParams.toString()}` : ''}`;
+        console.log('[orderupload-search] Request URL:', magentoUrl);
 
         const response = await fetch(magentoUrl, {
             method: 'GET',
@@ -42,7 +43,9 @@ export async function GET(request: Request) {
             cache: 'no-store',
         });
 
+        console.log('[orderupload-search] Response status:', response.status);
         const data = await response.json();
+        console.log('[orderupload-search] Response data:', JSON.stringify(data));
 
         if (!response.ok) {
             return NextResponse.json(

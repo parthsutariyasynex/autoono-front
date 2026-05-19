@@ -21,12 +21,12 @@ export async function PUT(req: Request, { params }: { params: Promise<{ itemId: 
         // 1. Try KleverAPI endpoint
         const kleverUrl = `${getBaseUrl(req)}/cart/update/${itemId}`;
         console.log(">>> Update Cart REQUEST:", kleverUrl, { qty: qtyNum });
-        let response = await fetch(kleverUrl, {
+        const response = await fetch(kleverUrl, {
             method: "PUT",
             headers,
             body: JSON.stringify({ qty: qtyNum }),
         });
-        let responseText = await response.text();
+        const responseText = await response.text();
         console.log("<<< Update Cart RESPONSE:", response.status, responseText);
 
         // 2. If KleverAPI warehouse store returns 404/405, try with locale-only store (e.g. V101_en → en)

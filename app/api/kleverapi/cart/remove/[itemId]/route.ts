@@ -16,8 +16,8 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ itemI
 
         // 1. Try KleverAPI endpoint
         const kleverUrl = `${getBaseUrl(req)}/cart/remove/${itemId}`;
-        let response = await fetch(kleverUrl, { method: "DELETE", headers });
-        let responseText = await response.text();
+        const response = await fetch(kleverUrl, { method: "DELETE", headers });
+        const responseText = await response.text();
 
         // 2. If KleverAPI warehouse store returns 404/405, try with locale-only store (e.g. V101_en → en)
         if (response.status === 404 || response.status === 405) {

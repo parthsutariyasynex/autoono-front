@@ -67,12 +67,10 @@ function handleAuthError() {
 }
 
 export function getWarehouseKey(storeCode: string): string {
-  const code = (storeCode || "").toLowerCase();
-  if (code.includes("anwar")) return "cart_anwar";
-  if (code.includes("hussain")) return "cart_hussain";
-  if (code.includes("mohammed")) return "cart_mohammed";
-  if (code.includes("abdulqader")) return "cart_abdulqader";
-  return "cart_allwarehouse";
+  if (!storeCode) return "cart_allwarehouse";
+  // Use the full store code as the key so every warehouse has its own isolated cart.
+  // Sanitise to a safe localStorage key (lowercase, non-alphanumeric → underscore).
+  return `cart_${storeCode.toLowerCase().replace(/[^a-z0-9]/g, "_")}`;
 }
 
 export function CartProvider({ children }: { children: ReactNode }) {
@@ -83,6 +81,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const isFetching = useRef(false);
   const pendingFetch = useRef(false);
+  const isSyncing = useRef(false);
 
   const fetchCart = useCallback(async (showLoader = true, _retry = 0) => {
     // If already fetching, mark a pending fetch so we re-run once current one finishes
@@ -186,101 +185,156 @@ export function CartProvider({ children }: { children: ReactNode }) {
     if (typeof window === "undefined") return;
 
     const performSync = async () => {
+      if (isSyncing.current) return;
       const token = await getAuthToken();
       if (!token) return;
+      isSyncing.current = true;
 
       const storeCode = getClientStoreCode();
       const activeKey = getWarehouseKey(storeCode);
-      const lastSynced = localStorage.getItem("current_synced_cart_warehouse");
+      let lastSynced = localStorage.getItem("current_synced_cart_warehouse");
+      // lastSyncedStoreCode is the real Magento store code for the previously-synced
+      // warehouse (e.g. "Anwar_Khaled_en"). We store it so Step 1 can fetch the cart
+      // using the correct warehouse URL, not just the locale fallback.
+      const lastSyncedStoreCode = localStorage.getItem("current_synced_cart_storecode") || "";
 
-      if (lastSynced === null) {
-        // First time on this browser device. 
-        // We assume whatever is in the backend cart belongs to the current warehouse.
-        const pathLocale = window.location.pathname.startsWith("/ar") ? "ar" : "en";
-        const res = await fetch("/api/kleverapi/cart", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "x-locale": pathLocale,
-            ...(storeCode && { "x-store-code": storeCode }),
-          },
-          cache: "no-store",
-        });
-        if (res.ok) {
-          const data = await res.json();
-          const rawItems = Array.isArray(data.items) ? data.items : (Array.isArray(data.cart?.items) ? data.cart.items : []);
-          const itemsToSave = rawItems.map((item: any) => ({ sku: item.sku, qty: Number(item.qty || 1) }));
-          localStorage.setItem(activeKey, JSON.stringify(itemsToSave));
-        } else {
-          localStorage.setItem(activeKey, "[]");
+      // MIGRATION: old key format was cart_FIRSTWORD (e.g. cart_anwar), new format is
+      // cart_FULLSTORECODE (e.g. cart_anwar_khaled_en). If lastSynced is a prefix of
+      // activeKey they represent the same warehouse — rename without doing a full sync.
+      if (lastSynced && lastSynced !== activeKey && activeKey.startsWith(lastSynced + "_")) {
+        const oldData = localStorage.getItem(lastSynced);
+        if (oldData) {
+          localStorage.setItem(activeKey, oldData);
+          localStorage.removeItem(lastSynced);
         }
         localStorage.setItem("current_synced_cart_warehouse", activeKey);
+        lastSynced = activeKey;
+      }
+
+      if (lastSynced === activeKey) {
+        // Same warehouse as last sync — just fetch the current cart
+        isSyncing.current = false;
         await fetchCart();
-      } else if (lastSynced !== activeKey) {
-        // Warehouse has been switched! We MUST sync the backend cart to strictly reflect the isolated warehouse.
-        setIsLoading(true);
-        const pathLocale = window.location.pathname.startsWith("/ar") ? "ar" : "en";
-        
-        // 1. Clear backend cart to remove old warehouse's items
-        const clearRes = await fetch("/api/kleverapi/cart/clear", {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "x-locale": pathLocale,
-            ...(storeCode && { "x-store-code": storeCode }),
-          },
-        });
-        if (!clearRes.ok) {
-          // Fallback manual clearance if endpoint fails
-          const cartRes = await fetch("/api/kleverapi/cart", {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "x-locale": pathLocale,
-              ...(storeCode && { "x-store-code": storeCode }),
-            },
-            cache: "no-store",
-          });
-          if (cartRes.ok) {
-            const cartData = await cartRes.json();
-            const items = Array.isArray(cartData.items) ? cartData.items : (Array.isArray(cartData.cart?.items) ? cartData.cart.items : []);
-            for (const item of items) {
-              await fetch(`/api/kleverapi/cart/remove/${item.item_id}`, {
-                method: "DELETE",
-                headers: {
-                  Authorization: `Bearer ${token}`,
-                  "x-locale": pathLocale,
-                  ...(storeCode && { "x-store-code": storeCode }),
-                },
-              });
+        return;
+      }
+
+      // Warehouse changed or first visit — swap cart contents so each store is isolated.
+      // lastSynced === null means first visit / localStorage cleared.
+      console.log(`[CartSync] Warehouse switch: ${lastSynced || "none"} → ${activeKey}`);
+      setIsLoading(true);
+      const pathLocale = window.location.pathname.startsWith("/ar") ? "ar" : "en";
+
+      try {
+        // Step 1: Save current backend cart items to the PREVIOUS warehouse's localStorage
+        // key before wiping it, so we can restore them when the user switches back.
+        // Skip on first visit (lastSynced is null) — we don't know which warehouse those
+        // items belong to, so we cannot safely attribute them to any key.
+        if (lastSynced) {
+          try {
+            // Use the previous warehouse's store code so the cart route hits the correct
+            // Magento store view URL. Without this, only the locale (en/ar) endpoint is
+            // used and warehouse-specific products can be missing from the snapshot.
+            const cartRes = await fetch("/api/kleverapi/cart", {
+              headers: {
+                Authorization: `Bearer ${token}`,
+                "x-locale": pathLocale,
+                ...(lastSyncedStoreCode && { "x-store-code": lastSyncedStoreCode }),
+              },
+              cache: "no-store",
+            });
+            if (cartRes.ok) {
+              const cartData = await cartRes.json();
+              const rawItems = Array.isArray(cartData.items) ? cartData.items
+                : (Array.isArray(cartData.cart?.items) ? cartData.cart.items : []);
+              // Only persist paid items — promo/free-gift items (price === 0) are
+              // re-triggered by the gift popup and must not bleed across warehouses.
+              const itemsToSave = rawItems
+                .filter((item: any) => Number(item.price || 0) > 0)
+                .map((item: any) => ({ sku: item.sku, qty: Number(item.qty || 1) }));
+              console.log(`[CartSync] Saving ${itemsToSave.length} item(s) for ${lastSynced} before switch`);
+              localStorage.setItem(lastSynced, JSON.stringify(itemsToSave));
             }
-          }
+          } catch { /* non-critical — continue with switch */ }
         }
 
-        // 2. Re-populate backend cart with only the active warehouse's items
-        const savedRaw = localStorage.getItem(activeKey);
-        if (savedRaw === null) {
-          localStorage.setItem(activeKey, "[]");
-        }
-        const savedItems = JSON.parse(localStorage.getItem(activeKey) || "[]");
-        
-        for (const item of savedItems) {
-          await fetch("/api/kleverapi/cart/add", {
+        // Step 2: Clear the backend cart (removes all items from all warehouses since
+        // Magento shares one quote per customer across store views).
+        let clearOk = false;
+        try {
+          const clearRes = await fetch("/api/kleverapi/cart/clear", {
             method: "POST",
             headers: {
               Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
               "x-locale": pathLocale,
               ...(storeCode && { "x-store-code": storeCode }),
             },
-            body: JSON.stringify({ sku: item.sku, qty: item.qty }),
           });
+          clearOk = clearRes.ok;
+        } catch { }
+
+        if (!clearOk) {
+          // Fallback: fetch current items and remove them in parallel
+          try {
+            const cartRes = await fetch("/api/kleverapi/cart", {
+              headers: { Authorization: `Bearer ${token}`, "x-locale": pathLocale },
+              cache: "no-store",
+            });
+            if (cartRes.ok) {
+              const cartData = await cartRes.json();
+              const items = Array.isArray(cartData.items) ? cartData.items
+                : (Array.isArray(cartData.cart?.items) ? cartData.cart.items : []);
+              await Promise.all(items.map((item: any) =>
+                fetch(`/api/kleverapi/cart/remove/${item.item_id}`, {
+                  method: "DELETE",
+                  headers: {
+                    Authorization: `Bearer ${token}`,
+                    "x-locale": pathLocale,
+                    ...(storeCode && { "x-store-code": storeCode }),
+                  },
+                }).catch(() => { })
+              ));
+            }
+          } catch { }
+        }
+
+        // Step 3: Re-populate backend cart with only the active warehouse's saved items.
+        const savedRaw = localStorage.getItem(activeKey);
+        if (!savedRaw) localStorage.setItem(activeKey, "[]");
+        const savedItems: Array<{ sku: string; qty: number }> = (() => {
+          try { return JSON.parse(savedRaw || "[]"); } catch { return []; }
+        })();
+
+        console.log(`[CartSync] Restoring ${savedItems.length} item(s) for ${activeKey} (${storeCode || "locale"})`);
+        for (const item of savedItems) {
+          if (!item.sku || !item.qty) continue;
+          try {
+            const addRes = await fetch("/api/kleverapi/cart/add", {
+              method: "POST",
+              headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+                "x-locale": pathLocale,
+                ...(storeCode && { "x-store-code": storeCode }),
+              },
+              body: JSON.stringify({ sku: item.sku, qty: item.qty }),
+            });
+            if (!addRes.ok) {
+              console.warn(`[CartSync] Failed to re-add SKU ${item.sku} (${addRes.status})`);
+            }
+          } catch (e) {
+            console.warn(`[CartSync] Exception re-adding SKU ${item.sku}:`, e);
+          }
         }
 
         localStorage.setItem("current_synced_cart_warehouse", activeKey);
+        // Persist the store code so next switch can fetch from the correct warehouse URL
+        if (storeCode) localStorage.setItem("current_synced_cart_storecode", storeCode);
+        else localStorage.removeItem("current_synced_cart_storecode");
+      } finally {
+        isSyncing.current = false;
+        setIsLoading(false);
         await fetchCart(false);
         window.dispatchEvent(new Event("cart-updated"));
-      } else {
-        // Warehouse matches the last synced state, we can safely just fetch the totals!
-        await fetchCart();
       }
     };
 

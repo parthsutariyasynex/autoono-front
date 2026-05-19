@@ -278,22 +278,22 @@ export default function OrderAttachmentsPage() {
 
                 {/* Table Section */}
                 {error ? (
-                    // <div className="bg-red-50 border border-red-100 text-red-600 p-4 md:p-8 rounded-md text-center">
-                    //     <p className="font-bold text-xs uppercase mb-2">{t("common.error")}</p>
-                    //     <p className="text-xs">{error.message}</p>
-                    //     <button
-                    //         onClick={() => mutate()}
-                    //         className="mt-6 px-10 py-3 bg-red-600 text-white rounded-md font-bold text-xs uppercase tracking-widest shadow-md active:scale-95"
-                    //     >
-                    //         {t("common.tryAgain")}
-                    //     </button>
-                    // </div>
-                    // ) : isLoading ? (
-                    // <div className="bg-white p-16 flex flex-col items-center justify-center border border-border rounded-md shadow-sm">
-                    //     {/* <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary mb-4"></div> */}
-                    //     <span className="text-xs font-bold text-black/50 uppercase tracking-widest">{t("common.loading")}</span>
-                    // </div>
-                    // ) : attachments.length > 0 ? (
+                    <div className="bg-red-50 border border-red-100 text-red-600 p-4 md:p-8 rounded-md text-center">
+                        <p className="font-bold text-xs uppercase mb-2">{t("common.error")}</p>
+                        <p className="text-xs">{error.message}</p>
+                        <button
+                            onClick={() => mutate()}
+                            className="mt-6 px-10 py-3 bg-red-600 text-white rounded-md font-bold text-xs uppercase tracking-widest shadow-md active:scale-95 cursor-pointer"
+                        >
+                            {t("common.tryAgain")}
+                        </button>
+                    </div>
+                ) : isLoading ? (
+                    <div className="bg-white p-16 flex flex-col items-center justify-center border border-border rounded-md shadow-sm">
+                        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary mb-4"></div>
+                        <span className="text-xs font-bold text-black/50 uppercase tracking-widest">{t("common.loading")}</span>
+                    </div>
+                ) : attachments.length > 0 ? (
                     <>
                         {/* Desktop Table */}
                         <div className="hidden md:block overflow-x-auto w-full border border-border rounded-md shadow-sm">
