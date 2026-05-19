@@ -186,7 +186,7 @@ const CartPage: React.FC = () => {
                                     <span className="text-[#008a00] font-bold text-[15px] tracking-wide">
                                         {messagePrefix} {" "}
                                         {/* <span className="underline decoration-dashed underline-offset-4 font-bold">
-                                            Edit Selection
+                                            <span className="hidden sm:inline">Free Gifts</span>
                                         </span> */}
                                     </span>
                                     {/* <Pencil size={14} className="text-[#008a00]" /> */}

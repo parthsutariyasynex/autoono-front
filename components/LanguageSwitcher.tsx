@@ -38,10 +38,11 @@ export default function LanguageSwitcher() {
         }
 
         const first = segs[0];
-        const STORE_CODE_RE = /^[A-Za-z0-9]+_(en|ar)$/;
+        const STORE_CODE_RE = /^[A-Za-z0-9_]+_(en|ar)$/;
 
         if (STORE_CODE_RE.test(first)) {
-            const base = first.split("_")[0];
+            // Strip only the trailing _en / _ar suffix to preserve multi-word codes like Anwar_Khaled
+            const base = first.replace(/_(en|ar)$/, "");
             segs[0] = `${base}_${newLocale}`;
         } else if (first === "en" || first === "ar") {
             segs[0] = newLocale;

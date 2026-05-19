@@ -28,7 +28,7 @@ const MultiShippingSuccessPage = () => {
 const MultiShippingSuccessContent = () => {
     const searchParams = useSearchParams();
     const router = useRouter();
-    const { t } = useTranslation();
+    const { t, isRtl } = useTranslation();
     const lp = useLocalePath();
     const orderId = searchParams.get("order_id"); // comma-separated entity_ids like "28675,28676,28677"
     const { fetchMultiShippingSuccess } = useCheckout({ skipInitialFetch: true });
@@ -92,7 +92,7 @@ const MultiShippingSuccessContent = () => {
 
     if (isLoading) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-white">
+            <div className="min-h-screen flex items-center justify-center bg-white" dir={isRtl ? "rtl" : "ltr"}>
                 <div className="flex flex-col items-center gap-4">
                     <div className="w-12 h-12 border-4 border-gray-200 border-t-primary rounded-full animate-spin" />
                     <p className="text-label font-bold text-black/50 uppercase tracking-widest">{t("multi.verifying")}</p>
@@ -102,7 +102,7 @@ const MultiShippingSuccessContent = () => {
     }
 
     return (
-        <div className="bg-white min-h-screen font-sans pb-20">
+        <div className="bg-white min-h-screen font-sans pb-20" dir={isRtl ? "rtl" : "ltr"}>
             <div className="max-w-[1200px] mx-auto pt-10 md:pt-20 px-4">
 
                 {/* Header */}
@@ -134,7 +134,9 @@ const MultiShippingSuccessContent = () => {
                         {orders.length > 0 ? orders.map((order, index) => (
                             <div
                                 key={index}
-                                className="flex border-b border-gray-100 last:border-b-0 border-l-4 border-l-primary py-5 px-6 items-start bg-surfaceGhost"
+                                className={`flex border-b border-gray-100 last:border-b-0 py-5 px-6 items-start bg-surfaceGhost ${
+                                    isRtl ? "border-r-4 border-r-primary border-l-0" : "border-l-4 border-l-primary border-r-0"
+                                }`}
                             >
                                 <div className="w-[180px] md:w-[220px] flex-shrink-0">
                                     <span className="text-body md:text-body-lg font-bold text-black">

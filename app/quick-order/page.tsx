@@ -9,7 +9,7 @@ import { useCart } from "@/modules/cart/hooks/useCart";
 import { toast } from "react-hot-toast";
 import Price from "../components/Price";
 import { redirectToLogin } from "@/utils/helpers";
-import { api } from "@/lib/api/api-client";
+import { api, getClientStoreCode } from "@/lib/api/api-client";
 
 interface QuickOrderItem {
     sku: string;
@@ -89,8 +89,12 @@ export default function QuickOrderPage() {
                     redirectToLogin(router);
                     return;
                 }
+                const storeCode = getClientStoreCode();
                 const res = await fetch(`/api/kleverapi/quick-order/search?query=${encodeURIComponent(searchTerm)}&pageSize=10`, {
-                    headers: { "Authorization": `Bearer ${token}` },
+                    headers: { 
+                        "Authorization": `Bearer ${token}`,
+                        ...(storeCode && { "x-store-code": storeCode })
+                    },
                     signal: abortController.signal,
                 });
                 if (res.status === 401) {

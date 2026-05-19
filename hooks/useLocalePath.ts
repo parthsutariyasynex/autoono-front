@@ -4,7 +4,7 @@ import { useLocale } from "../lib/i18n/client";
 import { usePathname } from "next/navigation";
 import { isValidLocale } from "../lib/i18n/config";
 
-const STORE_CODE_RE = /^[A-Za-z0-9]+_(en|ar)$/;
+const STORE_CODE_RE = /^[A-Za-z0-9_]+_(en|ar)$/;
 
 /**
  * Returns a function that prefixes any path with the current store code or locale.

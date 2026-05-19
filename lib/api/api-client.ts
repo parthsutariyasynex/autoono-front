@@ -20,7 +20,7 @@ export function getClientLocale(): string {
     return match?.[1] || "en";
 }
 
-const STORE_CODE_RE = /^[A-Za-z0-9]+_(en|ar)$/;
+const STORE_CODE_RE = /^[A-Za-z0-9_]+_(en|ar)$/;
 
 /**
  * Read the active warehouse store code. Checks (in order):

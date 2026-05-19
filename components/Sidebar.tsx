@@ -83,10 +83,55 @@ const Sidebar = () => {
         // Map Magento native routes to Next.js frontend routes
         if (href === "/customer/address") href = "/customer/address-book";
         if (href === "/sales/order/history") href = "/my-orders";
-        if (href === "/wishlist") href = "/customer/favourite-products";
+        if (href === "/wishlist") href = "/wishlist";
         if (href === "/customer/account") href = "/my-account";
 
         return lp(href);
+    };
+
+    const getTranslatedLabel = (item: SidebarItem) => {
+        const code = (item.code || "").toLowerCase();
+        const label = (item.label || "").toLowerCase();
+
+        if (code === "my_account" || code === "account" || label.includes("account")) {
+            return t("sidebar.myAccount") || item.label;
+        }
+        if (code === "my_statement" || code === "statement" || code === "mystatement" || label.includes("statement")) {
+            return t("sidebar.myStatement") || item.label;
+        }
+        if (code === "manage_accounts" || label.includes("manage accounts") || label.includes("manage_accounts")) {
+            return t("sidebar.manageAccounts") || item.label;
+        }
+        if (code === "my_orders" || code === "orders" || code === "history" || label.includes("orders")) {
+            return t("sidebar.myOrders") || item.label;
+        }
+        if (code === "my_order_attachments" || code === "order_attachments" || code === "orderupload" || label.includes("attachment")) {
+            return t("sidebar.myOrderAttachments") || item.label;
+        }
+        if (code === "favourite_products" || code === "favorite_products" || code === "favorites" || code === "wishlist" || label.includes("favorite") || label.includes("favourite")) {
+            return t("sidebar.favoriteProducts") || item.label;
+        }
+        if (code === "address_book" || code === "address" || label.includes("address")) {
+            return t("sidebar.addressBook") || item.label;
+        }
+        if (code === "dashboard" || label.includes("dashboard")) {
+            return t("sidebar.dashboard") || item.label;
+        }
+        if (code === "my_forecast" || code === "forecast" || code === "viewforcast" || label.includes("forecast") || label.includes("forcast")) {
+            return t("sidebar.myForecast") || item.label;
+        }
+        if (code === "notifications" || code === "usernotifications" || label.includes("notification")) {
+            return t("sidebar.notifications") || item.label;
+        }
+        if (code === "sign_out" || code === "logout" || code === "customer_logout" || label.includes("sign out") || label.includes("logout")) {
+            return t("nav.signOut") || item.label;
+        }
+
+        const key = `sidebar.${item.code}`;
+        const translated = t(key);
+        if (translated !== key) return translated;
+
+        return item.label;
     };
 
     const visibleItems = useMemo(() => {
@@ -122,11 +167,11 @@ const Sidebar = () => {
 
         // 1. Direct code overrides for common sections to guarantee 100% perfect matching
         if (normalizedPathname.includes("/address")) return "address_book";
-        
+
         // Match "My Orders" but prevent it from matching "My Order Attachments" (/orderupload or /order-attachments)
         if (
-            (normalizedPathname.includes("/order") || normalizedPathname.includes("/my-orders") || normalizedPathname.includes("/sales/order")) && 
-            !normalizedPathname.includes("orderupload") && 
+            (normalizedPathname.includes("/order") || normalizedPathname.includes("/my-orders") || normalizedPathname.includes("/sales/order")) &&
+            !normalizedPathname.includes("orderupload") &&
             !normalizedPathname.includes("order-attachment")
         ) {
             return "my_orders";
@@ -203,7 +248,7 @@ const Sidebar = () => {
                                         }
                                         className="block w-full ltr:text-left rtl:text-right py-3 px-6 lg:px-4 text-black/70 hover:text-black hover:bg-gray-100 transition-all duration-200 border-b-[3px] lg:border-b-0 ltr:lg:border-l-4 rtl:lg:border-r-4 border-transparent whitespace-nowrap font-bold uppercase text-body-sm"
                                     >
-                                        {item.label}
+                                        {getTranslatedLabel(item)}
                                     </button>
                                 </li>
                             );
@@ -218,7 +263,7 @@ const Sidebar = () => {
                                         : "text-black/70 hover:text-black hover:bg-gray-100 border-b-[3px] lg:border-b-0 ltr:lg:border-l-4 rtl:lg:border-r-4 border-transparent"
                                         }`}
                                 >
-                                    {item.label}
+                                    {getTranslatedLabel(item)}
                                 </Link>
                             </li>
                         );

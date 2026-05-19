@@ -26,33 +26,77 @@ function Skeleton() {
     );
 }
 
-/** Split plain text into styled paragraphs around known section headers */
-function PlainTextContent({ text, isRtl }: { text: string; isRtl: boolean }) {
-    // Section headings end with ":"  — split on them to create visual breaks
-    const sectionRe = /(?=(?:Vision and Mission|Vision|Mission|Our Products|Brands Owned|Core Values|Branch Network|Closing Statement|الرؤية والرسالة|الرؤية|الرسالة|منتجاتنا|العلامات التجارية المعتمدة|القيم الأساسية|شبكة الفروع|التركيز على العملاء)\s*:)/g;
-    const chunks = text.split(sectionRe).filter(Boolean);
+/** Clean up common typographic typos/errors in Magento plain text responses */
+function cleanText(text: string): string {
+    return text
+        .replace(/جميعاًنسعى/g, "جميعاً نسعى")
+        .replace(/مع مع/g, "مع")
+        .replace(/تفضيلاًللإطارات/g, "تفضيلاً للإطارات")
+        .replace(/واحفاظ/g, "والحفاظ")
+        .replace(/13ًسطحا/g, "13 سطحًا")
+        .replace(/13ًسطحًا/g, "13 سطحًا")
+        .replace(/\[/g, "")
+        .replace(/\]/g, "")
+        .replace(/distribuƟ\s*on/g, "distribution")
+        .replace(/distribu\s*on/g, "distribution")
+        .trim();
+}
 
-    return (
-        <div className={`space-y-6 text-[15px] leading-[1.9] text-black/75 font-medium ${isRtl ? "text-right" : "text-left"}`}>
-            {chunks.map((chunk, i) => {
-                // Detect if the chunk starts with a heading (letters + spaces + colon)
-                const headingMatch = chunk.match(/^([^:]+):\s*/);
-                if (headingMatch && i > 0) {
-                    const heading = headingMatch[1].trim();
-                    const body = chunk.slice(headingMatch[0].length).trim();
-                    return (
-                        <div key={i}>
-                            <h2 className="text-base font-black text-black uppercase tracking-widest mb-2 mt-4">
-                                {heading}
-                            </h2>
-                            {body && <p>{body}</p>}
-                        </div>
-                    );
-                }
-                return <p key={i}>{chunk.trim()}</p>;
-            })}
-        </div>
-    );
+/** Parses the dynamic plain text from Magento CMS into structured sections */
+function parseAboutUs(text: string) {
+    const markers = [
+        { key: "vision_mission", en: "Vision and Mission:", ar: "الرؤية والرسالة" },
+        { key: "vision", en: "Vision:", ar: "الرؤية:" },
+        { key: "mission", en: "Mission:", ar: "الرسالة:" },
+        { key: "products", en: "Our Products:", ar: "منتجاتنا:" },
+        { key: "brands", en: "Brands Owned", ar: "العلامات التجارية المعتمدة" },
+        { key: "values", en: "Core Values:", ar: "القيم الأساسية:" },
+        { key: "network", en: "Branch Network:", ar: "فروعنا وانتشارنا" },
+        { key: "closing", en: "Closing Statement:", ar: "كلمة ختامية" }
+    ];
+
+    // Find indices for all markers in the text
+    const foundMarkers = markers.map(m => {
+        let idx = text.indexOf(m.en);
+        if (idx === -1) {
+            idx = text.indexOf(m.ar);
+        }
+        // Fallback for variation in core values title
+        if (m.key === "values" && idx === -1) {
+            idx = text.indexOf("Autoono Core Values:");
+        }
+        return { ...m, idx };
+    }).filter(m => m.idx !== -1).sort((a, b) => a.idx - b.idx);
+
+    if (foundMarkers.length === 0) {
+        return { intro: cleanText(text) };
+    }
+
+    const sections: Record<string, string> = {};
+    sections["intro"] = cleanText(text.slice(0, foundMarkers[0].idx));
+
+    for (let i = 0; i < foundMarkers.length; i++) {
+        const current = foundMarkers[i];
+        const next = foundMarkers[i + 1];
+        
+        let markerLength = current.en.length;
+        if (text.startsWith(current.ar, current.idx)) {
+            markerLength = current.ar.length;
+        } else if (text.startsWith("Autoono Core Values:", current.idx)) {
+            markerLength = "Autoono Core Values:".length;
+        }
+
+        const startIdx = current.idx + markerLength;
+        const endIdx = next ? next.idx : text.length;
+        
+        let chunk = text.slice(startIdx, endIdx).trim();
+        if (chunk.startsWith(":")) {
+            chunk = chunk.slice(1).trim();
+        }
+        sections[current.key] = cleanText(chunk);
+    }
+
+    return sections;
 }
 
 export default function AboutPage() {
@@ -90,6 +134,95 @@ export default function AboutPage() {
     const content = page?.content || "";
     const isHtml = content.trimStart().startsWith("<");
 
+    const parsed = parseAboutUs(content);
+
+    // Get Intro Paragraphs
+    const getIntroParagraphs = () => {
+        if (!parsed.intro) return [];
+        const cleanIntro = parsed.intro
+            .replace(/^About Autoono\s+/i, "")
+            .replace(/^المقدمة عن الشركة\s+/, "")
+            .trim();
+
+        const sentences = cleanIntro.split(/(?<=\.)\s+/).filter(Boolean);
+        if (!isRtl && sentences.length >= 5) {
+            return [
+                sentences[0],
+                sentences[1] + " " + sentences[2],
+                sentences[3],
+                sentences[4]
+            ];
+        }
+        return sentences;
+    };
+
+    // Get Vision Items (paragraphs)
+    const getVisionItems = () => {
+        if (!parsed.vision) return [];
+        return parsed.vision.split(/(?<=\.)\s+/).map(s => s.trim()).filter(Boolean);
+    };
+
+    // Get Product Items
+    const getProductsList = () => {
+        if (!parsed.products) return [];
+        if (isRtl) {
+            return parsed.products.split(/(?<=\.)\s+/).map(s => s.replace(/\.$/, "").trim()).filter(Boolean);
+        } else {
+            const knownProducts = [
+                "Automotive Lubricants",
+                "Industrial Lubricants",
+                "Marine Lubricants",
+                "Greases",
+                "Brake Fluids",
+                "Coolants"
+            ];
+            const found: string[] = [];
+            knownProducts.forEach(kp => {
+                if (parsed.products.toLowerCase().includes(kp.toLowerCase())) {
+                    found.push(kp);
+                }
+            });
+            if (found.length > 0) return found;
+            return parsed.products.split(/(?=[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)/).map(s => s.trim()).filter(Boolean);
+        }
+    };
+
+    // Get Values List
+    const getValuesList = () => {
+        if (!parsed.values) return [];
+        if (isRtl) {
+            return parsed.values.split(".").map(s => s.trim()).filter(Boolean);
+        } else {
+            const knownValues = [
+                "Quality",
+                "Service",
+                "Trust",
+                "Efficiency with continuous improvement",
+                "Customer Centric"
+            ];
+            const found: string[] = [];
+            knownValues.forEach(kv => {
+                if (parsed.values.toLowerCase().includes(kv.toLowerCase())) {
+                    found.push(kv);
+                }
+            });
+            if (found.length > 0) return found;
+            return parsed.values.split(/\s{2,}/).map(s => s.trim()).filter(Boolean);
+        }
+    };
+
+    // Get Branch Network Paragraphs
+    const getNetworkParagraphs = () => {
+        if (!parsed.network) return [];
+        return parsed.network.split(/(?<=\.)\s+/).map(s => s.trim()).filter(Boolean);
+    };
+
+    const introParagraphs = getIntroParagraphs();
+    const visionItems = getVisionItems();
+    const productList = getProductsList();
+    const valuesList = getValuesList();
+    const networkParagraphs = getNetworkParagraphs();
+
     return (
         <div className="min-h-screen bg-white">
 
@@ -112,25 +245,113 @@ export default function AboutPage() {
                     <p className="text-center text-gray-400 py-12 text-sm">
                         Page content unavailable.
                     </p>
+                ) : isHtml ? (
+                    /* Magento returned HTML — render as-is with prose styles */
+                    <div
+                        className="cms-content"
+                        dangerouslySetInnerHTML={{ __html: content }}
+                    />
                 ) : (
-                    <>
+                    /* Plain text — parse sections and render cleanly exactly as in image */
+                    <div className={`space-y-6 text-[15px] leading-[1.9] text-black/75 font-medium ${isRtl ? "text-right" : "text-left"}`}>
+                        
                         {title && (
                             <h1 className="text-2xl sm:text-3xl md:text-[2rem] font-black text-center mb-10 sm:mb-14 tracking-tight text-black uppercase">
                                 {title}
                             </h1>
                         )}
 
-                        {isHtml ? (
-                            /* Magento returned HTML — render as-is with prose styles */
-                            <div
-                                className="cms-content"
-                                dangerouslySetInnerHTML={{ __html: content }}
-                            />
-                        ) : (
-                            /* Plain text — parse sections and render cleanly */
-                            <PlainTextContent text={content} isRtl={isRtl} />
+                        {/* Intro Paragraphs */}
+                        {introParagraphs.map((para, idx) => (
+                            <p key={idx}>{para}</p>
+                        ))}
+
+                        {/* Vision & Mission Heading */}
+                        {(parsed.vision || parsed.mission) && (
+                            <h2 className="text-base font-black text-black uppercase tracking-widest mb-2 mt-4">
+                                {isRtl ? "الرؤية والرسالة" : "Vision and Mission:"}
+                            </h2>
                         )}
-                    </>
+
+                        {/* Vision Section */}
+                        {parsed.vision && (
+                            <div className="space-y-4">
+                                <h3 className="font-bold text-black">{isRtl ? "الرؤية:" : "Vision:"}</h3>
+                                {visionItems.map((item, idx) => (
+                                    <p key={idx}>{item}</p>
+                                ))}
+                            </div>
+                        )}
+
+                        {/* Mission Section */}
+                        {parsed.mission && (
+                            <div className="space-y-2">
+                                <h3 className="font-bold text-black">{isRtl ? "الرسالة:" : "Mission:"}</h3>
+                                <p>{parsed.mission}</p>
+                            </div>
+                        )}
+
+                        {/* Our Products Section */}
+                        {productList.length > 0 && (
+                            <div className="space-y-2">
+                                <h2 className="text-base font-black text-black uppercase tracking-widest mb-2 mt-4">
+                                    {isRtl ? "منتجاتنا:" : "Our Products:"}
+                                </h2>
+                                <ul className={`list-disc ${isRtl ? "pr-5" : "pl-5"} space-y-1`}>
+                                    {productList.map((item, idx) => (
+                                        <li key={idx}>{item}</li>
+                                    ))}
+                                </ul>
+                            </div>
+                        )}
+
+                        {/* Brands Section */}
+                        {parsed.brands && (
+                            <div className="space-y-2">
+                                <h2 className="text-base font-black text-black uppercase tracking-widest mb-2 mt-4">
+                                    {isRtl ? "العلامات التجارية المعتمدة" : "Brands Owned"}
+                                </h2>
+                                <p>{parsed.brands}</p>
+                            </div>
+                        )}
+
+                        {/* Core Values Section */}
+                        {valuesList.length > 0 && (
+                            <div className="space-y-2">
+                                <h2 className="text-base font-black text-black uppercase tracking-widest mb-2 mt-4">
+                                    {isRtl ? "القيم الأساسية:" : "Autoono Core Values:"}
+                                </h2>
+                                <ul className={`list-disc ${isRtl ? "pr-5" : "pl-5"} space-y-1`}>
+                                    {valuesList.map((item, idx) => (
+                                        <li key={idx}>{item}</li>
+                                    ))}
+                                </ul>
+                            </div>
+                        )}
+
+                        {/* Branch Network Section */}
+                        {parsed.network && (
+                            <div className="space-y-2">
+                                <h2 className="text-base font-black text-black uppercase tracking-widest mb-2 mt-4">
+                                    {isRtl ? "فروعنا وانتشارنا" : "Branch Network:"}
+                                </h2>
+                                {networkParagraphs.map((para, idx) => (
+                                    <p key={idx}>{para}</p>
+                                ))}
+                            </div>
+                        )}
+
+                        {/* Closing Section */}
+                        {parsed.closing && (
+                            <div className="space-y-2">
+                                <h2 className="text-base font-black text-black uppercase tracking-widest mb-2 mt-4">
+                                    {isRtl ? "كلمة ختامية" : "Closing Statement:"}
+                                </h2>
+                                <p>{parsed.closing.replace(/[“”"”]/g, "")}</p>
+                            </div>
+                        )}
+
+                    </div>
                 )}
             </div>
 
@@ -159,7 +380,7 @@ export default function AboutPage() {
                 .cms-content ul,
                 .cms-content ol { padding-left: 1.5em; margin-bottom: 1.2em; }
                 .cms-content li { margin-bottom: 0.4em; }
-                .cms-content a  { color: var(--color-primary, #f7c430); text-decoration: underline; }
+                .cms-content a  { color: var(--color-primary, #4E81C2); text-decoration: underline; }
                 .cms-content img { max-width: 100%; height: auto; border-radius: 6px; margin: 1em 0; }
                 .cms-content table { width: 100%; border-collapse: collapse; margin-bottom: 1.2em; }
                 .cms-content th,

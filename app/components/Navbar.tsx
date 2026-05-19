@@ -61,7 +61,7 @@ export default function Navbar() {
 
   // Store code lives in the URL path prefix (e.g. /V101_en/all-tyres) — not a query param.
   // Fall back to ?store= for any legacy URLs that still carry it.
-  const STORE_CODE_RE = /^[A-Za-z0-9]+_(en|ar)$/;
+  const STORE_CODE_RE = /^[A-Za-z0-9_]+_(en|ar)$/;
   const pathnameFirstSeg = pathname?.split("/").filter(Boolean)[0] || "";
   const currentStore = (STORE_CODE_RE.test(pathnameFirstSeg) || isValidLocale(pathnameFirstSeg))
     ? pathnameFirstSeg

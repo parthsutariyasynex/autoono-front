@@ -10,6 +10,7 @@ import {
   useRef,
 } from "react";
 import { signOut } from "next-auth/react";
+import { usePathname } from "next/navigation";
 import { getAuthToken, getClientStoreCode } from "@/lib/api/api-client";
 
 export interface CartItem {
@@ -65,13 +66,24 @@ function handleAuthError() {
   });
 }
 
+export function getWarehouseKey(storeCode: string): string {
+  const code = (storeCode || "").toLowerCase();
+  if (code.includes("anwar")) return "cart_anwar";
+  if (code.includes("hussain")) return "cart_hussain";
+  if (code.includes("mohammed")) return "cart_mohammed";
+  if (code.includes("abdulqader")) return "cart_abdulqader";
+  return "cart_allwarehouse";
+}
+
 export function CartProvider({ children }: { children: ReactNode }) {
   const [cart, setCart] = useState<Cart | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const pathname = usePathname();
   const isFetching = useRef(false);
   const pendingFetch = useRef(false);
+
   const fetchCart = useCallback(async (showLoader = true, _retry = 0) => {
     // If already fetching, mark a pending fetch so we re-run once current one finishes
     if (isFetching.current) {
@@ -171,8 +183,109 @@ export function CartProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
-    fetchCart();
-  }, [fetchCart]);
+    if (typeof window === "undefined") return;
+
+    const performSync = async () => {
+      const token = await getAuthToken();
+      if (!token) return;
+
+      const storeCode = getClientStoreCode();
+      const activeKey = getWarehouseKey(storeCode);
+      const lastSynced = localStorage.getItem("current_synced_cart_warehouse");
+
+      if (lastSynced === null) {
+        // First time on this browser device. 
+        // We assume whatever is in the backend cart belongs to the current warehouse.
+        const pathLocale = window.location.pathname.startsWith("/ar") ? "ar" : "en";
+        const res = await fetch("/api/kleverapi/cart", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "x-locale": pathLocale,
+            ...(storeCode && { "x-store-code": storeCode }),
+          },
+          cache: "no-store",
+        });
+        if (res.ok) {
+          const data = await res.json();
+          const rawItems = Array.isArray(data.items) ? data.items : (Array.isArray(data.cart?.items) ? data.cart.items : []);
+          const itemsToSave = rawItems.map((item: any) => ({ sku: item.sku, qty: Number(item.qty || 1) }));
+          localStorage.setItem(activeKey, JSON.stringify(itemsToSave));
+        } else {
+          localStorage.setItem(activeKey, "[]");
+        }
+        localStorage.setItem("current_synced_cart_warehouse", activeKey);
+        await fetchCart();
+      } else if (lastSynced !== activeKey) {
+        // Warehouse has been switched! We MUST sync the backend cart to strictly reflect the isolated warehouse.
+        setIsLoading(true);
+        const pathLocale = window.location.pathname.startsWith("/ar") ? "ar" : "en";
+        
+        // 1. Clear backend cart to remove old warehouse's items
+        const clearRes = await fetch("/api/kleverapi/cart/clear", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "x-locale": pathLocale,
+            ...(storeCode && { "x-store-code": storeCode }),
+          },
+        });
+        if (!clearRes.ok) {
+          // Fallback manual clearance if endpoint fails
+          const cartRes = await fetch("/api/kleverapi/cart", {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "x-locale": pathLocale,
+              ...(storeCode && { "x-store-code": storeCode }),
+            },
+            cache: "no-store",
+          });
+          if (cartRes.ok) {
+            const cartData = await cartRes.json();
+            const items = Array.isArray(cartData.items) ? cartData.items : (Array.isArray(cartData.cart?.items) ? cartData.cart.items : []);
+            for (const item of items) {
+              await fetch(`/api/kleverapi/cart/remove/${item.item_id}`, {
+                method: "DELETE",
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                  "x-locale": pathLocale,
+                  ...(storeCode && { "x-store-code": storeCode }),
+                },
+              });
+            }
+          }
+        }
+
+        // 2. Re-populate backend cart with only the active warehouse's items
+        const savedRaw = localStorage.getItem(activeKey);
+        if (savedRaw === null) {
+          localStorage.setItem(activeKey, "[]");
+        }
+        const savedItems = JSON.parse(localStorage.getItem(activeKey) || "[]");
+        
+        for (const item of savedItems) {
+          await fetch("/api/kleverapi/cart/add", {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+              "x-locale": pathLocale,
+              ...(storeCode && { "x-store-code": storeCode }),
+            },
+            body: JSON.stringify({ sku: item.sku, qty: item.qty }),
+          });
+        }
+
+        localStorage.setItem("current_synced_cart_warehouse", activeKey);
+        await fetchCart(false);
+        window.dispatchEvent(new Event("cart-updated"));
+      } else {
+        // Warehouse matches the last synced state, we can safely just fetch the totals!
+        await fetchCart();
+      }
+    };
+
+    performSync();
+  }, [pathname, fetchCart]);
 
   // Re-fetch cart when locale changes (cart labels come from Magento in locale)
   useEffect(() => {
@@ -197,8 +310,19 @@ export function CartProvider({ children }: { children: ReactNode }) {
         return;
       }
 
-      const pathLocale = window.location.pathname.startsWith("/ar") ? "ar" : "en";
+      // Update warehouse storage first
       const storeCode = getClientStoreCode();
+      const activeKey = getWarehouseKey(storeCode);
+      const savedItems = JSON.parse(localStorage.getItem(activeKey) || "[]");
+      const itemIndex = savedItems.findIndex((i: any) => i.sku === sku);
+      if (itemIndex > -1) {
+        savedItems[itemIndex].qty += qty;
+      } else {
+        savedItems.push({ sku, qty });
+      }
+      localStorage.setItem(activeKey, JSON.stringify(savedItems));
+
+      const pathLocale = window.location.pathname.startsWith("/ar") ? "ar" : "en";
       const res = await fetch("/api/kleverapi/cart/add", {
         method: "POST",
         headers: {
@@ -235,6 +359,19 @@ export function CartProvider({ children }: { children: ReactNode }) {
       if (qty < 1) {
         await removeFromCart(itemId);
         return;
+      }
+
+      // Update warehouse storage first
+      const itemToUpdate = cart?.items?.find(i => i.item_id === itemId);
+      if (itemToUpdate) {
+        const storeCode = getClientStoreCode();
+        const activeKey = getWarehouseKey(storeCode);
+        const savedItems = JSON.parse(localStorage.getItem(activeKey) || "[]");
+        const itemIndex = savedItems.findIndex((i: any) => i.sku === itemToUpdate.sku);
+        if (itemIndex > -1) {
+          savedItems[itemIndex].qty = qty;
+          localStorage.setItem(activeKey, JSON.stringify(savedItems));
+        }
       }
 
       // Optimistically update local state so UI reflects change immediately
@@ -280,6 +417,16 @@ export function CartProvider({ children }: { children: ReactNode }) {
       const token = await getAuthToken();
       if (!token) throw new Error("Not authenticated");
 
+      // Update warehouse storage first
+      const itemToRemove = cart?.items?.find(i => i.item_id === itemId);
+      if (itemToRemove) {
+        const storeCode = getClientStoreCode();
+        const activeKey = getWarehouseKey(storeCode);
+        const savedItems = JSON.parse(localStorage.getItem(activeKey) || "[]");
+        const filteredItems = savedItems.filter((i: any) => i.sku !== itemToRemove.sku);
+        localStorage.setItem(activeKey, JSON.stringify(filteredItems));
+      }
+
       const pathLocale = window.location.pathname.startsWith("/ar") ? "ar" : "en";
       const storeCode = getClientStoreCode();
       const res = await fetch(`/api/kleverapi/cart/remove/${itemId}`, {
@@ -320,10 +467,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
       const token = await getAuthToken();
       if (!token) throw new Error("Not authenticated");
 
-      const pathLocale = window.location.pathname.startsWith("/ar") ? "ar" : "en";
+      // Update warehouse storage first
       const storeCode = getClientStoreCode();
+      const activeKey = getWarehouseKey(storeCode);
+      localStorage.setItem(activeKey, JSON.stringify([]));
 
-      // Try the dedicated clear endpoint first
+      const pathLocale = window.location.pathname.startsWith("/ar") ? "ar" : "en";
       const res = await fetch("/api/kleverapi/cart/clear", {
         method: "POST",
         headers: {

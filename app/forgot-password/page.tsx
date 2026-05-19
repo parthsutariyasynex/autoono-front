@@ -42,6 +42,21 @@ export default function ForgotPasswordPage() {
     return () => document.body.classList.remove('scrollbar-hide');
   }, []);
 
+  const getMobileRequirements = (code: string) => {
+    if (code === "+966") return { length: 9, start: "5", example: "5xxxxxxxx" };
+    if (code === "+971") return { length: 9, start: "5", example: "5xxxxxxxx" };
+    if (code === "+91")  return { length: 10, start: "6-9", example: "9xxxxxxxxx" };
+    return { length: 8, start: "", example: "" };
+  };
+
+  const validateMobileFormat = (number: string, code: string) => {
+    const req = getMobileRequirements(code);
+    if (number.length !== req.length) return false;
+    if (code === "+966" || code === "+971") return /^5/.test(number);
+    if (code === "+91") return /^[6-9]/.test(number);
+    return true;
+  };
+
   const validate = () => {
     const newErrors: { [key: string]: string } = {};
 
@@ -50,8 +65,16 @@ export default function ForgotPasswordPage() {
         if (!email) newErrors.email = t("forgotPassword.emailRequired");
         else if (!/\S+@\S+\.\S+/.test(email)) newErrors.email = t("forgotPassword.emailInvalid");
       } else {
-        if (!mobileNumber) newErrors.mobile = t("forgotPassword.mobileRequired");
-        // else if (mobileNumber.length !== 10) newErrors.mobile = "Mobile number must be 10 digits";
+        if (!mobileNumber) {
+          newErrors.mobile = t("forgotPassword.mobileRequired");
+        } else {
+          const req = getMobileRequirements(countryCode);
+          if (mobileNumber.length !== req.length) {
+            newErrors.mobile = `${t("login.mustBe") || "Must be"} ${req.length} ${t("login.digits") || "digits"}`;
+          } else if (!validateMobileFormat(mobileNumber, countryCode)) {
+            newErrors.mobile = t("login.invalidMobileFormat") || "Invalid mobile format";
+          }
+        }
       }
     } else if (step === "otp") {
       if (!otp) newErrors.otp = t("forgotPassword.otpRequired");
@@ -98,28 +121,37 @@ export default function ForgotPasswordPage() {
   };
 
   const handleSendMobileOtp = async () => {
+    if (loading) return;
     setLoading(true);
+    setErrors({});
     try {
       const res = await fetch("/api/send-otp", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          mobile: mobileNumber,
-          countryCode: countryCode,
-        }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ mobile: mobileNumber, countryCode }),
       });
 
       const data = await res.json();
 
-      if (res.ok) {
+      if (res.ok && data.status !== "error" && data.success !== false) {
         toast.success(t("forgotPassword.otpSentSuccess"));
         setStep("otp");
       } else {
-        toast.error(data.message || t("forgotPassword.otpSentFailed"));
+        const msg: string = data.message || "";
+        const lower = msg.toLowerCase();
+        if (
+          lower.includes("not found") ||
+          lower.includes("not exist") ||
+          lower.includes("not registered") ||
+          lower.includes("no such entity") ||
+          res.status === 404
+        ) {
+          setErrors({ mobile: t("login.mobileNotFound") || "This mobile number is not registered." });
+        } else {
+          toast.error(msg || t("forgotPassword.otpSentFailed"));
+        }
       }
-    } catch (err: any) {
+    } catch {
       toast.error(t("forgotPassword.otpSentFailed"));
     } finally {
       setLoading(false);
@@ -339,9 +371,10 @@ export default function ForgotPasswordPage() {
                   <button
                     type="button"
                     onClick={handleSendMobileOtp}
-                    className="text-primary text-label font-semibold text-right mt-1 hover:underline cursor-pointer"
+                    disabled={loading}
+                    className="text-primary text-label font-semibold text-right mt-1 hover:underline cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    {t("forgotPassword.resendCode")}
+                    {loading ? t("forgotPassword.sending") : t("forgotPassword.resendCode")}
                   </button>
                 </div>
               )}

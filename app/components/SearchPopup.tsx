@@ -6,6 +6,7 @@ import { Search, X } from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useLocalePath } from "@/hooks/useLocalePath";
+import { getClientStoreCode } from "@/lib/api/api-client";
 
 interface SearchPopupProps {
     isOpen: boolean;
@@ -152,11 +153,14 @@ const SearchPopup: React.FC<SearchPopupProps> = ({ isOpen, onClose }) => {
                 params.set("query", query);
                 params.set("pageSize", String(PREVIEW_LIMIT));
                 params.set("page", "1");
-                const store = searchParams?.get("store");
+                const store = searchParams?.get("store") || getClientStoreCode();
                 if (store) params.set("store", store);
 
                 const res = await fetch(`/api/kleverapi/product-search?${params.toString()}`, {
-                    headers: token ? { "Authorization": `Bearer ${token}` } : {},
+                    headers: {
+                        ...(token ? { "Authorization": `Bearer ${token}` } : {}),
+                        ...(store ? { "x-store-code": store } : {}),
+                    },
                     signal: abortController.signal,
                 });
 

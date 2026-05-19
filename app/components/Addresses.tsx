@@ -93,11 +93,18 @@ export default function Addresses() {
   const [actionLoading, setActionLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
+  const [hasLoadedOnce, setHasLoadedOnce] = useState(false);
 
   useEffect(() => {
     // @ts-ignore
     dispatch(fetchAddresses());
   }, [dispatch]);
+
+  useEffect(() => {
+    if (loading) {
+      setHasLoadedOnce(true);
+    }
+  }, [loading]);
 
 
   const handleAddressAction = async (action: string, addressId: number | string) => {
@@ -157,7 +164,7 @@ export default function Addresses() {
   const defaultBilling = addresses.find((address: any) => address.default_billing);
   const defaultShipping = addresses.find((address: any) => address.default_shipping);
 
-  if (loading && addresses.length === 0) {
+  if ((loading || !hasLoadedOnce) && addresses.length === 0) {
     return (
       <div className="p-6 flex justify-center items-center min-h-[400px]">
         <div className="flex flex-col items-center gap-4">
@@ -220,60 +227,51 @@ export default function Addresses() {
           <div className="h-[2px] flex-1 bg-gradient-to-r from-primary to-transparent"></div>
         </div>
 
-        <div className="bg-white border border-border rounded-xl shadow-sm overflow-hidden transition-all duration-300 hover:shadow-md">
-          <div className="overflow-x-auto">
-            <table className="w-full border-collapse min-w-[650px]">
-              <thead>
-                <tr className="bg-gray-100 border-b border-border text-black text-label font-bold uppercase tracking-widest h-[60px]">
-                  <th className="px-6 py-4 ltr:text-left rtl:text-right">{t("addressBook.firstName")}</th>
-                  <th className="px-6 py-4 ltr:text-left rtl:text-right">{t("addressBook.lastName")}</th>
-                  <th className="px-6 py-4 ltr:text-left rtl:text-right">{t("addressBook.streetAddress")}</th>
-                  <th className="px-6 py-4 ltr:text-left rtl:text-right">{t("addressBook.city")}</th>
-                  <th className="px-6 py-4 ltr:text-left rtl:text-right">{t("addressBook.zipCode")}</th>
-                  <th className="px-6 py-4 ltr:text-left rtl:text-right">{t("addressBook.phone")}</th>
-                </tr>
-              </thead>
-
-              <tbody className="bg-white divide-y divide-gray-50">
-                {error && (
-                  <tr>
-                    <td colSpan={6} className="px-6 py-24 text-center">
-                      <div className="flex flex-col items-center gap-2">
-                        <span className="text-red-500 text-xs font-bold uppercase tracking-widest">{t("common.error")}</span>
-                        <p className="text-black/60 text-body">{error}</p>
-                      </div>
-                    </td>
+        {filteredAddresses.length > 0 ? (
+          <div className="bg-white border border-border rounded-xl shadow-sm overflow-hidden transition-all duration-300 hover:shadow-md">
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse min-w-[650px]">
+                <thead>
+                  <tr className="bg-gray-100 border-b border-border text-black text-label font-bold uppercase tracking-widest h-[60px]">
+                    <th className="px-6 py-4 ltr:text-left rtl:text-right">{t("addressBook.firstName")}</th>
+                    <th className="px-6 py-4 ltr:text-left rtl:text-right">{t("addressBook.lastName")}</th>
+                    <th className="px-6 py-4 ltr:text-left rtl:text-right">{t("addressBook.streetAddress")}</th>
+                    <th className="px-6 py-4 ltr:text-left rtl:text-right">{t("addressBook.city")}</th>
+                    <th className="px-6 py-4 ltr:text-left rtl:text-right">{t("addressBook.zipCode")}</th>
+                    <th className="px-6 py-4 ltr:text-left rtl:text-right">{t("addressBook.phone")}</th>
                   </tr>
-                )}
-                {filteredAddresses.length === 0 && !loading && !error && (
-                  <tr>
-                    <td colSpan={6} className="px-6 py-24 text-center">
-                      <p className="text-black/50 text-xs italic tracking-[0.2em] uppercase font-bold">
-                        {t("addressBook.noAdditionalAddresses")}
-                      </p>
-                    </td>
-                  </tr>
-                )}
+                </thead>
 
-                {filteredAddresses.slice((currentPage - 1) * pageSize, currentPage * pageSize).map((address: any, idx: number) => (
-                  <tr key={address.id} className="hover:bg-primary/5 transition-colors text-body group h-[70px]">
-                    <td className="px-6 py-4 font-bold text-black uppercase ltr:text-left rtl:text-right">{address.firstname}</td>
-                    <td className="px-6 py-4 font-bold text-black uppercase ltr:text-left rtl:text-right">{address.lastname}</td>
-                    <td className="px-6 py-4 text-black/60 font-medium ltr:text-left rtl:text-right">{Array.isArray(address.street) ? address.street.join(", ") : address.street || "-"}</td>
-                    <td className="px-6 py-4 uppercase font-bold text-black ltr:text-left rtl:text-right">{address.city}</td>
-                    <td className="px-6 py-4 font-bold text-black/80 ltr:text-left rtl:text-right group-hover:text-black transition-colors"><span dir="ltr">{address.postcode}</span></td>
-                    <td className="px-6 py-4 ltr:text-left rtl:text-right">
-                      <span dir="ltr" className="text-black/70 font-bold hover:text-primary cursor-pointer transition-colors duration-200">
-                        {address.telephone}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                <tbody className="bg-white divide-y divide-gray-50">
+                  {error && (
+                    <tr>
+                      <td colSpan={6} className="px-6 py-24 text-center">
+                        <div className="flex flex-col items-center gap-2">
+                          <span className="text-red-500 text-xs font-bold uppercase tracking-widest">{t("common.error")}</span>
+                          <p className="text-black/60 text-body">{error}</p>
+                        </div>
+                      </td>
+                    </tr>
+                  )}
 
-          {filteredAddresses.length > 0 && (
+                  {filteredAddresses.slice((currentPage - 1) * pageSize, currentPage * pageSize).map((address: any, idx: number) => (
+                    <tr key={address.id} className="hover:bg-primary/5 transition-colors text-body group h-[70px]">
+                      <td className="px-6 py-4 font-bold text-black uppercase ltr:text-left rtl:text-right">{address.firstname}</td>
+                      <td className="px-6 py-4 font-bold text-black uppercase ltr:text-left rtl:text-right">{address.lastname}</td>
+                      <td className="px-6 py-4 text-black/60 font-medium ltr:text-left rtl:text-right">{Array.isArray(address.street) ? address.street.join(", ") : address.street || "-"}</td>
+                      <td className="px-6 py-4 uppercase font-bold text-black ltr:text-left rtl:text-right">{address.city}</td>
+                      <td className="px-6 py-4 font-bold text-black/80 ltr:text-left rtl:text-right group-hover:text-black transition-colors"><span dir="ltr">{address.postcode}</span></td>
+                      <td className="px-6 py-4 ltr:text-left rtl:text-right">
+                        <span dir="ltr" className="text-black/70 font-bold hover:text-primary cursor-pointer transition-colors duration-200">
+                          {address.telephone}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
             <div className="px-4 py-2 border-t border-gray-50 bg-gray-50/30">
               <Pagination
                 currentPage={currentPage}
@@ -284,8 +282,14 @@ export default function Addresses() {
                 onPageSizeChange={(val) => { setPageSize(val); setCurrentPage(1); }}
               />
             </div>
-          )}
-        </div>
+          </div>
+        ) : (
+          <p className="text-black/60 text-body ltr:text-left rtl:text-right font-medium">
+            {t("addressBook.noAdditionalAddresses") !== "addressBook.noAdditionalAddresses"
+              ? t("addressBook.noAdditionalAddresses")
+              : "You have no other address entries in your address book."}
+          </p>
+        )}
       </section>
     </div>
   );

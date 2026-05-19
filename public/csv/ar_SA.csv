@@ -1250,7 +1250,7 @@ href=""https://dashboard.rjmetrics.com/v2/magento/signup/"">Magento BI Essential
 "PayPal through Braintree","باي بال عن طريق Braintree",module,Magento_Braintree
 "Override Merchant Name","تجاوز اسم التاجر",module,Magento_Braintree
 "Require Customer's Billing Address","تتطلب معالجة عناوين الفواتير للعميل",module,Magento_Braintree
-"Allow to Edit Shipping Address Entered During Checkout on PayPal Side","السماح بتعديل عنوان الشحن خلال مرحلة الدفع بـ باي بال",module,Magento_Braintree
+"Allow to Change Shipping Address Entered During Checkout on PayPal Side","السماح بتعديل عنوان الشحن خلال مرحلة الدفع بـ باي بال",module,Magento_Braintree
 "Display on Shopping Cart","العرض في سلة التسوق",module,Magento_Braintree
 "Skip Order Review","تخطي مراجعة الطلب",module,Magento_Braintree
 "3D Secure Verification Settings","إعدادات التحقق آمنة 3D",module,Magento_Braintree
@@ -7853,7 +7853,7 @@ it will make no affect on Price filter.",module,Magento_LayeredNavigation
 "Shipping Methods","طريقة الشحن",module,Magento_Multishipping
 "Edit Address","تعديل العنوان",module,Magento_Multishipping
 "Edit Billing Address","تعديل عنوان دفع الفاتورة",module,Magento_Multishipping
-"Edit Shipping Address","تعديل عنوان الشحن",module,Magento_Multishipping
+"Change Shipping Address","تعديل عنوان الشحن",module,Magento_Multishipping
 "Create Billing Address","إنشاء عنوان دفع الفاتورة",module,Magento_Multishipping
 "Create Shipping Address","إنشاء عنوان الشحن",module,Magento_Multishipping
 "Data saving problem","خطأ في حفظ البيانات",module,Magento_Multishipping

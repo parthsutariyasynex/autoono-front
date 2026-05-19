@@ -72,8 +72,10 @@ const FilterGroup = memo(({
     selectedValues: string[];
     onCheckboxChange: (code: string, value: string, checked: boolean) => void;
 }) => {
-    const { t } = useTranslation();
+    const { t, isRtl } = useTranslation();
     const [searchTerm, setSearchTerm] = useState("");
+    
+    const translatedLabel = t(`filter.${group.code}`) !== `filter.${group.code}` ? t(`filter.${group.code}`) : group.label;
 
     const filteredOptions = useMemo(() =>
         group.options.filter(opt =>
@@ -89,7 +91,7 @@ const FilterGroup = memo(({
                 aria-expanded={isExpanded}
             >
                 <div className="flex items-center gap-2">
-                    <span className="font-semibold text-black text-[15px]">{t(`filter.${group.code}`) !== `filter.${group.code}` ? t(`filter.${group.code}`) : group.label}</span>
+                    <span className="font-semibold text-black text-[15px]">{translatedLabel}</span>
                 </div>
                 <div className={`text-black/50 transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`}>
                     <ChevronDown className="w-4 h-4" strokeWidth={2.5} />
@@ -102,7 +104,7 @@ const FilterGroup = memo(({
                         <div className="relative mb-1">
                             <input
                                 type="text"
-                                placeholder={`${t("m.search")} ${group.label}...`}
+                                placeholder={isRtl ? `${t("m.search")}...` : `${t("m.search")} ${translatedLabel}...`}
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
                                 className="w-full pl-8 pr-3 py-1.5 text-xs border border-gray-200 rounded-md outline-none"

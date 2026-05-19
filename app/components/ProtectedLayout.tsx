@@ -31,7 +31,7 @@ export default function ProtectedLayout({ children }: ProtectedLayoutProps) {
   // Strip locale prefix OR store-code prefix (e.g. V101_en, Anwar_ar) for route matching.
   // stripLocaleFromPath only handles en/ar — store-code URLs like /V101_en/locations
   // must also be stripped so public pages work without login on those URLs.
-  const STORE_CODE_RE = /^[A-Za-z0-9]+_(en|ar)$/;
+  const STORE_CODE_RE = /^[A-Za-z0-9_]+_(en|ar)$/;
   const pathnameWithoutLocale = (() => {
     const stripped = stripLocaleFromPath(pathname);
     if (stripped !== pathname) return stripped;

@@ -106,7 +106,7 @@ export default function ProductsPage({ categoryId: propCategoryId, storeCode: pr
 
   // Store code lives in the URL path prefix (e.g. /V101_en/products) — read it here
   // so the products API always uses the right warehouse without a ?store= query param.
-  const STORE_CODE_RE_PL = /^[A-Za-z0-9]+_(en|ar)$/;
+  const STORE_CODE_RE_PL = /^[A-Za-z0-9_]+_(en|ar)$/;
   const pathStoreCode = (() => {
     const firstSeg = (pathname || "").split("/").filter(Boolean)[0] || "";
     return STORE_CODE_RE_PL.test(firstSeg) ? firstSeg : "";
@@ -315,17 +315,22 @@ export default function ProductsPage({ categoryId: propCategoryId, storeCode: pr
         const pathLocale = storeLocaleMatch ? storeLocaleMatch[1]
           : (firstSeg === "ar" || firstSeg === "en") ? firstSeg : "";
         const cookieLocale = document.cookie.match(/NEXT_LOCALE=([^;]+)/)?.[1] || "";
+        const pathStoreCodeFromUrl = window.location.pathname.split("/").filter(Boolean)[0];
+        const tempStoreCode = propStoreCode || (STORE_CODE_RE_PL.test(pathStoreCodeFromUrl) ? pathStoreCodeFromUrl : null) || selectedStoreCode || "";
         const fetchLocale = pathLocale || cookieLocale || "en";
-        const headers: HeadersInit = { "Content-Type": "application/json", "Authorization": `Bearer ${token}`, "x-locale": fetchLocale };
+        const headers: HeadersInit = { 
+          "Content-Type": "application/json", 
+          "Authorization": `Bearer ${token}`, 
+          "x-locale": fetchLocale,
+          ...(tempStoreCode && { "x-store-code": tempStoreCode })
+        };
 
         const queryString = formatMagentoQueryParams(debouncedFilters, currentPage, sortBy);
 
         // Priority for categoryId: Prop > URL Param > Default (15)
         const categoryIdFromUrl = propCategoryId || urlCategoryId || "15";
 
-        const pathStoreCodeFromUrl = window.location.pathname.split("/").filter(Boolean)[0];
-        const effectiveStoreCode = propStoreCode || (STORE_CODE_RE_PL.test(pathStoreCodeFromUrl) ? pathStoreCodeFromUrl : null) || selectedStoreCode || "";
-        const storeParam = effectiveStoreCode ? `&storeCode=${encodeURIComponent(effectiveStoreCode)}` : "";
+        const storeParam = tempStoreCode ? `&storeCode=${encodeURIComponent(tempStoreCode)}` : "";
 
         // When an item code (SKU) is typed, use product-search — it matches exactly
         // what the live Magento storefront does (/product-search?query=<sku>).
@@ -336,7 +341,7 @@ export default function ProductsPage({ categoryId: propCategoryId, storeCode: pr
           psParams.set("query", itemCodeTerm);
           psParams.set("pageSize", String(PAGE_SIZE));
           psParams.set("page", String(currentPage));
-          if (effectiveStoreCode) psParams.set("store", effectiveStoreCode);
+          if (tempStoreCode) psParams.set("store", tempStoreCode);
           url = `/api/kleverapi/product-search?${psParams.toString()}`;
         } else {
           const searchByParam = searchByTerm ? `&searchby=${encodeURIComponent(searchByTerm)}` : "";

@@ -21,6 +21,7 @@ export async function GET(request: Request) {
             "Content-Type": "application/json",
             Authorization: authHeader,
             platform: "web",
+            ...(storeCode && { "x-store-code": storeCode }),
         };
 
         // Try store URL first, then locale URL, then global V1 (matches live site)
