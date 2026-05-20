@@ -9,7 +9,7 @@ import { api } from "@/lib/api/api-client";
 
 export default function EditAddressPage() {
     return (
-        <Suspense fallback={<div className="flex-1 flex items-center justify-center"><div className="h-10 w-10 animate-spin rounded-full border-4 border-gray-200 border-t-primary"></div></div>}>
+        <Suspense fallback={<div className="max-w-xl mx-auto px-4 py-6 space-y-4 animate-pulse">{Array.from({length:6}).map((_,i)=><div key={i} className="h-10 bg-gray-200 rounded-lg"/>)}</div>}>
             <EditAddressPageContent />
         </Suspense>
     );
@@ -213,7 +213,7 @@ function EditAddressPageContent() {
             <>
 
                 <div className="flex items-center justify-center min-h-[calc(100vh-100px)] mt-4 md:mt-8">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+                    <div className="max-w-xl mx-auto px-4 py-4 space-y-3 animate-pulse">{Array.from({length:5}).map((_,i)=><div key={i} className="h-10 bg-gray-200 rounded-lg"/>)}</div>
                 </div>
             </>
         );
@@ -411,11 +411,7 @@ function EditAddressPageContent() {
                                             disabled={saving}
                                             className="bg-[#3b71a8] hover:bg-[#2c557e] text-white text-xs font-bold px-8 py-3 uppercase transition-colors rounded-[3px] shadow-sm tracking-wider disabled:opacity-50 flex items-center justify-center min-w-[160px]"
                                         >
-                                            {saving ? (
-                                                <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
-                                            ) : (
-                                                t("addressBook.saveAddress") === "addressBook.saveAddress" ? "SAVE ADDRESS" : t("addressBook.saveAddress")
-                                            )}
+                                            <span className={saving ? "opacity-50" : ""}>{t("addressBook.saveAddress") === "addressBook.saveAddress" ? "SAVE ADDRESS" : t("addressBook.saveAddress")}</span>
                                         </button>
                                     </div>
                                 </div>

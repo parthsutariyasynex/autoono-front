@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useRef } from "react";
 import { useSession } from "next-auth/react";
 import { NotificationsResponse, NotificationItem } from "../types";
 import toast from "react-hot-toast";
@@ -17,9 +17,18 @@ export function useNotifications() {
 
     const [deletingIds, setDeletingIds] = useState<number[]>([]);
 
+    // Stable string dep — prevents useCallback from getting a new reference
+    // every time NextAuth silently re-polls and recreates the session object.
+    const sessionToken = (session as any)?.accessToken as string | undefined;
+
+    // Inflight guard: prevents concurrent fetch calls (e.g. StrictMode double-mount)
+    const fetchingRef = useRef(false);
+
     const fetchNotifications = useCallback(async (pageSize = 15, currentPage = 1) => {
-        const token = (session as any)?.accessToken;
+        const token = sessionToken;
         if (!token) return;
+        if (fetchingRef.current) return;
+        fetchingRef.current = true;
 
         setIsLoading(true);
         setError(null);
@@ -63,11 +72,12 @@ export function useNotifications() {
             // Network error or backend unreachable — fail silently
         } finally {
             setIsLoading(false);
+            fetchingRef.current = false;
         }
-    }, [session]);
+    }, [sessionToken]);
 
     const markAsRead = useCallback(async (notificationId: number) => {
-        const token = (session as any)?.accessToken;
+        const token = sessionToken;
         if (!token) return false;
 
         try {
@@ -111,10 +121,10 @@ export function useNotifications() {
             toast.error(t("notifications.errorOccurred"));
         }
         return false;
-    }, [session, t, isRtl]);
+    }, [sessionToken, t, isRtl]);
 
     const removeNotification = useCallback(async (notificationId: number, isRead: boolean) => {
-        const token = (session as any)?.accessToken;
+        const token = sessionToken;
         if (!token) return;
 
         setDeletingIds(prev => [...prev, notificationId]);
@@ -155,7 +165,7 @@ export function useNotifications() {
         } finally {
             setDeletingIds(prev => prev.filter(id => id !== notificationId));
         }
-    }, [session, markAsRead, t, isRtl]);
+    }, [sessionToken, markAsRead, t, isRtl]);
 
     return {
         notifications,

@@ -124,7 +124,7 @@ export default function EditAddressPage() {
             <>
 
                 <div className="flex items-center justify-center min-h-[calc(100vh-100px)] mt-4 md:mt-8">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+                    <div className="max-w-xl mx-auto px-4 py-4 space-y-3 animate-pulse">{Array.from({length:5}).map((_,i)=><div key={i} className="h-10 bg-gray-200 rounded-lg"/>)}</div>
                 </div>
             </>
         );
@@ -216,11 +216,7 @@ export default function EditAddressPage() {
                                             disabled={saving}
                                             className="bg-warningHoney hover:bg-primaryHover text-black text-body-lg font-bold px-6 md:px-10 py-3 uppercase transition-colors rounded-[3px] shadow-sm tracking-wide disabled:opacity-50 flex items-center justify-center w-full sm:w-auto sm:min-w-[180px]"
                                         >
-                                            {saving ? (
-                                                <div className="h-5 w-5 animate-spin rounded-full border-2 border-black border-t-transparent"></div>
-                                            ) : (
-                                                "SAVE ADDRESS"
-                                            )}
+                                            <span className={saving ? "opacity-50" : ""}>SAVE ADDRESS</span>
                                         </button>
                                     </div>
                                 </form>

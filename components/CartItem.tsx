@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { X, Minus, Plus, Loader2 } from "lucide-react";
+import { X, Minus, Plus } from "lucide-react";
 import Link from "next/link";
 import { CartItem as CartItemType } from "@/modules/cart/hooks/useCart";
 import Price from "@/app/components/Price";

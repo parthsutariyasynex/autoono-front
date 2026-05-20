@@ -3,7 +3,6 @@
 import React, { useEffect, useState } from "react";
 import { useCheckout, Address } from "@/modules/checkout/hooks/useCheckout";
 import { useRouter } from "next/navigation";
-import { Loader2 } from "lucide-react";
 import toast from "react-hot-toast";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useLocalePath } from "@/hooks/useLocalePath";
@@ -132,8 +131,16 @@ const MultiShippingBillingPage: React.FC = () => {
 
     if (isCheckoutLoading && addresses.length === 0) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-white">
-                <div className="w-10 h-10 border-4 border-gray-100 border-t-primary rounded-full animate-spin" />
+            <div className="max-w-xl mx-auto px-4 py-10 animate-pulse space-y-4">
+                <div className="h-7 bg-gray-200 rounded w-48 mx-auto" />
+                {Array.from({ length: 3 }).map((_, i) => (
+                    <div key={i} className="bg-white rounded-xl border border-gray-100 p-5 space-y-3">
+                        <div className="h-5 bg-gray-200 rounded w-36" />
+                        <div className="h-10 bg-gray-200 rounded-lg w-full" />
+                        <div className="h-10 bg-gray-200 rounded-lg w-full" />
+                    </div>
+                ))}
+                <div className="h-11 bg-gray-200 rounded-lg w-full" />
             </div>
         );
     }
@@ -241,7 +248,7 @@ const MultiShippingBillingPage: React.FC = () => {
                         disabled={isSubmitting || !selectedAddressId || !selectedPaymentCode}
                         className="w-full sm:w-auto justify-center bg-primary text-black px-8 md:px-12 py-3.5 md:py-4 text-label font-bold uppercase tracking-[0.15em] hover:bg-black hover:text-white transition-all shadow-sm flex items-center gap-2 disabled:bg-gray-300 disabled:text-black/60 disabled:cursor-not-allowed"
                     >
-                        {isSubmitting && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+                        
                         {t("multi.goToReview")}
                     </button>
                 </div>

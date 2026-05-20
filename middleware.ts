@@ -320,6 +320,17 @@ export async function middleware(request: NextRequest) {
         // Known internal app route — but first check CMS map for multi-segment
         // Magento account paths like /customer/account → /my-account
         if (segments[1] && APP_ROUTES.has(segments[1])) {
+            // Authenticated users on login → redirect server-side immediately
+            if (rawPath === "/login") {
+                const isAuthenticated = await checkAuth(request);
+                if (isAuthenticated) {
+                    const callbackUrl = request.nextUrl.searchParams.get("callbackUrl");
+                    const redirectUrl = request.nextUrl.clone();
+                    redirectUrl.search = "";
+                    redirectUrl.pathname = callbackUrl || `/${locale}/products`;
+                    return withCookies(NextResponse.redirect(redirectUrl), locale, storeCode);
+                }
+            }
             if (segments.length > 2) {
                 const cmsResolved = await resolveMagentoUrl(slugPath, storeCode);
                 if (cmsResolved.kind === "cms") return guardedRewrite(cmsResolved.nextjsPath);
@@ -394,6 +405,18 @@ export async function middleware(request: NextRequest) {
 
     // ── 3b. Internal app routes (/en/products, /en/login, etc.) ─────────
     if (restSegments[0] && APP_ROUTES.has(restSegments[0])) {
+        // Authenticated users on the login page → redirect server-side to avoid
+        // the login form + products skeleton flash caused by client-side redirect.
+        if (pathnameWithoutLocale === "/login") {
+            const isAuthenticated = await checkAuth(request);
+            if (isAuthenticated) {
+                const callbackUrl = request.nextUrl.searchParams.get("callbackUrl");
+                const redirectUrl = request.nextUrl.clone();
+                redirectUrl.search = "";
+                redirectUrl.pathname = callbackUrl || `/${locale}/products`;
+                return withCookies(NextResponse.redirect(redirectUrl), locale);
+            }
+        }
         return guardedRewrite(pathnameWithoutLocale);
     }
 

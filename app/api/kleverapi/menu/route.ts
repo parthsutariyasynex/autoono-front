@@ -201,28 +201,37 @@ export async function GET(request: NextRequest) {
         }
 
         // ── 4. Fetch from Magento with token ───────────────────────────────
-        const res = await fetch(`${BASE_URL}/menu`, {
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`,
-            },
-            cache: "no-store",
-        });
+        // Wrap fetch so network errors (timeout, DNS, ECONNREFUSED) are handled the
+        // same as HTTP errors — both serve the cache instead of crashing to 500.
+        let res: Response | null = null;
+        try {
+            res = await fetch(`${BASE_URL}/menu`, {
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+                cache: "no-store",
+            });
+        } catch (networkErr: any) {
+            console.warn("[menu] Magento fetch threw (network/timeout), serving cache:", networkErr.message);
+        }
 
-        if (!res.ok) {
-            // On error, serve cache rather than failing
+        if (!res || !res.ok) {
+            // On HTTP error or network throw, serve cache rather than failing
             const mem = menuCache.get(cacheKey);
             if (mem && mem.expires > Date.now()) {
-                console.log(`[menu] Magento ${res.status} — serving in-memory cache (locale=${cacheKey})`);
+                console.log(`[menu] ${res ? res.status : "network error"} — serving in-memory cache (locale=${cacheKey})`);
                 return jsonResponse(mem.items);
             }
             const fileCached = readFileCache(cacheKey);
             if (fileCached) {
-                console.log(`[menu] Magento ${res.status} — serving file cache (locale=${cacheKey})`);
+                console.log(`[menu] ${res ? res.status : "network error"} — serving file cache (locale=${cacheKey})`);
                 return jsonResponse(fileCached);
             }
-            const errBody = await res.text();
-            console.error("[menu] Magento error:", res.status, errBody);
+            if (res) {
+                const errBody = await res.text();
+                console.error("[menu] Magento error:", res.status, errBody);
+            }
             // Return empty menu instead of propagating the error so the navbar doesn't crash.
             return jsonResponse([]);
         }
@@ -246,7 +255,9 @@ function jsonResponse(items: any[]) {
     return new Response(JSON.stringify(items), {
         headers: {
             "Content-Type": "application/json",
-            "Cache-Control": "no-store, no-cache, must-revalidate",
+            // Browser caches for 5 min, serves stale for up to 1h while revalidating.
+            // Server already has a 60-min in-memory cache — browser round-trips are the bottleneck.
+            "Cache-Control": "private, max-age=300, stale-while-revalidate=3600",
         },
     });
 }

@@ -14,6 +14,7 @@ import Pagination from "@/components/Pagination";
 import { useCart } from "@/modules/cart/context/CartContext";
 import { toast } from "react-hot-toast";
 import MakePaymentModal from "@/components/MakePaymentModal";
+import { OrdersTableSkeleton } from "@/components/skeletons";
 
 function formatOrderDate(dateStr: string): string {
     if (!dateStr) return "";
@@ -87,7 +88,7 @@ function mapOrder(item: any, paidByOrderId?: Map<string, number>): Order {
 
 export default function MyOrdersPage() {
     return (
-        <Suspense fallback={<div className="flex-1 flex items-center justify-center"><div className="h-10 w-10 animate-spin rounded-full border-4 border-gray-200 border-t-primary"></div></div>}>
+        <Suspense fallback={<div className="max-w-7xl mx-auto px-4 py-6"><OrdersTableSkeleton rows={8} /></div>}>
             <MyOrdersPageContent />
         </Suspense>
     );
@@ -401,13 +402,7 @@ function MyOrdersPageContent() {
     const totalPages = Math.ceil(totalItems / pageSize);
     const isFiltered = !!(localSearch !== "All" || localStatus !== "All" || searchParams.get("orderNumber") || searchParams.get("status"));
 
-    if (authStatus === "loading") {
-        return (
-            <div className="min-h-screen flex items-center justify-center bg-white">
-                <div className="animate-spin rounded-full h-10 w-10 border-4 border-gray-200 border-t-primary"></div>
-            </div>
-        );
-    }
+    if (authStatus === "loading") return null;
 
     return (
         <div className="min-h-screen flex flex-col w-full bg-surfacePage">
@@ -426,8 +421,7 @@ function MyOrdersPageContent() {
                         >
                             {isExporting ? (
                                 <>
-                                    <div className="animate-spin h-3.5 w-3.5 border-2 border-black border-t-transparent rounded-full"></div>
-                                    {t("orders.exporting")}
+                                    <span className="animate-pulse opacity-60">{t("orders.exporting")}</span>
                                 </>
                             ) : (
                                 <>

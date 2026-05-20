@@ -168,7 +168,7 @@ export default function Addresses() {
     return (
       <div className="p-6 flex justify-center items-center min-h-[400px]">
         <div className="flex flex-col items-center gap-4">
-          <div className="animate-spin rounded-full h-10 w-10 border-4 border-gray-100 border-t-primary"></div>
+          <div className="space-y-3 animate-pulse">{...Array.from({length:3}).map((_,i)=><div key={i} className="h-20 bg-gray-200 rounded-xl"/>)}</div>
           <p className="text-black/50 text-xs font-bold uppercase tracking-widest">{t("addressBook.loadingAddresses")}</p>
         </div>
       </div>

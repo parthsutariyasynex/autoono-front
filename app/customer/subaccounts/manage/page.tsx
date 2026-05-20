@@ -155,9 +155,20 @@ export default function ManageSubAccountsPage() {
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-white">
-                <div className="flex items-center justify-center h-[60vh]">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+            <div className="min-h-screen bg-surfacePage flex flex-col lg:flex-row">
+                <div className="hidden lg:block w-64 flex-shrink-0 bg-gray-50 border-r border-gray-200 animate-pulse">
+                    <div className="p-4 space-y-2">
+                        {Array.from({ length: 7 }).map((_, i) => (
+                            <div key={i} className="h-10 bg-gray-200 rounded w-full" />
+                        ))}
+                    </div>
+                </div>
+                <div className="flex-1 p-6 md:p-10 space-y-4 animate-pulse">
+                    <div className="h-7 bg-gray-200 rounded w-48" />
+                    <div className="h-px bg-gray-200 w-full" />
+                    {Array.from({ length: 5 }).map((_, i) => (
+                        <div key={i} className="h-14 bg-gray-200 rounded-lg w-full" />
+                    ))}
                 </div>
             </div>
         );

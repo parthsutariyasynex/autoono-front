@@ -1,6 +1,5 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { Loader2 } from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useSession } from "next-auth/react";
 import toast from "react-hot-toast";
@@ -272,7 +271,7 @@ const EditPaymentModal: React.FC<EditPaymentModalProps> = ({ isOpen, onClose, pa
                         disabled={isSubmitting}
                         className="bg-primary hover:bg-primaryHover text-white px-10 py-2.5 rounded-sm font-bold text-body transition-all shadow-md active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed flex items-center gap-2"
                     >
-                        {isSubmitting && <Loader2 size={18} className="animate-spin" />}
+                        
                         {t("orderDetails.saveChanges")}
                     </button>
                 </div>

@@ -11,7 +11,19 @@ import {
 } from "react";
 import { signOut } from "next-auth/react";
 import { usePathname } from "next/navigation";
-import { getAuthToken, getClientStoreCode } from "@/lib/api/api-client";
+import { getAuthToken } from "@/lib/api/api-client";
+
+const CART_STORE_CODE_RE = /^[A-Za-z0-9_]+_(en|ar)$/;
+
+// URL-only store code for cart isolation — never reads localStorage or cookies.
+// getClientStoreCode() falls back to localStorage["selectedStoreCode"] (written by
+// ProductsListing when browsing a warehouse), which would make All-Warehouse pages
+// appear to belong to the last-visited warehouse and bleed its cart across stores.
+function getCartStoreCode(): string {
+  if (typeof window === "undefined") return "";
+  const seg = window.location.pathname.split("/").filter(Boolean)[0] || "";
+  return CART_STORE_CODE_RE.test(seg) ? seg : "";
+}
 
 export interface CartItem {
   item_id: number;
@@ -82,6 +94,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const isFetching = useRef(false);
   const pendingFetch = useRef(false);
   const isSyncing = useRef(false);
+  // Tracks which warehouse key was last synced so pathname changes within the same
+  // warehouse (e.g. /en/products → /en/cart) don't re-trigger a full sync.
+  const prevStoreKeyRef = useRef<string | null>(null);
 
   const fetchCart = useCallback(async (showLoader = true, _retry = 0) => {
     // If already fetching, mark a pending fetch so we re-run once current one finishes
@@ -103,7 +118,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
       // Read locale from URL (most up-to-date during language switch)
       const pathLocale = window.location.pathname.startsWith("/ar") ? "ar" : "en";
-      const storeCode = getClientStoreCode();
+      const storeCode = getCartStoreCode();
       const res = await fetch("/api/kleverapi/cart", {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -186,11 +201,14 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
     const performSync = async () => {
       if (isSyncing.current) return;
-      const token = await getAuthToken();
-      if (!token) return;
       isSyncing.current = true;
+      const token = await getAuthToken();
+      if (!token) {
+        isSyncing.current = false;
+        return;
+      }
 
-      const storeCode = getClientStoreCode();
+      const storeCode = getCartStoreCode();
       const activeKey = getWarehouseKey(storeCode);
       let lastSynced = localStorage.getItem("current_synced_cart_warehouse");
       // lastSyncedStoreCode is the real Magento store code for the previously-synced
@@ -212,28 +230,25 @@ export function CartProvider({ children }: { children: ReactNode }) {
       }
 
       if (lastSynced === activeKey) {
-        // Same warehouse as last sync — just fetch the current cart
+        // Same warehouse as last sync — refetch in background without blocking the UI
         isSyncing.current = false;
-        await fetchCart();
+        fetchCart(false);
         return;
       }
 
       // Warehouse changed or first visit — swap cart contents so each store is isolated.
+      // Runs entirely in the background; does NOT set isLoading so the page renders
+      // immediately while sync completes behind the scenes.
       // lastSynced === null means first visit / localStorage cleared.
       console.log(`[CartSync] Warehouse switch: ${lastSynced || "none"} → ${activeKey}`);
-      setIsLoading(true);
       const pathLocale = window.location.pathname.startsWith("/ar") ? "ar" : "en";
 
       try {
-        // Step 1: Save current backend cart items to the PREVIOUS warehouse's localStorage
-        // key before wiping it, so we can restore them when the user switches back.
-        // Skip on first visit (lastSynced is null) — we don't know which warehouse those
-        // items belong to, so we cannot safely attribute them to any key.
+        // Steps 1+2 combined: one fetch to snapshot + clear the previous warehouse cart.
+        // Avoids the previous pattern of fetching the same cart twice (once to save,
+        // once to read item_ids for removal). Skip on first visit (lastSynced is null).
         if (lastSynced) {
           try {
-            // Use the previous warehouse's store code so the cart route hits the correct
-            // Magento store view URL. Without this, only the locale (en/ar) endpoint is
-            // used and warehouse-specific products can be missing from the snapshot.
             const cartRes = await fetch("/api/kleverapi/cart", {
               headers: {
                 Authorization: `Bearer ${token}`,
@@ -246,55 +261,31 @@ export function CartProvider({ children }: { children: ReactNode }) {
               const cartData = await cartRes.json();
               const rawItems = Array.isArray(cartData.items) ? cartData.items
                 : (Array.isArray(cartData.cart?.items) ? cartData.cart.items : []);
-              // Only persist paid items — promo/free-gift items (price === 0) are
-              // re-triggered by the gift popup and must not bleed across warehouses.
+
+              // Step 1: Persist paid items so they can be restored on warehouse switch-back.
+              // Promo/free-gift items (price === 0) are NOT saved — they re-appear via
+              // the gift popup and must not bleed across warehouse carts.
               const itemsToSave = rawItems
                 .filter((item: any) => Number(item.price || 0) > 0)
                 .map((item: any) => ({ sku: item.sku, qty: Number(item.qty || 1) }));
-              console.log(`[CartSync] Saving ${itemsToSave.length} item(s) for ${lastSynced} before switch`);
+              console.log(`[CartSync] Saving ${itemsToSave.length} item(s) for ${lastSynced}`);
               localStorage.setItem(lastSynced, JSON.stringify(itemsToSave));
-            }
-          } catch { /* non-critical — continue with switch */ }
-        }
 
-        // Step 2: Clear the backend cart (removes all items from all warehouses since
-        // Magento shares one quote per customer across store views).
-        let clearOk = false;
-        try {
-          const clearRes = await fetch("/api/kleverapi/cart/clear", {
-            method: "POST",
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "x-locale": pathLocale,
-              ...(storeCode && { "x-store-code": storeCode }),
-            },
-          });
-          clearOk = clearRes.ok;
-        } catch { }
-
-        if (!clearOk) {
-          // Fallback: fetch current items and remove them in parallel
-          try {
-            const cartRes = await fetch("/api/kleverapi/cart", {
-              headers: { Authorization: `Bearer ${token}`, "x-locale": pathLocale },
-              cache: "no-store",
-            });
-            if (cartRes.ok) {
-              const cartData = await cartRes.json();
-              const items = Array.isArray(cartData.items) ? cartData.items
-                : (Array.isArray(cartData.cart?.items) ? cartData.cart.items : []);
-              await Promise.all(items.map((item: any) =>
+              // Step 2: Clear backend cart in parallel using the same item list.
+              // Avoids /cart/clear — that deletes the Magento quote entirely, causing
+              // every subsequent API (menu, notifications, my-account) to return 500.
+              await Promise.all(rawItems.map((item: any) =>
                 fetch(`/api/kleverapi/cart/remove/${item.item_id}`, {
                   method: "DELETE",
                   headers: {
                     Authorization: `Bearer ${token}`,
                     "x-locale": pathLocale,
-                    ...(storeCode && { "x-store-code": storeCode }),
+                    ...(lastSyncedStoreCode && { "x-store-code": lastSyncedStoreCode }),
                   },
-                }).catch(() => { })
+                }).catch(() => {})
               ));
             }
-          } catch { }
+          } catch { /* non-critical — continue with switch */ }
         }
 
         // Step 3: Re-populate backend cart with only the active warehouse's saved items.
@@ -305,21 +296,37 @@ export function CartProvider({ children }: { children: ReactNode }) {
         })();
 
         console.log(`[CartSync] Restoring ${savedItems.length} item(s) for ${activeKey} (${storeCode || "locale"})`);
+        const addHeaders = {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+          "x-locale": pathLocale,
+          ...(storeCode && { "x-store-code": storeCode }),
+        };
+        // After a cart clear, Magento may need a moment to create a new quote.
+        // If the first add returns 5xx, wait 1.5s and retry once before giving up.
+        let firstAddFailed = false;
         for (const item of savedItems) {
           if (!item.sku || !item.qty) continue;
           try {
+            if (firstAddFailed) await new Promise(r => setTimeout(r, 1500));
             const addRes = await fetch("/api/kleverapi/cart/add", {
               method: "POST",
-              headers: {
-                Authorization: `Bearer ${token}`,
-                "Content-Type": "application/json",
-                "x-locale": pathLocale,
-                ...(storeCode && { "x-store-code": storeCode }),
-              },
+              headers: addHeaders,
               body: JSON.stringify({ sku: item.sku, qty: item.qty }),
             });
             if (!addRes.ok) {
-              console.warn(`[CartSync] Failed to re-add SKU ${item.sku} (${addRes.status})`);
+              if (addRes.status >= 500 && !firstAddFailed) {
+                firstAddFailed = true;
+                await new Promise(r => setTimeout(r, 1500));
+                const retry = await fetch("/api/kleverapi/cart/add", {
+                  method: "POST",
+                  headers: addHeaders,
+                  body: JSON.stringify({ sku: item.sku, qty: item.qty }),
+                });
+                if (!retry.ok) console.warn(`[CartSync] Retry also failed for SKU ${item.sku} (${retry.status})`);
+              } else {
+                console.warn(`[CartSync] Failed to re-add SKU ${item.sku} (${addRes.status})`);
+              }
             }
           } catch (e) {
             console.warn(`[CartSync] Exception re-adding SKU ${item.sku}:`, e);
@@ -365,7 +372,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       }
 
       // Update warehouse storage first
-      const storeCode = getClientStoreCode();
+      const storeCode = getCartStoreCode();
       const activeKey = getWarehouseKey(storeCode);
       const savedItems = JSON.parse(localStorage.getItem(activeKey) || "[]");
       const itemIndex = savedItems.findIndex((i: any) => i.sku === sku);
@@ -418,7 +425,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       // Update warehouse storage first
       const itemToUpdate = cart?.items?.find(i => i.item_id === itemId);
       if (itemToUpdate) {
-        const storeCode = getClientStoreCode();
+        const storeCode = getCartStoreCode();
         const activeKey = getWarehouseKey(storeCode);
         const savedItems = JSON.parse(localStorage.getItem(activeKey) || "[]");
         const itemIndex = savedItems.findIndex((i: any) => i.sku === itemToUpdate.sku);
@@ -439,7 +446,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       });
 
       const pathLocale = window.location.pathname.startsWith("/ar") ? "ar" : "en";
-      const storeCode = getClientStoreCode();
+      const storeCode = getCartStoreCode();
       const res = await fetch(`/api/kleverapi/cart/update/${itemId}`, {
         method: "PUT",
         headers: {
@@ -474,7 +481,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       // Update warehouse storage first
       const itemToRemove = cart?.items?.find(i => i.item_id === itemId);
       if (itemToRemove) {
-        const storeCode = getClientStoreCode();
+        const storeCode = getCartStoreCode();
         const activeKey = getWarehouseKey(storeCode);
         const savedItems = JSON.parse(localStorage.getItem(activeKey) || "[]");
         const filteredItems = savedItems.filter((i: any) => i.sku !== itemToRemove.sku);
@@ -482,7 +489,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       }
 
       const pathLocale = window.location.pathname.startsWith("/ar") ? "ar" : "en";
-      const storeCode = getClientStoreCode();
+      const storeCode = getCartStoreCode();
       const res = await fetch(`/api/kleverapi/cart/remove/${itemId}`, {
         method: "DELETE",
         headers: {
@@ -522,43 +529,38 @@ export function CartProvider({ children }: { children: ReactNode }) {
       if (!token) throw new Error("Not authenticated");
 
       // Update warehouse storage first
-      const storeCode = getClientStoreCode();
+      const storeCode = getCartStoreCode();
       const activeKey = getWarehouseKey(storeCode);
       localStorage.setItem(activeKey, JSON.stringify([]));
 
       const pathLocale = window.location.pathname.startsWith("/ar") ? "ar" : "en";
-      const res = await fetch("/api/kleverapi/cart/clear", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "x-locale": pathLocale,
-          ...(storeCode && { "x-store-code": storeCode }),
-        },
-      });
 
-      if (!res.ok) {
-        if (isAuthError(res.status)) { handleAuthError(); return; }
-
-        // Fallback: remove every item individually when the clear endpoint is unavailable
-        const items = cart?.items ?? [];
-        if (items.length === 0) {
-          setCart(null);
-          window.dispatchEvent(new Event("cart-updated"));
-          return;
-        }
-        for (const item of items) {
+      // Remove items individually — never call /cart/clear because it deletes the
+      // Magento quote, causing every subsequent API request to return 500.
+      // Each request has a 10s abort timeout to prevent hanging after place-order.
+      const items = cart?.items ?? [];
+      for (const item of items) {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10_000);
+        try {
           const removeRes = await fetch(`/api/kleverapi/cart/remove/${item.item_id}`, {
             method: "DELETE",
+            signal: controller.signal,
             headers: {
               Authorization: `Bearer ${token}`,
               "x-locale": pathLocale,
               ...(storeCode && { "x-store-code": storeCode }),
             },
           });
+          clearTimeout(timeoutId);
           if (!removeRes.ok && isAuthError(removeRes.status)) {
             handleAuthError();
             return;
           }
+        } catch (fetchErr) {
+          clearTimeout(timeoutId);
+          console.warn(`Cart item ${item.item_id} removal failed (timeout or network):`, fetchErr);
+          // Continue clearing remaining items rather than hanging
         }
       }
 

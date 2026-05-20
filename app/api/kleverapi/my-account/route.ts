@@ -47,7 +47,7 @@ export async function GET(request: NextRequest) {
             );
         }
         return NextResponse.json(
-            { 
+            {
                 message: error.message || 'Failed to fetch account details.',
                 code: error.code || 'unknown'
             },

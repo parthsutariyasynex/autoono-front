@@ -1,4 +1,7 @@
 import { signOut } from "next-auth/react";
+import { invalidateSessionCache } from "@/lib/sessionCache";
+import { invalidateTokenCache } from "@/lib/api/api-client";
+import { invalidateAxiosTokenCache } from "@/store/axiosHelper";
 import { APP_NAMESPACE, AUTH_COOKIE_NAMES } from "./constants";
 
 /**
@@ -21,6 +24,12 @@ import { APP_NAMESPACE, AUTH_COOKIE_NAMES } from "./constants";
  */
 export const handleGlobalLogout = async (callbackUrl: string) => {
     if (typeof window !== "undefined") {
+        // Bust the in-memory session + token caches immediately so no subsequent
+        // api.get() call can use a stale token after the user signs out.
+        invalidateSessionCache();
+        invalidateTokenCache();
+        invalidateAxiosTokenCache();
+
         try {
             localStorage.removeItem("token");
             localStorage.removeItem(`${APP_NAMESPACE}_token`);

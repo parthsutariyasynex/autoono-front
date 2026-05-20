@@ -17,7 +17,7 @@ const MultiShippingSuccessPage = () => {
     return (
         <Suspense fallback={
             <div className="min-h-screen flex items-center justify-center bg-white">
-                <div className="w-10 h-10 border-4 border-gray-100 border-t-primary rounded-full animate-spin" />
+                <div className="space-y-3 animate-pulse"><div className="h-16 bg-gray-200 rounded-full w-16 mx-auto"/><div className="h-6 bg-gray-200 rounded w-48 mx-auto"/></div>
             </div>
         }>
             <MultiShippingSuccessContent />
@@ -94,7 +94,7 @@ const MultiShippingSuccessContent = () => {
         return (
             <div className="min-h-screen flex items-center justify-center bg-white" dir={isRtl ? "rtl" : "ltr"}>
                 <div className="flex flex-col items-center gap-4">
-                    <div className="w-12 h-12 border-4 border-gray-200 border-t-primary rounded-full animate-spin" />
+                    <div className="space-y-3 animate-pulse"><div className="h-16 bg-gray-200 rounded-full w-16 mx-auto"/><div className="h-6 bg-gray-200 rounded w-48 mx-auto"/></div>
                     <p className="text-label font-bold text-black/50 uppercase tracking-widest">{t("multi.verifying")}</p>
                 </div>
             </div>

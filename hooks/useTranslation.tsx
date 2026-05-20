@@ -74,8 +74,17 @@ export function TranslationProvider({ children }: { children: ReactNode }) {
   // Block rendering until translations are available
   if (!ready) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-white">
-        <div className="w-10 h-10 rounded-full border-4 border-gray-200 border-t-primary animate-spin" />
+      <div className="min-h-screen bg-white animate-pulse">
+        {/* Navbar placeholder */}
+        <div className="h-14 bg-gray-100 w-full" />
+        <div className="max-w-7xl mx-auto px-4 py-6 space-y-4">
+          <div className="h-6 bg-gray-200 rounded w-1/4" />
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <div key={i} className="rounded-lg bg-gray-200 aspect-square" />
+            ))}
+          </div>
+        </div>
       </div>
     );
   }

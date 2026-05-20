@@ -17,18 +17,26 @@ export async function GET(request: NextRequest) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        const res = await fetch(`${BASE_URL}/source-permission`, {
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`,
-            },
-            cache: "no-store",
-        });
+        let res: Response | null = null;
+        try {
+            res = await fetch(`${BASE_URL}/source-permission`, {
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+                cache: "no-store",
+            });
+        } catch (networkErr: any) {
+            console.warn("[source-permission] Magento fetch threw (network/timeout):", networkErr.message);
+            // Return empty permissions — Navbar handles missing data gracefully
+            return NextResponse.json({ permissions: [], stores: [] }, { status: 200 });
+        }
 
         if (!res.ok) {
             const errBody = await res.text();
             console.error("[source-permission] Magento error:", res.status, errBody);
-            return NextResponse.json({ error: "Failed to fetch permissions" }, { status: res.status });
+            // Return empty on error so Navbar doesn't crash
+            return NextResponse.json({ permissions: [], stores: [] }, { status: 200 });
         }
 
         const data = await res.json();
@@ -37,6 +45,6 @@ export async function GET(request: NextRequest) {
         });
     } catch (error: any) {
         console.error("[source-permission] Route error:", error.message);
-        return NextResponse.json({ error: "Failed to fetch permissions" }, { status: 500 });
+        return NextResponse.json({ permissions: [], stores: [] }, { status: 200 });
     }
 }

@@ -14,7 +14,6 @@ export async function GET(request: NextRequest) {
         const authHeader = request.headers.get("authorization");
         if (authHeader && authHeader.startsWith("Bearer ")) {
             token = authHeader.substring(7).replace(/['"]/g, "").trim();
-            console.log("[category-products] Token from Auth header:", token ? "found" : "missing");
         }
 
         // Method 2: NextAuth JWT from cookie (most reliable on Vercel)
@@ -26,7 +25,6 @@ export async function GET(request: NextRequest) {
                     cookieName: SESSION_COOKIE_NAME,
                 });
                 token = (jwtToken as any)?.accessToken || null;
-                console.log("[category-products] Token from JWT cookie:", token ? "found" : "missing");
             } catch (e) {
                 console.error("[category-products] JWT token error:", e);
             }
@@ -186,7 +184,9 @@ export async function GET(request: NextRequest) {
         if (!res.ok) {
             const errBody = await res.text();
             console.error(`[category-products] Magento ${res.status} for URL: ${magentoUrlStr} — ${errBody.slice(0, 300)}`);
-            // Return empty results for any error so the UI shows "no products" instead of crashing.
+            if (res.status >= 500) {
+                return Response.json({ products: [], items: [], total_count: 0, filters: [], server_error: true });
+            }
             return Response.json({ products: [], items: [], total_count: 0, filters: [] });
         }
 
@@ -280,12 +280,14 @@ export async function GET(request: NextRequest) {
         }), {
             headers: {
                 "Content-Type": "application/json",
-                "Cache-Control": "no-store, no-cache, must-revalidate",
+                // 30s fresh, serve stale for 60s while revalidating in background.
+                // Products don't change per-second; this cuts repeat Magento round-trips.
+                "Cache-Control": "private, max-age=30, stale-while-revalidate=60",
             },
         });
 
     } catch (error: any) {
         console.error("category-products route error:", error.message);
-        return Response.json({ products: [], items: [], total_count: 0, filters: [] });
+        return Response.json({ products: [], items: [], total_count: 0, filters: [], server_error: true });
     }
 }

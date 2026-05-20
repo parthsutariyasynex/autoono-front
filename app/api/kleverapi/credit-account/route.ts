@@ -26,32 +26,32 @@ async function getAuthToken(request: NextRequest): Promise<string | null> {
 }
 
 export async function GET(request: NextRequest) {
+    const baseUrl = getGlobalBaseUrl(request);
+    const token = await getAuthToken(request);
+
+    if (!token) {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    let res: Response | null = null;
     try {
-        const baseUrl = getGlobalBaseUrl(request);
-        const token = await getAuthToken(request);
-
-        if (!token) {
-            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-        }
-
-        const res = await fetch(`${baseUrl}/credit-account`, {
+        res = await fetch(`${baseUrl}/credit-account`, {
             headers: {
                 Authorization: `Bearer ${token}`,
                 "Content-Type": "application/json",
             },
             cache: "no-store",
         });
-
-        if (!res.ok) {
-            const errBody = await res.text();
-            console.error("[credit-account GET] Magento error:", res.status, errBody);
-            return NextResponse.json({ error: "Magento API error", details: errBody }, { status: res.status });
-        }
-
-        const data = await res.json();
-        return NextResponse.json(data);
-    } catch (error: any) {
-        console.error("[credit-account GET] Error:", error.message);
-        return NextResponse.json({ error: error.message }, { status: 500 });
+    } catch (networkErr: any) {
+        console.warn("[credit-account GET] Network error, hiding widget:", networkErr.message);
+        return NextResponse.json({ is_visible: false });
     }
+
+    if (!res.ok) {
+        console.warn("[credit-account GET] Magento returned", res.status, "— hiding widget");
+        return NextResponse.json({ is_visible: false });
+    }
+
+    const data = await res.json();
+    return NextResponse.json(data);
 }

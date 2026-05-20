@@ -21,7 +21,6 @@ import {
     Phone,
     User,
     ShoppingBag,
-    Loader2,
     ArrowLeft,
     Trash2,
     ChevronLeft,
@@ -29,6 +28,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useGift } from "@/modules/cart/context/GiftContext";
+import { CheckoutSkeleton } from "@/components/skeletons";
 import SelectedAddressCard from "./SelectedAddressCard";
 import toast from "react-hot-toast";
 import { useSession } from "next-auth/react";
@@ -753,25 +753,7 @@ const CheckoutPageUI: React.FC = () => {
             setIsAddingAddress(false);
         }
     };
-    if (isCartLoading || status === "loading") {
-        return (
-            <div className="min-h-screen flex items-center justify-center bg-surfaceWarm">
-                <div className="flex flex-col items-center gap-4">
-                    <div className="w-12 h-12 border-4 border-gray-200 border-t-primary rounded-full animate-spin" />
-                    <p className="text-label font-bold text-black/50 uppercase tracking-widest italic">{t("checkout.preparing")}</p>
-                </div>
-            </div>
-        );
-    }
-
-    if (isCartLoading) {
-        return (
-            <div className="min-h-screen bg-white flex flex-col items-center justify-center">
-                <Loader2 size={48} className="text-primary animate-spin mb-4" />
-                <p className="text-body-sm font-bold uppercase tracking-widest text-black/60">{t("checkout.loadingCart")}</p>
-            </div>
-        );
-    }
+    if (isCartLoading || status === "loading") return <CheckoutSkeleton />;
 
     if (!cart || cart.items.length === 0) {
         return (
@@ -779,7 +761,7 @@ const CheckoutPageUI: React.FC = () => {
                 <div className="w-full py-24 px-6 text-center">
                     <ShoppingBag size={64} className="mx-auto text-black/30 mb-6" />
                     <h1 className="text-2xl font-bold text-black uppercase tracking-widest mb-4">{t("cart.empty")}</h1>
-                    <p className="text-black/60 mb-8 max-w-md mx-auto">{t("common.loading")}</p>
+                    {/* <p className="text-black/60 mb-8 max-w-md mx-auto">{t("common.loading")}</p> */}
                     <Link href={lp("/products")} className="inline-flex items-center gap-2 bg-primary font-bold px-8 py-4 text-body-sm uppercase tracking-widest hover:bg-black hover:text-white transition-all">
                         {t("m.products")}
                     </Link>
@@ -1090,14 +1072,10 @@ const CheckoutPageUI: React.FC = () => {
                                                     disabled={isAddingAddress}
                                                     className="flex-1 bg-black text-white px-8 py-4 rounded-xl font-bold uppercase tracking-[0.2em] hover:bg-primary hover:text-black transition-all active:scale-95 shadow-lg disabled:opacity-50 flex items-center justify-center gap-2"
                                                 >
-                                                    {isAddingAddress ? (
-                                                        <Loader2 size={20} className="animate-spin" />
-                                                    ) : (
-                                                        <>
-                                                            <Check size={20} />
-                                                            {t("m.save-and-ship-here")}
-                                                        </>
-                                                    )}
+                                                    <>
+                                                        <Check size={20} className={isAddingAddress ? "opacity-40" : ""} />
+                                                        <span className={isAddingAddress ? "opacity-50" : ""}>{t("m.save-and-ship-here")}</span>
+                                                    </>
                                                 </button> */}
                                                 {filteredAddresses.length > 0 && (
                                                     <button
@@ -1372,9 +1350,8 @@ const CheckoutPageUI: React.FC = () => {
                                                                 <label className="text-label font-bold text-black/50 uppercase tracking-widest whitespace-nowrap min-w-[90px] md:min-w-[80px]">{t("checkout.pickUpTime")} *</label>
                                                                 <div className="relative flex-1">
                                                                     {isLoadingTimeSlots ? (
-                                                                        <div className="w-full h-10 px-4 py-2 bg-white border border-gray-300 flex items-center gap-2">
-                                                                            <Loader2 size={14} className="animate-spin text-black/50" />
-                                                                            <span className="text-body-sm text-black/50">{t("common.loading")}</span>
+                                                                        <div className="w-full h-10 px-4 py-2 bg-white border border-gray-200 flex items-center animate-pulse">
+                                                                            <div className="h-4 bg-gray-200 rounded flex-1" />
                                                                         </div>
                                                                     ) : (
                                                                         <div ref={timeRef} className="relative">
@@ -1698,8 +1675,7 @@ const CheckoutPageUI: React.FC = () => {
                                     >
                                         {isPlacingOrder ? (
                                             <>
-                                                <Loader2 size={18} className="animate-spin" strokeWidth={4} />
-                                                {t("common.loading")}
+                                                <span className="animate-pulse opacity-70">{t("common.placeOrder")}</span>
                                             </>
                                         ) : (
                                             <>
@@ -1758,9 +1734,16 @@ const CheckoutPageUI: React.FC = () => {
                                     </div>
                                 ))
                             ) : (
-                                <div className="text-center py-12">
-                                    <Loader2 className="animate-spin mx-auto text-primary mb-4" size={32} />
-                                    <p className="text-black/60 font-bold uppercase tracking-widest text-body-sm">{t("checkout.fetchingPickup")}</p>
+                                <div className="py-6 space-y-3 animate-pulse">
+                                    {Array.from({ length: 4 }).map((_, i) => (
+                                        <div key={i} className="flex items-start gap-3 p-3 border border-gray-100 rounded-lg">
+                                            <div className="h-4 w-4 bg-gray-200 rounded-full flex-shrink-0 mt-0.5" />
+                                            <div className="flex-1 space-y-1.5">
+                                                <div className="h-4 bg-gray-200 rounded w-3/4" />
+                                                <div className="h-3 bg-gray-200 rounded w-1/2" />
+                                            </div>
+                                        </div>
+                                    ))}
                                 </div>
                             )}
                         </div>

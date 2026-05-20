@@ -4,7 +4,7 @@ import { useTranslation } from "@/hooks/useTranslation";
 
 import React from "react";
 import Link from "next/link";
-import { Loader2 } from "lucide-react";
+
 
 interface CartActionsProps {
     itemsCount: number;
@@ -30,9 +30,7 @@ const CartActions: React.FC<CartActionsProps> = ({ itemsCount, onClearCart, onUp
                     disabled={isClearingCart}
                     className="flex-1 md:flex-none px-4 py-2 bg-white text-black text-micro font-bold uppercase tracking-[0.2em] hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-all border border-gray-100 cursor-pointer rounded-lg active:scale-95 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
-                    {isClearingCart ? (
-                        <Loader2 size={12} className="animate-spin" />
-                    ) : null}
+
                     {t("cart.clearCart")}
                 </button>
                 <button

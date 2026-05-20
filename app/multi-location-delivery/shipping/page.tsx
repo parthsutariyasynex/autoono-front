@@ -6,7 +6,6 @@ import React, { useEffect, useState, useMemo, useRef } from "react";
 import { useCart } from "@/modules/cart/hooks/useCart";
 import { useCheckout, Address } from "@/modules/checkout/hooks/useCheckout";
 import { useRouter } from "next/navigation";
-import { Loader2 } from "lucide-react";
 import toast from "react-hot-toast";
 import Price from "@/app/components/Price";
 
@@ -146,7 +145,7 @@ const MultiShippingShippingPage: React.FC = () => {
     if (isLoading || isCartLoading || isCheckoutLoading) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-white">
-                <div className="w-10 h-10 border-4 border-gray-100 border-t-primary rounded-full animate-spin" />
+                <div className="max-w-2xl mx-auto space-y-4 animate-pulse">{Array.from({length:3}).map((_,i)=><div key={i} className="h-24 bg-gray-200 rounded-xl"/>)}</div>
             </div>
         );
     }

@@ -12,6 +12,7 @@ import { useSession } from "next-auth/react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { redirectToLogin } from "@/utils/helpers";
 import { api } from "@/lib/api/api-client";
+import { DashboardSkeleton } from "@/components/skeletons";
 
 type CustomAttribute = {
     attribute_code: string;
@@ -120,15 +121,7 @@ export default function DashboardPage() {
         }
     };
 
-    if (loadingDashboard) {
-        return (
-            <div className="min-h-screen bg-white">
-                <div className="flex items-center justify-center h-[60vh]">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-                </div>
-            </div>
-        );
-    }
+    if (loadingDashboard) return <DashboardSkeleton />;
 
     const getAttr = (code: string) => {
         return (customer as any).custom_attributes?.find(

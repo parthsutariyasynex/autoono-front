@@ -6,7 +6,7 @@ import CartSummary from "./CartSummary";
 import CartActions from "./CartActions";
 import Navbar from "@/app/components/Navbar";
 import Link from "next/link";
-import { ArrowRight, ShoppingBag, Loader2, Gift, Pencil, CheckCircle2 } from "lucide-react";
+import { ArrowRight, ShoppingBag, Gift, Pencil, CheckCircle2 } from "lucide-react";
 import { useCart } from "@/modules/cart/hooks/useCart";
 import { useCheckout } from "@/modules/checkout/hooks/useCheckout";
 import { useRouter } from "next/navigation";
@@ -14,6 +14,7 @@ import toast from "react-hot-toast";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useLocalePath } from "@/hooks/useLocalePath";
 import { useGift } from "@/modules/cart/context/GiftContext";
+import { CartPageSkeleton } from "@/components/skeletons";
 
 const CartPage: React.FC = () => {
     const router = useRouter();
@@ -59,7 +60,7 @@ const CartPage: React.FC = () => {
             return;
         }
 
-        const toastId = toast.loading(t("cart.updating") || "Updating cart...");
+        const toastId = toast.loading(t("cart.updating"));
         try {
             // Process all qty changes sequentially to avoid cart lock issues
             for (const id of updateIds) {
@@ -93,29 +94,23 @@ const CartPage: React.FC = () => {
         }
     };
 
-    const handleStartMultiShipping = async () => {
-        if (!cart?.items || cart.items.length === 0) return;
+    // const handleStartMultiShipping = async () => {
+    //     if (!cart?.items || cart.items.length === 0) return;
 
-        try {
-            setIsStartingMultiShipping(true);
-            await startMultiShipping();
-        } catch (err: any) {
-            // Magento may reject with "at least two units" — proceed anyway,
-            // the assign step will handle the actual session setup
-            console.warn("Multi-shipping start warning (proceeding):", err.message);
-        }
-        toast.success(t("cart.startingMultiLocation"));
-        router.push(lp("/multi-location-delivery"));
-        setIsStartingMultiShipping(false);
-    };
+    //     try {
+    //         setIsStartingMultiShipping(true);
+    //         await startMultiShipping();
+    //     } catch (err: any) {
+    //         // Magento may reject with "at least two units" — proceed anyway,
+    //         // the assign step will handle the actual session setup
+    //         console.warn("Multi-shipping start warning (proceeding):", err.message);
+    //     }
+    //     toast.success(t("cart.startingMultiLocation"));
+    //     router.push(lp("/multi-location-delivery"));
+    //     setIsStartingMultiShipping(false);
+    // };
 
-    if (isLoading) {
-        return (
-            <div className="min-h-screen flex items-center justify-center bg-gray-50">
-                <div className="w-12 h-12 border-4 border-gray-200 border-t-primary rounded-full animate-spin" />
-            </div>
-        );
-    }
+    if (isLoading) return <CartPageSkeleton />;
 
     if (error) {
         return (
@@ -245,7 +240,7 @@ const CartPage: React.FC = () => {
                                     />
 
                                     {/* Multiple Address Section Bar */}
-                                    <div className="border border-primary bg-white rounded-xl flex flex-col md:flex-row items-stretch justify-between overflow-hidden shadow-xl shadow-primary/5">
+                                    {/* <div className="border border-primary bg-white rounded-xl flex flex-col md:flex-row items-stretch justify-between overflow-hidden shadow-xl shadow-primary/5">
                                         <div className="px-6 py-4 flex items-center bg-gray-50/50 flex-1">
                                             <h4 className="text-caption font-bold text-black uppercase tracking-wider">{t("cart.multiAddressShipping")}</h4>
                                         </div>
@@ -254,13 +249,11 @@ const CartPage: React.FC = () => {
                                             disabled={isStartingMultiShipping}
                                             className="bg-primary font-bold py-4 px-10 uppercase tracking-widest text-caption hover:bg-black hover:text-white transition-all duration-300 disabled:opacity-70 disabled:cursor-not-allowed w-full md:w-auto shadow-none"
                                         >
-                                            {isStartingMultiShipping ? (
-                                                <Loader2 className="animate-spin" size={14} />
-                                            ) : (
-                                                t("cart.shipToMultiple")
-                                            )}
+                                            <span className={isStartingMultiShipping ? "animate-pulse opacity-60" : ""}>
+                                                {t("cart.shipToMultiple")}
+                                            </span>
                                         </button>
-                                    </div>
+                                    </div> */}
                                 </div>
                             </div>
                         </div>

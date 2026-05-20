@@ -3,7 +3,7 @@ import { useTranslation } from "@/hooks/useTranslation";
 import { useLocalePath } from "@/hooks/useLocalePath";
 
 import { useState, useEffect, useRef, useCallback } from "react";
-import { Search, ShoppingCart, Trash2, Upload, FileDown, Check, X, Loader2, Plus, ArrowRight, ArrowLeft } from "lucide-react";
+import { Search, ShoppingCart, Trash2, Upload, FileDown, Check, X, Plus, ArrowRight, ArrowLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/modules/cart/hooks/useCart";
 import { toast } from "react-hot-toast";
@@ -91,7 +91,7 @@ export default function QuickOrderPage() {
                 }
                 const storeCode = getClientStoreCode();
                 const res = await fetch(`/api/kleverapi/quick-order/search?query=${encodeURIComponent(searchTerm)}&pageSize=10`, {
-                    headers: { 
+                    headers: {
                         "Authorization": `Bearer ${token}`,
                         ...(storeCode && { "x-store-code": storeCode })
                     },
@@ -468,7 +468,7 @@ export default function QuickOrderPage() {
                             className="w-full h-12 md:h-14 ltr:pl-4 ltr:md:pl-6 ltr:pr-12 ltr:md:pr-14 rtl:pr-4 rtl:md:pr-6 rtl:pl-12 rtl:md:pl-14 bg-white border border-gray-100 shadow-[0_2px_12px_rgba(0,0,0,0.04)] rounded-sm text-body md:text-body-lg font-medium focus:outline-none focus:border-primary focus:shadow-lg transition-all placeholder:text-black/40"
                         />
                         <div className="absolute ltr:right-6 rtl:left-6 top-1/2 -translate-y-1/2 text-black/50 group-focus-within:text-primary transition-colors">
-                            {isSearching ? <Loader2 size={24} className="animate-spin" /> : <Search size={20} />}
+                            <Search size={20} className={isSearching ? "opacity-40" : ""} />
                         </div>
                     </div>
 
@@ -546,7 +546,7 @@ export default function QuickOrderPage() {
                                             <td className="px-6 lg:px-8 py-4">
                                                 <div className="flex items-center">
                                                     <div className="w-10 h-10 bg-white rounded border border-gray-50 flex items-center justify-center ltr:mr-4 rtl:ml-4 flex-shrink-0 group-hover:shadow-md transition-shadow">
-                                                        {item.image ? <img src={item.image} alt={item.sku} className="w-8 h-8 object-contain" /> : <Loader2 size={12} className="text-black/20" />}
+                                                        {item.image ? <img src={item.image} alt={item.sku} className="w-8 h-8 object-contain" /> : <div className="w-8 h-8 bg-gray-100 rounded" />}
                                                     </div>
                                                     <span className="text-caption font-bold text-black/80 leading-snug line-clamp-2">{item.name}</span>
                                                 </div>
@@ -604,7 +604,7 @@ export default function QuickOrderPage() {
                                 <div key={item.sku} className="border-b border-gray-50 p-4">
                                     <div className="flex items-start gap-3">
                                         <div className="w-12 h-12 bg-white rounded border border-gray-50 flex items-center justify-center flex-shrink-0">
-                                            {item.image ? <img src={item.image} alt={item.sku} className="w-10 h-10 object-contain" /> : <Loader2 size={12} className="text-black/20" />}
+                                            {item.image ? <img src={item.image} alt={item.sku} className="w-10 h-10 object-contain" /> : <div className="w-10 h-10 bg-gray-100 rounded" />}
                                         </div>
                                         <div className="flex-1 min-w-0">
                                             <p className="text-label font-bold text-black uppercase tracking-tight">{item.sku}</p>
@@ -686,7 +686,7 @@ export default function QuickOrderPage() {
                                 disabled={loading}
                                 className="w-full sm:w-auto h-[40px] px-10 bg-black text-white text-label font-bold uppercase tracking-[0.15em] rounded-sm hover:translate-x-1 transition-all disabled:opacity-50 flex items-center justify-center gap-2 group/btn"
                             >
-                                {loading ? <Loader2 size={16} className="animate-spin" /> : t("quickOrder.addToList")}
+                                <span className={loading ? "opacity-50" : ""}>{t("quickOrder.addToList")}</span>
                                 {!loading && <ArrowIcon size={14} className="group-hover/btn:translate-x-1 transition-transform" />}
                             </button>
                         </div>
@@ -741,7 +741,8 @@ export default function QuickOrderPage() {
                                 disabled={loading}
                                 className="w-full sm:w-auto h-[40px] px-10 bg-black text-white text-label font-bold uppercase tracking-[0.15em] rounded-sm hover:-translate-y-1 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
                             >
-                                {loading ? <Loader2 size={16} className="animate-spin" /> : <><Upload size={14} /> {t("quickOrder.uploadNow")}</>}
+                                <Upload size={14} className={loading ? "opacity-40" : ""} />
+                                <span className={loading ? "opacity-50" : ""}>{t("quickOrder.uploadNow")}</span>
                             </button>
                         </div>
                     </div>
@@ -754,9 +755,9 @@ export default function QuickOrderPage() {
                         className="flex items-center gap-4 text-label font-bold text-black uppercase tracking-[0.2em] hover:text-red-600 transition-all hover:-translate-y-1 active:scale-95 disabled:opacity-50 group"
                     >
                         <div className="w-12 h-12 border-2 border-black rounded-full flex items-center justify-center group-hover:border-red-600 group-hover:shadow-lg transition-all duration-300">
-                            {loading ? <Loader2 size={20} className="animate-spin text-black/40" /> : <X size={20} />}
+                            <X size={20} className={loading ? "opacity-40" : ""} />
                         </div>
-                        {loading ? t("common.loading") : t("quickOrder.clearAll")}
+                        <span className={loading ? "opacity-50" : ""}>{t("quickOrder.clearAll")}</span>
                     </button>
                 </div>
 

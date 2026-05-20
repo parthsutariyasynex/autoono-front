@@ -316,7 +316,7 @@ function SidebarFilter({
                     <div className="w-full">
                         {loading ? (
                             <div className="p-10 flex flex-col gap-3 items-center">
-                                <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
+                                <div className="w-6 h-6 bg-gray-200 rounded animate-pulse"></div>
                             </div>
                         ) : error ? (
                             <div className="p-5 text-red-500 text-xs">{error}</div>

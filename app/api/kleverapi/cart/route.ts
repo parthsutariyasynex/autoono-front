@@ -28,26 +28,45 @@ export async function GET(req: any) {
 
         console.log(`[API ROUTE] Fetching Cart from: ${primaryUrl}`);
 
-        const primaryResponse = await fetch(primaryUrl, {
-            method: "GET",
-            headers: fetchHeaders,
-            cache: "no-store",
-        });
+        // Wrap fetch so a network throw (timeout, DNS, ECONNREFUSED) is treated the
+        // same as an HTTP error — both paths try the locale/global fallback URLs.
+        let primaryResponse: Response | null = null;
+        try {
+            primaryResponse = await fetch(primaryUrl, {
+                method: "GET",
+                headers: fetchHeaders,
+                cache: "no-store",
+            });
+        } catch (networkErr) {
+            console.warn("[API ROUTE] Cart: primary fetch threw (network error), trying fallbacks");
+        }
 
-        // On hard errors fall back to global URL
-        if (primaryResponse.status === 400 || primaryResponse.status === 404) {
+        // On HTTP error OR network throw, try locale then global fallback
+        if (!primaryResponse || !primaryResponse.ok) {
+            const localeUrl = `${getLocaleBaseUrl(req)}/cart`;
+            if (localeUrl !== primaryUrl) {
+                try {
+                    console.log(`[API ROUTE] Cart fallback → locale: ${localeUrl}`);
+                    const localeFallback = await fetch(localeUrl, { method: "GET", headers: fetchHeaders, cache: "no-store" });
+                    if (localeFallback.ok) return NextResponse.json(await localeFallback.json());
+                } catch { }
+            }
             const globalUrl = `${getGlobalBaseUrl(req)}/cart`;
             if (globalUrl !== primaryUrl) {
-                console.log(`[API ROUTE] Cart ${primaryResponse.status} at ${primaryUrl}. Retrying with global: ${globalUrl}`);
-                const fallback = await fetch(globalUrl, { method: "GET", headers: fetchHeaders, cache: "no-store" });
-                if (fallback.ok) return NextResponse.json(await fallback.json());
+                try {
+                    const globalFallback = await fetch(globalUrl, { method: "GET", headers: fetchHeaders, cache: "no-store" });
+                    if (globalFallback.ok) return NextResponse.json(await globalFallback.json());
+                } catch { }
             }
         }
 
-        if (!primaryResponse.ok) {
-            const errData = await primaryResponse.json().catch(() => ({}));
-            console.error("[API ROUTE ERROR] Cart API error:", primaryResponse.status, JSON.stringify(errData).substring(0, 500));
-            return NextResponse.json(errData, { status: primaryResponse.status });
+        if (!primaryResponse || !primaryResponse.ok) {
+            const errData = primaryResponse
+                ? await primaryResponse.json().catch(() => ({}))
+                : { message: "Service temporarily unavailable" };
+            const status = primaryResponse?.status ?? 503;
+            console.error("[API ROUTE ERROR] Cart API error:", status, JSON.stringify(errData).substring(0, 500));
+            return NextResponse.json(errData, { status });
         }
 
         const primaryData = await primaryResponse.json();

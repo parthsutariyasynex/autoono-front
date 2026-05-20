@@ -13,6 +13,16 @@ import type { NextConfig } from "next";
 
 // All 83 API routes have local route handlers in app/api/
 // No rewrites needed — route handlers use getBaseUrl(request) for locale-aware Magento URLs
-const nextConfig: NextConfig = {};
+const nextConfig: NextConfig = {
+    images: {
+        remotePatterns: [
+            {
+                protocol: "https",
+                hostname: "autoono-demo.btire.com",
+                pathname: "/**",
+            },
+        ],
+    },
+};
 
 export default nextConfig;

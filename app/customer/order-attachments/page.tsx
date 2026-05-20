@@ -290,8 +290,16 @@ export default function OrderAttachmentsPage() {
                     </div>
                 ) : isLoading ? (
                     <div className="bg-white p-16 flex flex-col items-center justify-center border border-border rounded-md shadow-sm">
-                        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary mb-4"></div>
-                        <span className="text-xs font-bold text-black/50 uppercase tracking-widest">{t("common.loading")}</span>
+                        <div className="space-y-2 w-full max-w-2xl animate-pulse">
+                            {Array.from({ length: 6 }).map((_, i) => (
+                                <div key={i} className="flex items-center gap-4 px-4 py-3 border border-gray-100 rounded-lg">
+                                    <div className="h-8 w-8 bg-gray-200 rounded flex-shrink-0" />
+                                    <div className="h-4 flex-1 bg-gray-200 rounded" />
+                                    <div className="h-4 w-24 bg-gray-200 rounded" />
+                                    <div className="h-8 w-16 bg-gray-200 rounded" />
+                                </div>
+                            ))}
+                        </div>
                     </div>
                 ) : attachments.length > 0 ? (
                     <>
@@ -327,7 +335,7 @@ export default function OrderAttachmentsPage() {
                                                 <td className="px-6 py-4 ltr:text-left rtl:text-right font-medium">
                                                     <div className="flex items-center gap-3">
                                                         <button onClick={() => { const useUrl = attachment.file_url || attachment.file_path; handleViewFile({ ...attachment, file_url: useUrl, attachment_id: attId }); }} disabled={isOpening} className={`text-black hover:underline inline-block break-all ltr:text-left rtl:text-right focus:outline-none font-bold ${isOpening ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}>{fileName}</button>
-                                                        {isOpening && <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-primary"></div>}
+                                                        
                                                     </div>
                                                 </td>
                                                 <td className="px-6 py-4 text-center font-bold text-black/70 uppercase">{t(`m.${docTypeLabel.toLowerCase()}`) !== `m.${docTypeLabel.toLowerCase()}` ? t(`m.${docTypeLabel.toLowerCase()}`) : (t(`data.${docTypeLabel}`) !== `data.${docTypeLabel}` ? t(`data.${docTypeLabel}`) : docTypeLabel)}</td>
@@ -365,7 +373,7 @@ export default function OrderAttachmentsPage() {
                                                     className={`text-body font-bold text-black hover:text-primary ltr:text-left rtl:text-right break-all ${isOpening ? 'opacity-50' : ''}`}
                                                 >
                                                     {fileName}
-                                                    {isOpening && <span className="inline-block ltr:ml-2 rtl:mr-2 animate-spin rounded-full h-3 w-3 border-b-2 border-primary align-middle"></span>}
+                                                    
                                                 </button>
                                                 <p className="text-label text-black/60 font-medium mt-1 uppercase tracking-wider">{t(`m.${docTypeLabel.toLowerCase()}`) !== `m.${docTypeLabel.toLowerCase()}` ? t(`m.${docTypeLabel.toLowerCase()}`) : (t(`data.${docTypeLabel}`) !== `data.${docTypeLabel}` ? t(`data.${docTypeLabel}`) : docTypeLabel)}</p>
                                             </div>

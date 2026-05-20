@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { X, Loader2 } from "lucide-react";
+import { X } from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useSession } from "next-auth/react";
 import toast from "react-hot-toast";
@@ -236,7 +236,7 @@ const MakePaymentModal: React.FC<MakePaymentModalProps> = ({ isOpen, onClose, or
                             disabled={isSubmitting}
                             className="bg-primary hover:bg-primaryHover text-white px-8 py-2.5 rounded-sm font-bold text-body transition-all active:scale-95 shadow-sm disabled:opacity-70 disabled:cursor-not-allowed flex items-center gap-2"
                         >
-                            {isSubmitting && <Loader2 size={16} className="animate-spin" />}
+                            
                             {t("orderDetails.submitPayment")}
                         </button>
                     </div>

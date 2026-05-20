@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
 import { redirectToLogin } from "@/utils/helpers";
 import { useTranslation } from "@/hooks/useTranslation";
+import { StatementSkeleton } from "@/components/skeletons";
 
 export default function MyStatementPage() {
     const { data: session, status: authStatus } = useSession();
@@ -80,8 +81,11 @@ export default function MyStatementPage() {
 
     if (authStatus === "loading") {
         return (
-            <div className="min-h-screen flex items-center justify-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+            <div className="flex flex-col lg:flex-row flex-1 min-h-0 w-full bg-[#fcfcfc]">
+                <Sidebar />
+                <main className="flex-1 w-full px-4 md:px-6 lg:px-8 py-4 md:py-6 lg:py-10 bg-surfacePage min-w-0">
+                    <StatementSkeleton />
+                </main>
             </div>
         );
     }
@@ -242,7 +246,7 @@ export default function MyStatementPage() {
                                 >
                                     {isDownloading ? (
                                         <>
-                                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-black"></div>
+                                            
                                             {t("common.loading")}
                                         </>
                                     ) : (

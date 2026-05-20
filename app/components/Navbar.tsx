@@ -18,9 +18,10 @@ import {
   ChevronDown,
 } from "lucide-react";
 
-import CartDrawer from "./CartDrawer";
-import NotificationDrawer from "./NotificationDrawer";
-import SearchPopup from "./SearchPopup";
+import dynamic from "next/dynamic";
+const CartDrawer = dynamic(() => import("./CartDrawer"), { ssr: false });
+const NotificationDrawer = dynamic(() => import("./NotificationDrawer"), { ssr: false });
+const SearchPopup = dynamic(() => import("./SearchPopup"), { ssr: false });
 
 import { useCart } from "@/modules/cart/hooks/useCart";
 import { useNotifications } from "@/modules/notifications/hooks/useNotifications";
@@ -39,6 +40,17 @@ interface NavLink {
   categoryId?: string | null;
   children?: { label: string; href: string }[];
 }
+
+// Module-level menu fetch deduplicator — keyed by locale.
+// Prevents StrictMode double-mount from firing two simultaneous /api/kleverapi/menu requests.
+const _menuInflight = new Map<string, Promise<any>>();
+
+// source-permission: inflight dedup + 5-minute result cache, keyed by locale.
+// The effect depends on [isAuthenticated, locale] — both can change on first mount,
+// causing two rapid re-runs. Without dedup the same fetch fires twice back-to-back.
+const _sourcePermInflight = new Map<string, Promise<any>>();
+const _sourcePermCache = new Map<string, { data: any; fetchedAt: number }>();
+const SOURCE_PERM_TTL = 5 * 60 * 1000; // 5 minutes
 
 // Any nav item that has a categoryId shows the warehouse dropdown on hover.
 function isWarehouseCategory(item: { label?: string; categoryId?: string | null }): boolean {
@@ -60,12 +72,17 @@ export default function Navbar() {
   const lp = useLocalePath();
 
   // Store code lives in the URL path prefix (e.g. /V101_en/all-tyres) — not a query param.
-  // Fall back to ?store= for any legacy URLs that still carry it.
+  // Fall back to ?store= query param, then NEXT_STORE cookie (set by middleware on
+  // every warehouse page visit) so the store code is detected even when usePathname()
+  // returns the rewritten internal path (e.g. /products instead of /V102_en/lubricants).
   const STORE_CODE_RE = /^[A-Za-z0-9_]+_(en|ar)$/;
   const pathnameFirstSeg = pathname?.split("/").filter(Boolean)[0] || "";
+  const storeCookie = typeof document !== "undefined"
+    ? (document.cookie.match(/NEXT_STORE=([^;]+)/)?.[1] || "")
+    : "";
   const currentStore = (STORE_CODE_RE.test(pathnameFirstSeg) || isValidLocale(pathnameFirstSeg))
     ? pathnameFirstSeg
-    : (searchParams?.get("store") || "");
+    : (searchParams?.get("store") || (STORE_CODE_RE.test(storeCookie) ? storeCookie : "") || "");
 
   // Strip locale or store-code prefix from a path for prefix-agnostic comparison.
   const stripPrefix = (path: string) => {
@@ -109,6 +126,10 @@ export default function Navbar() {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  // Mount drawers only after first open so their JS chunks aren't downloaded on initial page load.
+  const [cartMounted, setCartMounted] = useState(false);
+  const [notifMounted, setNotifMounted] = useState(false);
+  const [searchMounted, setSearchMounted] = useState(false);
   const [storeName, setStoreName] = useState<string>("");
 
 
@@ -147,11 +168,12 @@ export default function Navbar() {
   }, [status, session]);
 
   useEffect(() => {
-    if (isAuthenticated) {
-      pullNotifications();
-      if (!customerData) dispatch(fetchCustomerInfo() as any);
-    }
-  }, [isAuthenticated, pullNotifications, customerData, dispatch]);
+    if (isAuthenticated) pullNotifications();
+  }, [isAuthenticated, pullNotifications]);
+
+  useEffect(() => {
+    if (isAuthenticated && !customerData) dispatch(fetchCustomerInfo() as any);
+  }, [isAuthenticated, customerData, dispatch]);
 
   useEffect(() => {
     const fn = () => pullNotifications();
@@ -259,22 +281,26 @@ export default function Navbar() {
       try {
         const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
 
-        const res = await fetch("/api/kleverapi/menu", {
-          headers: {
-            "Content-Type": "application/json",
-            ...(token && { "Authorization": `Bearer ${token}` }),
-            "x-locale": locale,
-          },
-        });
-
-        if (cancelled) return;
-
-        if (!res.ok) {
-          throw new Error("Menu fetch failed");
+        // Deduplicate concurrent fetches (e.g. StrictMode double-mount)
+        let menuPromise = _menuInflight.get(locale);
+        if (!menuPromise) {
+          menuPromise = fetch("/api/kleverapi/menu", {
+            headers: {
+              "Content-Type": "application/json",
+              ...(token && { "Authorization": `Bearer ${token}` }),
+              "x-locale": locale,
+            },
+          }).then(r => r.json()).finally(() => _menuInflight.delete(locale));
+          _menuInflight.set(locale, menuPromise);
         }
 
-        const data = await res.json();
+        const data = await menuPromise;
         if (cancelled) return;
+
+        // Menu fetch completed — treat non-ok responses as errors
+        if (!data || data.message) {
+          throw new Error("Menu fetch failed");
+        }
 
         const fallbackLinks: NavLink[] = [
           { label: t("nav.aboutUs") || "About Us", href: lp("/about") },
@@ -313,59 +339,91 @@ export default function Navbar() {
   // Fetch warehouse list for the "All Lubricants"/"All Tyres" dropdown.
   // Matches the live Magento site — enabled/disabled by admin via source-permission.
   useEffect(() => {
+    if (!isAuthenticated) {
+      setWarehouseItems([]);
+      setAllPermittedStores([]);
+      // Clear cache on sign-out so the next user gets fresh data
+      _sourcePermCache.clear();
+      _sourcePermInflight.clear();
+      return;
+    }
     const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+    if (!token) return;
     let cancelled = false;
+
+    const applySourcePerm = (data: any) => {
+      if (cancelled) return;
+      if (process.env.NODE_ENV !== "production") {
+        console.log("[Navbar] source-permission raw response:", data);
+      }
+      const raw: any[] = Array.isArray(data?.permitted_stores)
+        ? data.permitted_stores
+        : (Array.isArray(data) ? data : []);
+
+      setAllPermittedStores(raw);
+
+      const filtered = raw.filter((s) =>
+        s?.is_active !== false &&
+        (String(s.store_code).endsWith(`_${locale}`) || String(s.store_code) === locale)
+      );
+
+      const mapped: WarehouseItem[] = filtered.map((s) => {
+        const storeCode = String(s.store_code ?? "");
+        console.log("[Navbar] warehouse store_url:", s.store_url, "store_code:", storeCode);
+        return {
+          label: String(s.group_name || s.store_name || s.website_name || ""),
+          code: storeCode,
+          storeUrl: String(s.store_url ?? ""),
+          name: String(s.store_name || ""),
+        };
+      }).filter((w) => !!w.label);
+
+      setWarehouseItems(mapped);
+    };
+
     (async () => {
       try {
-        // Use `locale` state directly — see menu-fetch comment above.
-        const res = await fetch("/api/kleverapi/source-permission", {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-            "x-locale": locale,
-          },
-        });
-        if (!res.ok) {
-          if (res.status === 401) {
-            setWarehouseItems([]);
-            setAllPermittedStores([]);
-            return;
-          }
-          throw new Error("source-permission fetch failed");
+        // 1. Serve from cache if fresh (avoids fetch on locale toggle or re-render)
+        const cached = _sourcePermCache.get(locale);
+        if (cached && Date.now() - cached.fetchedAt < SOURCE_PERM_TTL) {
+          applySourcePerm(cached.data);
+          return;
         }
-        const data = await res.json();
-        if (cancelled) return;
-        if (process.env.NODE_ENV !== "production") {
-          console.log("[Navbar] source-permission raw response:", data);
+
+        // 2. Deduplicate concurrent fetches — StrictMode double-mount or rapid
+        //    locale+auth changes both resolve from the same in-flight Promise.
+        let perm = _sourcePermInflight.get(locale);
+        if (!perm) {
+          perm = fetch("/api/kleverapi/source-permission", {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+              "x-locale": locale,
+            },
+          })
+            .then(async (res) => {
+              if (!res.ok) {
+                if (res.status === 401) return null;
+                throw new Error("source-permission fetch failed");
+              }
+              return res.json();
+            })
+            .then((data) => {
+              if (data !== null) {
+                _sourcePermCache.set(locale, { data, fetchedAt: Date.now() });
+              }
+              return data;
+            })
+            .finally(() => _sourcePermInflight.delete(locale));
+          _sourcePermInflight.set(locale, perm);
         }
-        const raw: any[] = Array.isArray(data?.permitted_stores)
-          ? data.permitted_stores
-          : (Array.isArray(data) ? data : []);
 
-        setAllPermittedStores(raw);
-
-        // Show stores matching the current locale for the nav hover dropdown.
-        const filtered = raw.filter((s) =>
-          s?.is_active !== false &&
-          (String(s.store_code).endsWith(`_${locale}`) || String(s.store_code) === locale)
-        );
-
-        // Map stores to WarehouseItem shape.
-        const mapped: WarehouseItem[] = filtered.map((s) => {
-          const storeCode = String(s.store_code ?? "");
-          console.log("[Navbar] warehouse store_url:", s.store_url, "store_code:", storeCode);
-          return {
-            label: String(s.group_name || s.store_name || s.website_name || ""),
-            code: storeCode,
-            storeUrl: String(s.store_url ?? ""),
-            name: String(s.store_name || ""),
-          };
-        }).filter((w) => !!w.label);
-
-        setWarehouseItems(mapped);
-        // We no longer automatically set a 'defaultStoreCode' from the first warehouse.
-        // This prevents users from being forced into a specific store (like Anwar Khaled)
-        // when they haven't explicitly chosen one.
+        const data = await perm;
+        if (data === null) {
+          if (!cancelled) { setWarehouseItems([]); setAllPermittedStores([]); }
+          return;
+        }
+        applySourcePerm(data);
       } catch (err) {
         if (process.env.NODE_ENV !== "production") {
           console.warn("[Navbar] source-permission/stores fetch failed:", err);
@@ -388,7 +446,7 @@ export default function Navbar() {
     const href = (item.href || "").toLowerCase();
     const code = (item.code || "").toLowerCase();
 
-    const isMatch = (keywords: string[]) => 
+    const isMatch = (keywords: string[]) =>
       keywords.some(k => lower.includes(k) || href.includes(k) || code.includes(k));
 
     if (isMatch(["about us", "about-us", "/about"])) return t("nav.aboutUs") || label;
@@ -396,7 +454,7 @@ export default function Navbar() {
     if (isMatch(["catalogue", "catalog"])) return t("nav.productCatalogue") || label;
     if (isMatch(["lubricants", "all lubricants"])) return t("nav.allLubricants") || label;
     if (isMatch(["tyres", "all tyres", "tires"])) return t("nav.allTyres") || label;
-    
+
     return label;
   };
 
@@ -493,91 +551,107 @@ export default function Navbar() {
 
               {/* Language / Store Switcher */}
               <div className="hidden lg:block" ref={storeDropRef}>
-                {isAuthenticated && pathname !== "/login" && currentStore && allPermittedStores.length > 0 ? (
-                  (() => {
-                    // 1. Find the current store entry from the API
+                {(() => {
+                  // ── Complex store switcher (authenticated + warehouse stores loaded) ──
+                  if (isAuthenticated && pathname !== "/login" && currentStore && allPermittedStores.length > 0) {
+                    // Use browser URL (not usePathname which may return the rewritten internal path)
+                    const browserPath = typeof window !== "undefined" ? window.location.pathname : (pathname || "/");
                     const currentEntry = allPermittedStores.find(
                       (s) => String(s.store_code) === currentStore
                     );
-                    if (!currentEntry) return null;
-
-                    // 2. Derive opposite store code from the store_code suffix (no hardcoded names)
                     const oppositeCode = currentStore.endsWith("_en")
                       ? currentStore.replace(/_en$/, "_ar")
                       : currentStore.endsWith("_ar")
                         ? currentStore.replace(/_ar$/, "_en")
                         : currentStore === "en" ? "ar" : "en";
-
-                    // 3. Find opposite store — if not in permitted list, hide button
                     const oppositeEntry = allPermittedStores.find(
                       (s) => String(s.store_code) === oppositeCode
                     );
-                    if (!oppositeEntry) return null;
 
-                    // 4. Label — locale-only stores (en/ar): show opposite store_name so user
-                    //    knows what they are switching TO (e.g. on "en" → show "Arabic").
-                    const isLocaleOnly = isValidLocale(currentStore);
-                    const buttonLabel = isLocaleOnly
-                      ? String(oppositeEntry.store_name || oppositeCode)
-                      : String(currentEntry.store_name || currentStore);
+                    // ─── Case 1: Both current and opposite store found (works for most stores) ───
+                    if (currentEntry && oppositeEntry) {
+                      const isLocaleOnly = isValidLocale(currentStore);
+                      const buttonLabel = isLocaleOnly
+                        ? String(oppositeEntry.store_name || oppositeCode)
+                        : String(currentEntry.store_name || currentStore);
 
-                    // 5. Build href using store_url from API as the path prefix
-                    const getStorePath = (url: string): string => {
-                      try { return new URL(url).pathname.replace(/\/$/, ""); } catch { return ""; }
-                    };
-                    const oppositeBasePath = getStorePath(oppositeEntry.store_url) || `/${oppositeCode}`;
-                    const cleanCurrentPath = stripPrefix(pathname || "/").replace(/\.html$/, "") || "/";
-                    const seoCurrentPath = cleanCurrentPath === "/" ? "" : `${cleanCurrentPath}.html`;
-                    const href = `${oppositeBasePath}${seoCurrentPath}` || "/";
+                      const getStorePath = (url: string): string => {
+                        try { return new URL(url).pathname.replace(/\/$/, ""); } catch { return ""; }
+                      };
+                      const oppositeBasePath = getStorePath(oppositeEntry.store_url) || `/${oppositeCode}`;
+                      const cleanCurrentPath = stripPrefix(browserPath).replace(/\.html$/, "") || "/";
+                      const seoCurrentPath = cleanCurrentPath === "/" ? "" : `${cleanCurrentPath}.html`;
+                      const href = `${oppositeBasePath}${seoCurrentPath}` || "/";
+                      const targetLocale = (oppositeCode.endsWith("_ar") || oppositeCode === "ar") ? "ar" : "en";
 
-                    // 6. Locale for i18n cookie — derived from store_code suffix only
-                    const targetLocale = (oppositeCode.endsWith("_ar") || oppositeCode === "ar") ? "ar" : "en";
+                      return (
+                        <Link
+                          href={href}
+                          onClick={() => {
+                            setLocaleCookie(targetLocale);
+                            i18n.changeLanguage(targetLocale);
+                          }}
+                          className="flex items-center gap-1.5 rounded px-3 py-1.5 text-body font-semibold text-black hover:bg-primary transition-colors"
+                          title={`Switch to ${oppositeEntry.store_name || oppositeCode}`}
+                        >
+                          <span>{buttonLabel}</span>
+                        </Link>
+                      );
+                    }
 
-                    return (
-                      <Link
-                        href={href}
-                        onClick={() => {
-                          setLocaleCookie(targetLocale);
-                          i18n.changeLanguage(targetLocale);
-                        }}
-                        className="flex items-center gap-1.5 rounded px-3 py-1.5 text-body font-semibold text-black hover:bg-primary transition-colors"
-                        title={`Switch to ${oppositeEntry.store_name || oppositeCode}`}
-                      >
-                        <span>{buttonLabel}</span>
-                      </Link>
-                    );
-                  })()
-                ) : (
-                  // Simple Language Toggle for Login Page or Unauthenticated
-                  (() => {
-                    const targetLocale = locale === "en" ? "ar" : "en";
-                    const targetLabel = locale === "en" ? "Arabic" : "English";
-                    // Build path for toggle
-                    const base = pathname || "/";
-                    const targetPath = base.startsWith(`/${locale}`)
-                      ? base.replace(`/${locale}`, `/${targetLocale}`)
-                      : `/${targetLocale}${base === "/" ? "" : base}`;
+                    // ─── Case 2: Only one entry found (e.g. V102_en exists but V102_ar doesn't) ───
+                    const displayEntry = currentEntry || oppositeEntry;
+                    if (displayEntry) {
+                      const friendlyName = String(displayEntry.store_name || currentStore);
+                      const cleanCurrentPath = stripPrefix(browserPath).replace(/\.html$/, "") || "/";
+                      const seoCurrentPath = cleanCurrentPath === "/" ? "" : `${cleanCurrentPath}.html`;
+                      const href = `/${oppositeCode}${seoCurrentPath}` || "/";
+                      const targetLocale = (oppositeCode.endsWith("_ar") || oppositeCode === "ar") ? "ar" : "en";
 
-                    return (
-                      <Link
-                        href={targetPath}
-                        onClick={() => {
-                          setLocaleCookie(targetLocale);
-                          i18n.changeLanguage(targetLocale);
-                        }}
-                        className="flex items-center gap-1.5 rounded px-3 py-1.5 text-body font-semibold text-black hover:bg-primary transition-colors"
-                      >
-                        <span>{targetLabel}</span>
-                      </Link>
-                    );
-                  })()
-                )}
+                      return (
+                        <Link
+                          href={href}
+                          onClick={() => {
+                            setLocaleCookie(targetLocale);
+                            i18n.changeLanguage(targetLocale);
+                          }}
+                          className="flex items-center gap-1.5 rounded px-3 py-1.5 text-body font-semibold text-black hover:bg-primary transition-colors"
+                          title={`Switch to ${oppositeCode}`}
+                        >
+                          <span>{friendlyName}</span>
+                        </Link>
+                      );
+                    }
+                    // Neither entry found — fall through to simple toggle
+                  }
+
+                  // ── Fallback: Simple Language Toggle ──
+                  const targetLocale = locale === "en" ? "ar" : "en";
+                  const targetLabel = locale === "en" ? "Arabic" : "English";
+                  const base = pathname || "/";
+                  const targetPath = base.startsWith(`/${locale}`)
+                    ? base.replace(`/${locale}`, `/${targetLocale}`)
+                    : `/${targetLocale}${base === "/" ? "" : base}`;
+
+                  return (
+                    <Link
+                      href={targetPath}
+                      onClick={() => {
+                        setLocaleCookie(targetLocale);
+                        i18n.changeLanguage(targetLocale);
+                      }}
+                      className="flex items-center gap-1.5 rounded px-3 py-1.5 text-body font-semibold text-black hover:bg-primary transition-colors"
+                    >
+                      <span>{targetLabel}</span>
+                    </Link>
+                  );
+                })()}
               </div>
 
               {/* Search Icon */}
               {isAuthenticated && pathname !== "/login" && (
                 <button
-                  onClick={() => setIsSearchOpen(true)}
+                  onClick={() => { setSearchMounted(true); setIsSearchOpen(true); }}
                   className="hidden lg:flex relative cursor-pointer hover:opacity-70 transition-opacity items-center justify-center -mb-1 focus:outline-none"
                   aria-label="Search"
                 >
@@ -593,7 +667,7 @@ export default function Navbar() {
 
                 <button
                   className="hidden lg:flex relative cursor-pointer items-center justify-center"
-                  onClick={() => setIsNotificationOpen(true)}
+                  onClick={() => { setNotifMounted(true); setIsNotificationOpen(true); }}
                   aria-label="Notifications"
                 >
                   <Bell size={24} fill="black" stroke="black" strokeWidth={1} />
@@ -608,7 +682,7 @@ export default function Navbar() {
               {/* Cart */}
               {isAuthenticated && pathname !== "/login" && (
                 <button
-                  onClick={() => setIsCartOpen(true)}
+                  onClick={() => { setCartMounted(true); setIsCartOpen(true); }}
                   className="relative text-black cursor-pointer pr-2 md:pr-0"
                   aria-label="Shopping Cart"
                 >
@@ -670,15 +744,26 @@ export default function Navbar() {
                     onMouseEnter={() => hasChildren && setOpenWarehouseMenu(item.href)}
                     onMouseLeave={() => setOpenWarehouseMenu(null)}
                   >
-                    <Link
-                      href={href}
-                      className={`py-3 flex items-center h-full px-2.5 lg:px-7 text-body font-semibold capitalize transition-all duration-200 whitespace-nowrap ${isActive
-                        ? "bg-black text-white"
-                        : "text-black hover:bg-black hover:text-white"
-                        }`}
-                    >
-                      {resolveLabel(item)}
-                    </Link>
+                    {hasChildren ? (
+                      <span
+                        className={`py-3 flex items-center h-full px-2.5 lg:px-7 text-body font-semibold capitalize transition-all duration-200 whitespace-nowrap cursor-pointer ${isActive
+                          ? "bg-black text-white"
+                          : "text-black hover:bg-black hover:text-white"
+                          }`}
+                      >
+                        {resolveLabel(item)}
+                      </span>
+                    ) : (
+                      <Link
+                        href={href}
+                        className={`py-3 flex items-center h-full px-2.5 lg:px-7 text-body font-semibold capitalize transition-all duration-200 whitespace-nowrap ${isActive
+                          ? "bg-black text-white"
+                          : "text-black hover:bg-black hover:text-white"
+                          }`}
+                      >
+                        {resolveLabel(item)}
+                      </Link>
+                    )}
 
                     {/* Warehouse dropdown — hover-based via React state (no CSS gap issue) */}
                     {hasChildren && isOpen && (
@@ -778,17 +863,28 @@ export default function Navbar() {
 
                   const strippedPathname = stripPrefix(pathname || "");
                   const isActive = strippedPathname === cleanItemPath || strippedPathname.startsWith(cleanItemPath + "/");
+                  const children = isWarehouse ? undefined : item.children;
+                  const hasChildren = (isWarehouse && warehouseItems.length > 0) || !!(children && children.length > 0);
                   return (
                     <div key={item.href}>
-                      <Link
-                        href={href}
-                        className={`py-2.5 text-body font-semibold uppercase tracking-wide flex items-center justify-between group ${isActive ? "text-primary" : "text-black hover:text-primary"
-                          }`}
-                        onClick={() => setIsMenuOpen(false)}
-                      >
-                        {resolveLabel(item)}
-                        <span className="text-black/40 group-hover:text-primary transition-colors text-caption">→</span>
-                      </Link>
+                      {hasChildren ? (
+                        <div
+                          className={`py-2.5 text-body font-semibold uppercase tracking-wide flex items-center justify-between ${isActive ? "text-primary" : "text-black"
+                            }`}
+                        >
+                          {resolveLabel(item)}
+                        </div>
+                      ) : (
+                        <Link
+                          href={href}
+                          className={`py-2.5 text-body font-semibold uppercase tracking-wide flex items-center justify-between group ${isActive ? "text-primary" : "text-black hover:text-primary"
+                            }`}
+                          onClick={() => setIsMenuOpen(false)}
+                        >
+                          {resolveLabel(item)}
+                          <span className="text-black/40 group-hover:text-primary transition-colors text-caption">→</span>
+                        </Link>
+                      )}
                       {isWarehouse && warehouseItems.length > 0 && (
                         <div className="pl-3 border-l-2 border-gray-100 ml-1 mb-1">
                           {[...warehouseItems]
@@ -854,14 +950,14 @@ export default function Navbar() {
                 {isAuthenticated && pathname !== "/login" && (
                   <>
                     <button
-                      onClick={() => { setIsSearchOpen(true); setIsMenuOpen(false); }}
+                      onClick={() => { setSearchMounted(true); setIsSearchOpen(true); setIsMenuOpen(false); }}
                       className="py-2.5 text-body font-semibold text-black/80 flex items-center gap-3 w-full text-start"
                     >
                       <Search size={16} /> {t("nav.searchProducts") || "Search Products"}
                     </button>
 
                     <button
-                      onClick={() => { setIsNotificationOpen(true); setIsMenuOpen(false); }}
+                      onClick={() => { setNotifMounted(true); setIsNotificationOpen(true); setIsMenuOpen(false); }}
                       className="py-2.5 text-body font-semibold text-black/80 flex items-center gap-3 w-full"
                     >
                       <Bell size={16} /> {t("nav.notifications")} ({unreadCount})
@@ -888,9 +984,9 @@ export default function Navbar() {
         )}
 
       </div>
-      <CartDrawer isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
-      <NotificationDrawer isOpen={isNotificationOpen} onClose={() => setIsNotificationOpen(false)} />
-      <SearchPopup isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
+      {cartMounted && <CartDrawer isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />}
+      {notifMounted && <NotificationDrawer isOpen={isNotificationOpen} onClose={() => setIsNotificationOpen(false)} />}
+      {searchMounted && <SearchPopup isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />}
     </>
   );
 }

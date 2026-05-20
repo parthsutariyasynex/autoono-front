@@ -150,14 +150,8 @@ export default function InquiryModal({ product, isOpen, onClose }: InquiryModalP
                             disabled={isSubmitting}
                             className="flex-[2] py-4 px-6 bg-primary hover:bg-primary text-black font-bold rounded-lg transition-all shadow-md flex items-center justify-center gap-2 disabled:opacity-50 uppercase tracking-widest text-sm"
                         >
-                            {isSubmitting ? (
-                                <div className="w-5 h-5 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
-                            ) : (
-                                <>
-                                    <Send size={18} strokeWidth={3} />
-                                    {t("inquiry.submit")}
-                                </>
-                            )}
+                            <Send size={18} strokeWidth={3} className={isSubmitting ? "opacity-40" : ""} />
+                            <span className={isSubmitting ? "opacity-50" : ""}>{t("inquiry.submit")}</span>
                         </button>
                     </div>
                 </form>

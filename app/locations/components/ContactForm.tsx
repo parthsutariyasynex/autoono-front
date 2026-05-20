@@ -1,6 +1,6 @@
 "use client";
 import React, { useState } from "react";
-import { Loader2, CheckCircle2 } from "lucide-react";
+import { CheckCircle2 } from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
 
 const ContactForm: React.FC = () => {
@@ -151,7 +151,7 @@ const ContactForm: React.FC = () => {
                     >
                         {isLoading ? (
                             <>
-                                <Loader2 className="w-5 h-5 animate-spin" />
+                                
                                 {t("contact.processing")}
                             </>
                         ) : (

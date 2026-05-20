@@ -34,15 +34,23 @@ export default function AddressBookPage() {
 
     if (status === "loading" || loading) {
         return (
-            <>
-
-                <div className="flex items-center justify-center min-h-screen bg-white">
-                    <div className="flex flex-col items-center gap-4">
-                        <div className="h-10 w-10 animate-spin rounded-full border-4 border-gray-200 border-t-primary"></div>
-                        <p className="text-black/60">{t("common.loading")}</p>
+            <div className="min-h-screen bg-surfacePage flex flex-col lg:flex-row">
+                <div className="hidden lg:block w-64 flex-shrink-0 bg-gray-50 border-r border-gray-200 animate-pulse">
+                    <div className="p-4 space-y-2">
+                        {Array.from({ length: 7 }).map((_, i) => (
+                            <div key={i} className="h-10 bg-gray-200 rounded w-full" />
+                        ))}
                     </div>
                 </div>
-            </>
+                <div className="flex-1 p-6 md:p-10 space-y-6 animate-pulse">
+                    <div className="h-7 bg-gray-200 rounded w-48" />
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        {Array.from({ length: 3 }).map((_, i) => (
+                            <div key={i} className="h-40 bg-gray-200 rounded-xl w-full" />
+                        ))}
+                    </div>
+                </div>
+            </div>
         );
     }
 

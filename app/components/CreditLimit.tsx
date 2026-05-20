@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Hourglass, Loader2, Info } from "lucide-react";
+import { Hourglass } from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
 import { api } from "@/lib/api/api-client";
 import Price from "./Price";
@@ -53,23 +53,16 @@ const CreditLimit = () => {
         return () => { isMounted = false; };
     }, []);
 
-    if (loading) {
-        return (
-            <div className="w-full h-32 flex flex-col items-center justify-center bg-gray-50 rounded-lg border border-dashed border-gray-200">
-                <Loader2 className="w-6 h-6 animate-spin text-[#f5a623] mb-2" />
-                <span className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">{t("common.loading") || "Loading..."}</span>
-            </div>
-        );
-    }
+    // if (loading) {
+    //     return (
+    //         <div className="w-full h-32 flex flex-col items-center justify-center bg-gray-50 rounded-lg border border-dashed border-gray-200">
+    //             {/* <Loader2 className="w-6 h-6 animate-spin text-[#f5a623] mb-2" /> */}
+    //             {/* <span className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">{t("common.loading") || "Loading..."}</span> */}
+    //         </div>
+    //     );
+    // }
 
-    if (error) {
-        return (
-            <div className="w-full p-4 bg-red-50 border border-red-100 rounded-lg flex items-center gap-3">
-                <Info className="text-red-500 w-5 h-5" />
-                <p className="text-[12px] text-red-600 font-medium">{error}</p>
-            </div>
-        );
-    }
+    if (error) return null;
 
     if (!data || data.is_visible === false) {
         return null;

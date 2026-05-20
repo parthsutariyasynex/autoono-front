@@ -1,9 +1,9 @@
-import { getSession } from "next-auth/react";
+import { getCachedSession, invalidateSessionCache } from "@/lib/sessionCache";
 import { LOCALE_COOKIE } from "@/lib/i18n/config";
 
 const BASE_URL = "/api";
-const MAX_AUTH_RETRIES = 3;
-const AUTH_RETRY_DELAY = 800;
+const MAX_AUTH_RETRIES = 1;
+const AUTH_RETRY_DELAY = 300;
 
 /**
  * Read the current locale — checks URL first (most up-to-date during switch),
@@ -66,6 +66,50 @@ function isTokenExpired(token: string): boolean {
     }
 }
 
+// Module-level token cache + inflight deduplicator.
+// - Cache avoids a round-trip when the token was fetched recently (≤55s ago).
+// - Inflight promise deduplicates concurrent calls: all callers that arrive while
+//   getSession() is in-flight share the same promise instead of each firing a new request.
+let _tokenCache: { token: string; fetchedAt: number } | null = null;
+let _tokenInflight: Promise<string | null> | null = null;
+const TOKEN_CACHE_TTL = 55_000; // 55s — refresh before NextAuth's default 60s refetch interval
+
+export function invalidateTokenCache() {
+    _tokenCache = null;
+    _tokenInflight = null;
+    invalidateSessionCache(); // bust shared session cache on sign-out
+}
+
+async function _resolveToken(): Promise<string | null> {
+    // 1. localStorage FIRST — ProtectedLayout syncs the NextAuth token here on every
+    //    auth state change, so this is always current without an HTTP round-trip.
+    if (typeof window !== "undefined") {
+        const localToken = cleanToken(localStorage.getItem("token"));
+        if (localToken && !isTokenExpired(localToken)) {
+            _tokenCache = { token: localToken, fetchedAt: Date.now() };
+            return localToken;
+        }
+    }
+
+    // 2. getCachedSession() only when localStorage is empty or expired — happens on
+    //    first cold page load before ProtectedLayout has written the token.
+    //    getCachedSession() deduplicates concurrent HTTP calls across all callers.
+    try {
+        const session: any = await getCachedSession();
+        if (session?.accessToken) {
+            const t = cleanToken(session.accessToken);
+            if (t && !isTokenExpired(t)) {
+                _tokenCache = { token: t, fetchedAt: Date.now() };
+                return t;
+            }
+        }
+    } catch {
+        // getCachedSession() can fail in non-browser contexts
+    }
+
+    return null;
+}
+
 export async function getAuthToken(attempt = 0): Promise<string | null> {
     // Sub-account override: while impersonating a sub-account, use their token
     if (typeof window !== "undefined" && localStorage.getItem("isSubAccount") === "true") {
@@ -73,29 +117,36 @@ export async function getAuthToken(attempt = 0): Promise<string | null> {
         if (subToken && !isTokenExpired(subToken)) return subToken;
     }
 
-    // Try NextAuth session first
+    // Use cached token if still fresh and not JWT-expired
+    if (_tokenCache && Date.now() - _tokenCache.fetchedAt < TOKEN_CACHE_TTL) {
+        if (!isTokenExpired(_tokenCache.token)) return _tokenCache.token;
+        _tokenCache = null; // JWT expired — force re-fetch
+    }
+
+    // Deduplicate concurrent callers: if a getSession() is already in-flight,
+    // all callers wait on the same promise instead of firing separate HTTP requests.
+    if (_tokenInflight) return _tokenInflight;
+
+    _tokenInflight = _resolveToken();
     try {
-        const session: any = await getSession();
-        if (session?.accessToken) {
-            const t = cleanToken(session.accessToken);
-            if (t && !isTokenExpired(t)) {
-                return t;
+        const token = await _tokenInflight;
+        if (token) return token;
+    } finally {
+        _tokenInflight = null;
+    }
+
+    // No valid token found — wait once for ProtectedLayout to write the token,
+    // then read localStorage directly (NOT a new getSession() call).
+    // This handles the post-login race where ProtectedLayout hasn't synced yet.
+    if (attempt < 1) {
+        await new Promise(r => setTimeout(r, 300));
+        if (typeof window !== "undefined") {
+            const delayed = cleanToken(localStorage.getItem("token"));
+            if (delayed && !isTokenExpired(delayed)) {
+                _tokenCache = { token: delayed, fetchedAt: Date.now() };
+                return delayed;
             }
         }
-    } catch {
-        // getSession() can fail in non-browser contexts
-    }
-
-    // Fallback: read from localStorage (only if not expired)
-    if (typeof window !== "undefined") {
-        const localToken = cleanToken(localStorage.getItem("token"));
-        if (localToken && !isTokenExpired(localToken)) return localToken;
-    }
-
-    // No valid token found — wait and retry (session may still be initializing after login)
-    if (attempt < 2) {
-        await new Promise(r => setTimeout(r, 500));
-        return getAuthToken(attempt + 1);
     }
 
     return null;

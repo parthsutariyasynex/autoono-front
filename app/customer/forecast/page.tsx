@@ -1,5 +1,6 @@
 "use client";
 import { useTranslation } from "@/hooks/useTranslation";
+import { ForecastSkeleton } from "@/components/skeletons";
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -207,10 +208,11 @@ export default function MyForecastPage() {
 
     if (loading || loadingForecasts) {
         return (
-            <div className="min-h-screen bg-white">
-                <div className="flex items-center justify-center h-[60vh]">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-                </div>
+            <div className="flex flex-col lg:flex-row flex-1 min-h-0 w-full bg-[#fcfcfc]">
+                <Sidebar />
+                <main className="flex-1 w-full px-4 md:px-6 lg:px-8 py-4 md:py-6 lg:py-10 bg-surfacePage min-w-0">
+                    <ForecastSkeleton />
+                </main>
             </div>
         );
     }
@@ -311,9 +313,6 @@ export default function MyForecastPage() {
                                         >
                                             {file.file_name || file.filename || file.name || t("m.name")}
                                         </button>
-                                        {downloadingId !== null && downloadingId === fileId && (
-                                            <div className="animate-spin h-3 w-3 border-b-2 border-warningAmber rounded-full flex-shrink-0 mt-1"></div>
-                                        )}
                                     </div>
                                     <span className="text-label text-black/50 font-medium mt-1 block">
                                         {getProperDate(file)}
@@ -329,9 +328,6 @@ export default function MyForecastPage() {
                                         >
                                             {file.file_name || file.filename || file.name || t("m.name")}
                                         </button>
-                                        {downloadingId !== null && downloadingId === fileId && (
-                                            <div className="animate-spin h-3 w-3 border-b-2 border-warningAmber rounded-full"></div>
-                                        )}
                                     </div>
                                     <span className={`text-body text-black/80 font-medium text-center ${isRtl ? 'border-r' : 'border-l'} border-gray-50`}>
                                         {getProperDate(file)}

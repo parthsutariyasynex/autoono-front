@@ -7,7 +7,6 @@ import { useState, useEffect, useMemo } from "react";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useLocalePath } from "@/hooks/useLocalePath";
 import { api } from "@/lib/api/api-client";
-import { Loader2 } from "lucide-react";
 
 interface SidebarItem {
     label: string;
@@ -210,9 +209,16 @@ const Sidebar = () => {
 
     if (loading) {
         return (
-            <aside className="w-full lg:w-64 flex-shrink-0 bg-surfaceMuted border-b lg:border-b-0 ltr:lg:border-r rtl:lg:border-l border-gray-200 z-30 sticky top-[56px] sm:top-[64px] lg:top-[108px] h-auto lg:h-[calc(100vh-108px)] flex flex-col items-center justify-center p-10">
-                {/* <Loader2 className="w-6 h-6 animate-spin text-primary mb-2" /> */}
-                <span className="text-micro text-black/40 font-bold uppercase tracking-widest">{t("common.loading") || "Loading..."}</span>
+            <aside className="w-full lg:w-64 flex-shrink-0 bg-surfaceMuted border-b lg:border-b-0 ltr:lg:border-r rtl:lg:border-l border-gray-200 z-30 sticky top-[56px] sm:top-[64px] lg:top-[108px] h-auto lg:h-[calc(100vh-108px)] overflow-hidden">
+                <nav className="p-0 lg:p-4">
+                    <ul className="flex flex-row lg:flex-col space-y-0 lg:space-y-1">
+                        {Array.from({ length: 7 }).map((_, i) => (
+                            <li key={i} className="flex-shrink-0 px-6 lg:px-4 py-3">
+                                <div className="h-4 bg-gray-200 rounded animate-pulse" style={{ width: `${60 + (i % 3) * 20}%` }} />
+                            </li>
+                        ))}
+                    </ul>
+                </nav>
             </aside>
         );
     }

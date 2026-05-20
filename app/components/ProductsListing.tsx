@@ -4,9 +4,11 @@ import { Suspense, useEffect, useState, useMemo, useCallback, useRef } from "rea
 import { ShoppingCart, X, Star, ChevronLeft, ChevronRight, ChevronDown, AlertTriangle, Info, Check, Filter } from "lucide-react";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import Link from "next/link";
-import ProductDialog from "../components/ProductDialog";
-import ProductEnquiryModal from "../components/ProductEnquiryModal";
-import AddToCartPopup from "../components/AddToCartPopup";
+import Image from "next/image";
+import dynamic from "next/dynamic";
+const ProductDialog = dynamic(() => import("../components/ProductDialog"), { ssr: false });
+const ProductEnquiryModal = dynamic(() => import("../components/ProductEnquiryModal"), { ssr: false });
+const AddToCartPopup = dynamic(() => import("../components/AddToCartPopup"), { ssr: false });
 import { checkAuth } from "../products/api";
 import { useCart } from "@/modules/cart/hooks/useCart";
 import SidebarFilter from "../components/SidebarFilter";
@@ -21,7 +23,6 @@ import { toast } from "react-hot-toast";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useLocalePath } from "@/hooks/useLocalePath";
 import { useLocale } from "@/lib/i18n/client";
-import { useSession } from "next-auth/react";
 
 const PAGE_SIZE = 20;
 
@@ -102,8 +103,6 @@ export default function ProductsPage({ categoryId: propCategoryId, storeCode: pr
   const { t, isRtl } = useTranslation();
   const lp = useLocalePath();
   const locale = useLocale();
-  const { data: session, status: sessionStatus } = useSession();
-
   // Store code lives in the URL path prefix (e.g. /V101_en/products) — read it here
   // so the products API always uses the right warehouse without a ?store= query param.
   const STORE_CODE_RE_PL = /^[A-Za-z0-9_]+_(en|ar)$/;
@@ -150,6 +149,8 @@ export default function ProductsPage({ categoryId: propCategoryId, storeCode: pr
   const [favIds, setFavIds] = useState<number[]>([]);
   const [selectedStoreCode, setSelectedStoreCode] = useState<string | null>(null);
   const [storeName, setStoreName] = useState<string>("");
+  const [serverError, setServerError] = useState(false);
+  const [retryCount, setRetryCount] = useState(0);
 
   useEffect(() => {
     setIsMounted(true);
@@ -300,15 +301,14 @@ export default function ProductsPage({ categoryId: propCategoryId, storeCode: pr
 
   useEffect(() => {
     if (!isInitialized) return;
-    if (sessionStatus === "loading") return; // Wait for session to resolve
     const abortController = new AbortController();
     const loadProducts = async () => {
       try {
         setLoading(true);
         setError("");
-        // Get token directly from the reactive session (no race condition)
-        const token = (session as any)?.accessToken || localStorage.getItem("token");
-        if (!token) return;
+        setServerError(false);
+        const token = localStorage.getItem("token");
+        if (!token) { redirectToLogin(router); return; }
         // Derive locale from URL: handle both /ar/... and store-code URLs like /V102_ar/...
         const firstSeg = window.location.pathname.split("/").filter(Boolean)[0] || "";
         const storeLocaleMatch = firstSeg.match(/^[A-Za-z0-9]+_(en|ar)$/);
@@ -318,9 +318,9 @@ export default function ProductsPage({ categoryId: propCategoryId, storeCode: pr
         const pathStoreCodeFromUrl = window.location.pathname.split("/").filter(Boolean)[0];
         const tempStoreCode = propStoreCode || (STORE_CODE_RE_PL.test(pathStoreCodeFromUrl) ? pathStoreCodeFromUrl : null) || selectedStoreCode || "";
         const fetchLocale = pathLocale || cookieLocale || "en";
-        const headers: HeadersInit = { 
-          "Content-Type": "application/json", 
-          "Authorization": `Bearer ${token}`, 
+        const headers: HeadersInit = {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
           "x-locale": fetchLocale,
           ...(tempStoreCode && { "x-store-code": tempStoreCode })
         };
@@ -354,11 +354,17 @@ export default function ProductsPage({ categoryId: propCategoryId, storeCode: pr
           throw new Error(`API Error: ${res.status}`);
         }
         const data = await res.json();
+        if (data.server_error) {
+          setServerError(true);
+          setProducts([]);
+          setLoading(false);
+          return;
+        }
         const productArray = Array.isArray(data) ? data
           : Array.isArray(data.products) ? data.products
-          : Array.isArray(data.items) ? data.items
-          : Array.isArray(data.data) ? data.data
-          : [];
+            : Array.isArray(data.items) ? data.items
+              : Array.isArray(data.data) ? data.data
+                : [];
         const total = typeof data.total_count === "number" ? data.total_count : productArray.length;
 
         const mappedProducts = productArray.map((p: any) => ({
@@ -385,7 +391,7 @@ export default function ProductsPage({ categoryId: propCategoryId, storeCode: pr
     };
     loadProducts();
     return () => abortController.abort();
-  }, [router, currentPage, debouncedFilters, sortBy, pathStoreCode, selectedStoreCode, searchByTerm, itemCodeTerm, isInitialized, sessionStatus, session]);
+  }, [currentPage, debouncedFilters, sortBy, pathStoreCode, selectedStoreCode, searchByTerm, itemCodeTerm, isInitialized, retryCount]);
   // Note: locale intentionally excluded — fetchLocale reads from window.location directly
   // Adding locale here causes double-fetch and abort race condition
 
@@ -502,9 +508,9 @@ export default function ProductsPage({ categoryId: propCategoryId, storeCode: pr
               <span className="text-caption font-semibold text-black/70 uppercase">{product.stock_label || ""}</span>
             </div>
           </div>
-          <div className="w-12 h-12 sm:w-14 sm:h-14 flex-shrink-0 rounded-lg border border-gray-100 overflow-hidden bg-gray-50 flex items-center justify-center group-hover/card:border-primary/20 transition-colors">
+          <div className="w-12 h-12 sm:w-14 sm:h-14 flex-shrink-0 rounded-lg border border-gray-100 overflow-hidden bg-gray-50 flex items-center justify-center group-hover/card:border-primary/20 transition-colors relative">
             {product.image_url
-              ? <img src={product.image_url} alt={product.name} className="w-full h-full object-contain" />
+              ? <Image src={product.image_url} alt={product.name} fill sizes="56px" className="object-contain" />
               : <span className="text-[8px] text-black/40 font-semibold uppercase">No Img</span>}
           </div>
         </Link>
@@ -532,11 +538,9 @@ export default function ProductsPage({ categoryId: propCategoryId, storeCode: pr
                   disabled={addingToCart === product.sku}
                   className={`h-9 px-2.5 rounded-lg flex items-center gap-1.5 text-label font-semibold uppercase shadow-sm active:scale-95 cursor-pointer flex-shrink-0 ${justAdded === product.sku ? "bg-green-500 text-white" : "bg-primary text-black"}`}
                 >
-                  {addingToCart === product.sku
-                    ? <div className="w-3.5 h-3.5 border-2 border-black border-t-transparent rounded-full animate-spin" />
-                    : justAdded === product.sku
-                      ? <><Check size={14} strokeWidth={3} />{t("favorites.cartAdded")}</>
-                      : <ShoppingCart size={14} strokeWidth={2.5} />}
+                  {justAdded === product.sku
+                    ? <><Check size={14} strokeWidth={3} />{t("favorites.cartAdded")}</>
+                    : <ShoppingCart size={14} strokeWidth={2.5} className={addingToCart === product.sku ? "opacity-40" : ""} />}
                 </button>
               ) : (
                 <button
@@ -741,7 +745,15 @@ export default function ProductsPage({ categoryId: propCategoryId, storeCode: pr
 
           {/* ── MOBILE/TABLET CARD LIST ── */}
           <div className="xl:hidden flex-1 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5 overflow-y-auto">
-            {loading ? <MobileCardShimmer /> : sortedProducts.length === 0 ? (
+            {loading ? <MobileCardShimmer /> : serverError ? (
+              <div className="flex-1 flex items-center justify-center py-10 px-4 col-span-full">
+                <div className="bg-red-50 border border-red-100 text-red-700 px-5 py-4 rounded-xl flex flex-col items-center gap-3 w-full shadow-sm text-center">
+                  <AlertTriangle className="w-5 h-5 flex-shrink-0" />
+                  <span className="text-xs font-semibold uppercase tracking-wider">{t("common.serverError") || "Service temporarily unavailable"}</span>
+                  <button onClick={() => setRetryCount(c => c + 1)} className="mt-1 bg-red-600 hover:bg-red-700 text-white text-xs font-bold uppercase tracking-widest px-5 py-2 rounded-lg transition-all active:scale-95">{t("common.tryAgain") || "Try Again"}</button>
+                </div>
+              </div>
+            ) : sortedProducts.length === 0 ? (
               <div className="flex-1 flex items-center justify-center py-10 px-4 col-span-full">
                 <div className="bg-[#FFF9E7] border border-[#FFE7A3] text-[#856404] px-5 py-4 rounded-xl flex items-center gap-3 w-full shadow-sm">
                   <AlertTriangle className="w-5 h-5 flex-shrink-0" />
@@ -825,10 +837,20 @@ export default function ProductsPage({ categoryId: propCategoryId, storeCode: pr
                   </thead>
                 )}
                 <tbody className="divide-y divide-gray-50">
-                  {loading ? <ShimmerRows colCount={totalColumns} /> : products.length === 0 ? (
+                  {loading ? <ShimmerRows colCount={totalColumns} /> : serverError ? (
                     <tr>
                       <td colSpan={totalColumns} className="py-24 px-6">
-                        <div className="bg-[#FFF9E7] border border-[#FFE7A3] text-[#856404] px-5 py-4 rounded-xl flex items-center gap-3 w-full shadow-sm max-w-2xl mx-auto">
+                        <div className="bg-red-50 border border-red-100 text-red-700 px-5 py-4 rounded-xl flex flex-col items-center gap-3 w-full shadow-sm max-w-2xl mx-auto text-center">
+                          <AlertTriangle className="w-5 h-5 flex-shrink-0" />
+                          <span className="text-xs font-semibold uppercase tracking-wider">{t("common.serverError") || "Service temporarily unavailable"}</span>
+                          <button onClick={() => setRetryCount(c => c + 1)} className="mt-1 bg-red-600 hover:bg-red-700 text-white text-xs font-bold uppercase tracking-widest px-5 py-2 rounded-lg transition-all active:scale-95">{t("common.tryAgain") || "Try Again"}</button>
+                        </div>
+                      </td>
+                    </tr>
+                  ) : products.length === 0 ? (
+                    <tr>
+                      <td colSpan={totalColumns} className="py-24 px-6">
+                        <div className="bg-gray-50 border border-gray-200 text-gray-600 px-5 py-4 rounded-xl flex items-center gap-3 w-full shadow-sm max-w-2xl mx-auto">
                           <AlertTriangle className="w-5 h-5 flex-shrink-0" />
                           <span className="text-xs font-semibold uppercase tracking-wider">{t("products.noProducts")}</span>
                         </div>
@@ -868,7 +890,7 @@ export default function ProductsPage({ categoryId: propCategoryId, storeCode: pr
                           <div className="w-10 h-10 mx-auto">
                             {product.image_url ? (
                               <div className="relative w-10 h-10 group/img cursor-pointer" onClick={() => { setSelectedImage(product.image_url); setPreviewProduct(product); setIsImageModalOpen(true); }}>
-                                <img src={product.image_url} alt={product.name} width={40} height={40} className="w-10 h-10 object-contain rounded border border-gray-100 shadow-sm" />
+                                <Image src={product.image_url} alt={product.name} fill sizes="40px" className="object-contain rounded border border-gray-100 shadow-sm" />
                                 <div className="absolute inset-0 bg-black/50 opacity-0 group-hover/img:opacity-100 transition-all duration-300 flex items-center justify-center rounded">
                                   <div className="w-5 h-5 bg-primary rounded-full flex items-center justify-center text-black font-semibold text-caption shadow-lg transform scale-50 group-hover/img:scale-100 transition-transform duration-300">+</div>
                                 </div>
@@ -916,11 +938,9 @@ export default function ProductsPage({ categoryId: propCategoryId, storeCode: pr
 
                                 {!isOutOfStock ? (
                                   <button onClick={() => handleAddToCart(product)} disabled={addingToCart === product.sku} className={`w-8 h-8 rounded-md flex items-center justify-center shadow-md hover:-translate-y-0.5 transition-all cursor-pointer ${justAdded === product.sku ? "bg-green-500 text-white" : "bg-primary text-black"}`}>
-                                    {addingToCart === product.sku
-                                      ? <div className="w-3.5 h-3.5 border-2 border-black border-t-transparent rounded-full animate-spin" />
-                                      : justAdded === product.sku
-                                        ? <Check size={15} strokeWidth={3} />
-                                        : <ShoppingCart size={15} strokeWidth={2.5} />}
+                                    {justAdded === product.sku
+                                      ? <Check size={15} strokeWidth={3} />
+                                      : <ShoppingCart size={15} strokeWidth={2.5} className={addingToCart === product.sku ? "opacity-40" : ""} />}
                                   </button>
                                 ) : (
                                   <button onClick={() => { setInquiryProduct(product); setIsInquiryModalOpen(true); }} className="w-8 h-8 bg-primary text-black rounded-md flex items-center justify-center shadow-md active:scale-95 cursor-pointer">
@@ -960,7 +980,7 @@ export default function ProductsPage({ categoryId: propCategoryId, storeCode: pr
           </div>
           <div className="flex-1 overflow-y-auto p-4 md:p-8 flex flex-col items-center justify-center">
             <div className="bg-white flex items-center justify-center min-h-[200px] md:min-h-[400px] w-full">
-              <img src={selectedImage} alt={previewProduct ? previewProduct?.name || t("m.preview") : t("m.preview")} className="max-w-full max-h-[60vh] md:max-h-[75vh] object-contain rounded-lg" />
+              <img src={selectedImage} alt={previewProduct ? previewProduct?.name || t("m.preview") : t("m.preview")} loading="lazy" className="max-w-full max-h-[60vh] md:max-h-[75vh] object-contain rounded-lg" />
             </div>
             <button onClick={() => setIsImageModalOpen(false)} className="mt-6 w-full py-3 md:py-4 bg-black text-white font-semibold uppercase tracking-widest rounded shadow-xl hover:bg-gray-800 text-sm cursor-pointer active:scale-95">{t("m.close")}</button>
           </div>

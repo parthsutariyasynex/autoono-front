@@ -1,4 +1,3 @@
-import "intl-tel-input/build/css/intlTelInput.css";
 import type { Metadata } from "next";
 import { Rubik } from "next/font/google";
 import { cookies, headers } from "next/headers";
@@ -9,6 +8,7 @@ import ProtectedLayout from "@/app/components/ProtectedLayout";
 import "./globals.css";
 import { Toaster } from "react-hot-toast";
 import { NextAuthProvider } from "@/components/providers/NextAuthProvider";
+import { getServerSession } from "@/lib/getServerSession";
 import DirectionSync from "@/app/components/DirectionSync";
 import PriceIconObserver from "@/app/components/PriceIconObserver";
 import {
@@ -60,13 +60,18 @@ export default async function RootLayout({
   const locale = localeValue as Locale;
   const dir = localeDirection[locale];
 
+  // Read session server-side so SessionProvider is pre-populated on the client.
+  // This eliminates the 2 extra /api/auth/session fetches that SessionProvider
+  // would otherwise make on mount (one normal + one from React StrictMode).
+  const session = await getServerSession();
+
   return (
     <html lang={locale} dir={dir}>
       <body className={`${rubik.variable} font-rubik`}>
         <LocaleProvider initialLocale={locale}>
           <TranslationWrapper>
             <ReduxProvider>
-              <NextAuthProvider>
+              <NextAuthProvider session={session}>
                 <CartProvider>
                   <GiftProvider>
                     <DirectionSync />

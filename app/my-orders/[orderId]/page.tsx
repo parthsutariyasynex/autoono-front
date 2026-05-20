@@ -11,6 +11,7 @@ import Sidebar from "@/components/Sidebar";
 import { toast } from "react-hot-toast";
 import { useCart } from "@/modules/cart/context/CartContext";
 import MakePaymentModal from "@/components/MakePaymentModal";
+import { OrderDetailSkeleton } from "@/components/skeletons";
 import EditPaymentModal from "@/components/EditPaymentModal";
 
 export default function OrderDetailsPage() {
@@ -525,8 +526,8 @@ export default function OrderDetailsPage() {
             <div className="min-h-screen flex flex-col w-full bg-surfacePage">
                 <div className="flex flex-col lg:flex-row flex-1 w-full">
                     <Sidebar />
-                    <main className="flex-1 w-full flex items-center justify-center p-4 md:p-8">
-                        <div className="animate-spin rounded-full h-12 w-12 border-b-4 border-primary"></div>
+                    <main className="flex-1 w-full p-4 md:p-8">
+                        <OrderDetailSkeleton />
                     </main>
                 </div>
             </div>
@@ -624,14 +625,10 @@ export default function OrderDetailsPage() {
                                         disabled={isCancelling}
                                         className={`bg-red-600 hover:bg-red-700 text-white font-bold py-2.5 px-6 md:px-8 rounded-md text-body-sm uppercase tracking-widest transition-all shadow-sm active:scale-95 border border-red-600 flex items-center justify-center gap-2 no-print w-full sm:w-auto ${isCancelling ? 'opacity-70 cursor-not-allowed' : ''}`}
                                     >
-                                        {isCancelling ? (
-                                            <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
-                                        ) : (
-                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                                                <line x1="18" y1="6" x2="6" y2="18"></line>
-                                                <line x1="6" y1="6" x2="18" y2="18"></line>
-                                            </svg>
-                                        )}
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className={isCancelling ? "opacity-40" : ""}>
+                                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                                        </svg>
                                         {safeTranslate("cancelOrder", "Cancel Order")}
                                     </button>
                                 );
@@ -641,15 +638,11 @@ export default function OrderDetailsPage() {
                                 disabled={isPrinting}
                                 className={`bg-white hover:bg-gray-50 text-black font-bold py-2.5 px-6 md:px-8 rounded-md text-label uppercase tracking-widest transition-all border border-border shadow-sm flex items-center justify-center gap-2 no-print active:scale-95 w-full sm:w-auto ${isPrinting ? 'opacity-70 cursor-not-allowed' : ''}`}
                             >
-                                {isPrinting ? (
-                                    <div className="animate-spin rounded-full h-4 w-4 border-2 border-black border-t-transparent"></div>
-                                ) : (
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                                        <polyline points="6 9 6 2 18 2 18 9"></polyline>
-                                        <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
-                                        <rect x="6" y="14" width="12" height="8"></rect>
-                                    </svg>
-                                )}
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className={isPrinting ? "opacity-40" : ""}>
+                                    <polyline points="6 9 6 2 18 2 18 9"></polyline>
+                                    <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+                                    <rect x="6" y="14" width="12" height="8"></rect>
+                                </svg>
                                 {isPrinting ? safeTranslate("printing", "PRINTING...") : safeTranslate("printOrder", "PRINT ORDER")}
 
                             </button>
@@ -869,7 +862,7 @@ export default function OrderDetailsPage() {
                             </div>
                         ) : isAttachmentsLoading ? (
                             <div className="bg-white rounded-md border border-border p-20 flex justify-center items-center shadow-sm">
-                                <div className="animate-spin rounded-full h-10 w-10 border-b-4 border-primary"></div>
+                                <div className="max-w-5xl mx-auto px-4 py-6 animate-pulse space-y-4"><div className="h-7 bg-gray-200 rounded w-48"/>{Array.from({length:4}).map((_,i)=><div key={i} className="h-16 bg-gray-200 rounded-xl"/>)}</div>
                             </div>
                         ) : attachments.length > 0 ? (
                             <div className="bg-white border border-border rounded-md overflow-hidden shadow-sm">
@@ -911,9 +904,6 @@ export default function OrderDetailsPage() {
                                                                 disabled={isOpening}
                                                                 className="text-primary hover:text-black font-bold break-all text-left cursor-pointer inline-flex items-center gap-2 disabled:opacity-60 disabled:cursor-wait underline underline-offset-4"
                                                             >
-                                                                {isOpening && (
-                                                                    <span className="animate-spin rounded-full h-4 w-4 border-2 border-primary border-t-transparent flex-shrink-0"></span>
-                                                                )}
                                                                 {attachment.file_name || "-"}
                                                             </button>
                                                         </td>

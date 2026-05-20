@@ -6,7 +6,7 @@ import React, { useEffect, useState, useMemo, useRef } from "react";
 import { useCart } from "@/modules/cart/hooks/useCart";
 import { useCheckout, Address } from "@/modules/checkout/hooks/useCheckout";
 import { useRouter } from "next/navigation";
-import { Loader2, Upload } from "lucide-react";
+import { Upload } from "lucide-react";
 import toast from "react-hot-toast";
 import Price from "@/app/components/Price";
 
@@ -303,7 +303,7 @@ const MultiShippingReviewPage: React.FC = () => {
     if (isLoading || isCartLoading || isCheckoutLoading) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-white">
-                <div className="w-10 h-10 border-4 border-gray-100 border-t-primary rounded-full animate-spin" />
+                <div className="max-w-2xl mx-auto space-y-4 animate-pulse">{Array.from({length:3}).map((_,i)=><div key={i} className="h-20 bg-gray-200 rounded-xl"/>)}</div>
             </div>
         );
     }
@@ -542,7 +542,7 @@ const MultiShippingReviewPage: React.FC = () => {
                         disabled={isPlacingOrder}
                         className="w-full sm:w-auto bg-primary text-black px-10 md:px-16 py-3.5 md:py-4 text-label font-bold uppercase tracking-[0.15em] hover:bg-black hover:text-white transition-all shadow-sm flex items-center justify-center gap-2"
                     >
-                        {isPlacingOrder && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+                        
                         {t("multi.placeOrder")}
                     </button>
                 </div>

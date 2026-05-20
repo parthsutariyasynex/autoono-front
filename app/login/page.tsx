@@ -17,7 +17,7 @@ export default function LoginPage() {
   return (
     <Suspense fallback={
       <div className="flex-1 bg-surfaceSubtle flex items-center justify-center">
-        <div className="h-10 w-10 animate-spin rounded-full border-4 border-gray-200 border-t-primary"></div>
+        <div className="h-10 w-10 bg-gray-200 rounded-full animate-pulse"></div>
       </div>
     }>
       <LoginPageContent />
@@ -37,11 +37,17 @@ function LoginPageContent() {
   const { loading: reduxLoading } = useAppSelector((state: RootState) => state.auth);
   const [loading, setLoading] = useState(false);
 
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [countryCode, setCountryCode] = useState("+966");
+  const [mobileNumber, setMobileNumber] = useState("");
+  const [otpSent, setOtpSent] = useState(false);
+  const [otp, setOtp] = useState("");
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
+
   useEffect(() => {
     if (status === "authenticated") {
       const sess = session as any;
-      // Only force-signout on an explicit server-side expiry signal.
-      // Never signout on missing accessToken — it may just be hydrating.
       if (sess?.error === "MagentoTokenExpired") {
         signOut({ redirect: false });
         return;
@@ -53,17 +59,6 @@ function LoginPageContent() {
     }
   }, [status, session, lp, searchParams]);
 
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [countryCode, setCountryCode] = useState("+966");
-  const [mobileNumber, setMobileNumber] = useState("");
-  const [otpSent, setOtpSent] = useState(false);
-  const [otp, setOtp] = useState("");
-  const [errors, setErrors] = useState<{ [key: string]: string }>({});
-
-  // Hide the scrollbar visually on the login page only, without locking
-  // scroll itself (mobile viewports often can't fit the form vertically,
-  // so the user MUST be able to scroll).
   useEffect(() => {
     document.body.classList.add('scrollbar-hide');
     return () => document.body.classList.remove('scrollbar-hide');
@@ -75,6 +70,15 @@ function LoginPageContent() {
       setMode(qp);
     }
   }, [searchParams]);
+
+  // Session resolving → show spinner (not blank). Authenticated → null while
+  // the redirect fires. All hooks are above this line (Rules of Hooks satisfied).
+  if (status === "loading") return (
+    <div className="flex-1 bg-surfaceSubtle flex items-center justify-center">
+      <div className="h-10 w-10 bg-gray-200 rounded-full animate-pulse" />
+    </div>
+  );
+  if (status === "authenticated") return null;
 
   const getMobileRequirements = (code: string) => {
     if (code === "+966") return { length: 9, start: "5", example: "5xxxxxxxx" };
@@ -117,7 +121,7 @@ function LoginPageContent() {
   const handleSendOtp = async (e: React.MouseEvent) => {
     e.preventDefault();
     setErrors({});
-    
+
     if (!mobileNumber) {
       setErrors({ mobile: t("forgotPassword.mobileRequired") || "Mobile number is required" });
       return;

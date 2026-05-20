@@ -180,11 +180,7 @@ export default function ProductEnquiryModal({
                             disabled={isSubmitting}
                             className="w-full py-4.5 px-10 bg-primary hover:bg-primaryHover text-black font-bold rounded-lg transition-all text-sm uppercase tracking-widest shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center min-h-[56px] cursor-pointer"
                         >
-                            {isSubmitting ? (
-                                <div className="w-6 h-6 border-3 border-black border-t-transparent rounded-full animate-spin"></div>
-                            ) : (
-                                t("inquiry.submitEnquiry")
-                            )}
+                            <span className={isSubmitting ? "opacity-50" : ""}>{t("inquiry.submitEnquiry")}</span>
                         </button>
                     </div>
 

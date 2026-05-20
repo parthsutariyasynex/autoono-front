@@ -35,7 +35,7 @@
 //     if (authStatus === "loading") {
 //         return (
 //             <div className="min-h-screen flex items-center justify-center bg-white">
-//                 <div className="animate-spin rounded-full h-10 w-10 border-4 border-gray-200 border-t-primary"></div>
+//                 <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 animate-pulse">{...Array.from({length:8}).map((_,i)=><div key={i} className="bg-gray-200 rounded-lg aspect-square"/>)}</div>
 //             </div>
 //         );
 //     }
@@ -120,7 +120,7 @@ export default function FavoritesPage() {
     if (authStatus === "loading") {
         return (
             <div className="min-h-screen flex items-center justify-center bg-white">
-                <div className="animate-spin rounded-full h-10 w-10 border-4 border-gray-200 border-t-primary"></div>
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 animate-pulse">{...Array.from({length:8}).map((_,i)=><div key={i} className="bg-gray-200 rounded-lg aspect-square"/>)}</div>
             </div>
         );
     }
