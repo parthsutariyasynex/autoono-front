@@ -646,19 +646,20 @@ export function GiftProvider({
         await fetchDiscountPopupAndReturn();
     }, [fetchDiscountPopupAndReturn]);
 
+    // A cart item only counts as a "selected gift" when it's actually free
+    // (price === 0). Without this guard, a paid product whose SKU happens to
+    // overlap with a gift-eligible SKU would be miscounted, making
+    // isAllGiftsSelected fire prematurely and blocking the auto-open popup.
+    const isFreeGiftItem = (item: { sku: string; price?: number }) =>
+        Number(item.price || 0) === 0 &&
+        availableGifts.some((gift) => gift.sku === item.sku);
+
     const hasGifts =
         availableGifts.length > 0 &&
-        (cart?.items?.some((item) =>
-            availableGifts.some(
-                (gift) => gift.sku === item.sku
-            )
-        ) ||
-            false);
+        (cart?.items?.some(isFreeGiftItem) || false);
 
     const totalSelectedGifts = (cart?.items || [])
-        .filter((item) =>
-            availableGifts.some((gift) => gift.sku === item.sku)
-        )
+        .filter(isFreeGiftItem)
         .reduce(
             (sum, item) => sum + Number(item.qty || 0),
             0
@@ -827,6 +828,14 @@ export function GiftProvider({
         totalSelectedGifts,
     ]);
 
+    // TEMP DEBUG: track every isGiftModalOpen change to spot rogue closers
+    useEffect(() => {
+        console.log(
+            `[GiftContext] ⚡ isGiftModalOpen changed → ${isGiftModalOpen}`,
+            new Error("trace").stack?.split("\n").slice(1, 5).join("\n")
+        );
+    }, [isGiftModalOpen]);
+
     // manual open
     const openGiftModal = useCallback(async () => {
         // hasSeenRef.current = false;
@@ -980,11 +989,18 @@ export function GiftProvider({
         >
             {children}
 
+            {(() => {
+                console.log(
+                    `[GiftContext] 🎨 RENDER gate — isGiftModalOpen=${isGiftModalOpen}, availableGifts.length=${availableGifts.length}, willRender=${isGiftModalOpen && availableGifts.length > 0}`
+                );
+                return null;
+            })()}
             {isGiftModalOpen &&
                 availableGifts.length > 0 && (
                     <GiftModal
                         isOpen={isGiftModalOpen}
                         onClose={() => {
+                            console.log("[GiftContext] ❌ GiftModal.onClose called");
                             setIsGiftModalOpen(false);
                         }}
                         onSelectGifts={
