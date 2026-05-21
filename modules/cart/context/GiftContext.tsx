@@ -385,7 +385,7 @@ import { useCart } from "../hooks/useCart";
 import GiftModal from "@/components/GiftModal";
 import toast from "react-hot-toast";
 import { usePathname } from "next/navigation";
-import { getAuthToken, getClientStoreCode } from "@/lib/api/api-client";
+import { getAuthToken } from "@/lib/api/api-client";
 
 export interface GiftItem {
     id: string;
@@ -553,7 +553,19 @@ export function GiftProvider({
                 return null;
             }
 
-            const storeCode = getClientStoreCode();
+            const storeCode =
+                typeof window !== "undefined"
+                    ? localStorage.getItem(
+                        "selectedStoreCode"
+                    ) ||
+                    document.cookie.match(
+                        /NEXT_STORE=([^;]+)/
+                    )?.[1] ||
+                    document.cookie.match(
+                        /NEXT_LOCALE=([^;]+)/
+                    )?.[1] ||
+                    ""
+                    : "";
 
             const storeParam = storeCode
                 ? `?store=${encodeURIComponent(storeCode)}`
@@ -634,21 +646,17 @@ export function GiftProvider({
         await fetchDiscountPopupAndReturn();
     }, [fetchDiscountPopupAndReturn]);
 
-    // Only count items with price === 0 as selected gifts.
-    // Purchased items can share the same SKU as a gift option (e.g. a product
-    // that is also a promo reward). Without the price check those paid items
-    // would inflate totalSelectedGifts and incorrectly block the popup.
     const hasGifts =
         availableGifts.length > 0 &&
         (cart?.items?.some((item) =>
-            Number(item.price || 0) === 0 &&
-            availableGifts.some((gift) => gift.sku === item.sku)
+            availableGifts.some(
+                (gift) => gift.sku === item.sku
+            )
         ) ||
             false);
 
     const totalSelectedGifts = (cart?.items || [])
         .filter((item) =>
-            Number(item.price || 0) === 0 &&
             availableGifts.some((gift) => gift.sku === item.sku)
         )
         .reduce(
@@ -805,7 +813,7 @@ export function GiftProvider({
                 console.log("[GiftContext] Triggering auto-open...");
                 setIsGiftModalOpen(true);
                 hasSeenRef.current = true;
-            }, 500);
+            }, 300);
 
             return () => clearTimeout(timer);
         }
@@ -871,10 +879,21 @@ export function GiftProvider({
             })
             .filter(Boolean);
 
-        const addStoreCode = getClientStoreCode();
+        const addStoreCode =
+            typeof window !== "undefined"
+                ? localStorage.getItem(
+                    "selectedStoreCode"
+                ) ||
+                document.cookie.match(
+                    /NEXT_STORE=([^;]+)/
+                )?.[1] ||
+                ""
+                : "";
 
         const addStoreParam = addStoreCode
-            ? `?store=${encodeURIComponent(addStoreCode)}`
+            ? `?store=${encodeURIComponent(
+                addStoreCode
+            )}`
             : "";
 
         try {
@@ -924,14 +943,13 @@ export function GiftProvider({
                 );
 
                 setSavedSelections({});
+                setIsGiftModalOpen(false);
 
-                // Small delay so Magento finishes committing the promo items
-                // before we refetch, otherwise the cart may not include them yet.
-                await new Promise((r) => setTimeout(r, 300));
                 await refetchCart();
 
-                window.dispatchEvent(new Event("cart-updated"));
-                setIsGiftModalOpen(false);
+                window.dispatchEvent(
+                    new Event("cart-updated")
+                );
             }
         } catch (err) {
             console.error(

@@ -14,7 +14,7 @@ import Pagination from "@/components/Pagination";
 import { useCart } from "@/modules/cart/context/CartContext";
 import { toast } from "react-hot-toast";
 import MakePaymentModal from "@/components/MakePaymentModal";
-import { OrdersTableSkeleton } from "@/components/skeletons";
+import { MyOrdersSkeleton, OrdersTableSkeleton, SidebarSkeleton } from "@/components/skeletons";
 
 function formatOrderDate(dateStr: string): string {
     if (!dateStr) return "";
@@ -88,7 +88,14 @@ function mapOrder(item: any, paidByOrderId?: Map<string, number>): Order {
 
 export default function MyOrdersPage() {
     return (
-        <Suspense fallback={<div className="max-w-7xl mx-auto px-4 py-6"><OrdersTableSkeleton rows={8} /></div>}>
+        <Suspense fallback={
+            <div className="min-h-screen flex flex-col w-full bg-surfacePage">
+                <div className="flex flex-col lg:flex-row flex-1 w-full">
+                    <SidebarSkeleton />
+                    <MyOrdersSkeleton rows={8} />
+                </div>
+            </div>
+        }>
             <MyOrdersPageContent />
         </Suspense>
     );
@@ -402,7 +409,14 @@ function MyOrdersPageContent() {
     const totalPages = Math.ceil(totalItems / pageSize);
     const isFiltered = !!(localSearch !== "All" || localStatus !== "All" || searchParams.get("orderNumber") || searchParams.get("status"));
 
-    if (authStatus === "loading") return null;
+    if (authStatus === "loading") return (
+        <div className="min-h-screen flex flex-col w-full bg-surfacePage">
+            <div className="flex flex-col lg:flex-row flex-1 w-full">
+                <Sidebar />
+                <MyOrdersSkeleton rows={8} />
+            </div>
+        </div>
+    );
 
     return (
         <div className="min-h-screen flex flex-col w-full bg-surfacePage">

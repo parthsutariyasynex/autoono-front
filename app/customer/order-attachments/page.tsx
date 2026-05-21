@@ -10,6 +10,7 @@ import Sidebar from "@/components/Sidebar";
 import PortalDropdown from "@/components/PortalDropdown";
 import Pagination from "@/components/Pagination";
 import toast from "react-hot-toast";
+import { OrdersTableSkeleton } from "@/components/skeletons";
 import { redirectToLogin } from "@/utils/helpers";
 
 // Helper to normalize options (strings or objects) to {label, value} format
@@ -289,18 +290,7 @@ export default function OrderAttachmentsPage() {
                         </button>
                     </div>
                 ) : isLoading ? (
-                    <div className="bg-white p-16 flex flex-col items-center justify-center border border-border rounded-md shadow-sm">
-                        <div className="space-y-2 w-full max-w-2xl animate-pulse">
-                            {Array.from({ length: 6 }).map((_, i) => (
-                                <div key={i} className="flex items-center gap-4 px-4 py-3 border border-gray-100 rounded-lg">
-                                    <div className="h-8 w-8 bg-gray-200 rounded flex-shrink-0" />
-                                    <div className="h-4 flex-1 bg-gray-200 rounded" />
-                                    <div className="h-4 w-24 bg-gray-200 rounded" />
-                                    <div className="h-8 w-16 bg-gray-200 rounded" />
-                                </div>
-                            ))}
-                        </div>
-                    </div>
+                    <OrdersTableSkeleton rows={6} />
                 ) : attachments.length > 0 ? (
                     <>
                         {/* Desktop Table */}

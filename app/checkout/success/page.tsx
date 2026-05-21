@@ -8,6 +8,7 @@ import Link from "next/link";
 import { CheckCircle, Package, ArrowRight, Home, ShoppingBag } from "lucide-react";
 import { useCheckout } from "@/modules/checkout/hooks/useCheckout";
 import { toast } from "react-hot-toast";
+import { CheckoutSuccessSkeleton } from "@/components/skeletons";
 
 const CheckoutSuccessPage = () => {
     return (
@@ -130,15 +131,7 @@ const CheckoutSuccessContent = () => {
     }, [isPending, router, lp]);
 
     if (isLoading) {
-        return (
-            <div className="max-w-2xl mx-auto px-4 py-16 animate-pulse space-y-6 text-center">
-                <div className="h-16 w-16 bg-gray-200 rounded-full mx-auto" />
-                <div className="h-8 bg-gray-200 rounded w-2/3 mx-auto" />
-                <div className="h-4 bg-gray-200 rounded w-1/2 mx-auto" />
-                <div className="h-4 bg-gray-200 rounded w-1/3 mx-auto" />
-                <div className="h-11 bg-gray-200 rounded-lg w-40 mx-auto" />
-            </div>
-        );
+        return <CheckoutSuccessSkeleton />;
     }
 
     if (isPending) {

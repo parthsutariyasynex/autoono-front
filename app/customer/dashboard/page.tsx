@@ -121,7 +121,12 @@ export default function DashboardPage() {
         }
     };
 
-    if (loadingDashboard) return <DashboardSkeleton />;
+    if (loadingDashboard) return (
+        <div className="flex-1 flex flex-col lg:flex-row min-h-0">
+            <Sidebar />
+            <DashboardSkeleton />
+        </div>
+    );
 
     const getAttr = (code: string) => {
         return (customer as any).custom_attributes?.find(

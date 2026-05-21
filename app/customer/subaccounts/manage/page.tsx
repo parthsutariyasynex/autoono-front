@@ -9,6 +9,7 @@ import { RootState } from "@/store/store";
 import { useSession } from "next-auth/react";
 import Sidebar from "@/components/Sidebar";
 import { redirectToLogin } from "@/utils/helpers";
+import { ManageAccountsSkeleton } from "@/components/skeletons";
 
 type SubAccount = {
     entity_id: number | string;
@@ -155,20 +156,10 @@ export default function ManageSubAccountsPage() {
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-surfacePage flex flex-col lg:flex-row">
-                <div className="hidden lg:block w-64 flex-shrink-0 bg-gray-50 border-r border-gray-200 animate-pulse">
-                    <div className="p-4 space-y-2">
-                        {Array.from({ length: 7 }).map((_, i) => (
-                            <div key={i} className="h-10 bg-gray-200 rounded w-full" />
-                        ))}
-                    </div>
-                </div>
-                <div className="flex-1 p-6 md:p-10 space-y-4 animate-pulse">
-                    <div className="h-7 bg-gray-200 rounded w-48" />
-                    <div className="h-px bg-gray-200 w-full" />
-                    {Array.from({ length: 5 }).map((_, i) => (
-                        <div key={i} className="h-14 bg-gray-200 rounded-lg w-full" />
-                    ))}
+            <div className="min-h-screen flex flex-col w-full bg-white">
+                <div className="flex flex-col lg:flex-row flex-1 w-full">
+                    <Sidebar />
+                    <ManageAccountsSkeleton rows={5} />
                 </div>
             </div>
         );

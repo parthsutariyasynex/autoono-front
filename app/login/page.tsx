@@ -12,14 +12,11 @@ import { RootState } from "@/store/store";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useLocalePath } from "@/hooks/useLocalePath";
 import CountryDropdown from "@/app/components/CountryDropdown";
+import { LoginSkeleton } from "@/components/skeletons";
 
 export default function LoginPage() {
   return (
-    <Suspense fallback={
-      <div className="flex-1 bg-surfaceSubtle flex items-center justify-center">
-        <div className="h-10 w-10 bg-gray-200 rounded-full animate-pulse"></div>
-      </div>
-    }>
+    <Suspense fallback={<LoginSkeleton />}>
       <LoginPageContent />
     </Suspense>
   );
@@ -73,11 +70,7 @@ function LoginPageContent() {
 
   // Session resolving → show spinner (not blank). Authenticated → null while
   // the redirect fires. All hooks are above this line (Rules of Hooks satisfied).
-  if (status === "loading") return (
-    <div className="flex-1 bg-surfaceSubtle flex items-center justify-center">
-      <div className="h-10 w-10 bg-gray-200 rounded-full animate-pulse" />
-    </div>
-  );
+  if (status === "loading") return <LoginSkeleton />;
   if (status === "authenticated") return null;
 
   const getMobileRequirements = (code: string) => {

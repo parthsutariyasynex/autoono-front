@@ -2,6 +2,7 @@
 
 import { useLocale } from "@/lib/i18n/client";
 import { useState, useEffect, useCallback, createContext, useContext, type ReactNode } from "react";
+import { RouteAwareSkeleton } from "@/components/skeletons";
 
 // ─── Global cache (survives navigations, cleared only on full reload) ───────
 const cachedTranslations: Record<string, Record<string, string>> = {};
@@ -71,22 +72,10 @@ export function TranslationProvider({ children }: { children: ReactNode }) {
     return () => { cancelled = true; };
   }, [locale]);
 
-  // Block rendering until translations are available
+  // Block rendering until translations are available — show a route-matched
+  // skeleton so the placeholder visually aligns with the destination page.
   if (!ready) {
-    return (
-      <div className="min-h-screen bg-white animate-pulse">
-        {/* Navbar placeholder */}
-        <div className="h-14 bg-gray-100 w-full" />
-        <div className="max-w-7xl mx-auto px-4 py-6 space-y-4">
-          <div className="h-6 bg-gray-200 rounded w-1/4" />
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-            {Array.from({ length: 8 }).map((_, i) => (
-              <div key={i} className="rounded-lg bg-gray-200 aspect-square" />
-            ))}
-          </div>
-        </div>
-      </div>
-    );
+    return <RouteAwareSkeleton />;
   }
 
   return (

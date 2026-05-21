@@ -9,6 +9,7 @@ import OrdersTable, { Order } from "./components/OrdersTable";
 import Pagination from "@/components/Pagination";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { OrdersTableSkeleton } from "@/components/skeletons";
 // formatPrice removed — OrdersTable uses <Price> component directly
 
 /**
@@ -211,9 +212,7 @@ export default function MyOrdersPage() {
                         {/* Table */}
                         <div className="relative">
                             {(isLoading || (authStatus === "loading") || (authStatus === "authenticated" && !hasFetched)) ? (
-                                <div className="flex justify-center items-center py-20">
-                                    {/* <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary"></div> */}
-                                </div>
+                                <OrdersTableSkeleton rows={6} />
                             ) : error ? (
                                 <div className="text-center py-16 text-red-500">
                                     <p className="text-body-lg font-medium mb-3">{error}</p>

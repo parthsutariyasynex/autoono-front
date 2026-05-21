@@ -13,6 +13,7 @@ import Link from "next/link";
 import { redirectToLogin } from "@/utils/helpers";
 import CreditLimit from "@/app/components/CreditLimit";
 import Price from "@/app/components/Price";
+import { AccountSkeleton } from "@/components/skeletons";
 
 
 type CustomAttribute = {
@@ -73,25 +74,10 @@ export default function MyAccountPage() {
 
     if (loading || !customer) {
         return (
-            <div className="min-h-screen bg-surfacePage flex flex-col lg:flex-row">
-                {/* Sidebar skeleton */}
-                <div className="hidden lg:block w-64 flex-shrink-0 bg-gray-50 border-r border-gray-200 animate-pulse">
-                    <div className="p-4 space-y-2">
-                        {Array.from({ length: 7 }).map((_, i) => (
-                            <div key={i} className="h-10 bg-gray-200 rounded w-full" />
-                        ))}
-                    </div>
-                </div>
-                {/* Content skeleton */}
-                <div className="flex-1 p-6 md:p-10 space-y-6 animate-pulse">
-                    <div className="h-7 bg-gray-200 rounded w-48" />
-                    <div className="h-px bg-gray-200 w-full" />
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        <div className="h-48 bg-gray-200 rounded w-full" />
-                        <div className="h-48 bg-gray-200 rounded w-full" />
-                    </div>
-                    <div className="h-36 bg-gray-200 rounded w-full" />
-                    <div className="h-32 bg-gray-200 rounded w-full" />
+            <div className="min-h-screen flex flex-col w-full bg-surfacePage">
+                <div className="flex flex-col lg:flex-row flex-1 w-full">
+                    <Sidebar />
+                    <AccountSkeleton />
                 </div>
             </div>
         );

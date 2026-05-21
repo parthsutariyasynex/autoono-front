@@ -1,11 +1,11 @@
-import { MyOrdersSkeleton, SidebarSkeleton } from "@/components/skeletons";
+import { AccountSkeleton, SidebarSkeleton } from "@/components/skeletons";
 
 export default function Loading() {
   return (
     <div className="min-h-screen flex flex-col w-full bg-surfacePage">
       <div className="flex flex-col lg:flex-row flex-1 w-full">
         <SidebarSkeleton />
-        <MyOrdersSkeleton rows={10} />
+        <AccountSkeleton />
       </div>
     </div>
   );
