@@ -753,9 +753,12 @@ const CheckoutPageUI: React.FC = () => {
             setIsAddingAddress(false);
         }
     };
-    if (isCartLoading || status === "loading") return <CheckoutSkeleton />;
+    // Include `cart === null` so the initial mount (before the cart fetch
+    // resolves) keeps showing the skeleton instead of flashing the "empty
+    // cart" UI for one frame.
+    if (isCartLoading || status === "loading" || cart === null) return <CheckoutSkeleton />;
 
-    if (!cart || cart.items.length === 0) {
+    if (cart.items.length === 0) {
         return (
             <div className="min-h-screen bg-white">
                 <div className="w-full py-24 px-6 text-center">

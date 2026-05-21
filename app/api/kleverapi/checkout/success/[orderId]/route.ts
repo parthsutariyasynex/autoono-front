@@ -41,6 +41,7 @@ export async function GET(
 
         try {
             const data = JSON.parse(responseText);
+            console.log("DEBUG_SUCCESS_DATA:", JSON.stringify(data));
             return NextResponse.json(data);
         } catch (e) {
             console.error("Checkout Success JSON Parse Error. Raw:", responseText);

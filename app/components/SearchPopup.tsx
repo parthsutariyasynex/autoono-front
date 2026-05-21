@@ -54,6 +54,20 @@ const SearchPopup: React.FC<SearchPopupProps> = ({ isOpen, onClose }) => {
     const [isSearching, setIsSearching] = useState(false);
     const [noResults, setNoResults] = useState(false);
 
+    // The popup is mounted once and re-opened many times (Navbar keeps
+    // `searchMounted` sticky after first open). Without this reset, closing
+    // the popup via the X button leaves the previously typed query in state,
+    // so the next open shows stale text.
+    React.useEffect(() => {
+        if (!isOpen) {
+            setQuery("");
+            setSuggestions([]);
+            setTotalFound(0);
+            setIsSearching(false);
+            setNoResults(false);
+        }
+    }, [isOpen]);
+
     // Carry over the user's current listing-page context so the search runs
     // within the same filtered dataset (category, store, brand, item_code, …).
     // Drop listing-UI state (`page`, `sortBy`) and any prior search term.

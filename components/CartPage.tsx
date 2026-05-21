@@ -14,6 +14,7 @@ import toast from "react-hot-toast";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useLocalePath } from "@/hooks/useLocalePath";
 import { useGift } from "@/modules/cart/context/GiftContext";
+import { CartPageSkeleton } from "@/components/skeletons";
 
 const CartPage: React.FC = () => {
     const router = useRouter();
@@ -109,43 +110,12 @@ const CartPage: React.FC = () => {
     //     setIsStartingMultiShipping(false);
     // };
 
-    if (isLoading) {
-        return (
-            <div className="max-w-7xl mx-auto px-4 py-6">
-                <div className="flex items-center justify-between mb-6 animate-pulse">
-                    <div className="h-7 bg-gray-200 rounded w-32" />
-                    <div className="h-9 bg-gray-200 rounded w-28" />
-                </div>
-                <div className="flex flex-col lg:flex-row gap-6">
-                    <div className="flex-1 bg-white rounded-xl border border-gray-100 overflow-hidden">
-                        {Array.from({ length: 4 }).map((_, i) => (
-                            <div key={i} className="flex items-start gap-4 p-4 border-b border-gray-100 animate-pulse">
-                                <div className="h-20 w-20 flex-shrink-0 rounded-lg bg-gray-200" />
-                                <div className="flex-1 space-y-2">
-                                    <div className="h-4 bg-gray-200 rounded w-3/4" />
-                                    <div className="h-3 bg-gray-200 rounded w-1/2" />
-                                    <div className="flex items-center justify-between pt-2">
-                                        <div className="h-8 bg-gray-200 rounded w-24" />
-                                        <div className="h-5 bg-gray-200 rounded w-16" />
-                                    </div>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                    <div className="w-full lg:w-80 bg-white rounded-xl border border-gray-100 p-5 space-y-3 animate-pulse">
-                        <div className="h-5 bg-gray-200 rounded w-32" />
-                        {Array.from({ length: 4 }).map((_, i) => (
-                            <div key={i} className="flex justify-between">
-                                <div className="h-4 bg-gray-200 rounded w-24" />
-                                <div className="h-4 bg-gray-200 rounded w-16" />
-                            </div>
-                        ))}
-                        <div className="h-px bg-gray-200 w-full" />
-                        <div className="h-11 bg-gray-200 rounded-lg w-full mt-2" />
-                    </div>
-                </div>
-            </div>
-        );
+    // Show skeleton while loading OR before the first fetch resolves (cart === null).
+    // Without the `cart === null` guard, the initial mount falls through to the
+    // `!hasItems` branch and flashes the "empty cart" UI for one frame before
+    // useEffect triggers the fetch and flips isLoading to true.
+    if (isLoading || cart === null) {
+        return <CartPageSkeleton items={3} />;
     }
 
     if (error) {

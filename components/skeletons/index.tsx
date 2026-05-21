@@ -229,36 +229,117 @@ export function CartItemSkeleton() {
 }
 
 // ─── Cart Page Skeleton ───────────────────────────────────────────────────────
-export function CartPageSkeleton() {
+// Matches /cart real layout: centered title + primary bar · 12-col grid
+// (lg:8/4, xl:9/3) · sticky table header · rounded-3xl item cards · sticky
+// summary card on the right.
+export function CartPageSkeleton({ items = 3 }: { items?: number }) {
   return (
-    <div className="max-w-7xl mx-auto px-4 py-6">
-      <div className="flex items-center justify-between mb-6">
-        <Pulse className="h-7 w-32 rounded" />
-        <Pulse className="h-9 w-28 rounded" />
-      </div>
-      <div className="flex flex-col lg:flex-row gap-6">
-        {/* Items */}
-        <div className="flex-1 bg-white rounded-sm border border-gray-100 overflow-hidden">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <CartItemSkeleton key={i} />
-          ))}
+    <div className="min-h-screen bg-surfaceOverlay pb-4 lg:pb-10">
+      <div className="w-full px-4 md:px-12 pt-8 md:pt-14">
+        {/* Centered title + primary bar */}
+        <div className="mb-10 md:mb-14 text-center flex flex-col items-center gap-2">
+          <Pulse className="h-7 md:h-8 w-32" />
+          <div className="h-1 w-12 bg-primary" />
         </div>
-        {/* Summary */}
-        <div className="w-full lg:w-80 space-y-3">
-          <div className="bg-white rounded-sm border border-gray-100 p-5 space-y-3">
-            <Pulse className="h-5 w-32 rounded" />
-            {Array.from({ length: 4 }).map((_, i) => (
-              <div key={i} className="flex justify-between">
-                <Pulse className="h-4 w-24 rounded" />
-                <Pulse className="h-4 w-16 rounded" />
-              </div>
-            ))}
-            <Pulse className="h-px w-full rounded" />
-            <div className="flex justify-between">
-              <Pulse className="h-5 w-20 rounded" />
-              <Pulse className="h-5 w-20 rounded" />
+
+        {/* 12-col grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 xl:gap-16 items-start">
+          {/* Left column — items */}
+          <div className="lg:col-span-8 xl:col-span-9 flex flex-col min-w-0">
+            {/* Sticky table header (lg+) — matches real header */}
+            <div className="hidden lg:flex bg-white border border-gray-100 rounded-xl items-center py-4 px-10 mb-4 shadow-sm">
+              <div className="w-[45%]"><Pulse className="h-3 w-32" /></div>
+              <div className="w-[15%] flex justify-center"><Pulse className="h-3 w-12" /></div>
+              <div className="w-[20%] flex justify-center"><Pulse className="h-3 w-10" /></div>
+              <div className="w-[20%] flex justify-end"><Pulse className="h-3 w-12" /></div>
             </div>
-            <Pulse className="h-11 w-full rounded-sm mt-2" />
+
+            {/* Item cards — rounded-3xl matching real CartItem */}
+            <div className="space-y-4 pb-4">
+              {Array.from({ length: items }).map((_, i) => (
+                <div key={i} className="relative bg-white border border-gray-100 rounded-3xl p-4 lg:p-6">
+                  {/* Mobile layout */}
+                  <div className="lg:hidden flex gap-4">
+                    <Pulse className="w-20 h-20 flex-shrink-0 rounded-2xl border border-gray-100" />
+                    <div className="flex-1 min-w-0 space-y-2">
+                      <Pulse className="h-4 w-3/4" />
+                      <div className="flex gap-1 mb-2">
+                        <Pulse className="h-5 w-16 rounded-sm" />
+                        <Pulse className="h-5 w-16 rounded-sm" />
+                      </div>
+                      <div className="flex items-center justify-between pt-2">
+                        <Pulse className="h-5 w-20" />
+                        <Pulse className="h-9 w-24 rounded-sm border border-gray-100" />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Desktop layout — 4 columns matching header widths */}
+                  <div className="hidden lg:flex items-center">
+                    <div className="w-[45%] flex items-center gap-4">
+                      <Pulse className="w-16 xl:w-20 h-16 xl:h-20 flex-shrink-0 rounded-xl border border-gray-100" />
+                      <div className="min-w-0 space-y-2 flex-1">
+                        <Pulse className="h-4 w-3/4" />
+                        <div className="flex gap-1.5">
+                          <Pulse className="h-5 w-16 rounded-sm" />
+                          <Pulse className="h-5 w-16 rounded-sm" />
+                        </div>
+                      </div>
+                    </div>
+                    <div className="w-[15%] flex justify-center">
+                      <Pulse className="h-4 w-16" />
+                    </div>
+                    <div className="w-[20%] flex justify-center">
+                      <Pulse className="h-10 w-32 rounded-sm border border-gray-100" />
+                    </div>
+                    <div className="w-[20%] flex justify-end pr-4">
+                      <Pulse className="h-5 w-20" />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Actions bar — Update / Clear buttons */}
+            <div className="mt-6 flex flex-col sm:flex-row gap-3 justify-end">
+              <Pulse className="h-11 w-full sm:w-32 rounded-sm" />
+              <Pulse className="h-11 w-full sm:w-40 rounded-sm" />
+            </div>
+          </div>
+
+          {/* Right column — summary card (sticky on lg+) */}
+          <div className="lg:col-span-4 xl:col-span-3 w-full">
+            <div className="lg:sticky lg:top-28 bg-white border border-gray-100 rounded-sm shadow-[0_10px_40px_rgba(0,0,0,0.05)] overflow-hidden">
+              {/* Summary header bar */}
+              <div className="bg-gray-200 px-6 py-4 border-b border-gray-200 flex items-center justify-center">
+                <Pulse className="h-4 w-32" />
+              </div>
+              {/* Body */}
+              <div className="px-6 py-5 space-y-0">
+                <div className="space-y-3 pb-4 border-b border-gray-100">
+                  {Array.from({ length: 3 }).map((_, i) => (
+                    <div key={i} className="flex justify-between items-center">
+                      <Pulse className="h-3.5 w-24" />
+                      <Pulse className="h-3.5 w-16" />
+                    </div>
+                  ))}
+                </div>
+                {/* Grand total */}
+                <div className="flex justify-between items-center pt-4">
+                  <Pulse className="h-5 w-20" />
+                  <Pulse className="h-5 w-24" />
+                </div>
+                {/* Promo code row */}
+                <div className="pt-5 border-t border-gray-100 mt-4 flex gap-2 items-stretch h-[44px]">
+                  <Pulse className="flex-1 rounded-sm border border-gray-100" />
+                  <Pulse className="w-20 rounded-sm" />
+                </div>
+                {/* Checkout button */}
+                <div className="pt-4">
+                  <Pulse className="h-12 w-full rounded-sm" />
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -267,58 +348,124 @@ export function CartPageSkeleton() {
 }
 
 // ─── Checkout Skeleton ────────────────────────────────────────────────────────
+// Matches /checkout real layout: back-link + centered title + gradient line ·
+// 12-col grid (lg:col-span-8 left / 4 right) · 4 numbered section cards
+// (Shipping Address, PO Number, Shipping Method, Payment Method) · sticky
+// Order Summary card on the right.
 export function CheckoutSkeleton() {
-  return (
-    <div className="max-w-7xl mx-auto px-4 py-6">
-      <Pulse className="h-7 w-40 rounded mb-6" />
-      <div className="flex flex-col lg:flex-row gap-6">
-        {/* Left: form */}
-        <div className="flex-1 space-y-4">
-          {/* Address */}
-          <div className="bg-white rounded-sm border border-gray-100 p-5 space-y-3">
-            <Pulse className="h-5 w-36 rounded" />
-            <Pulse className="h-16 w-full rounded-sm" />
-            <Pulse className="h-16 w-full rounded-sm" />
-          </div>
-          {/* Shipping */}
-          <div className="bg-white rounded-sm border border-gray-100 p-5 space-y-3">
-            <Pulse className="h-5 w-40 rounded" />
-            {Array.from({ length: 3 }).map((_, i) => (
-              <div key={i} className="flex items-center gap-3">
-                <Pulse className="h-4 w-4 rounded-full" />
-                <Pulse className="h-4 flex-1 rounded" />
-                <Pulse className="h-4 w-16 rounded" />
-              </div>
-            ))}
-          </div>
-          {/* Payment */}
-          <div className="bg-white rounded-sm border border-gray-100 p-5 space-y-3">
-            <Pulse className="h-5 w-32 rounded" />
-            <div className="flex items-center gap-3">
-              <Pulse className="h-4 w-4 rounded-full" />
-              <Pulse className="h-4 w-32 rounded" />
-            </div>
-          </div>
+  // One section card with a SectionHeader-style strip (50px) and body
+  const SectionCard = ({ children }: { children: React.ReactNode }) => (
+    <div className="bg-white border border-border shadow-sm rounded-xl overflow-hidden">
+      <div className="bg-gray-50/80 px-4 py-3 border-b border-border flex items-center justify-between h-[50px]">
+        <div className="flex items-center gap-2.5">
+          <div className="w-5 h-5 rounded-full bg-black" />
+          <Pulse className="h-3 w-32" />
         </div>
-        {/* Right: summary */}
-        <div className="w-full lg:w-80 space-y-3">
-          <div className="bg-white rounded-sm border border-gray-100 p-5 space-y-3">
-            <Pulse className="h-5 w-28 rounded" />
-            {Array.from({ length: 3 }).map((_, i) => (
-              <CartItemSkeleton key={i} />
-            ))}
-            <div className="pt-2 space-y-2">
-              {Array.from({ length: 3 }).map((_, i) => (
-                <div key={i} className="flex justify-between">
-                  <Pulse className="h-4 w-24 rounded" />
-                  <Pulse className="h-4 w-16 rounded" />
-                </div>
-              ))}
-            </div>
-            <Pulse className="h-11 w-full rounded-sm" />
-          </div>
-        </div>
+        <div className="h-px flex-1 bg-gradient-to-r from-transparent via-border to-transparent mx-4 hidden sm:block" />
       </div>
+      <div className="p-4">{children}</div>
+    </div>
+  );
+
+  return (
+    <div className="min-h-screen flex flex-col w-full bg-surfacePage text-xs italic-none">
+      <main className="flex-1 w-full px-4 md:px-6 lg:px-8 py-4 md:py-6 lg:py-10 pt-2 md:pt-4">
+        {/* Header: back link + centered title + gradient line */}
+        <div className="flex flex-col items-center justify-center text-center gap-4 mb-12 relative">
+          <div className="lg:absolute left-0 top-1/2 lg:-translate-y-1/2 flex items-center gap-2 mb-4 lg:mb-0">
+            <Pulse className="w-8 h-8 rounded-full border border-black !bg-transparent" />
+            <Pulse className="hidden sm:block h-3 w-32" />
+          </div>
+          <div className="flex flex-col items-center gap-4">
+            <Pulse className="h-7 md:h-8 w-44" />
+            <div className="h-[2px] w-full max-w-[400px] bg-gradient-to-r from-transparent via-primary to-transparent" />
+          </div>
+        </div>
+
+        {/* 12-col grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 md:gap-6 lg:gap-8 items-start">
+          {/* Left column — 4 section cards */}
+          <div className="lg:col-span-8 space-y-6">
+            {/* 1. Shipping Address — list of address cards */}
+            <SectionCard>
+              <div className="space-y-3 max-h-[460px] overflow-hidden">
+                {Array.from({ length: 3 }).map((_, i) => (
+                  <div key={i} className="flex items-start gap-3 p-4 border border-border bg-white rounded-xl">
+                    <Pulse className="w-5 h-5 rounded-full mt-1" />
+                    <div className="flex-1 min-w-0 space-y-2">
+                      <Pulse className="h-4 w-48" />
+                      <Pulse className="h-3 w-3/4" />
+                      <Pulse className="h-3 w-1/2" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </SectionCard>
+
+            {/* 2. PO Number — single input */}
+            <SectionCard>
+              <Pulse className="h-11 w-full rounded-sm border border-border" />
+            </SectionCard>
+
+            {/* 3. Shipping Method — radio rows */}
+            <SectionCard>
+              <div className="space-y-3">
+                {Array.from({ length: 3 }).map((_, i) => (
+                  <div key={i} className="flex items-center gap-3 p-3 border border-border rounded-sm">
+                    <Pulse className="h-4 w-4 rounded-full" />
+                    <Pulse className="h-3 flex-1" />
+                    <Pulse className="h-3 w-16" />
+                  </div>
+                ))}
+              </div>
+            </SectionCard>
+
+            {/* 4. Payment Method — radio rows */}
+            <SectionCard>
+              <div className="space-y-3">
+                {Array.from({ length: 2 }).map((_, i) => (
+                  <div key={i} className="flex items-center gap-3 p-3 border border-border rounded-sm">
+                    <Pulse className="h-4 w-4 rounded-full" />
+                    <Pulse className="h-3 w-36" />
+                  </div>
+                ))}
+              </div>
+            </SectionCard>
+          </div>
+
+          {/* Right column — sticky Order Summary */}
+          <div className="lg:col-span-4 space-y-6">
+            <div className="bg-white border border-border shadow-lg rounded-xl sticky top-24 overflow-hidden">
+              {/* Header: black check circle + title */}
+              <div className="bg-gray-50 px-4 sm:px-6 py-3 sm:py-4 flex items-center gap-2 sm:gap-3 border-b border-border">
+                <div className="w-5 h-5 rounded-full bg-black" />
+                <Pulse className="h-3 w-32" />
+              </div>
+              {/* Item count + chevron row */}
+              <div className="px-5 py-3 flex items-center justify-between border-b border-gray-100">
+                <Pulse className="h-4 w-24" />
+                <Pulse className="h-5 w-5 rounded" />
+              </div>
+              {/* Totals area */}
+              <div className="p-5 space-y-3">
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <div key={i} className="flex justify-between items-center">
+                    <Pulse className="h-3.5 w-24" />
+                    <Pulse className="h-3.5 w-16" />
+                  </div>
+                ))}
+                <div className="h-px bg-gray-100" />
+                <div className="flex justify-between items-center">
+                  <Pulse className="h-5 w-20" />
+                  <Pulse className="h-5 w-24" />
+                </div>
+                {/* Place Order button */}
+                <Pulse className="h-12 w-full rounded-sm mt-2" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
     </div>
   );
 }
@@ -1189,25 +1336,27 @@ export function AddressBookSkeleton() {
 }
 
 // ─── Checkout Success Skeleton ────────────────────────────────────────────────
-// Matches /checkout/success: vertically-centered confirmation screen with
-// huge "Thank You" title (text-h2 → text-h1-lg responsive), order number +
-// message lines, then a Continue Shopping button.
+// Matches the current simplified /checkout/success layout: confirmation card
+// (Thank You title + order number + confirmation message) and a Continue
+// Shopping button. Order Summary box was removed from the real page.
 export function CheckoutSuccessSkeleton() {
   return (
-    <div className="bg-white min-h-screen font-sans flex flex-col">
-      <main className="flex-grow flex flex-col items-center justify-center px-4 py-8 sm:py-12 md:py-20 text-center">
-        <div className="max-w-2xl mx-auto w-full space-y-4 sm:space-y-5 md:space-y-6">
-          {/* Huge title — responsive size matches real h1 (h2 → h1-lg) */}
-          <Pulse className="h-10 sm:h-14 md:h-16 lg:h-20 w-3/4 mx-auto" />
-          {/* Order number + confirmation message */}
-          <div className="space-y-2">
-            <Pulse className="h-5 w-1/2 mx-auto" />
-            <Pulse className="h-4 w-2/3 mx-auto" />
+    <div className="bg-surfacePage min-h-screen font-sans py-8 sm:py-12 md:py-16">
+      <main className="max-w-4xl mx-auto px-4">
+        {/* Confirmation card */}
+        <div className="bg-white rounded-md border border-gray-200 shadow-sm p-6 sm:p-8 md:p-10 mb-8 text-center space-y-4 sm:space-y-6">
+          {/* "Thank You" title — narrow placeholder matches short text width */}
+          <Pulse className="h-10 sm:h-14 md:h-16 lg:h-20 w-48 sm:w-64 md:w-80 lg:w-96 mx-auto" />
+          {/* Order number + confirmation message lines */}
+          <div className="space-y-2 flex flex-col items-center">
+            <Pulse className="h-5 w-56" />
+            <Pulse className="h-4 w-64 sm:w-80 md:w-96 max-w-full" />
           </div>
-          {/* Continue Shopping button */}
-          <div className="pt-4 sm:pt-6 md:pt-8 flex justify-center">
-            <Pulse className="h-11 sm:h-12 w-48 rounded-sm" />
-          </div>
+        </div>
+
+        {/* Continue Shopping button — sm:w-auto in real → ~280-320px wide */}
+        <div className="text-center pt-2">
+          <Pulse className="inline-block w-full sm:w-72 h-12 rounded-sm" />
         </div>
       </main>
     </div>
@@ -1333,7 +1482,10 @@ export function RouteAwareSkeleton() {
     }
 
     // Cart / Checkout / Quick Order
+    // NOTE: /checkout/success must be matched BEFORE /checkout because
+    // startsWith("/checkout") also matches the success URL.
     if (base.startsWith("/cart")) return <CartPageSkeleton />;
+    if (base.startsWith("/checkout/success")) return <CheckoutSuccessSkeleton />;
     if (base.startsWith("/checkout")) return <CheckoutSkeleton />;
     if (base.startsWith("/quick-order")) return <QuickOrderSkeleton />;
     // if (base.startsWith("/multi-location-delivery")) return <MultiShippingSkeleton />;
