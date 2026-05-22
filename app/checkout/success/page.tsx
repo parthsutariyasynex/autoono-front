@@ -138,7 +138,7 @@ const CheckoutSuccessContent = () => {
             <main className="max-w-4xl mx-auto px-4">
                 {/* Confirmation Box */}
                 <div className="bg-white rounded-md border border-gray-200 shadow-sm p-6 sm:p-8 md:p-10 mb-8 text-center space-y-4 sm:space-y-6">
-                    <h5 className="text-2xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-black uppercase tracking-tight leading-tight">
+                    <h5 className="text-xl sm:text-xl md:text-3xl lg:text-xl font-bold text-black uppercase tracking-tight leading-tight">
                         {t("checkoutSuccess.thankYou")}
                     </h5>
 
