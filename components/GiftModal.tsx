@@ -12,6 +12,8 @@ interface GiftModalProps {
     availableGifts: GiftItem[];
     initialSelections?: Record<string, number>;
     onSelectionsChange?: (selections: Record<string, number>) => void;
+    ruleName?: string;
+    remaining?: number;
 }
 
 const GiftModal: React.FC<GiftModalProps> = ({
@@ -22,6 +24,8 @@ const GiftModal: React.FC<GiftModalProps> = ({
     availableGifts,
     initialSelections = {},
     onSelectionsChange,
+    ruleName,
+    remaining,
 }) => {
     const [selections, setSelections] = useState<Record<string, number>>(initialSelections);
 
@@ -145,7 +149,12 @@ const GiftModal: React.FC<GiftModalProps> = ({
                 {/* Header */}
                 <div className="bg-[#5b7fcf] px-4 sm:px-6 py-4 flex items-center justify-between">
                     <h2 className="flex-1 text-center text-base sm:text-lg font-bold text-white uppercase tracking-wider">
-                        Choose your free gift
+                        {ruleName || "Choose your free gift"}
+                        {remaining !== undefined && (
+                            <span className="ml-2 text-sm font-semibold normal-case tracking-normal opacity-80">
+                                ({remaining} left)
+                            </span>
+                        )}
                     </h2>
                     <button
                         onClick={onClose}
@@ -180,7 +189,7 @@ const GiftModal: React.FC<GiftModalProps> = ({
                                             <td colSpan={4} className="px-3 sm:px-4 py-2">
                                                 <div className="flex items-center justify-between gap-2">
                                                     <span className="text-xs font-bold text-gray-700 uppercase tracking-widest truncate">
-                                                        {displayLabel(groupName)}
+                                                        Free Items ({groupLimit - groupCount})
                                                     </span>
                                                     {/* <span className={`
                                                         flex-shrink-0 text-[10px] font-bold px-3 py-0.5 rounded-full uppercase tracking-wider

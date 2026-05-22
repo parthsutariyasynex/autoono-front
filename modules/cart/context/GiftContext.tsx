@@ -405,24 +405,31 @@ interface GiftContextType {
     hasGifts: boolean;
     isAllGiftsSelected: boolean;
     fetchDiscountPopup: () => Promise<void>;
+    promoRuleName: string;
 }
 
 const GiftContext = createContext<GiftContextType | undefined>(undefined);
 
 function parsePromoRules(
     promoRules: any[]
-): { gifts: GiftItem[]; maxQty: number } {
+): { gifts: GiftItem[]; maxQty: number; firstRuleName: string } {
     const gifts: GiftItem[] = [];
     let maxQty = 0;
+    let firstRuleName = "";
 
     for (const rule of promoRules) {
         const ruleId: number = rule.rule_id ?? rule.id ?? 0;
 
-        const ruleName: string =
+        // Use a proper name only if the API actually provides one
+        const apiProvidedName: string | undefined =
             rule.name ??
             rule.label ??
-            rule.title ??
-            `Rule ${ruleId}`;
+            rule.title;
+
+        const ruleName: string = apiProvidedName ?? `Rule ${ruleId}`;
+
+        // Only capture as popup title when it's a real name (not auto-generated)
+        if (!firstRuleName && apiProvidedName) firstRuleName = apiProvidedName;
 
         const ruleMaxQty: number =
             rule.max_qty ??
@@ -488,6 +495,7 @@ function parsePromoRules(
     return {
         gifts,
         maxQty: maxQty || 3,
+        firstRuleName,
     };
 }
 
@@ -521,6 +529,8 @@ export function GiftProvider({
     >([]);
 
     const [maxGifts, setMaxGifts] = useState(3);
+
+    const [promoRuleName, setPromoRuleName] = useState("");
 
     const [savedSelections, setSavedSelections] =
         useState<Record<string, number>>(
@@ -618,16 +628,18 @@ export function GiftProvider({
                     return null;
                 }
 
-                const { gifts, maxQty } =
+                const { gifts, maxQty, firstRuleName } =
                     parsePromoRules(promoRules);
 
                 console.log("[GiftContext] Fetched gifts:", {
                     count: gifts.length,
                     maxQty,
+                    firstRuleName,
                 });
 
                 setAvailableGifts(gifts);
                 setMaxGifts(maxQty);
+                if (firstRuleName) setPromoRuleName(firstRuleName);
 
                 return gifts;
             } catch (err) {
@@ -975,6 +987,8 @@ export function GiftProvider({
         }
     };
 
+    const remaining = Math.max(0, maxGifts - totalSelectedGifts);
+
     return (
         <GiftContext.Provider
             value={{
@@ -985,6 +999,7 @@ export function GiftProvider({
                 hasGifts,
                 isAllGiftsSelected,
                 fetchDiscountPopup,
+                promoRuleName,
             }}
         >
             {children}
@@ -1016,6 +1031,8 @@ export function GiftProvider({
                         onSelectionsChange={
                             setSavedSelections
                         }
+                        ruleName={promoRuleName}
+                        remaining={remaining}
                     />
                 )}
         </GiftContext.Provider>
