@@ -71,7 +71,7 @@ const CartPage: React.FC = () => {
             await refetchCart();
             toast.success(t("cart.updated") || "Cart updated", { id: toastId });
         } catch (err: any) {
-            const msg = err instanceof Error ? err.message : "Failed to update cart";
+            const msg = err instanceof Error ? err.message : t("cart.updateFailed");
             toast.error(msg, { id: toastId });
             // Refetch even on error so UI shows the real server state
             refetchCart();
@@ -87,7 +87,7 @@ const CartPage: React.FC = () => {
             await clearCart();
             toast.success(t("cart.cartCleared") || "Cart cleared", { id: toastId });
         } catch (err: any) {
-            const msg = err instanceof Error ? err.message : "Failed to clear cart";
+            const msg = err instanceof Error ? err.message : t("cart.clearFailed");
             toast.error(msg, { id: toastId });
         } finally {
             setIsClearingCart(false);
@@ -169,9 +169,9 @@ const CartPage: React.FC = () => {
 
                     const messagePrefix = selectedGiftNames.length > 0
                         ? (selectedGiftNames.length > 1
-                            ? `Free gifts ${selectedGiftNames.join(", ")} were added`
-                            : `Free gift ${selectedGiftNames[0]} was added`)
-                        : "Free Gift Added";
+                            ? t("cart.freeGiftAddedMany").replace("{0}", selectedGiftNames.join(", "))
+                            : t("cart.freeGiftAddedOne").replace("{0}", selectedGiftNames[0] || ""))
+                        : t("cart.freeGiftAdded");
 
                     return (
                         <button
@@ -196,11 +196,7 @@ const CartPage: React.FC = () => {
                                 <>
                                     <Gift size={18} className="text-white" />
                                     <span className="text-white font-bold text-[15px] tracking-wide">
-                                        Select your{" "}
-                                        <span className="underline decoration-dashed underline-offset-4 font-bold">
-                                            FREE GIFT
-                                        </span>
-
+                                        {t("cart.selectYourFreeGift")}
                                     </span>
                                 </>
                             )}

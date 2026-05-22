@@ -273,13 +273,13 @@ export default function ProductsPage({ categoryId: propCategoryId, storeCode: pr
       setFavIds(favIds);
       const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
       if (token) {
-        const toastId = toast.loading("Adding to favorites...");
+        const toastId = toast.loading(t("favorites.addingToFavorites"));
         try {
           await api.post("/kleverapi/favorite-products", { product_id: productId });
           toast.success(t("favorites.cartAdded"), { id: toastId });
         } catch (err) {
           console.error("API favorite add error:", err);
-          toast.error("Could not sync favorites", { id: toastId });
+          toast.error(t("favorites.syncFailed"), { id: toastId });
         }
       }
     }
@@ -433,7 +433,7 @@ export default function ProductsPage({ categoryId: propCategoryId, storeCode: pr
         localStorage.removeItem("token");
         router.replace(lp("/login"));
       }
-      else toast.error("Failed to add to cart");
+      else toast.error(t("favorites.cartAddFailed"));
     } finally {
       setAddingToCart(null);
     }

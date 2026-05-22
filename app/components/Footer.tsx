@@ -30,7 +30,8 @@ const Footer: React.FC = () => {
                         <h3 className="text-[20px] font-semibold mb-3 tracking-tight">{t("footer.call")}</h3>
                         <a
                             href="tel:8003040001"
-                            className="text-white text-[15px] font-medium tracking-wider"
+                            dir="ltr"
+                            className="text-white text-[15px] font-medium tracking-wider inline-block"
                         >
                             800 304 0001
                         </a>

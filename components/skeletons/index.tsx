@@ -1343,18 +1343,18 @@ export function CheckoutSuccessSkeleton() {
   return (
     <div className="bg-surfacePage min-h-screen font-sans py-8 sm:py-12 md:py-16">
       <main className="max-w-4xl mx-auto px-4">
-        {/* Confirmation card */}
+        {/* Confirmation card — matches real container classes exactly */}
         <div className="bg-white rounded-md border border-gray-200 shadow-sm p-6 sm:p-8 md:p-10 mb-8 text-center space-y-4 sm:space-y-6">
-          {/* "Thank You" title — narrow placeholder matches short text width */}
-          <Pulse className="h-10 sm:h-14 md:h-16 lg:h-20 w-48 sm:w-64 md:w-80 lg:w-96 mx-auto" />
-          {/* Order number + confirmation message lines */}
-          <div className="space-y-2 flex flex-col items-center">
-            <Pulse className="h-5 w-56" />
-            <Pulse className="h-4 w-64 sm:w-80 md:w-96 max-w-full" />
+          {/* Title "Thank You" — responsive h-9 → h-16 matches text-h2 → text-h1-lg */}
+          <Pulse className="h-9 sm:h-12 md:h-14 lg:h-16 w-1/2 mx-auto" />
+          {/* Order number + confirmation message — relative widths, centered */}
+          <div className="space-y-2">
+            <Pulse className="h-5 w-2/5 mx-auto" />
+            <Pulse className="h-4 w-3/4 max-w-lg mx-auto" />
           </div>
         </div>
 
-        {/* Continue Shopping button — sm:w-auto in real → ~280-320px wide */}
+        {/* Continue Shopping button — full-width on mobile, ~280px on sm+ */}
         <div className="text-center pt-2">
           <Pulse className="inline-block w-full sm:w-72 h-12 rounded-sm" />
         </div>
@@ -1413,6 +1413,47 @@ export function ManageAccountsSkeleton({ rows = 5 }: { rows?: number }) {
             ))}
           </tbody>
         </table>
+      </div>
+    </div>
+  );
+}
+
+// ─── CMS Page Skeleton ────────────────────────────────────────────────────────
+// Matches /privacy-policy, /terms-conditions, /return-exchange-policy layout:
+// centered title + intro paragraph + several H2 sections each with body lines.
+export function CmsPageSkeleton({ sections = 5 }: { sections?: number }) {
+  return (
+    <div className="min-h-screen bg-white">
+      <div className="max-w-[1200px] mx-auto px-4 sm:px-6 md:px-10 lg:px-16 py-8 sm:py-12 md:py-16 lg:py-20">
+        {/* Centered title — matches h1 text-h3 sm:text-h2 md:text-h1-sm lg:text-h1 heights */}
+        <div className="flex justify-center mb-8 sm:mb-10 md:mb-12">
+          <Pulse className="h-7 sm:h-9 md:h-11 lg:h-12 w-64 sm:w-72 md:w-80 lg:w-96" />
+        </div>
+
+        {/* Intro paragraph — 4 lines, last shorter */}
+        <div className="space-y-3 mb-8">
+          <Pulse className="h-4 w-full" />
+          <Pulse className="h-4 w-[95%]" />
+          <Pulse className="h-4 w-[88%]" />
+          <Pulse className="h-4 w-[70%]" />
+        </div>
+
+        {/* Sections — each H2 + 4 body lines, matches real mt-10 mb-4 spacing */}
+        {Array.from({ length: sections }).map((_, i) => (
+          <div key={i} className="mt-10 mb-4">
+            {/* H2 placeholder — uppercase, narrower than body, varies for natural look */}
+            <Pulse
+              className={`h-6 sm:h-7 md:h-8 mb-4 ${i % 3 === 0 ? "w-1/3" : i % 3 === 1 ? "w-2/5" : "w-1/4"
+                }`}
+            />
+            <div className="space-y-3">
+              <Pulse className="h-4 w-full" />
+              <Pulse className="h-4 w-[94%]" />
+              <Pulse className="h-4 w-[88%]" />
+              <Pulse className="h-4 w-[75%]" />
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );
@@ -1564,6 +1605,20 @@ export function RouteAwareSkeleton() {
           </div>
         </div>
       );
+    }
+
+    // CMS pages (privacy, terms, return-exchange — also reachable via Magento
+    // CMS slugs like /privacy, /terms, /returns-exchange)
+    if (
+      base.startsWith("/privacy-policy") ||
+      base.startsWith("/privacy") ||
+      base.startsWith("/terms-conditions") ||
+      base.startsWith("/terms") ||
+      base.startsWith("/return-exchange-policy") ||
+      base.startsWith("/returns-exchange") ||
+      base.startsWith("/about")
+    ) {
+      return <CmsPageSkeleton sections={6} />;
     }
 
     // Default fallback: product listing style or generic grid

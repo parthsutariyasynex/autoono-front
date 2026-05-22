@@ -109,7 +109,7 @@ export default function EditAddressPage() {
             };
 
             await api.put(`/kleverapi/addresses/${addressId}`, updatePayload);
-            toast.success("Address updated successfully!");
+            toast.success(t("addressBook.addressUpdated"));
             router.push(lp("/customer/address-book"));
         } catch (err: any) {
             toast.error(err || "Failed to update address");

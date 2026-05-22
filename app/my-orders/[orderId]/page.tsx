@@ -84,13 +84,13 @@ export default function OrderDetailsPage() {
     const handleDownloadReceipt = async (payment: any) => {
         const token = (session as any)?.accessToken;
         if (!token) {
-            toast.error("Please login to download receipt");
+            toast.error(t("loginToDownload"));
             return;
         }
 
         const paymentId = payment?.id ?? payment?.payment_id ?? payment?.history_id;
         if (!paymentId) {
-            toast.error("Missing payment id — cannot download receipt");
+            toast.error(t("missingPaymentId"));
             return;
         }
 
@@ -237,7 +237,7 @@ export default function OrderDetailsPage() {
                 setSelectedPayment(data);
                 setIsEditModalOpen(true);
             } else {
-                toast.error("Failed to fetch payment details");
+                toast.error(t("fetchPaymentFailed"));
             }
         } catch (err) {
             console.error("Error fetching single payment:", err);
@@ -299,12 +299,12 @@ export default function OrderDetailsPage() {
     const handlePrintOrder = async () => {
         const token = (session as any)?.accessToken;
         if (!token || !orderId) {
-            toast.error("User session not found. Please log in again.");
+            toast.error(t("sessionNotFound"));
             return;
         }
 
         setIsPrinting(true);
-        const toastId = toast.loading("Preparing your order PDF...");
+        const toastId = toast.loading(t("preparingPdf"));
 
         try {
             const response = await fetch(`/api/kleverapi/order/${orderId}/pdf`, {
@@ -353,10 +353,10 @@ export default function OrderDetailsPage() {
             document.body.removeChild(link);
             window.URL.revokeObjectURL(url);
 
-            toast.success("Order PDF downloaded successfully!", { id: toastId });
+            toast.success(t("pdfDownloaded"), { id: toastId });
         } catch (err: any) {
             console.error("Print Error:", err);
-            toast.error(err.message || "Something went wrong while printing", { id: toastId });
+            toast.error(err.message || t("printError"), { id: toastId });
         } finally {
             setIsPrinting(false);
         }
@@ -367,7 +367,7 @@ export default function OrderDetailsPage() {
     const handleCancelOrder = async () => {
         const token = (session as any)?.accessToken;
         if (!token) {
-            toast.error("You must be logged in to cancel.");
+            toast.error(t("loginToCancel"));
             return;
         }
         if (!confirm(t("orderDetails.confirmCancel") !== "orderDetails.confirmCancel"
@@ -377,7 +377,7 @@ export default function OrderDetailsPage() {
         }
 
         setIsCancelling(true);
-        const toastId = toast.loading("Cancelling order...");
+        const toastId = toast.loading(t("cancelling"));
         try {
             const targetOrderId = order?.entity_id || orderId;
             const res = await fetch(`/api/kleverapi/order/${targetOrderId}/cancel`, {
@@ -390,11 +390,11 @@ export default function OrderDetailsPage() {
             const data = await res.json();
             if (!res.ok) throw new Error(data.message || "Failed to cancel order");
 
-            toast.success("Order cancelled", { id: toastId });
+            toast.success(t("orderCancelled"), { id: toastId });
             // Reflect the new status locally so the UI updates immediately
             setOrder((prev: any) => prev ? { ...prev, status: "canceled" } : prev);
         } catch (err: any) {
-            toast.error(err.message || "Something went wrong", { id: toastId });
+            toast.error(err.message || t("somethingWrong"), { id: toastId });
         } finally {
             setIsCancelling(false);
         }
@@ -403,11 +403,11 @@ export default function OrderDetailsPage() {
     const handleReorder = async () => {
         const token = (session as any)?.accessToken;
         if (!token) {
-            toast.error("You must be logged in to reorder.");
+            toast.error(t("loginToReorder"));
             return;
         }
 
-        const toastId = toast.loading("Adding items to cart...");
+        const toastId = toast.loading(t("addingToCart"));
         try {
             // Use entity_id for reorder if available, otherwise orderId from params
             const targetOrderId = order?.entity_id || orderId;
@@ -424,17 +424,17 @@ export default function OrderDetailsPage() {
             if (!res.ok) throw new Error(data.message || "Failed to reorder");
 
             await refetchCart();
-            toast.success("Items added to cart", { id: toastId });
+            toast.success(t("itemsAddedToCart"), { id: toastId });
             router.push(lp("/cart"));
         } catch (err: any) {
-            toast.error(err.message || "Something went wrong", { id: toastId });
+            toast.error(err.message || t("somethingWrong"), { id: toastId });
         }
     };
 
     const handleOpenAttachment = async (attachment: any) => {
         const token = (session as any)?.accessToken;
         if (!token) {
-            toast.error("Unable to open attachment");
+            toast.error(t("attachmentFailed"));
             return;
         }
 
@@ -475,7 +475,7 @@ export default function OrderDetailsPage() {
             document.body.removeChild(link);
         } catch (err: any) {
             console.error("Attachment open error:", err);
-            toast.error(err.message || "Unable to open attachment");
+            toast.error(err.message || t("attachmentFailed"));
         } finally {
             setOpeningAttachmentId(null);
         }
@@ -795,7 +795,7 @@ export default function OrderDetailsPage() {
 
                                 </div>
                                 <div className="p-4 md:p-6 text-xs text-black/70 leading-relaxed min-h-[140px]">
-                                    <p className="font-bold text-black uppercase mb-2">{translateDynamic(order.shipping_description || "Pickup from Warehouse")}</p>
+                                    <p className="font-bold text-black uppercase mb-2">{translateDynamic(order.shipping_description || t("pickupFromWarehouse"))}</p>
 
                                     <div className="mt-4 pt-4 border-t border-gray-100">
                                         <p className="text-caption font-bold text-black/50 uppercase tracking-widest mb-1">{safeTranslate("expectedDelivery", "Expected Delivery")}</p>

@@ -215,7 +215,7 @@ function MyOrdersPageContent() {
             ]);
 
             const data = await ordersRes.json();
-            if (!ordersRes.ok) throw new Error(data.message || "Failed to fetch orders");
+            if (!ordersRes.ok) throw new Error(data.message || t("orders.fetchFailed"));
 
             // Build a map of order_id (or increment_id) → total paid amount.
             // Defensive against unknown response shape and field names.
@@ -345,7 +345,7 @@ function MyOrdersPageContent() {
             });
 
             const data = await res.json();
-            if (!res.ok) throw new Error(data.message || "Failed to reorder");
+            if (!res.ok) throw new Error(data.message || t("orders.reorderFailed"));
 
             await refetchCart();
             toast.success(t("orders.addedToCart"), { id: toastId });
@@ -371,7 +371,7 @@ function MyOrdersPageContent() {
             });
 
             const data = await response.json();
-            if (!response.ok) throw new Error(data.message || "Failed to export orders");
+            if (!response.ok) throw new Error(data.message || t("orders.exportFailed"));
 
             const base64Content = data.pdf_base64 || data.content || data.base64 || data.csv_base64;
             if (!base64Content) throw new Error("No file content received from server");

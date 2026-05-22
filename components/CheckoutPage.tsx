@@ -212,7 +212,7 @@ const CheckoutPageUI: React.FC = () => {
                     setAvailableTimeSlots(slots);
                 } catch (error) {
                     console.error("Failed to fetch time slots:", error);
-                    toast.error("Failed to fetch available time slots");
+                    toast.error(t("checkout.fetchSlotsFailed"));
                 } finally {
                     setIsLoadingTimeSlots(false);
                 }
@@ -300,7 +300,7 @@ const CheckoutPageUI: React.FC = () => {
     const handlePaymentCommitmentChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
             setPaymentCommitmentFile(e.target.files[0]);
-            toast.success("File selected successfully!");
+            toast.success(t("checkout.fileSelected"));
         }
     };
 
@@ -309,7 +309,7 @@ const CheckoutPageUI: React.FC = () => {
         if (paymentCommitmentRef.current) {
             paymentCommitmentRef.current.value = "";
         }
-        toast.success("File removed");
+        toast.success(t("checkout.fileRemoved"));
     };
 
     // Auto-select shipping method when they become available or when type changes
@@ -362,7 +362,7 @@ const CheckoutPageUI: React.FC = () => {
                 const normalized = filesArray.map((item: any) => {
                     if (typeof item === 'string') return { fileName: item };
                     return {
-                        fileName: item.fileName || item.filename || item.file_name || item.name || item.file || "Unknown File"
+                        fileName: item.fileName || item.filename || item.file_name || item.name || item.file || t("checkout.unknownFile")
                     };
                 });
 
@@ -410,7 +410,7 @@ const CheckoutPageUI: React.FC = () => {
             setIsAddressSetOnBackend(true);
         } catch (err) {
             setIsAddressSetOnBackend(false);
-            const msg = err instanceof Error ? err.message : "Failed to update shipping address";
+            const msg = err instanceof Error ? err.message : t("checkout.updateAddressFailed");
             console.error("handleAddressSelect failed:", msg);
             if (msg === "Not authenticated") {
                 router.push(lp("/login?callback=/checkout"));
@@ -440,7 +440,7 @@ const CheckoutPageUI: React.FC = () => {
                     setIsAddressSetOnBackend(true);
                     toast.success(t("checkout.saveBillingInfo"));
                 } catch (err) {
-                    const msg = err instanceof Error ? err.message : "Failed to sync shipping address";
+                    const msg = err instanceof Error ? err.message : t("checkout.syncAddressFailed");
                     if (msg === "Not authenticated") {
                         router.push(lp("/login?callback=/checkout"));
                         return;
@@ -451,7 +451,7 @@ const CheckoutPageUI: React.FC = () => {
                     setSelectedAddressId(idToSet);
                 }
             } else {
-                toast.error("Please select a shipping address or add a new one.");
+                toast.error(t("checkout.selectShippingAddress"));
                 document.getElementById('step-1')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 return;
             }
@@ -469,9 +469,9 @@ const CheckoutPageUI: React.FC = () => {
                 } catch (err) {
                     console.error("Auto-repair shipping method failed:", err);
                 }
-                toast.success(`Selected shipping: ${method.title}`);
+                toast.success(t("checkout.selectedShipping").replace("{0}", method.title));
             } else {
-                toast.error("Please select a shipping method");
+                toast.error(t("checkout.selectShippingMethod"));
                 document.getElementById('step-3')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 return;
             }
@@ -491,19 +491,19 @@ const CheckoutPageUI: React.FC = () => {
 
         if (shippingType === "pickup") {
             if (!selectedWarehouseId) {
-                toast.error("Please select a warehouse for pickup");
+                toast.error(t("checkout.selectWarehouse"));
                 document.getElementById('step-pickup')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 return;
             }
             if (!pickupName || !pickupId || !pickupMobile || !pickupDate || !pickupTime) {
-                toast.error("Please fill all pickup details");
+                toast.error(t("checkout.fillPickupDetails"));
                 setIsPickupFormOpen(true);
                 return;
             }
         }
 
         if (uploadedPOs.length > 0 && !poNumber) {
-            toast.error("Please enter a PO Number as you have uploaded a file.");
+            toast.error(t("checkout.poNumberRequired"));
             const element = document.getElementById('step-2');
             element?.scrollIntoView({ behavior: 'smooth' });
             return;
@@ -569,7 +569,7 @@ const CheckoutPageUI: React.FC = () => {
             router.push(lp(`/checkout/success?order_id=${orderId}`));
         } catch (error: any) {
             console.error("Place Order Error:", error);
-            toast.error(error.message || "Failed to place order. Please try again.");
+            toast.error(error.message || t("checkout.placeOrderFailed"));
         } finally {
             setIsPlacingOrder(false);
         }
@@ -579,9 +579,9 @@ const CheckoutPageUI: React.FC = () => {
         if (!poNumber) return;
         try {
             await savePoNumber(poNumber);
-            toast.success("PO Number saved");
+            toast.success(t("checkout.poNumberSaved"));
         } catch (error: any) {
-            toast.error(error.message || "Failed to save PO number");
+            toast.error(error.message || t("checkout.poSaveFailed"));
         }
     };
 
@@ -589,9 +589,9 @@ const CheckoutPageUI: React.FC = () => {
         if (!comment) return;
         try {
             await saveOrderComment(comment);
-            toast.success("Order comment saved");
+            toast.success(t("checkout.commentSaved"));
         } catch (error: any) {
-            toast.error(error.message || "Failed to save order comment");
+            toast.error(error.message || t("checkout.commentSaveFailed"));
         }
     };
 
@@ -609,11 +609,11 @@ const CheckoutPageUI: React.FC = () => {
     const validateFile = (file: File) => {
         const extension = file.name.substring(file.name.lastIndexOf(".")).toLowerCase();
         if (!ALLOWED_EXTENSIONS.includes(extension)) {
-            toast.error(`Invalid file type: ${file.name}. Allowed: ${ALLOWED_EXTENSIONS.join(", ")}`);
+            toast.error(t("checkout.invalidFileType").replace("{0}", file.name).replace("{1}", ALLOWED_EXTENSIONS.join(", ")));
             return false;
         }
         if (file.size > 5 * 1024 * 1024) {
-            toast.error(`File too large: ${file.name}. Max size 5MB.`);
+            toast.error(t("checkout.fileTooLarge").replace("{0}", file.name));
             return false;
         }
         return true;
@@ -637,7 +637,7 @@ const CheckoutPageUI: React.FC = () => {
             for (const file of validFiles) {
                 // Check for duplicates in UI
                 if (uploadedPOs.some(p => p.fileName === file.name)) {
-                    toast.error(`File already uploaded: ${file.name}`);
+                    toast.error(t("checkout.fileAlreadyUploaded").replace("{0}", file.name));
                     continue;
                 }
 
@@ -659,10 +659,10 @@ const CheckoutPageUI: React.FC = () => {
                     fileName: file.name
                 });
                 setUploadedPOs(prev => [...prev, { fileName: file.name }]);
-                toast.success(`Uploaded: ${file.name}`);
+                toast.success(t("checkout.uploaded").replace("{0}", file.name));
             }
         } catch (error: any) {
-            toast.error(error.message || "Failed to upload file(s)");
+            toast.error(error.message || t("checkout.uploadFailed"));
         } finally {
             setIsUploading(false);
             if (poUploadRef.current) poUploadRef.current.value = "";
@@ -691,9 +691,9 @@ const CheckoutPageUI: React.FC = () => {
             setIsUploading(true);
             await deletePoFile(fileName);
             setUploadedPOs(prev => prev.filter(p => p.fileName !== fileName));
-            toast.success("File removed successfully");
+            toast.success(t("checkout.fileRemoveSuccess"));
         } catch (error: any) {
-            toast.error(error.message || "Failed to remove file");
+            toast.error(error.message || t("checkout.removeFileFailed"));
         } finally {
             setIsUploading(false);
         }
@@ -707,7 +707,7 @@ const CheckoutPageUI: React.FC = () => {
         try {
             await setShippingMethod(method.carrierCode, method.methodCode);
         } catch (error: any) {
-            toast.error(error.message || "Failed to update shipping method");
+            toast.error(error.message || t("checkout.shippingMethodUpdateFailed"));
         }
     };
 
@@ -748,7 +748,7 @@ const CheckoutPageUI: React.FC = () => {
                 handleAddressSelect(result.id.toString());
             }
         } catch (error: any) {
-            toast.error(error.message || "Failed to add address");
+            toast.error(error.message || t("addressBook.addAddressFailed"));
         } finally {
             setIsAddingAddress(false);
         }
@@ -1465,7 +1465,7 @@ const CheckoutPageUI: React.FC = () => {
                                                             <span className="text-body-lg font-bold text-black">
                                                                 {t("m.payment-commitment-upload") !== "m.payment-commitment-upload"
                                                                     ? t("m.payment-commitment-upload")
-                                                                    : "Payment Commitment Upload"}
+                                                                    : t("multi.paymentCommitment")}
                                                             </span>
                                                             <ChevronDown
                                                                 size={20}
@@ -1683,7 +1683,7 @@ const CheckoutPageUI: React.FC = () => {
                                         ) : (
                                             <>
                                                 {t("common.placeOrder")}
-                                                <span className="text-lg opacity-50 select-none">→</span>
+                                                <span className="relative -top-1 text-lg opacity-50 select-none">→</span>
                                             </>
                                         )}
                                     </button>
@@ -1761,7 +1761,7 @@ const CheckoutPageUI: React.FC = () => {
                                         setSelectedWarehouseId(tempSelectedWarehouse.id);
                                         setIsWarehouseModalOpen(false);
                                         setIsPickupFormOpen(true);
-                                        toast.success(`Selected: ${tempSelectedWarehouse.name}`);
+                                        toast.success(t("checkout.selectedWarehouse").replace("{0}", tempSelectedWarehouse.name));
                                     }
                                 }}
                                 disabled={!tempSelectedWarehouse}

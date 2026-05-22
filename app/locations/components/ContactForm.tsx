@@ -56,7 +56,7 @@ const ContactForm: React.FC = () => {
             const data = await res.json().catch(() => ({}));
 
             if (!res.ok) {
-                setErrors({ comment: data?.message || "Failed to send. Please try again." });
+                setErrors({ comment: data?.message || t("contact.sendFailed") });
             } else {
                 setIsSubmitted(true);
                 setFormData({ name: "", phone: "", email: "", comment: "" });

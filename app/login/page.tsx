@@ -136,12 +136,20 @@ function LoginPageContent() {
         toast.success(t("login.otpSent"));
         setOtpSent(true);
       } else {
-        // Specifically handle "not found" or "not registered" messages if they come from the API
+        // Detect "account not found" style messages so we can show the
+        // translated toast instead of the raw English string from the API.
+        // Backend variations seen: "not exist", "doesn't exist", "does not
+        // exist", "not found", "not registered", "no account", "invalid mobile".
         const errMsg = String(err).toLowerCase();
-        if (errMsg.includes("not exist") || errMsg.includes("not found") || errMsg.includes("not registered")) {
-          setErrors({ mobile: t("login.mobileNotFound") || "This mobile number is not registered." });
+        const notFoundPatterns = [
+          "not exist", "doesn't exist", "does not exist", "don't exist",
+          "not found", "not registered", "no account", "no user",
+          "invalid mobile", "invalid number", "invalid phone",
+        ];
+        if (notFoundPatterns.some((p) => errMsg.includes(p))) {
+          toast.error(t("login.mobileNotFound"));
         } else {
-          toast.error(err || "Failed to send OTP");
+          toast.error(err || t("login.otpSendFailed"));
         }
       }
     }));
@@ -223,7 +231,7 @@ function LoginPageContent() {
           window.location.href = callbackUrl;
         } else {
           localStorage.removeItem("token");
-          toast.error(res?.error || t("login.loginFailed"));
+          toast.error(t("login.loginFailed"));
         }
       } catch (err) {
         toast.error(t("login.loginFailed"));
