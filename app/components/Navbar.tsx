@@ -462,7 +462,10 @@ export default function Navbar() {
 
   return (
     <>
-      <div className={`main-header w-full ${isScrolled ? 'fixed fadeInDown' : 'relative'} top-0 left-0 right-0 z-[60] flex flex-col transition-[box-shadow,background-color] duration-300 ease-in-out`} style={{ paddingRight: isScrolled ? "var(--scrollbar-width)" : "0px" }}>
+      {/* sticky keeps the navbar in the document flow so other content
+          doesn't jump up when the user scrolls (previously `position` toggled
+          between relative and fixed, causing a ~108px layout shift on scroll). */}
+      <div className={`main-header w-full sticky top-0 left-0 right-0 z-[60] flex flex-col transition-[box-shadow,background-color] duration-300 ease-in-out ${isScrolled ? 'fadeInDown shadow-[0_2px_8px_rgba(0,0,0,0.08)]' : ''}`}>
 
         {/* ── HEADER ── */}
         <header className="bg-white border-b border-gray-100 shadow-[0_1px_4px_rgba(0,0,0,0.06)]">
@@ -709,9 +712,13 @@ export default function Navbar() {
           </div>
         </header>
 
-        {/* ── YELLOW NAV BAR — desktop only ── */}
-        <nav className="bg-primary w-full hidden lg:block">
-          <div className="flex items-center justify-center w-full px-2 lg:px-4">
+        {/* ── YELLOW NAV BAR — desktop only ──
+            Locked to h-9 (36px) so the loading skeleton and the loaded nav
+            links occupy the same vertical space. Without this, the bar
+            measures ~16px during loading and jumps to ~40px after
+            hydration, pushing every page section below it down. */}
+        <nav className="bg-primary w-full hidden lg:block h-9">
+          <div className="flex items-center justify-center w-full h-full px-2 lg:px-4">
             {navLoading ? (
               <div className="flex items-center gap-6">
                 {[1, 2, 3, 4, 5].map(i => (

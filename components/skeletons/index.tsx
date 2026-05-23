@@ -1169,27 +1169,52 @@ export function PageSkeleton({ children }: { children: React.ReactNode }) {
 
 // ─── Login Skeleton ──────────────────────────────────────────────────────────
 export function LoginSkeleton() {
+  // Mirrors the real login card from app/login/page.tsx pixel-for-pixel:
+  // 3 sections (title strip · mode tabs · form body) each with their own
+  // padding, so swap-in to the real form doesn't shift positions.
   return (
     <div className="flex-1 w-full min-h-full bg-surfaceSubtle flex flex-col">
       <main className="flex-1 w-full flex justify-center items-start pt-6 sm:pt-8 md:pt-16 pb-8 sm:pb-12 px-4 md:px-0">
-        <div className="w-full max-w-[440px] bg-white rounded-[3px] shadow-[0_10px_40px_rgba(0,0,0,0.08)] border border-gray-100 p-6 sm:p-8 space-y-6">
-          <div className="space-y-2">
-            <Pulse className="h-6 w-24 rounded" />
+        <div className="w-full max-w-[440px] bg-white rounded-[3px] shadow-[0_10px_40px_rgba(0,0,0,0.08)] border border-gray-100">
+          {/* Title section — px-4 sm:px-6 md:px-8 pt-5 sm:pt-7 pb-4 sm:pb-5 */}
+          <div className="px-4 sm:px-6 md:px-8 pt-5 sm:pt-7 pb-4 sm:pb-5">
+            <Pulse className="h-[17px] sm:h-[18px] w-24" />
           </div>
-          <div className="flex gap-2 border border-gray-200 rounded p-1">
-            <Pulse className="h-10 flex-1 rounded" />
-            <Pulse className="h-10 flex-1 rounded" />
+
+          {/* Mode tabs (OTP / Password) — px-4 sm:px-6 md:px-8 */}
+          <div className="px-4 sm:px-6 md:px-8">
+            <div className="flex w-full rounded-[3px] overflow-hidden border border-gray-200">
+              <Pulse className="flex-1 h-[42px] sm:h-[50px] !rounded-none" />
+              <Pulse className="flex-1 h-[42px] sm:h-[50px] !rounded-none border-l border-gray-100" />
+            </div>
           </div>
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Pulse className="h-4 w-28 rounded" />
-              <Pulse className="h-12 w-full rounded" />
+
+          {/* Form body — px-4 sm:px-6 md:px-8 pt-4 sm:pt-5 pb-6 sm:pb-8 */}
+          <div className="px-4 sm:px-6 md:px-8 pt-4 sm:pt-5 pb-6 sm:pb-8">
+            {/* Subtitle (e.g. "Sign in with email") — mb-5 */}
+            <Pulse className="h-[14px] w-48 mb-5" />
+
+            <div className="flex flex-col gap-3 sm:gap-[14px]">
+              {/* Email field — label gap-[5px] + input h-[48px] */}
+              <div className="flex flex-col gap-[5px]">
+                <Pulse className="h-[12px] w-20" />
+                <Pulse className="h-[48px] w-full !rounded-none border border-gray-300" />
+              </div>
+
+              {/* Password field — same shape */}
+              <div className="flex flex-col gap-[5px]">
+                <Pulse className="h-[12px] w-24" />
+                <Pulse className="h-[48px] w-full !rounded-none border border-gray-300" />
+              </div>
+
+              {/* Submit button + forgot password — pt-2 gap-3 */}
+              <div className="pt-2 flex flex-col gap-3">
+                <Pulse className="h-10 sm:h-[46px] w-full rounded-sm" />
+                <div className="flex justify-end">
+                  <Pulse className="h-[14px] w-28" />
+                </div>
+              </div>
             </div>
-            <div className="space-y-2">
-              <Pulse className="h-4 w-24 rounded" />
-              <Pulse className="h-12 w-full rounded" />
-            </div>
-            <Pulse className="h-11 w-full rounded mt-6" />
           </div>
         </div>
       </main>
