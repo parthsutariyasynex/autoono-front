@@ -201,6 +201,7 @@
   "login.loginFailed": "Login failed. Please check your credentials.",
   "login.invalidMobileFormat": "Invalid mobile number format for the selected country.",
   "login.mobileNotFound": "This mobile number is not registered in our system.",
+  "login.emailNotFound": "No account found with this email address.",
   "login.example": "Example",
   "login.mustBe": "Must be",
   "login.digits": "digits",

@@ -1,4 +1,5 @@
 "use client";
+import "intl-tel-input/build/css/intlTelInput.css";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useLocalePath } from "@/hooks/useLocalePath";
 
@@ -45,7 +46,7 @@ export default function ForgotPasswordPage() {
   const getMobileRequirements = (code: string) => {
     if (code === "+966") return { length: 9, start: "5", example: "5xxxxxxxx" };
     if (code === "+971") return { length: 9, start: "5", example: "5xxxxxxxx" };
-    if (code === "+91")  return { length: 10, start: "6-9", example: "9xxxxxxxxx" };
+    if (code === "+91") return { length: 10, start: "6-9", example: "9xxxxxxxxx" };
     return { length: 8, start: "", example: "" };
   };
 
@@ -110,7 +111,22 @@ export default function ForgotPasswordPage() {
         toast.success(t("forgotPassword.resetLinkSent"));
         router.push(lp("/login"));
       } else {
-        toast.error(data.message || t("forgotPassword.resetLinkFailed"));
+        const msg: string = data.message || "";
+        const lower = msg.toLowerCase();
+        if (
+          lower.includes("not found") ||
+          lower.includes("not exist") ||
+          lower.includes("not registered") ||
+          lower.includes("no such entity") ||
+          lower.includes("no account") ||
+          lower.includes("no user") ||
+          lower.includes("no customer") ||
+          res.status === 404
+        ) {
+          toast.error(t("login.emailNotFound"));
+        } else {
+          toast.error(msg || t("forgotPassword.resetLinkFailed"));
+        }
       }
 
     } catch (error) {
@@ -144,11 +160,14 @@ export default function ForgotPasswordPage() {
           lower.includes("not exist") ||
           lower.includes("not registered") ||
           lower.includes("no such entity") ||
+          lower.includes("no account") ||
+          lower.includes("no user") ||
+          lower.includes("no customer") ||
           res.status === 404
         ) {
-          setErrors({ mobile: t("login.mobileNotFound") || "This mobile number is not registered." });
+          setErrors({ mobile: t("login.mobileNotFound") });
         } else {
-          toast.error(msg || t("forgotPassword.otpSentFailed"));
+          toast.error(t("forgotPassword.otpSentFailed"));
         }
       }
     } catch {
@@ -185,7 +204,24 @@ export default function ForgotPasswordPage() {
         setResetToken(token);
         setStep("reset");
       } else {
-        toast.error(data.message || t("forgotPassword.otpVerifyFailed"));
+        const msg: string = data.message || "";
+        const lower = msg.toLowerCase();
+        if (
+          lower.includes("invalid") ||
+          lower.includes("expired") ||
+          lower.includes("incorrect")
+        ) {
+          toast.error(t("forgotPassword.otpVerifyFailed"));
+        } else if (
+          lower.includes("not found") ||
+          lower.includes("no account") ||
+          lower.includes("no customer") ||
+          res.status === 404
+        ) {
+          toast.error(t("login.mobileNotFound"));
+        } else {
+          toast.error(t("forgotPassword.otpVerifyFailed"));
+        }
       }
     } catch (error) {
       toast.error(t("forgotPassword.otpVerifyFailed"));
@@ -231,10 +267,10 @@ export default function ForgotPasswordPage() {
           router.push(lp("/login"));
         }, 1500);
       } else {
-        // 4. API Error handling
-        const errorMessage = data.message || data.error || t("forgotPassword.passwordResetFailed");
-        toast.error(errorMessage);
-        console.error(">>> RESET PASSWORD: API Error:", errorMessage);
+        // 4. API Error handling — always use translated messages
+        const msg: string = data.message || data.error || "";
+        console.error(">>> RESET PASSWORD: API Error:", msg);
+        toast.error(t("forgotPassword.passwordResetFailed"));
       }
     } catch (error: any) {
       // 5. Network or unexpected error handling

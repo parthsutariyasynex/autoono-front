@@ -207,6 +207,7 @@
   "login.loginFailed": "فشل تسجيل الدخول. يرجى التحقق من بياناتك.",
   "login.invalidMobileFormat": "صيغة رقم الجوال غير صحيحة للدولة المختارة.",
   "login.mobileNotFound": "رقم الجوال هذا غير مسجل في نظامنا.",
+  "login.emailNotFound": "لا يوجد حساب مسجل بهذا البريد الإلكتروني.",
   "login.example": "مثال",
   "login.mustBe": "يجب أن يكون",
   "login.digits": "أرقام",
