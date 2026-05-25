@@ -169,7 +169,7 @@ export default function DashboardPage() {
 
                     {/* COMPARE SECTION */}
                     {/* <section className="bg-white border border-border rounded-xl shadow-sm mb-12 overflow-hidden transition-all duration-300 hover:shadow-md"> */}
-                    <section className="bg-white w-1/2 border border-border rounded-xl shadow-sm mb-12 overflow-hidden transition-all duration-300 hover:shadow-md">
+                    <section className="bg-white w-full xl:w-1/2 border border-border rounded-xl shadow-sm mb-12 overflow-hidden transition-all duration-300 hover:shadow-md">
 
                         {/* Header Section */}
                         <div className="bg-gray-100 p-4 px-6 border-b border-border flex items-center gap-4">
@@ -239,7 +239,7 @@ export default function DashboardPage() {
                                     <div className="h-[2px] w-12 bg-primary"></div>
                                 </div>
                                 {/* <div className="grid grid-cols-1 md:grid-cols-3 gap-6"> */}
-                                <div className=" w-3/4 grid grid-cols-1 md:grid-cols-3 gap-6">
+                                <div className="w-full xl:w-3/4 grid grid-cols-1 md:grid-cols-3 gap-6">
                                     <QtyCard
                                         label={`${t("dashboard.year")} - ${searchYear}`}
                                         value={dashboardData?.yearly_summary?.[0]?.qty || "0"}
@@ -265,7 +265,7 @@ export default function DashboardPage() {
                                     <div className="h-[2px] w-12 bg-primary"></div>
                                 </div>
                                 {/* <div className="grid grid-cols-1 md:grid-cols-3 gap-6"> */}
-                                <div className=" w-3/4 grid grid-cols-1 md:grid-cols-3 gap-6">
+                                <div className="w-full xl:w-3/4 grid grid-cols-1 md:grid-cols-3 gap-6">
                                     <ValueCard
                                         label={`${t("dashboard.year")} - ${searchYear}`}
                                         value={formatValue(dashboardData?.yearly_summary?.[0]?.amount)}
@@ -285,7 +285,7 @@ export default function DashboardPage() {
                             </section>
 
                             {/* BOTTOM FILTERS */}
-                            <section className=" w-3/4 grid grid-cols-1 md:grid-cols-2 gap-8 pt-4">
+                            <section className="w-full xl:w-3/4 grid grid-cols-1 md:grid-cols-2 gap-8 pt-4">
                                 {/* Product Group Filter */}
                                 <div className="flex flex-col gap-4 group">
                                     <h3 className="text-body font-bold text-black uppercase tracking-widest ltr:text-left rtl:text-right opacity-60 group-hover:opacity-100 transition-opacity">{t("dashboard.productGroupLabel")}</h3>

@@ -28,7 +28,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useGift } from "@/modules/cart/context/GiftContext";
-import { CheckoutSkeleton } from "@/components/skeletons";
+import { CheckoutSkeleton, CheckoutSuccessSkeleton } from "@/components/skeletons";
 import SelectedAddressCard from "./SelectedAddressCard";
 import toast from "react-hot-toast";
 import { useSession } from "next-auth/react";
@@ -756,7 +756,14 @@ const CheckoutPageUI: React.FC = () => {
     // Include `cart === null` so the initial mount (before the cart fetch
     // resolves) keeps showing the skeleton instead of flashing the "empty
     // cart" UI for one frame.
-    if (isCartLoading || status === "loading" || cart === null) return <CheckoutSkeleton />;
+    //
+    // While the place-order flow is mid-transition (cart cleared, navigating
+    // to /checkout/success), swap to the success-page skeleton so the user
+    // sees the destination's skeleton rather than the cart-checkout one.
+    if (isCartLoading || status === "loading" || cart === null) {
+        if (isCompletingOrderRef.current) return <CheckoutSuccessSkeleton />;
+        return <CheckoutSkeleton />;
+    }
 
     if (cart.items.length === 0) {
         return (

@@ -26,17 +26,20 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders, onViewOrder, onReorde
     const { t } = useTranslation();
     return (
         <div className="w-full">
-            {/* Desktop Table */}
+            {/* Desktop Table — visible at md+ so the column headers (Order # / Date /
+                Grand Total / Ordered By / Status / Action) are always shown on tablet
+                and up. Action column buttons stack vertically at lg to fit the narrowed
+                column when the account sidebar is on. */}
             <div className="hidden md:block overflow-x-auto">
-                <table className="w-full text-body text-left border-collapse min-w-[700px]">
+                <table className="w-full text-body text-left border-collapse min-w-[640px]">
                     <thead>
                         <tr className="bg-primary text-label uppercase font-bold tracking-widest">
-                            <th className="px-2 lg:px-4 py-4 border border-warning/30">{t("orders.orderId")}</th>
-                            <th className="px-2 lg:px-4 py-4 border border-warning/30 whitespace-nowrap text-center">{t("orders.date")}</th>
-                            <th className="px-2 lg:px-4 py-4 border border-warning/30 whitespace-nowrap text-right">{t("orders.grandTotal")}</th>
-                            <th className="px-2 lg:px-4 py-4 border border-warning/30 text-center">{t("orders.orderedBy")}</th>
-                            <th className="px-2 lg:px-4 py-4 border border-warning/30 text-center">{t("orders.status")}</th>
-                            <th className="px-2 lg:px-4 py-4 border border-warning/30 text-center">{t("orders.action")}</th>
+                            <th className="px-2 xl:px-4 py-4 border border-warning/30">{t("orders.orderId")}</th>
+                            <th className="px-2 xl:px-4 py-4 border border-warning/30 whitespace-nowrap text-center">{t("orders.date")}</th>
+                            <th className="px-2 xl:px-4 py-4 border border-warning/30 whitespace-nowrap text-right">{t("orders.grandTotal")}</th>
+                            <th className="px-2 xl:px-4 py-4 border border-warning/30 text-center">{t("orders.orderedBy")}</th>
+                            <th className="px-2 xl:px-4 py-4 border border-warning/30 text-center">{t("orders.status")}</th>
+                            <th className="px-2 xl:px-4 py-4 border border-warning/30 text-center">{t("orders.action")}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -47,22 +50,22 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders, onViewOrder, onReorde
                                     className="border-b border-gray-200 hover:bg-primary/5 transition-colors"
                                 >
                                     <td
-                                        className="px-2 lg:px-4 py-4 border-r border-gray-200 text-black text-body-lg font-bold cursor-pointer"
+                                        className="px-2 xl:px-4 py-4 border-r border-gray-200 text-black text-body-lg font-bold cursor-pointer"
                                         onClick={() => onViewOrder(order.entity_id)}
                                     >
                                         {order.id}
                                     </td>
-                                    <td className="px-2 lg:px-4 py-4 border-r border-gray-200 text-black/70 text-body whitespace-nowrap text-center">
+                                    <td className="px-2 xl:px-4 py-4 border-r border-gray-200 text-black/70 text-body whitespace-nowrap text-center">
                                         {order.date}
                                     </td>
-                                    <td className="px-2 lg:px-4 py-4 border-r border-gray-200 text-black text-body-lg font-bold whitespace-nowrap text-right price currency-riyal">
+                                    <td className="px-2 xl:px-4 py-4 border-r border-gray-200 text-black text-body-lg font-bold whitespace-nowrap text-right price currency-riyal">
                                         <Price amount={order.grandTotal} />
                                     </td>
 
-                                    <td className="px-2 lg:px-4 py-4 border-r border-gray-200 text-black/70 text-body text-center">
+                                    <td className="px-2 xl:px-4 py-4 border-r border-gray-200 text-black/70 text-body text-center">
                                         {order.orderedBy}
                                     </td>
-                                    <td className="px-2 lg:px-4 py-3 border-r border-gray-200 text-center">
+                                    <td className="px-2 xl:px-4 py-3 border-r border-gray-200 text-center">
                                         <span className={`inline-flex px-2 py-1 border rounded-sm text-caption font-bold uppercase tracking-wider bg-white whitespace-nowrap ${order.status?.toLowerCase().includes('pending') ? 'border-borderStrong text-black' :
                                             order.status?.toLowerCase().includes('complete') ? 'border-green-200 text-green-700 bg-green-50' :
                                                 order.status?.toLowerCase().includes('cancel') ? 'border-red-200 text-red-700 bg-red-50' :
@@ -71,22 +74,26 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders, onViewOrder, onReorde
                                             {t(`data.${order.status}`) !== `data.${order.status}` ? t(`data.${order.status}`) : order.status}
                                         </span>
                                     </td>
-                                    <td className="px-2 lg:px-4 py-4 whitespace-nowrap text-center">
-                                        <div className="flex items-center justify-center gap-2.5 text-body-sm font-bold uppercase tracking-wide">
+                                    <td className="px-2 xl:px-4 py-4 text-center">
+                                        {/* Actions:
+                                              md  (no sidebar) → row, separators visible
+                                              lg  (sidebar 256px → main ~704px) → stack vertically, no separators
+                                              xl+ (sidebar + ample main) → row again */}
+                                        <div className="flex flex-row lg:flex-col xl:flex-row items-center justify-center gap-2 lg:gap-1.5 xl:gap-2.5 text-body-sm font-bold uppercase tracking-wide whitespace-nowrap">
                                             <button
                                                 onClick={() => onViewOrder(order.entity_id)}
                                                 className="text-black/60 hover:text-black transition-colors"
                                             >
                                                 {t("orders.viewOrder")}
                                             </button>
-                                            <span className="text-black/40 font-normal">|</span>
+                                            <span className="inline lg:hidden xl:inline text-black/40 font-normal">|</span>
                                             <button
                                                 onClick={() => onReorder(order)}
                                                 className="text-black/60 hover:text-black transition-colors"
                                             >
                                                 {t("orders.reorder")}
                                             </button>
-                                            <span className="text-black/40 font-normal">|</span>
+                                            <span className="inline lg:hidden xl:inline text-black/40 font-normal">|</span>
                                             {order.is_paid ? (
                                                 <button
                                                     onClick={() => onViewOrder(order.entity_id)}
@@ -117,7 +124,7 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders, onViewOrder, onReorde
                 </table>
             </div>
 
-            {/* Mobile Card View */}
+            {/* Card View — mobile only (below md) */}
             <div className="md:hidden space-y-3">
                 {orders.length > 0 ? (
                     orders.map((order, idx) => (

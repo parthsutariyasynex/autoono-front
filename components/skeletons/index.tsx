@@ -486,28 +486,57 @@ export function TableRowSkeleton({ cols = 5 }: { cols?: number }) {
 // ─── Orders Table Skeleton ────────────────────────────────────────────────────
 export function OrdersTableSkeleton({ rows = 8 }: { rows?: number }) {
   return (
-    <div className="bg-white rounded-sm border border-gray-100 overflow-hidden">
-      {/* Toolbar */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
-        <Pulse className="h-9 w-48 rounded" />
-        <Pulse className="h-9 w-28 rounded" />
+    <div className="w-full">
+      {/* Card View — mobile only (md:hidden), matches real OrdersTable */}
+      <div className="md:hidden space-y-3">
+        {Array.from({ length: rows }).map((_, i) => (
+          <div
+            key={i}
+            className="border border-gray-200 rounded-lg bg-white p-4 space-y-3"
+          >
+            <div className="flex items-center justify-between">
+              <Pulse className="h-5 w-24" />
+              <Pulse className="h-4 w-20" />
+            </div>
+            <Pulse className="h-6 w-24" />
+            <div className="flex justify-between">
+              <Pulse className="h-4 w-16" />
+              <Pulse className="h-4 w-28" />
+            </div>
+            <div className="flex justify-between">
+              <Pulse className="h-4 w-20" />
+              <Pulse className="h-4 w-24" />
+            </div>
+            <div className="flex items-center gap-2.5 pt-2 border-t border-gray-100">
+              <Pulse className="h-4 w-16" />
+              <span className="text-black/30">|</span>
+              <Pulse className="h-4 w-14" />
+              <span className="text-black/30">|</span>
+              <Pulse className="h-6 w-28 rounded-[2px]" />
+            </div>
+          </div>
+        ))}
       </div>
-      <table className="w-full text-sm">
-        <thead>
-          <tr className="border-b border-gray-100">
-            {["w-28", "w-24", "w-20", "w-20", "w-16", "w-20"].map((w, i) => (
-              <th key={i} className="px-4 py-3 text-left">
-                <Pulse className={`h-4 ${w} rounded`} />
-              </th>
+
+      {/* Desktop Table — md+ matches real OrdersTable */}
+      <div className="hidden md:block bg-white rounded-sm border border-gray-100 overflow-hidden">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="border-b border-gray-100">
+              {["w-28", "w-24", "w-20", "w-20", "w-16", "w-20"].map((w, i) => (
+                <th key={i} className="px-4 py-3 text-left">
+                  <Pulse className={`h-4 ${w} rounded`} />
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {Array.from({ length: rows }).map((_, i) => (
+              <TableRowSkeleton key={i} cols={6} />
             ))}
-          </tr>
-        </thead>
-        <tbody>
-          {Array.from({ length: rows }).map((_, i) => (
-            <TableRowSkeleton key={i} cols={6} />
-          ))}
-        </tbody>
-      </table>
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
@@ -596,8 +625,9 @@ export function DashboardSkeleton() {
           <div className="h-[2px] flex-1 bg-gradient-to-r from-primary to-transparent" />
         </div>
 
-        {/* Compare section (w-1/2) */}
-        <section className="bg-white w-1/2 border border-border rounded-xl overflow-hidden">
+        {/* Compare section — matches real page: full width on mobile/tablet/lg,
+            half-width only at xl (1280+). */}
+        <section className="bg-white w-full xl:w-1/2 border border-border rounded-xl overflow-hidden">
           <div className="bg-gray-100 p-4 px-6 border-b border-border flex items-center gap-3">
             <Pulse className="h-[18px] w-[18px]" />
             <Pulse className="h-4 w-24" />
@@ -619,7 +649,7 @@ export function DashboardSkeleton() {
                 <Pulse className="h-6 w-48" />
                 <div className="h-[2px] w-12 bg-primary" />
               </div>
-              <div className="w-3/4 grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="w-full xl:w-3/4 grid grid-cols-1 md:grid-cols-3 gap-6">
                 {Array.from({ length: 3 }).map((_, i) => (
                   <div key={i} className="bg-white border border-border rounded-xl overflow-hidden">
                     <div className="bg-primary h-10 px-5 flex justify-between items-center border-b border-border">
@@ -636,8 +666,8 @@ export function DashboardSkeleton() {
           );
         })}
 
-        {/* Bottom filters (w-3/4 grid 2 cols) */}
-        <section className="w-3/4 grid grid-cols-1 md:grid-cols-2 gap-8 pt-4">
+        {/* Bottom filters — matches real page: full width through lg, 75% only at xl. */}
+        <section className="w-full xl:w-3/4 grid grid-cols-1 md:grid-cols-2 gap-8 pt-4">
           {Array.from({ length: 2 }).map((_, i) => (
             <div key={i} className="flex flex-col gap-4">
               <Pulse className="h-4 w-32" />
@@ -1169,49 +1199,57 @@ export function PageSkeleton({ children }: { children: React.ReactNode }) {
 
 // ─── Login Skeleton ──────────────────────────────────────────────────────────
 export function LoginSkeleton() {
-  // Mirrors the real login card from app/login/page.tsx pixel-for-pixel:
-  // 3 sections (title strip · mode tabs · form body) each with their own
-  // padding, so swap-in to the real form doesn't shift positions.
+  // Mirrors the real login card from app/login/page.tsx pixel-for-pixel.
+  // Pulse heights match the RENDERED text heights (font-size × line-height +
+  // any inline padding) — not just the font-size — so swap-in to the real
+  // form causes no vertical growth.
+  //
+  // Numbers derived from tailwind.config.js: text-body = 13px / 1.5,
+  // text-label = 11px / 1.2. h1 inherits ~1.5 line-height.
   return (
     <div className="flex-1 w-full min-h-full bg-surfaceSubtle flex flex-col">
       <main className="flex-1 w-full flex justify-center items-start pt-6 sm:pt-8 md:pt-16 pb-8 sm:pb-12 px-4 md:px-0">
         <div className="w-full max-w-[440px] bg-white rounded-[3px] shadow-[0_10px_40px_rgba(0,0,0,0.08)] border border-gray-100">
           {/* Title section — px-4 sm:px-6 md:px-8 pt-5 sm:pt-7 pb-4 sm:pb-5 */}
+          {/* Real h1: text-[17px] sm:text-[18px] × ~1.5 line-height ≈ 26/27px */}
           <div className="px-4 sm:px-6 md:px-8 pt-5 sm:pt-7 pb-4 sm:pb-5">
-            <Pulse className="h-[17px] sm:h-[18px] w-24" />
+            <Pulse className="h-[26px] sm:h-[27px] w-24" />
           </div>
 
           {/* Mode tabs (OTP / Password) — px-4 sm:px-6 md:px-8 */}
+          {/* Real button: py-2.5 sm:py-[14px] + text-[11px] sm:text-body leading-tight */}
+          {/* Mobile: 20 + 11×1.25 = ~34px ; sm+: 28 + 13×1.25 = ~45px */}
           <div className="px-4 sm:px-6 md:px-8">
             <div className="flex w-full rounded-[3px] overflow-hidden border border-gray-200">
-              <Pulse className="flex-1 h-[42px] sm:h-[50px] !rounded-none" />
-              <Pulse className="flex-1 h-[42px] sm:h-[50px] !rounded-none border-l border-gray-100" />
+              <Pulse className="flex-1 h-[34px] sm:h-[45px] !rounded-none" />
+              <Pulse className="flex-1 h-[34px] sm:h-[45px] !rounded-none border-l border-gray-100" />
             </div>
           </div>
 
           {/* Form body — px-4 sm:px-6 md:px-8 pt-4 sm:pt-5 pb-6 sm:pb-8 */}
           <div className="px-4 sm:px-6 md:px-8 pt-4 sm:pt-5 pb-6 sm:pb-8">
-            {/* Subtitle (e.g. "Sign in with email") — mb-5 */}
-            <Pulse className="h-[14px] w-48 mb-5" />
+            {/* Subtitle — text-body leading-relaxed (1.625) = 13×1.625 ≈ 21px */}
+            <Pulse className="h-[21px] w-48 mb-5" />
 
             <div className="flex flex-col gap-3 sm:gap-[14px]">
-              {/* Email field — label gap-[5px] + input h-[48px] */}
+              {/* Email field — label text-body ≈ 20px + input h-[48px] */}
               <div className="flex flex-col gap-[5px]">
-                <Pulse className="h-[12px] w-20" />
+                <Pulse className="h-[20px] w-20" />
                 <Pulse className="h-[48px] w-full !rounded-none border border-gray-300" />
               </div>
 
               {/* Password field — same shape */}
               <div className="flex flex-col gap-[5px]">
-                <Pulse className="h-[12px] w-24" />
+                <Pulse className="h-[20px] w-24" />
                 <Pulse className="h-[48px] w-full !rounded-none border border-gray-300" />
               </div>
 
               {/* Submit button + forgot password — pt-2 gap-3 */}
+              {/* Real forgot-pwd: text-body (~20px) + py-2 inline-block (16) ≈ 36px */}
               <div className="pt-2 flex flex-col gap-3">
                 <Pulse className="h-10 sm:h-[46px] w-full rounded-sm" />
                 <div className="flex justify-end">
-                  <Pulse className="h-[14px] w-28" />
+                  <Pulse className="h-[36px] w-28" />
                 </div>
               </div>
             </div>
@@ -1365,17 +1403,34 @@ export function AddressBookSkeleton() {
 // (Thank You title + order number + confirmation message) and a Continue
 // Shopping button. Order Summary box was removed from the real page.
 export function CheckoutSuccessSkeleton() {
+  // Mirrors app/checkout/success/page.tsx pixel-for-pixel. Pulse heights
+  // match the RENDERED text heights so swap-in causes no vertical shift.
+  //
+  // Real heights (font-size × line-height):
+  //   • Title h5 (text-xl ... md:text-3xl lg:text-xl, leading-tight 1.25)
+  //       mobile/sm/lg: 20 × 1.25 = 25px ; md: 30 × 1.25 = ~38px
+  //   • Order number p (text-body-lg sm:text-h3-sm md:text-[18px], default ~1.5)
+  //       mobile: 14×1.5 = 21px ; sm: 16×1.4 = ~22px ; md: 18×1.5 = ~27px
+  //   • Confirmation message p (text-body sm:text-body-lg md:text-h3-sm,
+  //       leading-relaxed 1.625) → wraps to 2 lines on phones, 1 line on md+
+  //   • CTA button (px-12 py-3.5 text-body) → ~48px = h-12
   return (
     <div className="bg-surfacePage min-h-screen font-sans py-8 sm:py-12 md:py-16">
       <main className="max-w-4xl mx-auto px-4">
         {/* Confirmation card — matches real container classes exactly */}
         <div className="bg-white rounded-md border border-gray-200 shadow-sm p-6 sm:p-8 md:p-10 mb-8 text-center space-y-4 sm:space-y-6">
-          {/* Title "Thank You" — responsive h-9 → h-16 matches text-h2 → text-h1-lg */}
-          <Pulse className="h-9 sm:h-12 md:h-14 lg:h-16 w-1/2 mx-auto" />
-          {/* Order number + confirmation message — relative widths, centered */}
+          {/* "Thank You" title */}
+          <Pulse className="h-[25px] md:h-[38px] lg:h-[25px] w-40 sm:w-44 mx-auto" />
+          {/* Order number line — single line */}
           <div className="space-y-2">
-            <Pulse className="h-5 w-2/5 mx-auto" />
-            <Pulse className="h-4 w-3/4 max-w-lg mx-auto" />
+            <Pulse className="h-[21px] sm:h-[22px] md:h-[27px] w-2/5 max-w-[260px] mx-auto" />
+            {/* Confirmation message — typically wraps to 2 lines on mobile,
+                1 line on md+, so render two stacked pulses for the wrapped
+                state and let the second one shrink for visual realism. */}
+            <div className="space-y-1.5">
+              <Pulse className="h-[21px] sm:h-[23px] md:h-[26px] w-3/4 max-w-lg mx-auto" />
+              <Pulse className="h-[21px] sm:h-[23px] md:hidden w-1/2 max-w-md mx-auto" />
+            </div>
           </div>
         </div>
 

@@ -202,7 +202,9 @@ export default function Addresses() {
           <div className="h-[2px] flex-1 bg-gradient-to-r from-primary to-transparent"></div>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-8">
+        {/* 1 col through tablet so cards have full width next to the account
+            sidebar; 2 cols only at xl (≥1280px) where there's space. */}
+        <div className="grid xl:grid-cols-2 gap-8">
           <AddressCard
             title={t("addressBook.defaultBillingAddress")}
             address={defaultBilling}
@@ -229,7 +231,44 @@ export default function Addresses() {
 
         {filteredAddresses.length > 0 ? (
           <div className="bg-white border border-border rounded-xl shadow-sm overflow-hidden transition-all duration-300 hover:shadow-md">
-            <div className="overflow-x-auto">
+            {/* MOBILE CARDS — below md (768px) the 6-col table forces horizontal
+                scroll, so render the same fields as a stacked card per address. */}
+            <div className="md:hidden divide-y divide-gray-100">
+              {error && (
+                <div className="px-4 py-16 text-center flex flex-col items-center gap-2">
+                  <span className="text-red-500 text-xs font-bold uppercase tracking-widest">{t("common.error")}</span>
+                  <p className="text-black/60 text-body">{error}</p>
+                </div>
+              )}
+              {filteredAddresses.slice((currentPage - 1) * pageSize, currentPage * pageSize).map((address: any) => (
+                <div key={address.id} className="p-4 hover:bg-primary/5 transition-colors">
+                  <div className="flex flex-wrap items-baseline gap-x-2 mb-2">
+                    <span className="text-body font-bold text-black uppercase">{address.firstname} {address.lastname}</span>
+                  </div>
+                  <div className="space-y-1.5 text-body-sm">
+                    <div className="flex items-start gap-2">
+                      <span className="text-label font-bold text-black/40 uppercase tracking-widest min-w-[64px] mt-0.5">{t("addressBook.streetAddress")}</span>
+                      <span className="text-black/70 font-medium flex-1">{Array.isArray(address.street) ? address.street.join(", ") : address.street || "-"}</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <span className="text-label font-bold text-black/40 uppercase tracking-widest min-w-[64px] mt-0.5">{t("addressBook.city")}</span>
+                      <span className="text-black font-bold uppercase flex-1">{address.city}</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <span className="text-label font-bold text-black/40 uppercase tracking-widest min-w-[64px] mt-0.5">{t("addressBook.zipCode")}</span>
+                      <span dir="ltr" className="text-black/80 font-bold flex-1">{address.postcode}</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <span className="text-label font-bold text-black/40 uppercase tracking-widest min-w-[64px] mt-0.5">{t("addressBook.phone")}</span>
+                      <span dir="ltr" className="text-black/70 font-bold flex-1">{address.telephone}</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* DESKTOP TABLE — md (768px) and up, where 6 cols fit without scroll. */}
+            <div className="hidden md:block overflow-x-auto">
               <table className="w-full border-collapse min-w-[650px]">
                 <thead>
                   <tr className="bg-gray-100 border-b border-border text-black text-label font-bold uppercase tracking-widest h-[60px]">

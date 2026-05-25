@@ -341,3 +341,17 @@
   position: relative;
   top: 1px;
 }
+
+/* Pre-apply the layout styles that PriceIconObserver adds post-hydration.
+   Without this, the JS adding inline-flex/items-center/gap/dir=ltr after
+   mount caused a visible price-row reflow on every refresh. */
+.price,
+.proprice,
+.offer-price,
+.single-tyre-price,
+.cart-price {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  direction: ltr;
+}

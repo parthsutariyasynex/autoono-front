@@ -614,9 +614,10 @@ export default function ProductsPage({ categoryId: propCategoryId, storeCode: pr
     <>
       <Suspense fallback={null}><SearchParamsReader onParams={handleParams} /></Suspense>
       <div className="flex">
-        {/* Desktop Sidebar — hidden for exact SKU lookup or when no products found */}
+        {/* Desktop Sidebar — visible at lg+ (1024px) so iPad-landscape users
+            don't have to open the mobile drawer just to use the filter. */}
         {!itemCodeTerm && (loading || products.length > 0) && (
-          <div className="hidden xl:flex flex-col flex-shrink-0 self-stretch bg-white border-r border-gray-200">
+          <div className="hidden lg:flex flex-col flex-shrink-0 self-stretch bg-white border-r border-gray-200">
             <SidebarFilter
               onFilterChange={handleFilterChange}
               selectedFilters={selectedFilters}
@@ -663,8 +664,10 @@ export default function ProductsPage({ categoryId: propCategoryId, storeCode: pr
                 <h1 className="text-body-lg font-bold text-black uppercase tracking-tight">{storeName}</h1>
               </div>
             )}
-            {/* Controls: 2 cols for SKU lookup (no filters), 3 cols otherwise */}
-            <div className={`grid ${itemCodeTerm ? "grid-cols-2" : "grid-cols-3"} gap-2`}>
+            {/* Controls: 2 cols for SKU lookup (no filters), 3 cols otherwise.
+                At lg+ the Filter button is hidden (sidebar replaces it), so the
+                grid drops to 2 cols to fill the row evenly with Favorites + Sort. */}
+            <div className={`grid ${itemCodeTerm ? "grid-cols-2" : "grid-cols-3 lg:grid-cols-2"} gap-2`}>
               <button onClick={() => router.push(lp("/favorites"))} className="h-[44px] bg-white border border-gray-200 rounded-xl flex items-center justify-center gap-2 text-label font-semibold uppercase tracking-wider shadow-sm active:scale-95 cursor-pointer">
                 <Star className="w-4 h-4 fill-black text-black" /> {t("m.favourite-products")}
               </button>
@@ -673,7 +676,7 @@ export default function ProductsPage({ categoryId: propCategoryId, storeCode: pr
                 {sortBy === "none" ? t("products.sortByDefault") : sortBy === "price-asc" ? t("products.sortByLowToHigh") : t("products.sortByHighToLow")}
               </button>
               {!itemCodeTerm && (
-                <button onClick={() => setIsMobileFilterOpen(true)} className="h-[44px] bg-white border border-gray-200 rounded-xl flex items-center justify-center gap-2 text-label font-semibold uppercase tracking-wider shadow-sm active:scale-95 cursor-pointer">
+                <button onClick={() => setIsMobileFilterOpen(true)} className="lg:hidden h-[44px] bg-white border border-gray-200 rounded-xl flex items-center justify-center gap-2 text-label font-semibold uppercase tracking-wider shadow-sm active:scale-95 cursor-pointer">
                   <Filter className="w-4 h-4" /> Filter
                   {Object.keys(selectedFilters).length > 0 && <span className="w-5 h-5 bg-primary rounded-full text-caption font-semibold flex items-center justify-center">{Object.keys(selectedFilters).length}</span>}
                 </button>
@@ -744,7 +747,8 @@ export default function ProductsPage({ categoryId: propCategoryId, storeCode: pr
           )}
 
           {/* ── MOBILE/TABLET CARD LIST ── */}
-          <div className="xl:hidden flex-1 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5 overflow-y-auto">
+          {/* lg:grid-cols-2 keeps cards comfortable next to the 300px sidebar at 1024-1279px. */}
+          <div className="xl:hidden flex-1 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-2 gap-2.5 overflow-y-auto">
             {loading ? <MobileCardShimmer /> : serverError ? (
               <div className="flex-1 flex items-center justify-center py-10 px-4 col-span-full">
                 <div className="bg-red-50 border border-red-100 text-red-700 px-5 py-4 rounded-xl flex flex-col items-center gap-3 w-full shadow-sm text-center">

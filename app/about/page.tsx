@@ -11,17 +11,82 @@ interface CmsPage {
 }
 
 function Skeleton() {
+    // Mirrors the real /about content structure inside the same parent wrapper
+    // so the API-driven swap-in causes minimal layout shift. Pulse heights are
+    // computed from real text rendered heights:
+    //   • Title  h1 text-2xl sm:text-3xl md:text-[2rem] → ~28/36/40px
+    //   • Body p text-[15px] leading-[1.9] → 15 × 1.9 ≈ 29px per line
+    //   • H2     text-base font-black uppercase ≈ 24px
+    //   • H3     ≈ 29px (inherits 15px × 1.9)
+    const line = "h-7 bg-gray-200 rounded";
+
+    const Paragraph = ({ lines = 3 }: { lines?: number }) => (
+        <div className="space-y-3">
+            {Array.from({ length: lines }).map((_, i) => (
+                <div
+                    key={i}
+                    className={`${line} ${i === lines - 1 ? "w-3/4" : "w-full"}`}
+                />
+            ))}
+        </div>
+    );
+
+    const SectionHeader = ({ w = "w-1/3" }: { w?: string }) => (
+        <div className={`h-6 bg-gray-200 rounded ${w} mt-4 mb-2`} />
+    );
+
+    const ListItems = ({ items = 5 }: { items?: number }) => {
+        const widths = ["w-3/5", "w-2/3", "w-3/4", "w-1/2", "w-7/12", "w-2/3"];
+        return (
+            <ul className="pl-5 space-y-2">
+                {Array.from({ length: items }).map((_, i) => (
+                    <li key={i} className={`${line} ${widths[i % widths.length]}`} />
+                ))}
+            </ul>
+        );
+    };
+
     return (
-        <div className="space-y-4 animate-pulse">
-            <div className="h-8 bg-gray-200 rounded w-1/3 mx-auto mb-10" />
-            <div className="h-4 bg-gray-200 rounded w-full" />
-            <div className="h-4 bg-gray-200 rounded w-[95%]" />
-            <div className="h-4 bg-gray-200 rounded w-[88%]" />
-            <div className="h-4 bg-gray-200 rounded w-full mt-4" />
-            <div className="h-4 bg-gray-200 rounded w-[92%]" />
-            <div className="h-4 bg-gray-200 rounded w-[80%]" />
-            <div className="h-4 bg-gray-200 rounded w-full mt-4" />
-            <div className="h-4 bg-gray-200 rounded w-[85%]" />
+        <div className="space-y-6 animate-pulse">
+            {/* Title — centered, uppercase */}
+            <div className="flex justify-center mb-10 sm:mb-14">
+                <div className="h-7 sm:h-8 md:h-9 bg-gray-200 rounded w-56 sm:w-64 md:w-72" />
+            </div>
+
+            {/* Intro paragraphs */}
+            <Paragraph lines={3} />
+            <Paragraph lines={3} />
+
+            {/* Vision & Mission */}
+            <SectionHeader w="w-2/5" />
+            <div className="space-y-2">
+                <div className="h-5 bg-gray-200 rounded w-24" />
+                <Paragraph lines={2} />
+            </div>
+            <div className="space-y-2">
+                <div className="h-5 bg-gray-200 rounded w-24" />
+                <Paragraph lines={2} />
+            </div>
+
+            {/* Our Products list */}
+            <SectionHeader w="w-1/4" />
+            <ListItems items={6} />
+
+            {/* Brands */}
+            <SectionHeader w="w-1/3" />
+            <Paragraph lines={2} />
+
+            {/* Core Values list */}
+            <SectionHeader w="w-1/3" />
+            <ListItems items={5} />
+
+            {/* Branch Network */}
+            <SectionHeader w="w-1/3" />
+            <Paragraph lines={3} />
+
+            {/* Closing */}
+            <SectionHeader w="w-1/4" />
+            <Paragraph lines={2} />
         </div>
     );
 }
@@ -55,15 +120,24 @@ function parseAboutUs(text: string) {
         { key: "closing", en: "Closing Statement:", ar: "كلمة ختامية" }
     ];
 
-    // Find indices for all markers in the text
+    // Find vm indices first to avoid overlapping substring matches
+    const vmIdxEn = text.indexOf("Vision and Mission:");
+    const vmIdxAr = text.indexOf("الرؤية والرسالة");
+
     const foundMarkers = markers.map(m => {
-        let idx = text.indexOf(m.en);
+        let startFrom = 0;
+        if (m.key === "vision" || m.key === "mission") {
+            if (vmIdxEn !== -1) startFrom = Math.max(startFrom, vmIdxEn + "Vision and Mission:".length);
+            if (vmIdxAr !== -1) startFrom = Math.max(startFrom, vmIdxAr + "الرؤية والرسالة".length);
+        }
+
+        let idx = text.indexOf(m.en, startFrom);
         if (idx === -1) {
-            idx = text.indexOf(m.ar);
+            idx = text.indexOf(m.ar, startFrom);
         }
         // Fallback for variation in core values title
         if (m.key === "values" && idx === -1) {
-            idx = text.indexOf("Autoono Core Values:");
+            idx = text.indexOf("Autoono Core Values:", startFrom);
         }
         return { ...m, idx };
     }).filter(m => m.idx !== -1).sort((a, b) => a.idx - b.idx);
@@ -78,7 +152,7 @@ function parseAboutUs(text: string) {
     for (let i = 0; i < foundMarkers.length; i++) {
         const current = foundMarkers[i];
         const next = foundMarkers[i + 1];
-        
+
         let markerLength = current.en.length;
         if (text.startsWith(current.ar, current.idx)) {
             markerLength = current.ar.length;
@@ -88,7 +162,7 @@ function parseAboutUs(text: string) {
 
         const startIdx = current.idx + markerLength;
         const endIdx = next ? next.idx : text.length;
-        
+
         let chunk = text.slice(startIdx, endIdx).trim();
         if (chunk.startsWith(":")) {
             chunk = chunk.slice(1).trim();
@@ -254,7 +328,7 @@ export default function AboutPage() {
                 ) : (
                     /* Plain text — parse sections and render cleanly exactly as in image */
                     <div className={`space-y-6 text-[15px] leading-[1.9] text-black/75 font-medium ${isRtl ? "text-right" : "text-left"}`}>
-                        
+
                         {title && (
                             <h1 className="text-2xl sm:text-3xl md:text-[2rem] font-black text-center mb-10 sm:mb-14 tracking-tight text-black uppercase">
                                 {title}
@@ -276,7 +350,7 @@ export default function AboutPage() {
                         {/* Vision Section */}
                         {parsed.vision && (
                             <div className="space-y-4">
-                                <h3 className="font-bold text-black">{isRtl ? "الرؤية:" : "Vision:"}</h3>
+                                <h3 className="font-black text-black">{isRtl ? "الرؤية:" : "Vision:"}</h3>
                                 {visionItems.map((item, idx) => (
                                     <p key={idx}>{item}</p>
                                 ))}
@@ -285,10 +359,10 @@ export default function AboutPage() {
 
                         {/* Mission Section */}
                         {parsed.mission && (
-                            <div className="space-y-2">
-                                <h3 className="font-bold text-black">{isRtl ? "الرسالة:" : "Mission:"}</h3>
-                                <p>{parsed.mission}</p>
-                            </div>
+                            <p>
+                                <span className="font-black text-black">{isRtl ? "الرسالة:" : "Mission:"}</span>{" "}
+                                {parsed.mission}
+                            </p>
                         )}
 
                         {/* Our Products Section */}

@@ -159,7 +159,10 @@ export default function MyAccountPage() {
                                 <h2 className="text-body-lg md:text-h3-sm font-bold text-black uppercase mb-3">{t("account.accountInformation")}</h2>
                                 <hr className="border-gray-200 mb-6" />
 
-                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
+                                {/* Single card — half-width at xl so it doesn't dominate huge desktops,
+                                    but full-width up to lg so the right half isn't empty next to the
+                                    256px sidebar at 1024-1279px. */}
+                                <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 md:gap-6">
                                     {/* Contact Information */}
                                     <div className={cardBase}>
                                         <div className={sectionHeader}>
@@ -187,7 +190,9 @@ export default function MyAccountPage() {
                                     </div>
                                 </div>
                             </div>
-                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
+                            {/* 2-col at xl+ (1280+) only — at lg with the account sidebar each card
+                                would be ~352px which is too cramped for the multi-line content. */}
+                            <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 md:gap-6">
                                 {/* SALES DATA */}
                                 <div className={cardBase}>
                                     <div className={sectionHeader}>
@@ -224,7 +229,9 @@ export default function MyAccountPage() {
                                 <h2 className="text-body-lg md:text-h3-sm font-bold text-black uppercase mb-3">{t("addressBook.title")}</h2>
                                 <hr className="border-gray-200 mb-6" />
 
-                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
+                                {/* Address cards stack until xl — each card needs ~400px+ to
+                                    comfortably show street + city + zip + country + phone. */}
+                                <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 md:gap-6">
                                     {/* Default Billing Address Card */}
                                     <div className={cardBase + " flex flex-col"}>
                                         <div className={sectionHeader}>

@@ -156,11 +156,8 @@ export default function PriceIconObserver() {
                         }
 
                         el.innerHTML = newHTML;
-                        // Force LTR and alignment on the element to ensure "Symbol Value" order
-                        if (el instanceof HTMLElement) {
-                            el.dir = "ltr";
-                            el.classList.add("inline-flex", "items-center", "gap-1");
-                        }
+                        // Layout styles (inline-flex / items-center / gap / dir=ltr)
+                        // are pre-applied in globals.css to avoid post-hydration CLS.
                     }
                 });
             });

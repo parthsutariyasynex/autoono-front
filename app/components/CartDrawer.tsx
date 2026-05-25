@@ -101,6 +101,8 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                                             <img
                                                 src={item.image_url || "/images/tyre-sample.png"}
                                                 alt={item.name}
+                                                width={96}
+                                                height={96}
                                                 className="max-w-full max-h-full object-contain"
                                                 onError={(e) => {
                                                     (e.target as HTMLImageElement).src = "/images/tyre-sample.png";

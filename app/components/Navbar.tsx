@@ -77,9 +77,12 @@ export default function Navbar() {
   // returns the rewritten internal path (e.g. /products instead of /V102_en/lubricants).
   const STORE_CODE_RE = /^[A-Za-z0-9_]+_(en|ar)$/;
   const pathnameFirstSeg = pathname?.split("/").filter(Boolean)[0] || "";
-  const storeCookie = typeof document !== "undefined"
-    ? (document.cookie.match(/NEXT_STORE=([^;]+)/)?.[1] || "")
-    : "";
+  // Read cookie post-mount only — reading document.cookie during render produces
+  // different output on server vs client and causes a hydration mismatch.
+  const [storeCookie, setStoreCookie] = useState("");
+  useEffect(() => {
+    setStoreCookie(document.cookie.match(/NEXT_STORE=([^;]+)/)?.[1] || "");
+  }, [pathname]);
   const currentStore = (STORE_CODE_RE.test(pathnameFirstSeg) || isValidLocale(pathnameFirstSeg))
     ? pathnameFirstSeg
     : (searchParams?.get("store") || (STORE_CODE_RE.test(storeCookie) ? storeCookie : "") || "");
@@ -109,6 +112,7 @@ export default function Navbar() {
   const [storeDropOpen, setStoreDropOpen] = useState(false);
   const storeDropRef = useRef<HTMLDivElement>(null);
   const [openWarehouseMenu, setOpenWarehouseMenu] = useState<string | null>(null);
+  const warehouseNavRef = useRef<HTMLElement>(null);
 
   const { data: customerData } = useSelector((state: RootState) => state.customer);
   const dispatch = useDispatch();
@@ -200,6 +204,18 @@ export default function Navbar() {
     const handleClickOutside = (e: MouseEvent) => {
       if (storeDropRef.current && !storeDropRef.current.contains(e.target as Node))
         setStoreDropOpen(false);
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  // Close the warehouse / nav-category dropdown when tapping outside.
+  // Touch devices don't fire onMouseLeave, so the hover-based close wasn't
+  // reliable on tablets — this gives tap users a way to dismiss the menu.
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (warehouseNavRef.current && !warehouseNavRef.current.contains(e.target as Node))
+        setOpenWarehouseMenu(null);
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
@@ -476,6 +492,8 @@ export default function Navbar() {
               <img
                 src="/logo/btire-logo-horizontal.svg"
                 alt="BTIRE Logo"
+                width={4221}
+                height={1433}
                 className="h-6 sm:h-8 lg:h-10 w-auto"
               />
             </Link>
@@ -486,6 +504,8 @@ export default function Navbar() {
                 <img
                   src="/logo/auttono-logo.jpg"
                   alt="AL TALAYI KSA"
+                  width={587}
+                  height={194}
                   className="h-[24px] sm:h-[32px] lg:h-[42px] xl:h-[50px] w-auto object-contain"
                 />
               </Link>
@@ -717,7 +737,7 @@ export default function Navbar() {
             links occupy the same vertical space. Without this, the bar
             measures ~16px during loading and jumps to ~40px after
             hydration, pushing every page section below it down. */}
-        <nav className="bg-primary w-full hidden lg:block h-9">
+        <nav ref={warehouseNavRef} className="bg-primary w-full hidden lg:block h-9">
           <div className="flex items-center justify-center w-full h-full px-2 lg:px-4">
             {navLoading ? (
               <div className="flex items-center gap-6">
@@ -753,7 +773,8 @@ export default function Navbar() {
                   >
                     {hasChildren ? (
                       <span
-                        className={`py-3 flex items-center h-full px-2.5 lg:px-7 text-body font-semibold capitalize transition-all duration-200 whitespace-nowrap cursor-pointer ${isActive
+                        onClick={() => setOpenWarehouseMenu(isOpen ? null : item.href)}
+                        className={`py-3 flex items-center h-full px-2.5 lg:px-7 text-body font-semibold capitalize transition-all duration-200 whitespace-nowrap cursor-pointer select-none ${isActive
                           ? "bg-black text-white"
                           : "text-black hover:bg-black hover:text-white"
                           }`}
@@ -772,9 +793,11 @@ export default function Navbar() {
                       </Link>
                     )}
 
-                    {/* Warehouse dropdown — hover-based via React state (no CSS gap issue) */}
+                    {/* Warehouse dropdown — hover + tap (touch tablets) via React state.
+                        ltr:left-0 rtl:right-0 keeps the dropdown anchored to the
+                        nav item's start edge in both directions. */}
                     {hasChildren && isOpen && (
-                      <div className="absolute top-full left-0 w-56 bg-white shadow-[0_8px_24px_rgba(0,0,0,0.08)] z-[100]">
+                      <div className="absolute top-full ltr:left-0 rtl:right-0 w-56 max-w-[calc(100vw-1rem)] bg-white shadow-[0_8px_24px_rgba(0,0,0,0.08)] z-[100]">
                         <div className="flex flex-col py-1">
 
                           {isWarehouse

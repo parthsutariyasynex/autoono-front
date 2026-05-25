@@ -41,12 +41,35 @@ const TranslationContext = createContext<Record<string, string>>({});
 /**
  * TranslationProvider — blocks rendering until translations are loaded.
  * On subsequent navigations, translations are already cached → instant.
+ *
+ * When `initialTranslations` is provided (passed from the server via RSC for
+ * `initialLocale`), the provider seeds the module cache and starts ready,
+ * skipping the post-hydration skeleton swap that caused refresh-time CLS.
  */
-export function TranslationProvider({ children }: { children: ReactNode }) {
+export function TranslationProvider({
+  children,
+  initialLocale,
+  initialTranslations,
+}: {
+  children: ReactNode;
+  initialLocale?: string;
+  initialTranslations?: Record<string, string>;
+}) {
   const locale = useLocale();
+
+  // Seed the module cache from SSR data so the initializer below can read it
+  // on the very first render (must run before useState).
+  if (
+    initialLocale &&
+    initialTranslations &&
+    !cachedTranslations[initialLocale]
+  ) {
+    cachedTranslations[initialLocale] = initialTranslations;
+  }
+
   const hasCached = !!cachedTranslations[locale];
   const [translations, setTranslations] = useState<Record<string, string>>(
-    cachedTranslations[locale] || {}
+    () => cachedTranslations[locale] || {}
   );
   const [ready, setReady] = useState(hasCached);
   const [loadedLocale, setLoadedLocale] = useState(hasCached ? locale : "");

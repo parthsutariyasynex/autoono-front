@@ -424,19 +424,23 @@ function MyOrdersPageContent() {
                 <Sidebar />
 
                 <main className="flex-1 w-full px-4 md:px-6 lg:px-8 py-4 md:py-8 lg:py-10">
-                    <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-6 md:mb-10">
-                        <h1 className="text-h3 sm:text-h3 md:text-[26px] font-bold text-black uppercase tracking-wide">
-                            {t("orders.title")}
-                        </h1>
+                    {/* Page header — title + decorative gradient line + Export button.
+                          Mobile  : stacks (title with gradient line beneath, then full-width button)
+                          sm/md/+ : title and button on same row, gradient line fills the gap */}
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-6 md:mb-10">
+                        <div className="flex items-center gap-4 flex-1 min-w-0">
+                            <h1 className="text-h3 md:text-[26px] font-bold text-black uppercase tracking-wide whitespace-nowrap">
+                                {t("orders.title")}
+                            </h1>
+                            <div className="h-[2px] flex-1 bg-gradient-to-r from-primary to-transparent"></div>
+                        </div>
                         <button
                             onClick={handleExportOrders}
                             disabled={isExporting}
-                            className={`w-full md:w-auto justify-center flex items-center gap-2 border-2 border-primary text-black text-body-sm font-bold px-5 py-2 uppercase tracking-wide hover:bg-primary transition-colors ${isExporting ? 'opacity-70 cursor-not-allowed' : ''}`}
+                            className={`w-full sm:w-auto flex-shrink-0 justify-center flex items-center gap-2 border-2 border-primary text-black text-body-sm font-bold px-5 py-2 uppercase tracking-wide hover:bg-primary transition-colors ${isExporting ? 'opacity-70 cursor-not-allowed' : ''}`}
                         >
                             {isExporting ? (
-                                <>
-                                    <span className="animate-pulse opacity-60">{t("orders.exporting")}</span>
-                                </>
+                                <span className="animate-pulse opacity-60">{t("orders.exporting")}</span>
                             ) : (
                                 <>
                                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

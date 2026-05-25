@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Rubik } from "next/font/google";
 import { cookies, headers } from "next/headers";
+import { readFile } from "fs/promises";
+import { join } from "path";
 import { CartProvider } from "../modules/cart/context/CartContext";
 import { GiftProvider } from "../modules/cart/context/GiftContext";
 import { ReduxProvider } from "@/store/provider";
@@ -20,6 +22,26 @@ import {
 } from "@/lib/i18n/config";
 import { LocaleProvider } from "@/lib/i18n/LocaleProvider";
 import TranslationWrapper from "@/components/providers/TranslationWrapper";
+
+// Server-side translation cache. Reading 600KB+ JSON once per cold start,
+// reused for every request in this process. Pre-populating translations
+// on the server eliminates the post-hydration skeleton-to-content swap
+// (the dominant CLS source).
+const serverTranslationCache: Record<string, Record<string, string>> = {};
+
+async function loadServerTranslations(locale: Locale): Promise<Record<string, string>> {
+  if (serverTranslationCache[locale]) return serverTranslationCache[locale];
+  try {
+    const path = join(process.cwd(), "public", "locales", `${locale}.json`);
+    const content = await readFile(path, "utf-8");
+    const data = JSON.parse(content) as Record<string, string>;
+    serverTranslationCache[locale] = data;
+    return data;
+  } catch (err) {
+    console.error(`Failed to load translations for ${locale}:`, err);
+    return {};
+  }
+}
 
 const rubik = Rubik({
   subsets: ["latin", "arabic"],
@@ -65,11 +87,16 @@ export default async function RootLayout({
   // would otherwise make on mount (one normal + one from React StrictMode).
   const session = await getServerSession();
 
+  // Read translations server-side. Passed via RSC payload so TranslationProvider
+  // can mount with ready=true and skip the loading-skeleton render that was
+  // causing layout shift on every refresh.
+  const initialTranslations = await loadServerTranslations(locale);
+
   return (
     <html lang={locale} dir={dir}>
       <body className={`${rubik.variable} font-rubik`}>
         <LocaleProvider initialLocale={locale}>
-          <TranslationWrapper>
+          <TranslationWrapper initialLocale={locale} initialTranslations={initialTranslations}>
             <ReduxProvider>
               <NextAuthProvider session={session}>
                 <CartProvider>

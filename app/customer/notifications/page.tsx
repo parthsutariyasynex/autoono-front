@@ -159,10 +159,10 @@ export default function NotificationsPage() {
                                 <table className="w-full text-left border-collapse table-fixed min-w-[600px]">
                                     <thead>
                                         <tr className="border-b border-border">
-                                            <th className="px-6 py-4 text-body font-bold text-black uppercase text-center w-[15%] border-r border-border">{t('common.date')}</th>
-                                            <th className="px-6 py-4 text-body font-bold text-black uppercase text-center w-[20%] border-r border-border">{t('m.title')}</th>
-                                            <th className="px-6 py-4 text-body font-bold text-black uppercase text-center w-[45%] border-r border-border">{t('m.message')}</th>
-                                            <th className="px-6 py-4 text-body font-bold text-black uppercase text-center w-[20%]">{t('common.action')}</th>
+                                            <th className="px-3 lg:px-6 py-4 text-body font-bold text-black uppercase text-center w-[14%] border-r border-border">{t('common.date')}</th>
+                                            <th className="px-3 lg:px-6 py-4 text-body font-bold text-black uppercase text-center w-[18%] border-r border-border">{t('m.title')}</th>
+                                            <th className="px-3 lg:px-6 py-4 text-body font-bold text-black uppercase text-center w-[40%] border-r border-border">{t('m.message')}</th>
+                                            <th className="px-3 lg:px-6 py-4 text-body font-bold text-black uppercase text-center w-[28%]">{t('common.action')}</th>
                                         </tr>
                                     </thead>
                                     <tbody className="bg-white">
@@ -199,15 +199,19 @@ export default function NotificationsPage() {
                                                     <td className={`px-6 py-6 text-body-lg text-center border-r border-border leading-relaxed align-middle ${!item.is_read ? "font-medium text-black" : "text-black/70"}`}>
                                                         {translateNotificationText(item.description, locale)}
                                                     </td>
-                                                    <td className="px-6 py-6 text-body text-center align-middle">
-                                                        <div className="flex items-center justify-center gap-2 whitespace-nowrap text-black">
+                                                    <td className="px-3 lg:px-6 py-6 text-body text-center align-middle">
+                                                        {/* Buttons:
+                                                              md  (no sidebar) → side-by-side, plenty of room
+                                                              lg  (sidebar 256px → tight main) → stack vertically
+                                                              xl+ (sidebar + wide main)         → side-by-side again */}
+                                                        <div className="flex flex-row lg:flex-col xl:flex-row items-center justify-center gap-2 lg:gap-1.5 xl:gap-2 text-black">
                                                             {!item.is_read && (
                                                                 <>
-                                                                    <button onClick={(e) => { e.stopPropagation(); markAsRead(item.notification_id); }} className="hover:text-primary transition-colors font-bold">{t('m.mark-as-read')}</button>
-                                                                    <span className="text-black/30">|</span>
+                                                                    <button onClick={(e) => { e.stopPropagation(); markAsRead(item.notification_id); }} className="hover:text-primary transition-colors font-bold whitespace-nowrap">{t('m.mark-as-read')}</button>
+                                                                    <span className="inline lg:hidden xl:inline text-black/30">|</span>
                                                                 </>
                                                             )}
-                                                            <button onClick={(e) => { e.stopPropagation(); removeNotification(item.notification_id, item.is_read); }} disabled={deletingIds.includes(item.notification_id)} className="hover:text-primary cursor-pointer transition-colors font-bold disabled:opacity-50 disabled:cursor-not-allowed">
+                                                            <button onClick={(e) => { e.stopPropagation(); removeNotification(item.notification_id, item.is_read); }} disabled={deletingIds.includes(item.notification_id)} className="hover:text-primary cursor-pointer transition-colors font-bold disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap">
                                                                 {deletingIds.includes(item.notification_id) ? t('common.loading') : t('m.remove')}
                                                             </button>
                                                         </div>
@@ -275,8 +279,10 @@ export default function NotificationsPage() {
                                 )}
                             </div>
 
-                            {/* PAGINATION PANEL */}
-                            <div className="bg-borderFaint px-4 md:px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-4 md:gap-6 border-t border-gray-200">
+                            {/* PAGINATION PANEL — stay stacked until lg so the 3 sections
+                                (count text + page buttons + page-size selector) don't crowd
+                                each other on tablet widths next to the account sidebar. */}
+                            <div className="bg-borderFaint px-4 md:px-6 py-4 flex flex-col lg:flex-row items-center justify-between gap-4 md:gap-6 border-t border-gray-200">
                                 <div className="text-body text-black font-medium order-2 lg:order-1">
                                     {t('favorites.items')} <bdi dir="ltr">{((currentPage - 1) * pageSize) + 1} {t('m.to')} {Math.min(currentPage * pageSize, totalCount)}</bdi> {t('favorites.of')} <bdi dir="ltr">{totalCount}</bdi> {t('favorites.total')}
                                 </div>
