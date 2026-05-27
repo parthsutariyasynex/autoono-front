@@ -269,13 +269,19 @@ function SidebarFilter({
             if (group) {
                 nextLabels[c] = vals.map(v => {
                     const opt = group.options.find(o => o.value === v);
-                    return { value: v, label: opt ? opt.label : v };
+                    const rawLabel = opt ? opt.label : v;
+                    // Apply the same data.* translation that the checkbox row
+                    // uses, so the selected-filter chip in the products listing
+                    // shows the localized name (e.g. "Automotive Lubricants" →
+                    // its Arabic equivalent when the page is in AR mode).
+                    const translatedLabel = t(`data.${rawLabel}`) !== `data.${rawLabel}` ? t(`data.${rawLabel}`) : rawLabel;
+                    return { value: v, label: translatedLabel };
                 });
             }
         });
 
         onFilterChange?.(nextState, nextLabels);
-    }, [onFilterChange, filterGroups, selectedFilters]);
+    }, [onFilterChange, filterGroups, selectedFilters, t]);
 
     const toggleGroup = useCallback((code: string) => {
         setExpandedGroups(prev => ({ ...prev, [code]: !prev[code] }));

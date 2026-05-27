@@ -154,13 +154,26 @@ async function getDefaultLandingPath(request: NextRequest, locale: string): Prom
 // URLs (e.g. V101_en/lubricants.html) resolve to the correct categoryId.
 // Checks CMS_SLUG_TO_ROUTE right-to-left before hitting GraphQL.
 async function resolveMagentoUrl(slugPath: string, storeCode: string): Promise<ResolvedUrl> {
-    // Check CMS slug map right-to-left before any network call
+    // Check CMS slug map right-to-left before any network call.
+    // Only apply the redirect when the matched segment is either the LAST one
+    // (e.g. /customer/account → /my-account) or followed only by Magento's
+    // default-action segment ("index"). If the path continues with an internal
+    // action like /edit, /new, /view, /<id>, etc., this is a real Next.js
+    // route (e.g. /customer/account/edit, /customer/address-book/edit/123) and
+    // must pass through to the actual page, NOT redirect via the CMS map.
     const bare = slugPath.replace(/\.html$/, "");
     const segs = bare.split("/").filter(Boolean);
     for (let i = segs.length - 1; i >= 0; i--) {
         const seg = segs[i].toLowerCase();
         if (CMS_SLUG_TO_ROUTE[seg]) {
-            return { kind: "cms", nextjsPath: CMS_SLUG_TO_ROUTE[seg] };
+            const afterSegs = segs.slice(i + 1).map(s => s.toLowerCase());
+            const onlyMagentoDefaults = afterSegs.every(s => s === "index");
+            if (afterSegs.length === 0 || onlyMagentoDefaults) {
+                return { kind: "cms", nextjsPath: CMS_SLUG_TO_ROUTE[seg] };
+            }
+            // Matched a CMS slug but the path continues with an internal action
+            // — stop trying earlier segments and fall through to GraphQL.
+            break;
         }
     }
 

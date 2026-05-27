@@ -25,37 +25,29 @@ const CheckoutSuccessContent = () => {
     const orderId = searchParams.get("order_id");
     const { fetchCheckoutSuccess } = useCheckout({ skipInitialFetch: true });
     // Initialize state lazily from localStorage to avoid calling setters inside useEffect
-    const [orderData, setOrderData] = useState<any>(() => {
-        if (typeof window === "undefined" || !orderId) return null;
+    // Don't read localStorage in the useState initializer — that runs on the
+    // server with `typeof window === undefined` (so null) but the client picks
+    // up the saved data, causing a hydration mismatch. Read it post-mount in
+    // a useEffect instead so both server + client render the same initial UI
+    // (the CheckoutSuccessSkeleton).
+    const [orderData, setOrderData] = useState<any>(null);
+    const [isPending, setIsPending] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        if (!orderId || typeof window === "undefined") return;
         try {
             const savedData = localStorage.getItem('last_order_summary');
-            if (savedData) {
-                const parsed = JSON.parse(savedData);
-                if (String(parsed.order_id) === String(orderId)) {
-                    return parsed;
-                }
+            if (!savedData) return;
+            const parsed = JSON.parse(savedData);
+            if (String(parsed.order_id) === String(orderId)) {
+                setOrderData(parsed);
+                setIsPending(parsed.status === "pending");
             }
         } catch (e) {
             console.error("Error parsing saved order data", e);
         }
-        return null;
-    });
-
-    const [isPending, setIsPending] = useState(() => {
-        if (typeof window === "undefined" || !orderId) return false;
-        try {
-            const savedData = localStorage.getItem('last_order_summary');
-            if (savedData) {
-                const parsed = JSON.parse(savedData);
-                if (String(parsed.order_id) === String(orderId)) {
-                    return parsed.status === "pending";
-                }
-            }
-        } catch { }
-        return false;
-    });
-
-    const [isLoading, setIsLoading] = useState(true);
+    }, [orderId]);
 
     // 1. Redirect if orderId is missing
     useEffect(() => {

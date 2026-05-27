@@ -165,12 +165,105 @@ export default function Addresses() {
   const defaultShipping = addresses.find((address: any) => address.default_shipping);
 
   if ((loading || !hasLoadedOnce) && addresses.length === 0) {
+    // Inline loading state — mirrors the real Addresses layout (header,
+    // Default-Addresses section with 2 cards, Additional-Addresses section
+    // with a table) so the swap-in to real data causes no layout shift.
     return (
-      <div className="p-6 flex justify-center items-center min-h-[400px]">
-        <div className="flex flex-col items-center gap-4">
-          <div className="space-y-3 animate-pulse">{...Array.from({ length: 3 }).map((_, i) => <div key={i} className="h-20 bg-gray-200 rounded-xl" />)}</div>
-          {/* <p className="text-black/50 text-xs font-bold uppercase tracking-widest">{t("addressBook.loadingAddresses")}</p> */}
+      <div className="w-full space-y-12 animate-pulse" dir={isRtl ? "rtl" : "ltr"}>
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-6 border-b border-gray-200">
+          <div className="h-7 md:h-9 w-48 md:w-56 bg-gray-200 rounded" />
         </div>
+
+        {/* Section 1: Default Addresses */}
+        <section>
+          <div className="flex items-center gap-4 mb-8">
+            <div className="h-7 w-52 bg-gray-200 rounded" />
+            <div className="h-[2px] flex-1 bg-gradient-to-r from-primary to-transparent" />
+          </div>
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+            {Array.from({ length: 2 }).map((_, i) => (
+              <div
+                key={i}
+                className="bg-white border border-border rounded-xl shadow-sm overflow-hidden flex flex-col h-full"
+              >
+                <div className="bg-primary px-5 py-4 border-b border-border">
+                  <div className="h-4 w-48 bg-black/10 rounded" />
+                </div>
+                <div className="p-6 flex-grow flex flex-col">
+                  <div className="space-y-1.5">
+                    <div className="h-4 w-40 bg-gray-200 rounded mb-3" />
+                    <div className="h-3.5 w-36 bg-gray-200 rounded" />
+                    <div className="h-3.5 w-full max-w-[280px] bg-gray-200 rounded" />
+                    <div className="h-3.5 w-3/5 bg-gray-200 rounded" />
+                    <div className="h-3.5 w-28 bg-gray-200 rounded" />
+                    <div className="pt-3 flex items-center gap-2">
+                      <div className="h-3 w-12 bg-gray-200 rounded" />
+                      <div className="h-3 w-32 bg-gray-200 rounded" />
+                    </div>
+                  </div>
+                  {i === 1 && (
+                    <div className="pt-8 mt-auto">
+                      <div className="h-11 w-48 bg-gray-200 rounded-lg" />
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* Section 2: Additional Addresses */}
+        <section>
+          <div className="flex items-center gap-4 mb-8">
+            <div className="h-7 w-60 bg-gray-200 rounded" />
+            <div className="h-[2px] flex-1 bg-gradient-to-r from-primary to-transparent" />
+          </div>
+          <div className="bg-white border border-border rounded-xl shadow-sm overflow-hidden">
+            {/* Mobile cards */}
+            <div className="md:hidden divide-y divide-gray-100">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <div key={i} className="p-4">
+                  <div className="h-4 w-32 bg-gray-200 rounded mb-2" />
+                  <div className="space-y-1.5">
+                    {Array.from({ length: 4 }).map((_, j) => (
+                      <div key={j} className="flex items-start gap-2">
+                        <div className="h-3 w-16 bg-gray-200 rounded" />
+                        <div className="h-3 flex-1 max-w-[180px] bg-gray-200 rounded" />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+            {/* Desktop table */}
+            <div className="hidden md:block overflow-x-auto">
+              <table className="w-full border-collapse min-w-[650px]">
+                <thead>
+                  <tr className="bg-gray-100 border-b border-border h-[60px]">
+                    {["w-16", "w-16", "w-24", "w-12", "w-12", "w-14"].map((w, i) => (
+                      <th key={i} className="px-6 py-4 text-left">
+                        <div className={`h-3 ${w} bg-gray-200 rounded`} />
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-50">
+                  {Array.from({ length: 4 }).map((_, i) => (
+                    <tr key={i} className="h-[70px]">
+                      <td className="px-6 py-4"><div className="h-3 w-20 bg-gray-200 rounded" /></td>
+                      <td className="px-6 py-4"><div className="h-3 w-20 bg-gray-200 rounded" /></td>
+                      <td className="px-6 py-4"><div className="h-3 w-32 bg-gray-200 rounded" /></td>
+                      <td className="px-6 py-4"><div className="h-3 w-16 bg-gray-200 rounded" /></td>
+                      <td className="px-6 py-4"><div className="h-3 w-14 bg-gray-200 rounded" /></td>
+                      <td className="px-6 py-4"><div className="h-3 w-24 bg-gray-200 rounded" /></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
       </div>
     );
   }

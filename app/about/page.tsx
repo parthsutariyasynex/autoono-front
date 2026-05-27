@@ -218,22 +218,58 @@ export default function AboutPage() {
             .replace(/^المقدمة عن الشركة\s+/, "")
             .trim();
 
-        const sentences = cleanIntro.split(/(?<=\.)\s+/).filter(Boolean);
-        if (!isRtl && sentences.length >= 5) {
+        // Magento sometimes drops the period at a logical paragraph boundary
+        // (e.g. "...energy production in 2022 Our commitment is to..."). Insert
+        // a paragraph break when a 4-digit year is followed by a capital word
+        // so the downstream block-split picks it up.
+        const preProcessed = cleanIntro.replace(
+            /(\d{4})\s+([A-Z][a-z])/g,
+            "$1\n\n$2"
+        );
+
+        // Split on blank-line paragraph breaks (real ones in source + inserted).
+        const blocks = preProcessed
+            .split(/\n\s*\n+/)
+            .map(p => p.replace(/\s+/g, " ").trim())
+            .filter(Boolean);
+
+        // For English, within each block apply the live page's grouping:
+        //   para 1 = sentence 0
+        //   para 2 = sentences 1 + 2 combined
+        //   para 3+ = remaining sentences, one per paragraph
+        // For Arabic and short blocks, return one paragraph per sentence.
+        const result: string[] = [];
+        for (const block of blocks) {
+            const sentences = block
+                .split(/(?<=[.!?])\s+/)
+                .map(s => s.trim())
+                .filter(Boolean);
+            if (!isRtl && sentences.length >= 4) {
+                result.push(sentences[0]);
+                result.push(sentences.slice(1, 3).join(" "));
+                result.push(...sentences.slice(3));
+            } else {
+                result.push(...sentences);
+            }
+        }
+        return result;
+    };
+
+    // Get Vision Items (paragraphs) — matches live grouping:
+    //   sentences 0+1 combined, then each remaining sentence is its own paragraph.
+    const getVisionItems = () => {
+        if (!parsed.vision) return [];
+        const sentences = parsed.vision
+            .split(/(?<=[.!?])\s+/)
+            .map(s => s.trim())
+            .filter(Boolean);
+        if (!isRtl && sentences.length >= 3) {
             return [
-                sentences[0],
-                sentences[1] + " " + sentences[2],
-                sentences[3],
-                sentences[4]
+                sentences[0] + " " + sentences[1],
+                ...sentences.slice(2),
             ];
         }
         return sentences;
-    };
-
-    // Get Vision Items (paragraphs)
-    const getVisionItems = () => {
-        if (!parsed.vision) return [];
-        return parsed.vision.split(/(?<=\.)\s+/).map(s => s.trim()).filter(Boolean);
     };
 
     // Get Product Items
@@ -285,10 +321,24 @@ export default function AboutPage() {
         }
     };
 
-    // Get Branch Network Paragraphs
+    // Get Branch Network Paragraphs — matches live grouping:
+    //   para 1 = sentence 0
+    //   para 2 = sentences 1 + 2 combined
+    //   para 3+ = remaining sentences, one per paragraph
     const getNetworkParagraphs = () => {
         if (!parsed.network) return [];
-        return parsed.network.split(/(?<=\.)\s+/).map(s => s.trim()).filter(Boolean);
+        const sentences = parsed.network
+            .split(/(?<=[.!?])\s+/)
+            .map(s => s.trim())
+            .filter(Boolean);
+        if (!isRtl && sentences.length >= 3) {
+            return [
+                sentences[0],
+                sentences.slice(1, 3).join(" "),
+                ...sentences.slice(3),
+            ];
+        }
+        return sentences;
     };
 
     const introParagraphs = getIntroParagraphs();

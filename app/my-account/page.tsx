@@ -130,8 +130,6 @@ export default function MyAccountPage() {
 
     return (
         <>
-
-
             <div className="min-h-screen flex flex-col w-full bg-surfacePage">
                 <div className="flex flex-col lg:flex-row flex-1 w-full">
                     <Sidebar />

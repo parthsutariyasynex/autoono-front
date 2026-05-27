@@ -25,7 +25,7 @@ const CartSummary: React.FC<CartSummaryProps> = ({ subtotal, taxAmount, taxLabel
     const hasDiscount = !!discountAmount && discountAmount > 0;
 
     return (
-        <div className="lg:sticky lg:top-28 self-start bg-white border border-gray-100 rounded-sm shadow-[0_10px_40px_rgba(0,0,0,0.05)] overflow-hidden">
+        <div className="md:sticky md:top-28 self-start bg-white border border-gray-100 rounded-sm shadow-[0_10px_40px_rgba(0,0,0,0.05)] overflow-hidden">
             {/* Header */}
             <div className="bg-gray-200 px-6 py-4 border-b border-gray-200 flex items-center justify-center">
                 <h2 className="text-[18px] font-[900] text-black uppercase tracking-tight">
@@ -110,13 +110,16 @@ const CartSummary: React.FC<CartSummaryProps> = ({ subtotal, taxAmount, taxLabel
                     </div>
                 </div>
 
-                {/* Checkout Button */}
+                {/* Checkout Button — text-tracking-padding scaled to summary
+                    column width. Allowed to wrap to 2 lines if it still doesn't
+                    fit on one line so text is never clipped. */}
                 <div className="pt-4">
                     <button
                         onClick={() => router.push(lp("/checkout"))}
-                        className="w-full py-4 bg-primary text-[13px] font-[900] uppercase tracking-[0.2em] hover:bg-black hover:text-white active:scale-[0.98] transition-all duration-300 shadow-md rounded flex items-center justify-center gap-2"
+                        className="w-full px-2 py-3 xl:py-4 bg-primary text-[11px] xl:text-[10px] font-[900] uppercase tracking-normal xl:tracking-[0.2em] leading-tight hover:bg-black hover:text-white active:scale-[0.98] transition-all duration-300 shadow-md rounded text-center"
                     >
-                        {t("cart.proceedCheckout") || "PROCEED TO CHECKOUT"} »
+                        {t("cart.proceedCheckout") || "PROCEED TO CHECKOUT"}
+                        <span className="hidden xl:inline"> »</span>
                     </button>
                 </div>
             </div>

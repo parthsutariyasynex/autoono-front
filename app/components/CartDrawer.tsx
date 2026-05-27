@@ -75,7 +75,17 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                     <div className="flex-1 overflow-y-auto custom-scrollbar">
                         {isLoading ? (
                             <div className="flex flex-col items-center justify-center py-20 space-y-4">
-                                <div className="space-y-3 w-full animate-pulse px-4">{...Array.from({length:3}).map((_,i)=><div key={i} className="flex gap-3"><div className="h-14 w-14 bg-gray-200 rounded-lg"/><div className="flex-1 space-y-2"><div className="h-4 bg-gray-200 rounded w-3/4"/><div className="h-3 bg-gray-200 rounded w-1/2"/></div></div>)}</div>
+                                <div className="space-y-3 w-full animate-pulse px-4">
+                                    {Array.from({ length: 3 }).map((_, i) => (
+                                        <div key={i} className="flex gap-3">
+                                            <div className="h-14 w-14 bg-gray-200 rounded-lg" />
+                                            <div className="flex-1 space-y-2">
+                                                <div className="h-4 bg-gray-200 rounded w-3/4" />
+                                                <div className="h-3 bg-gray-200 rounded w-1/2" />
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
                                 <p className="text-xs text-black/50 font-bold uppercase tracking-widest">{t("cart.updatingCart")}</p>
                             </div>
                         ) : (cart?.items?.length || 0) === 0 ? (

@@ -37,6 +37,9 @@ export const handleGlobalLogout = async (callbackUrl: string) => {
             localStorage.removeItem("isSubAccount");
             localStorage.removeItem("subAccountName");
             localStorage.removeItem("subAccountId");
+            // Clear cached sidebar so the next user doesn't briefly see
+            // the previous user's menu before the API responds.
+            localStorage.removeItem("sidebar_cache_v1");
             sessionStorage.clear();
         } catch { }
 

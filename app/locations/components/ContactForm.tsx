@@ -99,7 +99,7 @@ const ContactForm: React.FC = () => {
                             placeholder={t("contact.namePlaceholder")}
                             value={formData.name}
                             onChange={handleChange}
-                            className={`w-full px-4 py-3 border ${errors.name ? 'border-red-400' : 'border-gray-100'} focus:outline-none focus:border-primary bg-white text-black text-body-lg rounded-sm transition-colors`}
+                            className={`w-full px-4 py-3 border ${errors.name ? 'border-red-400' : 'border-gray-200'} focus:outline-none focus:border-primary bg-white text-black text-body-lg rounded-sm transition-colors`}
                         />
                         {errors.name && <span className="text-red-500 text-label font-semibold mt-1 block uppercase pl-1">{errors.name}</span>}
                     </div>
@@ -110,7 +110,7 @@ const ContactForm: React.FC = () => {
                             placeholder={t("contact.phonePlaceholder")}
                             value={formData.phone}
                             onChange={handleChange}
-                            className={`w-full px-4 py-3 border ${errors.phone ? 'border-red-400' : 'border-gray-100'} focus:outline-none focus:border-primary bg-white text-black text-body-lg rounded-sm transition-colors`}
+                            className={`w-full px-4 py-3 border ${errors.phone ? 'border-red-400' : 'border-gray-200'} focus:outline-none focus:border-primary bg-white text-black text-body-lg rounded-sm transition-colors`}
                         />
                         {errors.phone && <span className="text-red-500 text-label font-semibold mt-1 block uppercase pl-1">{errors.phone}</span>}
                     </div>
@@ -124,13 +124,13 @@ const ContactForm: React.FC = () => {
                         placeholder={t("contact.emailPlaceholder")}
                         value={formData.email}
                         onChange={handleChange}
-                        className={`w-full px-4 py-3 border ${errors.email ? 'border-red-400' : 'border-gray-100'} focus:outline-none focus:border-primary bg-white text-black text-body-lg rounded-sm transition-colors`}
+                        className={`w-full px-4 py-3 border ${errors.email ? 'border-red-400' : 'border-gray-200'} focus:outline-none focus:border-primary bg-white text-black text-body-lg rounded-sm transition-colors`}
                     />
                     {errors.email && <span className="text-red-500 text-label font-semibold mt-1 block uppercase pl-1">{errors.email}</span>}
                 </div>
 
                 {/* Row 3: Message / Comment */}
-                <div className="relative border border-gray-100 rounded-sm">
+                <div className="relative border border-gray-200 rounded-sm">
                     <textarea
                         name="comment"
                         placeholder={t("contact.messagePlaceholder")}

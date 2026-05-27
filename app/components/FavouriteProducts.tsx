@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { ShoppingCart, X, Info, Star, Trash2 } from "lucide-react";
+import { ShoppingCart, X, Info, Star, Trash2, ChevronUp, ChevronDown, ChevronsUpDown } from "lucide-react";
 import { formatPrice, redirectToLogin } from "@/utils/helpers";
 import { toast } from "react-hot-toast";
 import ProductEnquiryModal from "./ProductEnquiryModal";
@@ -18,6 +18,7 @@ import Pagination, { PageSizeSelect } from "@/components/Pagination";
 import { useCart } from "@/modules/cart/context/CartContext";
 import { useSession } from "next-auth/react";
 import PortalDropdown from "@/components/PortalDropdown";
+import { FavouriteProductsSkeleton } from "@/components/skeletons";
 
 interface Product {
     product_id: number;
@@ -77,6 +78,62 @@ export default function FavouriteProducts({ title }: { title?: React.ReactNode }
     const [selectedImage, setSelectedImage] = useState<string | null>(null);
     const [isImageModalOpen, setIsImageModalOpen] = useState(false);
     const [previewProduct, setPreviewProduct] = useState<Product | null>(null);
+    const [sortBy, setSortBy] = useState<string>("none");
+
+    const HEADER_SORT_FIELDS: Record<string, string> = {
+        "m.brand": "brand",
+        "m.name": "name",
+        "m.image": "image",
+        "m.stock": "stock",
+        "m.price": "price",
+    };
+
+    const handleHeaderSort = (headerKey: string) => {
+        const field = HEADER_SORT_FIELDS[headerKey];
+        if (!field) return;
+        if (sortBy === `${field}-asc`) setSortBy(`${field}-desc`);
+        else if (sortBy === `${field}-desc`) setSortBy("none");
+        else setSortBy(`${field}-asc`);
+    };
+
+    const renderSortIcon = (headerKey: string) => {
+        const field = HEADER_SORT_FIELDS[headerKey];
+        if (!field) return null;
+        if (sortBy === `${field}-asc`) return <ChevronUp size={12} className="text-primary" />;
+        if (sortBy === `${field}-desc`) return <ChevronDown size={12} className="text-primary" />;
+        return <ChevronsUpDown size={12} className="opacity-30" />;
+    };
+
+    const sortedFavProducts = useMemo(() => {
+        const result = [...favProducts];
+        if (!sortBy || sortBy === "none") return result;
+        const lastDash = sortBy.lastIndexOf("-");
+        if (lastDash < 0) return result;
+        const field = sortBy.slice(0, lastDash);
+        const order = sortBy.slice(lastDash + 1);
+        const direction = order === "asc" ? 1 : -1;
+        const stockPriority = (p: Product) => {
+            const c = (p.stock_color || "").toLowerCase();
+            if (c === "green") return 3;
+            if (c === "yellow" || c === "orange") return 2;
+            if (c === "red") return 1;
+            return 0;
+        };
+        switch (field) {
+            case "brand":
+                return result.sort((a, b) => ((a.brand || a.name?.split(" ")[0] || "").localeCompare(b.brand || b.name?.split(" ")[0] || "")) * direction);
+            case "name":
+                return result.sort((a, b) => (a.name || "").localeCompare(b.name || "") * direction);
+            case "image":
+                return result.sort((a, b) => ((b.image_url ? 1 : 0) - (a.image_url ? 1 : 0)) * direction);
+            case "stock":
+                return result.sort((a, b) => (stockPriority(b) - stockPriority(a)) * direction);
+            case "price":
+                return result.sort((a, b) => ((a.final_price ?? 0) - (b.final_price ?? 0)) * direction);
+            default:
+                return result;
+        }
+    }, [favProducts, sortBy]);
 
     const loadFavourites = useCallback(async () => {
         setLoading(true);
@@ -233,11 +290,9 @@ export default function FavouriteProducts({ title }: { title?: React.ReactNode }
     const endItem = Math.min(currentPage * pageSize, totalCount);
 
     if (loading && favProducts.length === 0) {
-        return (
-            <div className="flex justify-center items-center py-20">
-                {/* <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary"></div> */}
-            </div>
-        );
+        // Render the full FavouriteProductsSkeleton (title + table + pagination)
+        // so the main content area isn't blank during data fetch / backend outage.
+        return <FavouriteProductsSkeleton count={8} />;
     }
 
     const totalPages = Math.ceil(totalCount / pageSize);
@@ -285,13 +340,12 @@ export default function FavouriteProducts({ title }: { title?: React.ReactNode }
             </div>
 
 
-            {/* Mobile/Tablet Card List */}
-            {/* lg:grid-cols-2 keeps cards comfortable next to the 256px account
-                sidebar at 1024-1279px (sidebar appears at lg in /favorites layout). */}
-            <div className="xl:hidden grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-2 gap-3">
+            {/* Mobile Card List — only below md. At md+ the desktop table
+                takes over so users see the full Brand/Name/Image/Stock/Price/Action grid. */}
+            <div className="md:hidden grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {favProducts.length === 0 ? (
                     <div className="py-16 text-center text-black/50 italic text-body">{t("favorites.empty")}</div>
-                ) : favProducts.map((product) => {
+                ) : sortedFavProducts.map((product) => {
                     const brandName = product.brand || product.name.split(' ')[0] || "—";
                     const isOutOfStock = product.is_in_stock === false || product.stock_label === "Not Available" || product.stock_status === "Out of Stock" || product.stock_status === "Not Available" || Number(product.stock_qty || 0) <= 0;
                     const isLimited = !isOutOfStock && product.stock_qty > 0 && product.stock_qty <= 10;
@@ -305,7 +359,16 @@ export default function FavouriteProducts({ title }: { title?: React.ReactNode }
                             <div className="flex gap-3">
                                 <div className="flex-1 min-w-0">
                                     <p className="text-caption font-semibold text-black/50 uppercase tracking-wider">{t(`data.${brandName}`) !== `data.${brandName}` ? t(`data.${brandName}`) : brandName}</p>
-                                    <p className="text-body-sm font-bold text-black leading-tight mt-0.5 truncate">{product.pattern || product.name || "—"}</p>
+                                    <p className="text-body-sm font-bold text-black leading-tight mt-0.5 truncate">{
+                                        (() => {
+                                            if (product.pattern) return product.pattern;
+                                            const name = product.name || "";
+                                            if (brandName && brandName !== "—" && name.toUpperCase().startsWith(brandName.toUpperCase())) {
+                                                return name.slice(brandName.length).trim() || name;
+                                            }
+                                            return name || "—";
+                                        })()
+                                    }</p>
                                     <div className="flex items-center gap-1.5 mt-1">
                                         <span className="text-body-sm font-semibold text-black">{product.tyre_size || "—"}</span>
                                         <div onClick={() => handleShowProductDetail(product)} className="w-4 h-4 bg-gray-900 rounded-full flex items-center justify-center text-micro font-semibold text-white cursor-pointer active:scale-95 flex-shrink-0">i</div>
@@ -359,7 +422,9 @@ export default function FavouriteProducts({ title }: { title?: React.ReactNode }
                 })}
             </div>
 
-            <div className="hidden xl:flex flex-col bg-white border border-gray-200 overflow-hidden rounded-t-lg">
+            {/* Desktop Table — visible at md+ so tablet-portrait users see the
+                full table (Brand / Name / Image / Stock / Price / Action). */}
+            <div className="hidden md:flex flex-col bg-white border border-gray-200 overflow-hidden rounded-t-lg">
                 <div className="flex-1 overflow-x-auto">
                     <table className="w-full border-collapse table-fixed min-w-[950px]">
                         <colgroup>
@@ -367,11 +432,25 @@ export default function FavouriteProducts({ title }: { title?: React.ReactNode }
                         </colgroup>
                         <thead className="sticky top-0 z-20">
                             <tr className="bg-gray-50/80 text-black text-label font-semibold uppercase tracking-widest h-[60px] border-b border-gray-200">
-                                {TABLE_HEADER_KEYS.map(key => (
-                                    <th key={key} className="px-2 md:px-4 text-center">
-                                        {t(key)}
-                                    </th>
-                                ))}
+                                {TABLE_HEADER_KEYS.map(key => {
+                                    const sortable = key !== "m.action";
+                                    return (
+                                        <th key={key} className="px-2 md:px-4 text-center whitespace-nowrap">
+                                            {sortable ? (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => handleHeaderSort(key)}
+                                                    className="inline-flex items-center justify-center gap-1.5 mx-auto hover:text-primary transition-colors cursor-pointer select-none"
+                                                >
+                                                    <span>{t(key)}</span>
+                                                    {renderSortIcon(key)}
+                                                </button>
+                                            ) : (
+                                                <span>{t(key)}</span>
+                                            )}
+                                        </th>
+                                    );
+                                })}
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-50">
@@ -382,7 +461,7 @@ export default function FavouriteProducts({ title }: { title?: React.ReactNode }
                                     </td>
                                 </tr>
                             ) : (
-                                favProducts.map((product) => {
+                                sortedFavProducts.map((product) => {
                                     const brandName = product.brand || product.name.split(' ')[0] || "—";
                                     const isOutOfStock = product.is_in_stock === false || product.stock_label === "Not Available" || product.stock_status === "Out of Stock" || product.stock_status === "Not Available" || Number(product.stock_qty || 0) <= 0;
                                     const isLimited = !isOutOfStock && product.stock_qty > 0 && product.stock_qty <= 10;
@@ -394,7 +473,15 @@ export default function FavouriteProducts({ title }: { title?: React.ReactNode }
                                     return (
                                         <tr key={product.product_id} className={`hover:bg-primary/5 transition-colors group ${ROW_HEIGHT}`}>
                                             <td className="px-2 md:px-4 text-body-sm font-semibold text-black text-center">{t(`data.${brandName}`) !== `data.${brandName}` ? t(`data.${brandName}`) : brandName}</td>
-                                            <td className="px-2 md:px-4 text-body-sm font-semibold text-black text-center">{product.name}</td>
+                                            <td className="px-2 md:px-4 text-body-sm font-semibold text-black text-center">{
+                                                (() => {
+                                                    const name = product.name || "";
+                                                    if (brandName && brandName !== "—" && name.toUpperCase().startsWith(brandName.toUpperCase())) {
+                                                        return name.slice(brandName.length).trim() || name;
+                                                    }
+                                                    return name;
+                                                })()
+                                            }</td>
                                             <td className="px-2 md:px-4 text-center">
                                                 <div className="w-12 h-12 mx-auto">
                                                     {product.image_url ? (

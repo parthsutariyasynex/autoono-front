@@ -76,24 +76,24 @@ const OrdersTable: React.FC<OrdersTableProps> = ({ orders, onViewOrder, onReorde
                                     </td>
                                     <td className="px-2 xl:px-4 py-4 text-center">
                                         {/* Actions:
-                                              md  (no sidebar) → row, separators visible
-                                              lg  (sidebar 256px → main ~704px) → stack vertically, no separators
-                                              xl+ (sidebar + ample main) → row again */}
-                                        <div className="flex flex-row lg:flex-col xl:flex-row items-center justify-center gap-2 lg:gap-1.5 xl:gap-2.5 text-body-sm font-bold uppercase tracking-wide whitespace-nowrap">
+                                              md / lg → stack vertically (Action col is too narrow
+                                                       to fit "View Order | Reorder | Make Payment" inline)
+                                              xl+    → row with separators (plenty of room) */}
+                                        <div className="flex flex-col xl:flex-row items-center justify-center gap-1.5 xl:gap-2.5 text-body-sm font-bold uppercase tracking-wide whitespace-nowrap">
                                             <button
                                                 onClick={() => onViewOrder(order.entity_id)}
                                                 className="text-black/60 hover:text-black transition-colors"
                                             >
                                                 {t("orders.viewOrder")}
                                             </button>
-                                            <span className="inline lg:hidden xl:inline text-black/40 font-normal">|</span>
+                                            <span className="hidden xl:inline text-black/40 font-normal">|</span>
                                             <button
                                                 onClick={() => onReorder(order)}
                                                 className="text-black/60 hover:text-black transition-colors"
                                             >
                                                 {t("orders.reorder")}
                                             </button>
-                                            <span className="inline lg:hidden xl:inline text-black/40 font-normal">|</span>
+                                            <span className="hidden xl:inline text-black/40 font-normal">|</span>
                                             {order.is_paid ? (
                                                 <button
                                                     onClick={() => onViewOrder(order.entity_id)}

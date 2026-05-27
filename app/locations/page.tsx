@@ -23,11 +23,14 @@ export default function ContactPage() {
                     {t("contact.getInTouch")}
                 </h1>
 
-                {/* Address + Form */}
-                <div className="grid grid-cols-1 md:grid-cols-12 gap-10 lg:gap-16">
+                {/* Address + Form — stack vertically below lg so each takes the
+                    full main-area width on tablet portrait (Tab A9 800px would
+                    otherwise squeeze the address card to ~243px). At lg+ go
+                    side-by-side at 4/12 + 8/12. */}
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16">
 
                     {/* Address Card */}
-                    <div className="md:col-span-4">
+                    <div className="lg:col-span-4">
                         <div className="border border-gray-100 p-6 sm:p-8 shadow-sm">
                             <h5 className="text-base font-bold uppercase tracking-wide text-black mb-3">
                                 {t("locations.westRegion")}
@@ -50,7 +53,7 @@ export default function ContactPage() {
                     </div>
 
                     {/* Contact Form */}
-                    <div className="md:col-span-8">
+                    <div className="lg:col-span-8">
                         <ContactForm />
                     </div>
                 </div>

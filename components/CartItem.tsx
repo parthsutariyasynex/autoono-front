@@ -49,8 +49,8 @@ const CartItem: React.FC<CartItemProps> = ({ item, currencyCode, onUpdateQty, on
                 <X size={10} strokeWidth={4} />
             </button>
 
-            {/* Mobile Layout */}
-            <div className="lg:hidden">
+            {/* Mobile Layout — below md (matches CartPage's md grid switch) */}
+            <div className="md:hidden">
                 <div className="flex gap-4">
                     <div className="w-20 h-20 bg-white border border-gray-100 p-2 flex items-center justify-center rounded-2xl shadow-sm">
                         <img src={item.image_url || "/images/tyre-sample.png"} alt={item.name} className="max-w-full max-h-full object-contain" />
@@ -119,8 +119,8 @@ const CartItem: React.FC<CartItemProps> = ({ item, currencyCode, onUpdateQty, on
                 </div>
             </div>
 
-            {/* Desktop Layout */}
-            <div className="hidden lg:flex items-center">
+            {/* Desktop Layout — md+ */}
+            <div className="hidden md:flex items-center">
                 <div className="w-[45%] flex items-center gap-4">
                     <div className="w-16 xl:w-20 h-16 xl:h-20 bg-white border border-gray-100 p-1.5 flex items-center justify-center rounded-xl shadow-sm group-hover/item:shadow-md transition-all flex-shrink-0">
                         <img src={item.image_url || "/images/tyre-sample.png"} alt={item.name} className="max-w-full max-h-full object-contain" />

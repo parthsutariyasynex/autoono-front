@@ -41,7 +41,7 @@ import Price from "@/app/components/Price";
 // --- Sub-components ---
 
 const SectionHeader = ({ title, step }: { title: string; step?: number }) => (
-    <div className="bg-gray-50/80 px-4 py-3 border-b border-border flex items-center justify-between h-[50px]">
+    <div className="bg-gray-50/80 px-4 md:px-5 lg:px-6 py-3 border-b border-border flex items-center justify-between h-[50px]">
         <div className="flex items-center gap-2.5">
             {step && (
                 <span className="w-5 h-5 rounded-full bg-black text-white text-micro font-bold flex items-center justify-center shadow-sm">
@@ -766,6 +766,13 @@ const CheckoutPageUI: React.FC = () => {
     }
 
     if (cart.items.length === 0) {
+        // During the place-order flow we call clearCart() before router.push to
+        // /checkout/success, so cart.items briefly becomes empty. Without this
+        // guard, the user sees "YOUR CART IS EMPTY" for a frame before the
+        // navigation completes. Show the destination's skeleton instead.
+        if (isCompletingOrderRef.current) {
+            return <CheckoutSuccessSkeleton />;
+        }
         return (
             <div className="min-h-screen bg-white">
                 <div className="w-full py-24 px-6 text-center">
@@ -793,7 +800,9 @@ const CheckoutPageUI: React.FC = () => {
             <main className="flex-1 w-full px-4 md:px-6 lg:px-8 py-4 md:py-6 lg:py-10 pt-2 md:pt-4">
                 {/* Header Section */}
                 <div className="flex flex-col items-center justify-center text-center gap-4 mb-12 relative">
-                    <Link href={lp("/cart")} className="lg:absolute left-0 top-1/2 lg:-translate-y-1/2 flex items-center gap-2 text-black hover:text-primary transition-all text-caption font-bold uppercase tracking-[0.2em] group mb-4 lg:mb-0">
+                    {/* Back link — left-aligned overlay at md+ (tablet portrait and up),
+                        inline-centered on mobile/phones to stack above the title. */}
+                    <Link href={lp("/cart")} className="md:absolute left-0 top-1/2 md:-translate-y-1/2 flex items-center gap-2 text-black hover:text-primary transition-all text-caption font-bold uppercase tracking-[0.2em] group mb-4 md:mb-0">
                         <div className="w-8 h-8 rounded-full border border-black flex items-center justify-center group-hover:border-primary transition-all">
                             <ArrowLeft size={14} strokeWidth={3} className="group-hover:-translate-x-1 transition-transform" />
                         </div>
@@ -813,7 +822,7 @@ const CheckoutPageUI: React.FC = () => {
 
                         <div className="bg-white border border-border shadow-sm rounded-xl overflow-hidden transition-all duration-300 hover:shadow-md">
                             <SectionHeader title={t("checkout.shippingAddress")} step={1} />
-                            <div className="p-4">
+                            <div className="p-4 md:p-5 lg:p-6">
                                 {/* Search */}
                                 {/* <div className="mb-6 flex gap-3">
                                     <input
@@ -898,11 +907,11 @@ const CheckoutPageUI: React.FC = () => {
 
 
                                     {/* New Address Form as per image */}
-                                    {(showNewAddressForm || filteredAddresses.length === 0) && (
+                                    {/* {(showNewAddressForm || filteredAddresses.length === 0) && (
                                         <form onSubmit={handleAddNewAddress} className="space-y-6 pt-2">
-                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                                {/* First Name */}
-                                                <div className="space-y-2">
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6"> */}
+                                    {/* First Name */}
+                                    {/* <div className="space-y-2">
                                                     <label className="text-caption font-bold text-black/70 uppercase tracking-widest flex items-center gap-1">
                                                         First Name <span className="text-red-500">*</span>
                                                     </label>
@@ -914,10 +923,10 @@ const CheckoutPageUI: React.FC = () => {
                                                         onChange={(e) => setNewAddress(prev => ({ ...prev, firstname: e.target.value }))}
                                                         placeholder="Mohamed"
                                                     />
-                                                </div>
+                                                </div> */}
 
-                                                {/* Last Name */}
-                                                <div className="space-y-2">
+                                    {/* Last Name */}
+                                    {/* <div className="space-y-2">
                                                     <label className="text-caption font-bold text-black/70 uppercase tracking-widest flex items-center gap-1">
                                                         Last Name <span className="text-red-500">*</span>
                                                     </label>
@@ -929,10 +938,10 @@ const CheckoutPageUI: React.FC = () => {
                                                         onChange={(e) => setNewAddress(prev => ({ ...prev, lastname: e.target.value }))}
                                                         placeholder="BinQirat"
                                                     />
-                                                </div>
+                                                </div> */}
 
-                                                {/* Street Address */}
-                                                <div className="space-y-2">
+                                    {/* Street Address */}
+                                    {/* <div className="space-y-2">
                                                     <label className="text-caption font-bold text-black/70 uppercase tracking-widest flex items-center gap-1">
                                                         Street Address <span className="text-red-500">*</span>
                                                     </label>
@@ -944,10 +953,10 @@ const CheckoutPageUI: React.FC = () => {
                                                         onChange={(e) => setNewAddress(prev => ({ ...prev, street: e.target.value }))}
                                                         placeholder="25 Palestine Streed"
                                                     />
-                                                </div>
+                                                </div> */}
 
-                                                {/* Country */}
-                                                <div className="space-y-2">
+                                    {/* Country */}
+                                    {/* <div className="space-y-2">
                                                     <label className="text-caption font-bold text-black/70 uppercase tracking-widest flex items-center gap-1">
                                                         Country <span className="text-red-500">*</span>
                                                     </label>
@@ -971,10 +980,10 @@ const CheckoutPageUI: React.FC = () => {
                                                         </select>
                                                         <ChevronDown size={18} className="absolute right-4 top-1/2 -translate-y-1/2 text-black/40 pointer-events-none" />
                                                     </div>
-                                                </div>
+                                                </div> */}
 
-                                                {/* Phone Number */}
-                                                <div className="space-y-2">
+                                    {/* Phone Number */}
+                                    {/* <div className="space-y-2">
                                                     <label className="text-caption font-bold text-black/70 uppercase tracking-widest flex items-center gap-1">
                                                         Phone Number <span className="text-red-500">*</span>
                                                     </label>
@@ -1002,10 +1011,10 @@ const CheckoutPageUI: React.FC = () => {
                                                             placeholder="0544472854"
                                                         />
                                                     </div>
-                                                </div>
+                                                </div> */}
 
-                                                {/* Zip Code */}
-                                                <div className="space-y-2">
+                                    {/* Zip Code */}
+                                    {/* <div className="space-y-2">
                                                     <label className="text-caption font-bold text-black/70 uppercase tracking-widest flex items-center gap-1">
                                                         Zip/Postal Code
                                                     </label>
@@ -1019,7 +1028,7 @@ const CheckoutPageUI: React.FC = () => {
                                                 </div>
 
                                                 {/* Region Ship To Party */}
-                                                <div className="space-y-2">
+                                    {/* <div className="space-y-2">
                                                     <label className="text-caption font-bold text-black/70 uppercase tracking-widest flex items-center gap-1">
                                                         Region Ship To Party
                                                     </label>
@@ -1030,10 +1039,10 @@ const CheckoutPageUI: React.FC = () => {
                                                         onChange={(e) => setNewAddress(prev => ({ ...prev, region_ship_to_party: e.target.value }))}
                                                         placeholder="region_ship_to_party..."
                                                     />
-                                                </div>
+                                                </div> */}
 
-                                                {/* City */}
-                                                <div className="space-y-2">
+                                    {/* City */}
+                                    {/* <div className="space-y-2">
                                                     <label className="text-caption font-bold text-black/70 uppercase tracking-widest flex items-center gap-1">
                                                         City <span className="text-red-500">*</span>
                                                     </label>
@@ -1045,10 +1054,10 @@ const CheckoutPageUI: React.FC = () => {
                                                         onChange={(e) => setNewAddress(prev => ({ ...prev, city: e.target.value }))}
                                                         placeholder="Jeddah"
                                                     />
-                                                </div>
+                                                </div> */}
 
-                                                {/* Store View */}
-                                                <div className="space-y-2 md:col-span-2">
+                                    {/* Store View */}
+                                    {/* <div className="space-y-2 md:col-span-2">
                                                     <label className="text-caption font-bold text-black/70 uppercase tracking-widest flex items-center gap-1">
                                                         Store View
                                                     </label>
@@ -1076,8 +1085,8 @@ const CheckoutPageUI: React.FC = () => {
                                                 </div>
                                             </div>
 
-                                            <div className="flex gap-4 pt-4">
-                                                {/* <button
+                                            <div className="flex gap-4 pt-4"> */}
+                                    {/* <button
                                                     type="submit"
                                                     disabled={isAddingAddress}
                                                     className="flex-1 bg-black text-white px-8 py-4 rounded-xl font-bold uppercase tracking-[0.2em] hover:bg-primary hover:text-black transition-all active:scale-95 shadow-lg disabled:opacity-50 flex items-center justify-center gap-2"
@@ -1087,7 +1096,7 @@ const CheckoutPageUI: React.FC = () => {
                                                         <span className={isAddingAddress ? "opacity-50" : ""}>{t("m.save-and-ship-here")}</span>
                                                     </>
                                                 </button> */}
-                                                {filteredAddresses.length > 0 && (
+                                    {/* {filteredAddresses.length > 0 && (
                                                     <button
                                                         type="button"
                                                         onClick={() => setShowNewAddressForm(false)}
@@ -1098,7 +1107,7 @@ const CheckoutPageUI: React.FC = () => {
                                                 )}
                                             </div>
                                         </form>
-                                    )}
+                                    )} */}
                                 </div>
                             </div>
                         </div>

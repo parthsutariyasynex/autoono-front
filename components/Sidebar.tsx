@@ -21,6 +21,10 @@ interface SidebarResponse {
     items: SidebarItem[];
 }
 
+// Cache key for the last-successful sidebar fetch. Bumped if response shape
+// changes so stale caches are invalidated on deploy.
+const SIDEBAR_CACHE_KEY = "sidebar_cache_v1";
+
 const Sidebar = () => {
     const pathname = usePathname();
     const { t } = useTranslation();
@@ -37,25 +41,52 @@ const Sidebar = () => {
         }
     }, [pathname]);
 
+    // Read cached sidebar data after mount (must not run in useState initializer
+    // — would cause a hydration mismatch since the server can't read localStorage).
+    useEffect(() => {
+        if (typeof window === "undefined") return;
+        try {
+            const cached = localStorage.getItem(SIDEBAR_CACHE_KEY);
+            if (cached) {
+                const parsed = JSON.parse(cached) as SidebarResponse;
+                if (parsed?.items?.length) {
+                    setSidebarData(parsed);
+                    setLoading(false); // skip skeleton — render cached items immediately
+                }
+            }
+        } catch { /* ignore corrupt cache */ }
+    }, []);
+
     useEffect(() => {
         let isMounted = true;
         const fetchSidebar = async () => {
             try {
-                setLoading(true);
+                // Only show the loading skeleton if we have NOTHING to render yet.
+                // When cached items are already on screen, keep them visible
+                // while we refresh in the background.
+                setLoading((prev) => (sidebarData ? false : prev));
                 const data = await api.get("/kleverapi/account-sidebar");
                 if (isMounted) {
                     setSidebarData(data);
                     setError(null);
+                    try {
+                        localStorage.setItem(SIDEBAR_CACHE_KEY, JSON.stringify(data));
+                    } catch { /* quota / private mode — non-fatal */ }
                 }
             } catch (err: any) {
                 console.error("[Sidebar] Fetch error:", err);
-                if (isMounted) setError(err.message || "Failed to load sidebar");
+                // If we have cached data on screen, keep it — don't switch to
+                // the "menu unavailable" error UI just because a refresh failed.
+                if (isMounted && !sidebarData) {
+                    setError(err.message || "Failed to load sidebar");
+                }
             } finally {
                 if (isMounted) setLoading(false);
             }
         };
         fetchSidebar();
         return () => { isMounted = false; };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     // Build a locale-prefixed internal path from a raw Magento sidebar URL.
@@ -209,7 +240,7 @@ const Sidebar = () => {
 
     if (loading) {
         return (
-            <aside className="w-full lg:w-64 flex-shrink-0 bg-surfaceMuted border-b lg:border-b-0 ltr:lg:border-r rtl:lg:border-l border-gray-200 z-30 sticky top-[56px] sm:top-[64px] lg:top-[108px] h-auto lg:h-[calc(100vh-108px)] overflow-hidden">
+            <aside className="w-full lg:w-56 xl:w-64 flex-shrink-0 bg-surfaceMuted border-b lg:border-b-0 ltr:lg:border-r rtl:lg:border-l border-gray-200 z-30 sticky top-[56px] sm:top-[64px] lg:top-[108px] h-auto lg:h-[calc(100vh-108px)] overflow-hidden">
                 <nav className="p-0 lg:p-4">
                     <ul className="flex flex-row lg:flex-col space-y-0 lg:space-y-1">
                         {Array.from({ length: 7 }).map((_, i) => (
@@ -225,7 +256,7 @@ const Sidebar = () => {
 
     if (error || !visibleItems.length) {
         return (
-            <aside className="w-full lg:w-64 flex-shrink-0 bg-surfaceMuted border-b lg:border-b-0 ltr:lg:border-r rtl:lg:border-l border-gray-200 z-30 sticky top-[56px] sm:top-[64px] lg:top-[108px] h-auto lg:h-[calc(100vh-108px)] p-4">
+            <aside className="w-full lg:w-56 xl:w-64 flex-shrink-0 bg-surfaceMuted border-b lg:border-b-0 ltr:lg:border-r rtl:lg:border-l border-gray-200 z-30 sticky top-[56px] sm:top-[64px] lg:top-[108px] h-auto lg:h-[calc(100vh-108px)] p-4">
                 <p className="text-body text-black/50 italic text-center py-10">
                     {t("sidebar.error") || "Account menu currently unavailable."}
                 </p>
@@ -234,7 +265,7 @@ const Sidebar = () => {
     }
 
     return (
-        <aside className="w-full lg:w-64 flex-shrink-0 bg-surfaceMuted border-b lg:border-b-0 ltr:lg:border-r rtl:lg:border-l border-gray-200 z-30 sticky top-[56px] sm:top-[64px] lg:top-[108px] h-auto lg:h-[calc(100vh-108px)] overflow-x-auto lg:overflow-x-hidden lg:overflow-y-auto custom-scrollbar">
+        <aside className="w-full lg:w-56 xl:w-64 flex-shrink-0 bg-surfaceMuted border-b lg:border-b-0 ltr:lg:border-r rtl:lg:border-l border-gray-200 z-30 sticky top-[56px] sm:top-[64px] lg:top-[108px] h-auto lg:h-[calc(100vh-108px)] overflow-x-auto lg:overflow-x-hidden lg:overflow-y-auto custom-scrollbar">
             <nav className="p-0 lg:p-4">
                 <ul className="flex flex-row lg:flex-col space-y-0 lg:space-y-1">
                     {visibleItems.map((item) => {

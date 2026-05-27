@@ -16,16 +16,16 @@ const MapSection: React.FC = () => {
     // Faster arrow animation duration
     const arrowDuration = 1.2;
 
-    const mapUrl = mapType === "roadmap" 
+    const mapUrl = mapType === "roadmap"
         ? "https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d14856.228!2d39.2037785!3d21.4363427!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e0!3m2!1sen!2ssa!4v1748000000000!5m2!1sen!2ssa"
-        : "https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d14856.228!2d39.2037785!3d21.4363427!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e0!3m2!1sen!2ssa!4v1748000000000!5m2!1sen!2ssa&maptype=satellite";
+        : "https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d14856.228!2d39.2037785!3d21.4363427!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e1!3m2!1sen!2ssa!4v1748000000000!5m2!1sen!2ssa";
 
     return (
         <section className="w-full h-full relative bg-gray-50 overflow-hidden group">
             {/* Skeleton pulse shown until iframe loads */}
             <AnimatePresence mode="wait">
                 {!loaded && (
-                    <motion.div 
+                    <motion.div
                         key="skeleton"
                         initial={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
@@ -45,14 +45,14 @@ const MapSection: React.FC = () => {
             {/* Custom Map/Satellite Toggle */}
             <div className="absolute top-6 left-6 z-40 flex bg-white rounded-md shadow-lg overflow-hidden border border-gray-100">
                 <button
-                    onClick={() => setMapType("roadmap")}
+                    onClick={() => { if (mapType !== "roadmap") { setLoaded(false); setMapType("roadmap"); } }}
                     className={`px-4 py-2 text-[11px] font-black uppercase tracking-widest transition-all ${mapType === "roadmap" ? "bg-primary text-white" : "bg-white text-black hover:bg-gray-50"}`}
                 >
                     Map
                 </button>
                 <div className="w-[1px] bg-gray-100" />
                 <button
-                    onClick={() => setMapType("satellite")}
+                    onClick={() => { if (mapType !== "satellite") { setLoaded(false); setMapType("satellite"); } }}
                     className={`px-4 py-2 text-[11px] font-black uppercase tracking-widest transition-all ${mapType === "satellite" ? "bg-primary text-white" : "bg-white text-black hover:bg-gray-50"}`}
                 >
                     Satellite
@@ -79,11 +79,11 @@ const MapSection: React.FC = () => {
             {loaded && (
                 <motion.div
                     initial={{ opacity: 0, y: -20 }}
-                    animate={{ 
+                    animate={{
                         opacity: [0, 1, 1, 0],
                         y: [0, 10, 0]
                     }}
-                    transition={{ 
+                    transition={{
                         duration: arrowDuration,
                         repeat: Infinity,
                         ease: "linear"
@@ -98,7 +98,7 @@ const MapSection: React.FC = () => {
             )}
 
             {/* Bottom Interaction Hint */}
-            <motion.div 
+            <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 2 }}
@@ -108,7 +108,7 @@ const MapSection: React.FC = () => {
                     <MousePointer2 className="w-4 h-4 text-white" />
                 </div>
                 <p className="text-[11px] font-bold text-black uppercase tracking-widest">
-                    Scroll to zoom
+                    Click map
                 </p>
             </motion.div>
         </section>

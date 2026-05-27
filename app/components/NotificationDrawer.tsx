@@ -86,7 +86,11 @@ export default function NotificationDrawer({ isOpen, onClose }: NotificationDraw
                 <div className="flex-1 overflow-y-auto custom-scrollbar">
                     {isLoading && notifications.length === 0 ? (
                         <div className="flex flex-col items-center justify-center py-20 animate-in fade-in duration-500">
-                            <div className="space-y-2 p-4 animate-pulse">{...Array.from({ length: 4 }).map((_, i) => <div key={i} className="h-4 bg-gray-200 rounded w-full" />)}</div>
+                            <div className="space-y-2 p-4 animate-pulse w-full">
+                                {Array.from({ length: 4 }).map((_, i) => (
+                                    <div key={i} className="h-4 bg-gray-200 rounded w-full" />
+                                ))}
+                            </div>
                             {/* <p className="mt-4 text-label text-black/50 font-bold uppercase tracking-[0.2em]">{t("common.loading")}</p> */}
                         </div>
                     ) : notifications.length === 0 ? (

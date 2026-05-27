@@ -466,11 +466,11 @@ function MyOrdersPageContent() {
                     {/* Standard Magento Check: If totalCount=0 and searched, show nothing or reset.
                         But here we just show no orders.
                     */}
-                    {!isLoading && !hasFetched && orders.length === 0 && (
+                    {/* {!isLoading && !hasFetched && orders.length === 0 && (
                         <div className="text-black/60 py-10 md:py-20 text-center animate-pulse">
                             {t("orders.initializingDashboard")}
                         </div>
-                    )}
+                    )} */}
 
                     {hasFetched && orders.length === 0 && !isLoading ? (
                         <div className="py-12 bg-white border border-gray-100 rounded-lg shadow-sm px-4 md:px-10">

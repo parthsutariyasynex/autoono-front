@@ -297,7 +297,9 @@ export default function Navbar() {
       try {
         const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
 
-        // Deduplicate concurrent fetches (e.g. StrictMode double-mount)
+        // Deduplicate concurrent fetches (e.g. StrictMode double-mount).
+        // The cached promise ALWAYS resolves (never rejects) so it can't
+        // trigger Next.js's unhandled-rejection overlay when Magento is down.
         let menuPromise = _menuInflight.get(locale);
         if (!menuPromise) {
           menuPromise = fetch("/api/kleverapi/menu", {
@@ -306,14 +308,22 @@ export default function Navbar() {
               ...(token && { "Authorization": `Bearer ${token}` }),
               "x-locale": locale,
             },
-          }).then(r => r.json()).finally(() => _menuInflight.delete(locale));
+          })
+            .then(r => r.json())
+            .catch(err => {
+              // Network error (ETIMEDOUT, DNS, offline). Resolve with null
+              // so the consumer's null-check below applies the fallback links.
+              console.error("[Navbar] Menu fetch network error:", err);
+              return null;
+            })
+            .finally(() => _menuInflight.delete(locale));
           _menuInflight.set(locale, menuPromise);
         }
 
         const data = await menuPromise;
         if (cancelled) return;
 
-        // Menu fetch completed — treat non-ok responses as errors
+        // Menu fetch completed — treat null / error payload as failure
         if (!data || data.message) {
           throw new Error("Menu fetch failed");
         }
@@ -518,7 +528,7 @@ export default function Navbar() {
 
               {/* Welcome badge & Account Dropdown — md+ */}
               {isAuthenticated && !isLoadingName && pathname !== "/login" && (
-                <div className="relative hidden lg:block" ref={dropdownRef}>
+                <div className="relative hidden md:block" ref={dropdownRef}>
                   <div
                     onClick={() => setIsProfileOpen(!isProfileOpen)}
                     className="flex items-center gap-1.5 lg:gap-2 bg-white border border-gray-100 rounded-full px-1.5 lg:px-3 py-1 shadow-[0_2px_8px_-3px_rgba(0,0,0,0.12)] hover:shadow-md transition-shadow group cursor-pointer"
@@ -573,7 +583,7 @@ export default function Navbar() {
               )}
 
               {/* Language / Store Switcher */}
-              <div className="hidden lg:block" ref={storeDropRef}>
+              <div className="hidden md:block" ref={storeDropRef}>
                 {(() => {
                   // ── Complex store switcher (authenticated + warehouse stores loaded) ──
                   if (isAuthenticated && pathname !== "/login" && currentStore && allPermittedStores.length > 0) {
@@ -675,7 +685,7 @@ export default function Navbar() {
               {isAuthenticated && pathname !== "/login" && (
                 <button
                   onClick={() => { setSearchMounted(true); setIsSearchOpen(true); }}
-                  className="hidden lg:flex relative cursor-pointer hover:opacity-70 transition-opacity items-center justify-center -mb-1 focus:outline-none"
+                  className="hidden md:flex relative cursor-pointer hover:opacity-70 transition-opacity items-center justify-center -mb-1 focus:outline-none"
                   aria-label="Search"
                 >
                   <Search size={22} stroke="black" strokeWidth={1.5} />
@@ -689,7 +699,7 @@ export default function Navbar() {
               {isAuthenticated && pathname !== "/login" && (
 
                 <button
-                  className="hidden lg:flex relative cursor-pointer items-center justify-center"
+                  className="hidden md:flex relative cursor-pointer items-center justify-center"
                   onClick={() => { setNotifMounted(true); setIsNotificationOpen(true); }}
                   aria-label="Notifications"
                 >
@@ -720,10 +730,11 @@ export default function Navbar() {
 
 
 
-              {/* Mobile hamburger */}
+              {/* Mobile hamburger — only on phones below md, since yellow nav
+                  bar and desktop dropdowns (account, search, etc.) take over at md+. */}
               <button
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
-                className="lg:hidden text-black hover:opacity-70 transition-opacity cursor-pointer"
+                className="md:hidden text-black hover:opacity-70 transition-opacity cursor-pointer"
                 aria-label="Toggle Menu"
               >
                 {isMenuOpen ? <X size={22} /> : <Menu size={22} />}
@@ -737,7 +748,7 @@ export default function Navbar() {
             links occupy the same vertical space. Without this, the bar
             measures ~16px during loading and jumps to ~40px after
             hydration, pushing every page section below it down. */}
-        <nav ref={warehouseNavRef} className="bg-primary w-full hidden lg:block h-9">
+        <nav ref={warehouseNavRef} className="bg-primary w-full hidden md:block h-9">
           <div className="flex items-center justify-center w-full h-full px-2 lg:px-4">
             {navLoading ? (
               <div className="flex items-center gap-6">
@@ -857,109 +868,121 @@ export default function Navbar() {
           </div>
         </nav>
 
-        {/* ── MOBILE DRAWER ── */}
+        {/* ── MOBILE DRAWER — only below md, hamburger is hidden at md+ ── */}
+        {/* Fixed positioning + backdrop + own scroll so the page content below
+            isn't visible through the menu and the page doesn't scroll behind it. */}
         {isMenuOpen && (
-          <div className="lg:hidden absolute top-[56px] sm:top-[64px] left-0 w-full bg-white shadow-2xl z-40 border-t border-gray-100 animate-in slide-in-from-top duration-200">
-            <div className="flex flex-col py-2">
+          <>
+            <div
+              className="md:hidden fixed inset-0 top-[56px] sm:top-[64px] bg-black/40 z-30 animate-in fade-in duration-200"
+              onClick={() => setIsMenuOpen(false)}
+              aria-hidden="true"
+            />
+            <div className="md:hidden fixed top-[56px] sm:top-[64px] left-0 right-0 bottom-0 bg-white shadow-2xl z-40 border-t border-gray-100 animate-in slide-in-from-top duration-200 overflow-y-auto overscroll-contain">
+              <div className="flex flex-col py-2">
 
-              {/* User info */}
-              {isAuthenticated && pathname !== "/login" && (
-                <div className="px-4 py-3 bg-primary border-b border-gray-100 mb-1">
-                  <div className="flex items-center gap-3">
-                    <div className="flex flex-col overflow-hidden">
-                      <span className="text-micro text-black/50 font-semibold uppercase tracking-widest leading-none">{t("nav.loggedInAs")}</span>
-                      <span className="text-body text-black font-semibold uppercase truncate tracking-tight">
-                        {isSubAccount && subAccountName ? subAccountName : displayUser}
-                      </span>
-                      {storeName && storeName !== currentStore && (
-                        <span className="text-[10px] text-primary font-bold uppercase mt-1 leading-none">{storeName}</span>
-                      )}
+                {/* User info */}
+                {isAuthenticated && pathname !== "/login" && (
+                  <div className="px-4 py-3 bg-primary border-b border-gray-100 mb-1">
+                    <div className="flex items-center gap-3">
+                      <div className="flex flex-col overflow-hidden">
+                        <span className="text-micro text-black/50 font-semibold uppercase tracking-widest leading-none">{t("nav.loggedInAs")}</span>
+                        <span className="text-body text-black font-semibold uppercase truncate tracking-tight">
+                          {isSubAccount && subAccountName ? subAccountName : displayUser}
+                        </span>
+                        {storeName && storeName !== currentStore && (
+                          <span className="text-[10px] text-primary font-bold uppercase mt-1 leading-none">{storeName}</span>
+                        )}
+                      </div>
                     </div>
                   </div>
+                )}
+
+                {/* Nav links */}
+                <div className="px-4 py-2">
+                  <span className="text-micro font-bold text-black/50 uppercase tracking-[0.2em] block mb-2">{t("nav.navigation")}</span>
+                  {navLinks.map((item) => {
+                    const isWarehouse = isWarehouseCategory(item);
+                    // Strip prefix/extension, rebuild as /{storeOrLocale}/{path}.html
+                    const cleanItemPath = stripPrefix(item.href.split("?")[0] || "/").replace(/\.html$/, "") || "/";
+                    const seoItemPath = cleanItemPath === "/" ? cleanItemPath : `${cleanItemPath}.html`;
+
+                    const prefix = currentStore || locale;
+                    const href = `/${prefix}${seoItemPath}`;
+
+                    const strippedPathname = stripPrefix(pathname || "");
+                    const isActive = strippedPathname === cleanItemPath || strippedPathname.startsWith(cleanItemPath + "/");
+                    const children = isWarehouse ? undefined : item.children;
+                    const hasChildren = (isWarehouse && warehouseItems.length > 0) || !!(children && children.length > 0);
+                    return (
+                      <div key={item.href}>
+                        {hasChildren ? (
+                          <div
+                            className={`py-2.5 text-body font-semibold uppercase tracking-wide flex items-center justify-between ${isActive ? "text-primary" : "text-black"
+                              }`}
+                          >
+                            {resolveLabel(item)}
+                          </div>
+                        ) : (
+                          <Link
+                            href={href}
+                            className={`py-2.5 text-body font-semibold uppercase tracking-wide flex items-center justify-between group ${isActive ? "text-primary" : "text-black hover:text-primary"
+                              }`}
+                            onClick={() => setIsMenuOpen(false)}
+                          >
+                            {resolveLabel(item)}
+                            <span className="text-black/40 group-hover:text-primary transition-colors text-caption">→</span>
+                          </Link>
+                        )}
+                        {isWarehouse && warehouseItems.length > 0 && (
+                          <div className="pl-3 border-l-2 border-gray-100 ml-1 mb-1">
+                            {[...warehouseItems]
+                              .sort((a, b) => {
+                                if (a.code === currentStore) return -1;
+                                if (b.code === currentStore) return 1;
+                                return 0;
+                              })
+                              .map((w) => {
+                                const isSelected = currentStore === w.code;
+                                // Use the category's path (item.href) instead of the current pathname
+                                const targetCategoryPathM = stripPrefix(item.href || "/").replace(/\.html$/, "") || "/";
+                                const seoCategoryPathM = targetCategoryPathM === "/" ? "" : `${targetCategoryPathM}.html`;
+                                const mLocale = w.code.endsWith("_ar") ? "ar" : "en";
+                                const warehouseHref = `/${w.code}${seoCategoryPathM}`;
+
+                                return (
+                                  <Link
+                                    key={w.code}
+                                    href={warehouseHref}
+                                    onClick={() => {
+                                      setLocaleCookie(mLocale);
+                                      i18n.changeLanguage(mLocale);
+                                      document.cookie = `NEXT_STORE=${w.code};path=/;max-age=${60 * 60 * 24 * 365};samesite=lax`;
+                                      setIsMenuOpen(false);
+                                    }}
+                                    className={`block w-full text-start py-2 text-label font-semibold cursor-pointer !text-black ${isSelected ? "font-black" : "opacity-70 hover:opacity-100"}`}
+                                  >
+                                    {w.label}
+                                  </Link>
+                                );
+                              })}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
-              )}
 
-              {/* Nav links */}
-              <div className="px-4 py-2">
-                <span className="text-micro font-bold text-black/50 uppercase tracking-[0.2em] block mb-2">{t("nav.navigation")}</span>
-                {navLinks.map((item) => {
-                  const isWarehouse = isWarehouseCategory(item);
-                  // Strip prefix/extension, rebuild as /{storeOrLocale}/{path}.html
-                  const cleanItemPath = stripPrefix(item.href.split("?")[0] || "/").replace(/\.html$/, "") || "/";
-                  const seoItemPath = cleanItemPath === "/" ? cleanItemPath : `${cleanItemPath}.html`;
+                {/* Quick actions */}
+                <div className="px-4 py-3 mt-1 border-t border-gray-100">
+                  <span className="text-micro font-bold text-black/50 uppercase tracking-[0.2em] block mb-2">{t("nav.quickActions")}</span>
 
-                  const prefix = currentStore || locale;
-                  const href = `/${prefix}${seoItemPath}`;
-
-                  const strippedPathname = stripPrefix(pathname || "");
-                  const isActive = strippedPathname === cleanItemPath || strippedPathname.startsWith(cleanItemPath + "/");
-                  const children = isWarehouse ? undefined : item.children;
-                  const hasChildren = (isWarehouse && warehouseItems.length > 0) || !!(children && children.length > 0);
-                  return (
-                    <div key={item.href}>
-                      {hasChildren ? (
-                        <div
-                          className={`py-2.5 text-body font-semibold uppercase tracking-wide flex items-center justify-between ${isActive ? "text-primary" : "text-black"
-                            }`}
-                        >
-                          {resolveLabel(item)}
-                        </div>
-                      ) : (
-                        <Link
-                          href={href}
-                          className={`py-2.5 text-body font-semibold uppercase tracking-wide flex items-center justify-between group ${isActive ? "text-primary" : "text-black hover:text-primary"
-                            }`}
-                          onClick={() => setIsMenuOpen(false)}
-                        >
-                          {resolveLabel(item)}
-                          <span className="text-black/40 group-hover:text-primary transition-colors text-caption">→</span>
-                        </Link>
-                      )}
-                      {isWarehouse && warehouseItems.length > 0 && (
-                        <div className="pl-3 border-l-2 border-gray-100 ml-1 mb-1">
-                          {[...warehouseItems]
-                            .sort((a, b) => {
-                              if (a.code === currentStore) return -1;
-                              if (b.code === currentStore) return 1;
-                              return 0;
-                            })
-                            .map((w) => {
-                              const isSelected = currentStore === w.code;
-                              // Use the category's path (item.href) instead of the current pathname
-                              const targetCategoryPathM = stripPrefix(item.href || "/").replace(/\.html$/, "") || "/";
-                              const seoCategoryPathM = targetCategoryPathM === "/" ? "" : `${targetCategoryPathM}.html`;
-                              const mLocale = w.code.endsWith("_ar") ? "ar" : "en";
-                              const warehouseHref = `/${w.code}${seoCategoryPathM}`;
-
-                              return (
-                                <Link
-                                  key={w.code}
-                                  href={warehouseHref}
-                                  onClick={() => {
-                                    setLocaleCookie(mLocale);
-                                    i18n.changeLanguage(mLocale);
-                                    document.cookie = `NEXT_STORE=${w.code};path=/;max-age=${60 * 60 * 24 * 365};samesite=lax`;
-                                    setIsMenuOpen(false);
-                                  }}
-                                  className={`block w-full text-start py-2 text-label font-semibold cursor-pointer !text-black ${isSelected ? "font-black" : "opacity-70 hover:opacity-100"}`}
-                                >
-                                  {w.label}
-                                </Link>
-                              );
-                            })}
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-
-              {/* Quick actions */}
-              <div className="px-4 py-3 mt-1 border-t border-gray-100">
-                <span className="text-micro font-bold text-black/50 uppercase tracking-[0.2em] block mb-2">{t("nav.quickActions")}</span>
-
-                {/* Mobile Language Switcher — fallback for unauthenticated or login page */}
-                {(!isAuthenticated || pathname === "/login" || allPermittedStores.length === 0) && (
+                  {/* Mobile Language Switcher — always visible on mobile drawer.
+                    Shows the OPPOSITE language to switch to:
+                      • locale === "en" → button reads AR / العربية
+                      • locale === "ar" → button reads EN / English
+                    Click switches locale cookie and navigates to the same
+                    pathname under the opposite locale prefix. */}
                   <Link
                     href={pathname.startsWith(`/${locale}`) ? pathname.replace(`/${locale}`, `/${locale === "en" ? "ar" : "en"}`) : `/${locale === "en" ? "ar" : "en"}${pathname}`}
                     onClick={() => {
@@ -973,44 +996,47 @@ export default function Navbar() {
                     <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center text-[10px] font-bold text-primary">
                       {locale === "en" ? "AR" : "EN"}
                     </div>
-                    {locale === "en" ? "العربية" : "English"}
+                    {/* Use English word "Arabic" instead of "العربية" — avoids
+                      bidi-flip glyphs on mobile where the Arabic script can
+                      render reversed inside the LTR drawer. */}
+                    {locale === "en" ? "Arabic" : "English"}
                   </Link>
-                )}
 
-                {isAuthenticated && pathname !== "/login" && (
-                  <>
+                  {isAuthenticated && pathname !== "/login" && (
+                    <>
+                      <button
+                        onClick={() => { setSearchMounted(true); setIsSearchOpen(true); setIsMenuOpen(false); }}
+                        className="py-2.5 text-body font-semibold text-black/80 flex items-center gap-3 w-full text-start"
+                      >
+                        <Search size={16} /> {t("nav.searchProducts") || "Search Products"}
+                      </button>
+
+                      <button
+                        onClick={() => { setNotifMounted(true); setIsNotificationOpen(true); setIsMenuOpen(false); }}
+                        className="py-2.5 text-body font-semibold text-black/80 flex items-center gap-3 w-full"
+                      >
+                        <Bell size={16} /> {t("nav.notifications")} ({unreadCount})
+                      </button>
+                      <Link href={lp("/customer/account")} className="py-2.5 text-body font-semibold text-black/80 flex items-center gap-3" onClick={() => setIsMenuOpen(false)}>
+
+                        <UserCircle size={16} /> {t("nav.myAccount")}
+                      </Link>
+                    </>
+                  )}
+
+
+                  {isAuthenticated && pathname !== "/login" && (
                     <button
-                      onClick={() => { setSearchMounted(true); setIsSearchOpen(true); setIsMenuOpen(false); }}
-                      className="py-2.5 text-body font-semibold text-black/80 flex items-center gap-3 w-full text-start"
+                      onClick={handleLogout}
+                      className="py-2.5 mt-2 text-body font-semibold text-red-600 flex items-center gap-3 border-t border-gray-100 w-full pt-3"
                     >
-                      <Search size={16} /> {t("nav.searchProducts") || "Search Products"}
+                      <LogOut size={16} /> {t("nav.signOut")}
                     </button>
-
-                    <button
-                      onClick={() => { setNotifMounted(true); setIsNotificationOpen(true); setIsMenuOpen(false); }}
-                      className="py-2.5 text-body font-semibold text-black/80 flex items-center gap-3 w-full"
-                    >
-                      <Bell size={16} /> {t("nav.notifications")} ({unreadCount})
-                    </button>
-                    <Link href={lp("/customer/account")} className="py-2.5 text-body font-semibold text-black/80 flex items-center gap-3" onClick={() => setIsMenuOpen(false)}>
-
-                      <UserCircle size={16} /> {t("nav.myAccount")}
-                    </Link>
-                  </>
-                )}
-
-
-                {isAuthenticated && pathname !== "/login" && (
-                  <button
-                    onClick={handleLogout}
-                    className="py-2.5 mt-2 text-body font-semibold text-red-600 flex items-center gap-3 border-t border-gray-100 w-full pt-3"
-                  >
-                    <LogOut size={16} /> {t("nav.signOut")}
-                  </button>
-                )}
+                  )}
+                </div>
               </div>
             </div>
-          </div>
+          </>
         )}
 
       </div>
