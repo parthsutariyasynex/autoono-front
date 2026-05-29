@@ -753,7 +753,7 @@ export default function Navbar() {
             {navLoading ? (
               <div className="flex items-center gap-6">
                 {[1, 2, 3, 4, 5].map(i => (
-                  <div key={i} className="h-3 w-20 bg-primary/40 rounded animate-pulse" />
+                  <div key={i} className="h-3 w-20 bg-black/10 rounded animate-pulse" />
                 ))}
               </div>
             ) : (

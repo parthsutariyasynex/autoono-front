@@ -33,6 +33,11 @@ function LoginPageContent() {
   const dispatch = useAppDispatch();
   const { loading: reduxLoading } = useAppSelector((state: RootState) => state.auth);
   const [loading, setLoading] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -70,7 +75,9 @@ function LoginPageContent() {
 
   // Session resolving → show spinner (not blank). Authenticated → null while
   // the redirect fires. All hooks are above this line (Rules of Hooks satisfied).
-  if (status === "loading") return <LoginSkeleton />;
+  // `mounted` gate ensures skeleton shows on initial hydration even when the
+  // server pre-populated session causes status to skip the "loading" state.
+  if (!mounted || status === "loading") return <LoginSkeleton />;
   if (status === "authenticated") return null;
 
   const getMobileRequirements = (code: string) => {

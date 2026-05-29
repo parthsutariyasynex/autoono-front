@@ -1303,9 +1303,9 @@ export function LoginSkeleton() {
       <main className="flex-1 w-full flex justify-center items-start pt-6 sm:pt-8 md:pt-16 pb-8 sm:pb-12 px-4 md:px-0">
         <div className="w-full max-w-[440px] bg-white rounded-[3px] shadow-[0_10px_40px_rgba(0,0,0,0.08)] border border-gray-100">
           {/* Title section — px-4 sm:px-6 md:px-8 pt-5 sm:pt-7 pb-4 sm:pb-5 */}
-          {/* Real h1: text-[17px] sm:text-[18px] × ~1.5 line-height ≈ 26/27px */}
+          {/* Real h1: "REGISTERED CUSTOMERS" — text-[17px] sm:text-[18px] uppercase tracking-[0.5px] ≈ 200-220px wide */}
           <div className="px-4 sm:px-6 md:px-8 pt-5 sm:pt-7 pb-4 sm:pb-5">
-            <Pulse className="h-[26px] sm:h-[27px] w-24" />
+            <Pulse className="h-[26px] sm:h-[27px] w-56 sm:w-60 max-w-full" />
           </div>
 
           {/* Mode tabs (OTP / Password) — px-4 sm:px-6 md:px-8 */}
@@ -1321,7 +1321,8 @@ export function LoginSkeleton() {
           {/* Form body — px-4 sm:px-6 md:px-8 pt-4 sm:pt-5 pb-6 sm:pb-8 */}
           <div className="px-4 sm:px-6 md:px-8 pt-4 sm:pt-5 pb-6 sm:pb-8">
             {/* Subtitle — text-body leading-relaxed (1.625) = 13×1.625 ≈ 21px */}
-            <Pulse className="h-[21px] w-48 mb-5" />
+            {/* Real: "If you have an account, sign in with your email address." — long, ≈ 300-320px */}
+            <Pulse className="h-[21px] w-full max-w-[320px] mb-5" />
 
             <div className="flex flex-col gap-3 sm:gap-[14px]">
               {/* Email field — label text-body ≈ 20px + input h-[48px] */}
@@ -1337,11 +1338,11 @@ export function LoginSkeleton() {
               </div>
 
               {/* Submit button + forgot password — pt-2 gap-3 */}
-              {/* Real forgot-pwd: text-body (~20px) + py-2 inline-block (16) ≈ 36px */}
+              {/* Real forgot-pwd: "Forgot Your Password?" text-body (~20px) + py-2 inline-block (16) ≈ 36px, ~160px wide */}
               <div className="pt-2 flex flex-col gap-3">
                 <Pulse className="h-10 sm:h-[46px] w-full rounded-sm" />
                 <div className="flex justify-end">
-                  <Pulse className="h-[36px] w-28" />
+                  <Pulse className="h-[36px] w-40" />
                 </div>
               </div>
             </div>
