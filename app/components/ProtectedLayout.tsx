@@ -9,6 +9,7 @@ import Footer from './Footer';
 import ScrollToTop from './ScrollToTop';
 import { stripLocaleFromPath, useLocale } from '@/lib/i18n/client';
 import { useLocalePath } from '@/hooks/useLocalePath';
+import { LoginSkeleton } from '@/components/skeletons';
 
 interface ProtectedLayoutProps {
   children: ReactNode;
@@ -86,30 +87,16 @@ export default function ProtectedLayout({ children }: ProtectedLayoutProps) {
     }
   }, [status, isPublicPage, lp, pathname]);
 
-  // Show loading overlay while auth is checking on protected pages (only on first load, not re-checks)
+  // Status still resolving on a protected page → user is likely unauthenticated
+  // and will be redirected to /login. Show LoginSkeleton so the visual matches
+  // the destination, avoiding a "wrong-skeleton flash" before the redirect.
   if (isLoading && !isPublicPage && !wasAuthenticated) {
     return (
       <div className="flex flex-col min-h-screen bg-white max-w-[1920px] mx-auto w-full">
         <Navbar />
-        <div className="flex flex-col lg:flex-row flex-1 w-full animate-pulse">
-          {/* Sidebar skeleton */}
-          <div className="hidden lg:flex w-64 flex-shrink-0 flex-col bg-gray-50 border-r border-gray-200 p-4 gap-2">
-            {Array.from({ length: 8 }).map((_, i) => (
-              <div key={i} className="h-10 bg-gray-200 rounded w-full" />
-            ))}
-          </div>
-          {/* Content skeleton */}
-          <div className="flex-1 p-6 md:p-10 space-y-6">
-            <div className="h-7 bg-gray-200 rounded w-40" />
-            <div className="h-px bg-gray-200 w-full" />
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <div className="h-40 bg-gray-200 rounded-xl w-full" />
-              <div className="h-40 bg-gray-200 rounded-xl w-full" />
-            </div>
-            <div className="h-48 bg-gray-200 rounded-xl w-full" />
-            <div className="h-32 bg-gray-200 rounded-xl w-full" />
-          </div>
-        </div>
+        <main className="flex-1 flex flex-col w-full relative">
+          <LoginSkeleton />
+        </main>
       </div>
     );
   }
@@ -124,22 +111,10 @@ export default function ProtectedLayout({ children }: ProtectedLayoutProps) {
       <main className="flex-1 flex flex-col w-full relative">
         <div className="flex-1 flex flex-col w-full min-h-0">
           {showContent ? children : (
-            <div className="flex flex-col lg:flex-row flex-1 w-full animate-pulse">
-              <div className="hidden lg:flex w-64 flex-shrink-0 flex-col bg-gray-50 border-r border-gray-200 p-4 gap-2">
-                {Array.from({ length: 8 }).map((_, i) => (
-                  <div key={i} className="h-10 bg-gray-200 rounded w-full" />
-                ))}
-              </div>
-              <div className="flex-1 p-6 md:p-10 space-y-6">
-                <div className="h-7 bg-gray-200 rounded w-40" />
-                <div className="h-px bg-gray-200 w-full" />
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  <div className="h-40 bg-gray-200 rounded-xl w-full" />
-                  <div className="h-40 bg-gray-200 rounded-xl w-full" />
-                </div>
-                <div className="h-48 bg-gray-200 rounded-xl w-full" />
-              </div>
-            </div>
+            // Unauthenticated on a protected page: redirect to /login is firing
+            // in the effect above. Render LoginSkeleton so the transition into
+            // the login route is visually continuous (no dashboard-shape flash).
+            <LoginSkeleton />
           )}
         </div>
 

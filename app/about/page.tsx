@@ -1,8 +1,10 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import Image from "next/image";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useLocale } from "@/lib/i18n/client";
+
 
 interface CmsPage {
     title?: string;
@@ -48,9 +50,10 @@ function Skeleton() {
 
     return (
         <div className="space-y-6 animate-pulse">
-            {/* Title — centered, uppercase */}
+            {/* Title — centered, uppercase. Real h1: text-2xl sm:text-3xl md:text-[2rem]
+                × ~1.5 line-height ≈ 36/45/48px, so the swap-in causes no vertical jump. */}
             <div className="flex justify-center mb-10 sm:mb-14">
-                <div className="h-7 sm:h-8 md:h-9 bg-gray-200 rounded w-56 sm:w-64 md:w-72" />
+                <div className="h-9 sm:h-[45px] md:h-12 bg-gray-200 rounded w-56 sm:w-64 md:w-72" />
             </div>
 
             {/* Intro paragraphs */}
@@ -89,6 +92,22 @@ function Skeleton() {
             <Paragraph lines={2} />
         </div>
     );
+}
+
+/**
+ * Adds `loading="lazy"` and `decoding="async"` to every <img> tag in a Magento
+ * CMS HTML string. The hero image at the top of the About page is the only
+ * above-the-fold image (rendered via next/image with `priority`); every image
+ * inside the CMS body is below the fold and benefits from lazy loading.
+ * Existing `loading` / `decoding` attributes are preserved.
+ */
+function lazyifyImages(html: string): string {
+    return html.replace(/<img\b([^>]*)>/gi, (match, attrs) => {
+        let updated = attrs;
+        if (!/\bloading\s*=/i.test(updated)) updated += ' loading="lazy"';
+        if (!/\bdecoding\s*=/i.test(updated)) updated += ' decoding="async"';
+        return `<img${updated}>`;
+    });
 }
 
 /** Clean up common typographic typos/errors in Magento plain text responses */
@@ -180,6 +199,7 @@ export default function AboutPage() {
     const [page, setPage] = useState<CmsPage | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [hasError, setHasError] = useState(false);
+    const [loaded, setLoaded] = useState(false);
 
     useEffect(() => {
         setIsLoading(true);
@@ -350,12 +370,62 @@ export default function AboutPage() {
     return (
         <div className="min-h-screen bg-white">
 
-            {/* Hero banner */}
-            <div className="w-full h-[200px] sm:h-[280px] md:h-[360px] lg:h-[440px] overflow-hidden">
-                <img
+            {/* Hero banner — above the fold: priority + eager load (no lazy) */}
+            {/* <div className="relative w-full h-[200px] sm:h-[280px] md:h-[360px] lg:h-[440px] overflow-hidden bg-gray-100">
+                <Image
                     src="/images/about-tyresonline-uae.jpg"
                     alt="About Autoono"
-                    className="w-full h-full object-cover"
+                    fill
+                    priority
+                    fetchPriority="high"
+                    sizes="100vw"
+                    className="object-cover"
+                />
+            </div> */}
+            {/* <div className="image-wrap loader picture aspect-custom pb-[17.7%] relative bg-no-repeat bg-center bg-[length:40px] bg-slate-100">
+                <picture className="absolute left-0 top-0 w-full h-full">
+                    <source className="" srcSet="/images/about-tyresonline-uae.jpg" />
+                    <img fetchPriority="high" src="/images/about-tyresonline-uae.jpg" alt="About Autoono" className="absolute left-0 top-0 w-full h-full object-cover" />
+                </picture>
+            </div> */}
+
+
+            {/* <div className="image-wrap loader picture aspect-custom">
+                <picture>
+                    <source
+                        className="lazy"
+                        srcSet="https://asimcoglobal.klever.ae/frontend/images/blank.png"
+                        data-srcset="/images/about-tyresonline-uae.jpg"
+                    />
+                    <img
+                        className="lazy"
+                        src="https://asimcoglobal.klever.ae/frontend/images/blank.png"
+
+                        data-src="/images/about-tyresonline-uae.jpg"
+                        alt="About Autoono"
+                    />
+                </picture>
+            </div> */}
+
+
+
+            {/* Hero banner — above the fold:
+                  • priority + fetchPriority="high" → never lazy, fetched first
+                  • sizes="100vw" → optimizer picks the right device-size variant
+                  • onLoad fade-in → swap from "loader" placeholder to real image
+                  • aspect-custom + relative reserves space (no CLS)              */}
+            <div
+                className={`image-wrap picture aspect-custom ${!loaded ? "loader" : ""}`}
+            >
+                <Image
+                    src="/images/about-tyresonline-uae.jpg"
+                    alt="About Autoono"
+                    fill
+                    priority
+                    fetchPriority="high"
+                    sizes="100vw"
+                    className={`object-cover transition-opacity duration-300 ${loaded ? "opacity-100" : "opacity-0"}`}
+                    onLoad={() => setLoaded(true)}
                 />
             </div>
 
@@ -370,10 +440,12 @@ export default function AboutPage() {
                         Page content unavailable.
                     </p>
                 ) : isHtml ? (
-                    /* Magento returned HTML — render as-is with prose styles */
+                    /* Magento returned HTML — render as-is with prose styles.
+                       Below-the-fold <img> tags in the CMS body get
+                       loading="lazy" + decoding="async" injected. */
                     <div
                         className="cms-content"
-                        dangerouslySetInnerHTML={{ __html: content }}
+                        dangerouslySetInnerHTML={{ __html: lazyifyImages(content) }}
                     />
                 ) : (
                     /* Plain text — parse sections and render cleanly exactly as in image */
@@ -479,38 +551,6 @@ export default function AboutPage() {
                 )}
             </div>
 
-            <style jsx global>{`
-                .cms-content {
-                    color: rgba(0, 0, 0, 0.75);
-                    font-size: 15px;
-                    line-height: 1.9;
-                    font-weight: 500;
-                }
-                .cms-content h1,
-                .cms-content h2,
-                .cms-content h3,
-                .cms-content h4 {
-                    font-weight: 800;
-                    color: #111;
-                    margin-top: 2em;
-                    margin-bottom: 0.6em;
-                    text-transform: uppercase;
-                    letter-spacing: 0.04em;
-                }
-                .cms-content h1 { font-size: 1.5rem; }
-                .cms-content h2 { font-size: 1.2rem; }
-                .cms-content h3 { font-size: 1.05rem; }
-                .cms-content p  { margin-bottom: 1.2em; }
-                .cms-content ul,
-                .cms-content ol { padding-left: 1.5em; margin-bottom: 1.2em; }
-                .cms-content li { margin-bottom: 0.4em; }
-                .cms-content a  { color: var(--color-primary, #4E81C2); text-decoration: underline; }
-                .cms-content img { max-width: 100%; height: auto; border-radius: 6px; margin: 1em 0; }
-                .cms-content table { width: 100%; border-collapse: collapse; margin-bottom: 1.2em; }
-                .cms-content th,
-                .cms-content td { border: 1px solid #e5e7eb; padding: 0.5em 0.75em; }
-                .cms-content th { background: #f9fafb; font-weight: 700; }
-            `}</style>
         </div>
     );
 }

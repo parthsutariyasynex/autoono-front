@@ -284,81 +284,139 @@ export default function Navbar() {
       return null;
     };
 
+    // const fetchMenu = async () => {
+    //   // Immediately show cached data so menu appears before API responds
+    //   const localCached = readLocalCache();
+    //   if (localCached) {
+    //     applyLinks(localCached);
+    //     setNavLoading(false);
+    //   } else {
+    //     setNavLoading(true);
+    //   }
+
+    //   try {
+    //     const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+
+    //     // Deduplicate concurrent fetches (e.g. StrictMode double-mount).
+    //     // The cached promise ALWAYS resolves (never rejects) so it can't
+    //     // trigger Next.js's unhandled-rejection overlay when Magento is down.
+    //     let menuPromise = _menuInflight.get(locale);
+    //     if (!menuPromise) {
+    //       menuPromise = fetch("/api/kleverapi/menu", {
+    //         headers: {
+    //           "Content-Type": "application/json",
+    //           ...(token && { "Authorization": `Bearer ${token}` }),
+    //           "x-locale": locale,
+    //         },
+    //       })
+    //         .then(r => r.json())
+    //         .catch(err => {
+    //           // Network error (ETIMEDOUT, DNS, offline). Resolve with null
+    //           // so the consumer's null-check below applies the fallback links.
+    //           console.error("[Navbar] Menu fetch network error:", err);
+    //           return null;
+    //         })
+    //         .finally(() => _menuInflight.delete(locale));
+    //       _menuInflight.set(locale, menuPromise);
+    //     }
+
+    //     const data = await menuPromise;
+    //     if (cancelled) return;
+
+    //     // Menu fetch completed — treat null / error payload as failure
+    //     if (!data || data.message) {
+    //       throw new Error("Menu fetch failed");
+    //     }
+
+    //     const fallbackLinks: NavLink[] = [
+    //       { label: t("nav.aboutUs") || "About Us", href: lp("/about") },
+    //       { label: t("nav.branchLocations") || "Locations", href: lp("/locations") },
+    //       { label: t("nav.productCatalogue") || "Catalogue", href: lp("/catalogue") },
+    //     ];
+
+    //     if (Array.isArray(data) && data.length > 0) {
+    //       const links = toLinks(data);
+    //       applyLinks(links);
+    //       // Save fresh data to localStorage for future page loads
+    //       try {
+    //         localStorage.setItem(CACHE_KEY, JSON.stringify({ items: links, expires: Date.now() + CACHE_TTL }));
+    //       } catch { }
+    //     } else if (!localCached) {
+    //       applyLinks(fallbackLinks);
+    //     }
+    //   } catch (err) {
+    //     console.error("[Navbar] Menu fetch error:", err);
+    //     const fallbackLinks: NavLink[] = [
+    //       { label: t("nav.aboutUs") || "About Us", href: lp("/about") },
+    //       { label: t("nav.branchLocations") || "Locations", href: lp("/locations") },
+    //       { label: t("nav.productCatalogue") || "Catalogue", href: lp("/catalogue") },
+    //     ];
+    //     // Keep the locally-cached links if we had them; only clear if nothing
+    //     if (!cancelled && !localCached) applyLinks(fallbackLinks);
+    //   } finally {
+    //     if (!cancelled) setNavLoading(false);
+    //   }
+    // };
+
+    // fetchMenu();
+
+
+
     const fetchMenu = async () => {
-      // Immediately show cached data so menu appears before API responds
-      const localCached = readLocalCache();
-      if (localCached) {
-        applyLinks(localCached);
-        setNavLoading(false);
-      } else {
-        setNavLoading(true);
-      }
+      setNavLoading(true);
 
       try {
-        const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+        const token =
+          typeof window !== "undefined"
+            ? localStorage.getItem("token")
+            : null;
 
-        // Deduplicate concurrent fetches (e.g. StrictMode double-mount).
-        // The cached promise ALWAYS resolves (never rejects) so it can't
-        // trigger Next.js's unhandled-rejection overlay when Magento is down.
         let menuPromise = _menuInflight.get(locale);
+
         if (!menuPromise) {
           menuPromise = fetch("/api/kleverapi/menu", {
             headers: {
               "Content-Type": "application/json",
-              ...(token && { "Authorization": `Bearer ${token}` }),
+              ...(token && { Authorization: `Bearer ${token}` }),
               "x-locale": locale,
             },
           })
-            .then(r => r.json())
-            .catch(err => {
-              // Network error (ETIMEDOUT, DNS, offline). Resolve with null
-              // so the consumer's null-check below applies the fallback links.
-              console.error("[Navbar] Menu fetch network error:", err);
-              return null;
+            .then((r) => {
+              if (!r.ok) {
+                throw new Error("Menu API failed");
+              }
+
+              return r.json();
             })
             .finally(() => _menuInflight.delete(locale));
+
           _menuInflight.set(locale, menuPromise);
         }
 
         const data = await menuPromise;
+
         if (cancelled) return;
-
-        // Menu fetch completed — treat null / error payload as failure
-        if (!data || data.message) {
-          throw new Error("Menu fetch failed");
-        }
-
-        const fallbackLinks: NavLink[] = [
-          { label: t("nav.aboutUs") || "About Us", href: lp("/about") },
-          { label: t("nav.branchLocations") || "Locations", href: lp("/locations") },
-          { label: t("nav.productCatalogue") || "Catalogue", href: lp("/catalogue") },
-        ];
 
         if (Array.isArray(data) && data.length > 0) {
           const links = toLinks(data);
           applyLinks(links);
-          // Save fresh data to localStorage for future page loads
-          try {
-            localStorage.setItem(CACHE_KEY, JSON.stringify({ items: links, expires: Date.now() + CACHE_TTL }));
-          } catch { }
-        } else if (!localCached) {
-          applyLinks(fallbackLinks);
+        } else {
+          applyLinks([]);
         }
       } catch (err) {
         console.error("[Navbar] Menu fetch error:", err);
-        const fallbackLinks: NavLink[] = [
-          { label: t("nav.aboutUs") || "About Us", href: lp("/about") },
-          { label: t("nav.branchLocations") || "Locations", href: lp("/locations") },
-          { label: t("nav.productCatalogue") || "Catalogue", href: lp("/catalogue") },
-        ];
-        // Keep the locally-cached links if we had them; only clear if nothing
-        if (!cancelled && !localCached) applyLinks(fallbackLinks);
+
+        if (!cancelled) {
+          applyLinks([]);
+        }
       } finally {
-        if (!cancelled) setNavLoading(false);
+        if (!cancelled) {
+          setNavLoading(false);
+        }
       }
     };
-
     fetchMenu();
+
     return () => { cancelled = true; };
   }, [locale]);
 

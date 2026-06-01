@@ -163,11 +163,21 @@ async function resolveMagentoUrl(slugPath: string, storeCode: string): Promise<R
     // must pass through to the actual page, NOT redirect via the CMS map.
     const bare = slugPath.replace(/\.html$/, "");
     const segs = bare.split("/").filter(Boolean);
+    // Magento generates URLs as `module/controller/action`. When the action
+    // and controller are both default-style segments, the route should still
+    // resolve to the matched CMS slug. Accept these trailing patterns:
+    //   • <empty>             — bare slug
+    //   • ["index"]           — default action only
+    //   • ["customer"]        — default controller only
+    //   • ["customer","index"]— default controller + default action
+    // Anything else (e.g. ["edit"], ["view", "123"]) is a real internal action
+    // that must pass through to the Next.js route, NOT redirect via CMS map.
+    const MAGENTO_DEFAULTS = new Set(["index", "customer"]);
     for (let i = segs.length - 1; i >= 0; i--) {
         const seg = segs[i].toLowerCase();
         if (CMS_SLUG_TO_ROUTE[seg]) {
             const afterSegs = segs.slice(i + 1).map(s => s.toLowerCase());
-            const onlyMagentoDefaults = afterSegs.every(s => s === "index");
+            const onlyMagentoDefaults = afterSegs.every(s => MAGENTO_DEFAULTS.has(s));
             if (afterSegs.length === 0 || onlyMagentoDefaults) {
                 return { kind: "cms", nextjsPath: CMS_SLUG_TO_ROUTE[seg] };
             }

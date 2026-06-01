@@ -664,7 +664,10 @@ export default function ProductsPage({ categoryId: propCategoryId, storeCode: pr
   // Sidebar always reflects exactly what the current category-products call returns.
   // Magento narrows filter options to match the active query + selected filters,
   // so the sidebar stays in sync with the result set automatically.
-  const sidebarFilters: any[] = apiFilters ?? [];
+  // Pass null (not []) when filters haven't loaded yet — passing [] makes
+  // SidebarFilter think "I have filters, just zero of them" and prematurely
+  // turn off its loading skeleton AND skip its own fetch fallback.
+  const sidebarFilters: any[] | null = apiFilters;
 
   /* ══════════════════════════════════════════════════════════════
      RENDER

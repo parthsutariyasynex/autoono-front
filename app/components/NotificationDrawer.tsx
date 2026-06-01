@@ -75,6 +75,17 @@ export default function NotificationDrawer({ isOpen, onClose }: NotificationDraw
         return null;
     };
 
+    // Resolve the destination for a whole-row click. Order-related notifications
+    // go to the specific order; everything else goes to the full notifications page.
+    const getRowHref = (item: any): string => {
+        return getOrderLink(item) || lp("/customer/notifications");
+    };
+
+    const onRowClick = async (item: any) => {
+        await handleNotificationClick(item);
+        onClose();
+    };
+
     return (
         <Drawer
             isOpen={isOpen}
@@ -104,22 +115,21 @@ export default function NotificationDrawer({ isOpen, onClose }: NotificationDraw
                     ) : (
                         <div className="divide-y divide-gray-100 pb-24">
                             {notifications.map((item, index) => (
-                                <div
+                                <Link
                                     key={`${item.notification_id || index}-${index}`}
-                                    className={`p-6 flex flex-col gap-1 transition-all relative border-l-4 ${!item.is_read ? "bg-warningBgLight border-primary" : "bg-white border-transparent"
+                                    href={getRowHref(item)}
+                                    onClick={() => onRowClick(item)}
+                                    className={`p-6 flex flex-col gap-1 transition-all relative border-l-4 cursor-pointer hover:bg-gray-50 ${!item.is_read ? "bg-warningBgLight border-primary" : "bg-white border-transparent"
                                         }`}
                                 >
                                     {/* Header Row: Title & Remove */}
                                     <div className="flex justify-between items-start gap-4">
                                         <h3 className={`text-[15px] leading-snug ltr:pr-6 rtl:pl-6 ${!item.is_read ? "font-bold text-black" : "font-bold text-black/80"}`}>
-                                            {getOrderLink(item) ? (
-                                                <Link href={getOrderLink(item)!} onClick={onClose} className="hover:text-primary transition-colors hover:underline underline-offset-2">
-                                                    {translateNotification(item.title)}
-                                                </Link>
-                                            ) : translateNotification(item.title)}
+                                            {translateNotification(item.title)}
                                         </h3>
                                         <button
                                             onClick={(e) => {
+                                                e.preventDefault();
                                                 e.stopPropagation();
                                                 removeNotification(item.notification_id, item.is_read);
                                             }}
@@ -146,6 +156,7 @@ export default function NotificationDrawer({ isOpen, onClose }: NotificationDraw
                                         {!item.is_read && (
                                             <button
                                                 onClick={(e) => {
+                                                    e.preventDefault();
                                                     e.stopPropagation();
                                                     markAsRead(item.notification_id);
                                                 }}
@@ -155,7 +166,7 @@ export default function NotificationDrawer({ isOpen, onClose }: NotificationDraw
                                             </button>
                                         )}
                                     </div>
-                                </div>
+                                </Link>
                             ))}
                         </div>
                     )}

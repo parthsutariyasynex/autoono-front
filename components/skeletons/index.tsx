@@ -86,21 +86,22 @@ export function ProductListingSkeleton({ count = 12 }: { count?: number }) {
               <Pulse className="h-4 w-4 rounded" />
             </div>
           </div>
-          {/* Filter groups */}
-          {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="border-b border-gray-100 last:border-b-0 px-6 py-4 space-y-3">
-              <div className="flex items-center justify-between">
-                <Pulse className="h-4 w-24" />
-                <Pulse className="h-4 w-4 rounded-full" />
-              </div>
-              {Array.from({ length: 3 }).map((_, j) => (
-                <div key={j} className="flex items-center gap-3">
-                  <Pulse className="h-4 w-4 rounded-[3px]" />
-                  <Pulse className="h-3 w-32" />
+          {/* Filter group HEADERS only — real FilterGroup default state is
+              COLLAPSED, so showing closed rows here matches the SidebarFilter
+              inline loading state and the loaded state. Prevents the vertical
+              shrink that previously happened when transitioning from this
+              skeleton to the mounted page. */}
+          {(() => {
+            const widths = ["w-20", "w-24", "w-16", "w-28", "w-20", "w-24"];
+            return Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="border-b border-gray-100 last:border-b-0">
+                <div className="w-full flex items-center justify-between px-6 py-4">
+                  <Pulse className={`h-[15px] ${widths[i]}`} />
+                  <Pulse className="h-4 w-4 rounded" />
                 </div>
-              ))}
-            </div>
-          ))}
+              </div>
+            ));
+          })()}
         </aside>
       </div>
 
@@ -1771,6 +1772,156 @@ function getBasePath(pathname: string): string {
   }
 
   return "/" + segments.join("/");
+}
+
+// ─── About Page Skeleton ──────────────────────────────────────────────────────
+// Mirrors the About page body inside the same parent wrapper so the CMS swap-in
+// causes no layout shift. Pulse heights map to real rendered text heights:
+//   • Title  h1 text-2xl sm:text-3xl md:text-[2rem] × 1.5 ≈ 36/45/48px
+//   • Body p text-[15px] leading-[1.9]                ≈ 29px per line
+//   • H2     text-base font-black                     ≈ 24px
+//
+// Props:
+//   hero — when true (default) renders the full page including the hero banner
+//     placeholder. Used by loading.tsx (route transition).
+//     When false renders just the body, for use INSIDE the page after the real
+//     hero has mounted (during the CMS fetch).
+export function AboutSkeleton({ hero = true }: { hero?: boolean } = {}) {
+  const line = "h-7 bg-gray-200 rounded";
+
+  const Paragraph = ({ lines = 3 }: { lines?: number }) => (
+    <div className="space-y-3">
+      {Array.from({ length: lines }).map((_, i) => (
+        <div
+          key={i}
+          className={`${line} ${i === lines - 1 ? "w-3/4" : "w-full"}`}
+        />
+      ))}
+    </div>
+  );
+
+  const SectionHeader = ({ w = "w-1/3" }: { w?: string }) => (
+    <div className={`h-6 bg-gray-200 rounded ${w} mt-4 mb-2`} />
+  );
+
+  const ListItems = ({ items = 5 }: { items?: number }) => {
+    const widths = ["w-3/5", "w-2/3", "w-3/4", "w-1/2", "w-7/12", "w-2/3"];
+    return (
+      <ul className="pl-5 space-y-2">
+        {Array.from({ length: items }).map((_, i) => (
+          <li key={i} className={`${line} ${widths[i % widths.length]}`} />
+        ))}
+      </ul>
+    );
+  };
+
+  // The shared body — reused whether the hero is rendered above it or not.
+  const Body = (
+    <div className="space-y-6 animate-pulse">
+      {/* Title — centered, uppercase */}
+      <div className="flex justify-center mb-10 sm:mb-14">
+        <div className="h-9 sm:h-[45px] md:h-12 bg-gray-200 rounded w-56 sm:w-64 md:w-72" />
+      </div>
+
+      {/* Intro paragraphs */}
+      <Paragraph lines={3} />
+      <Paragraph lines={3} />
+
+      {/* Vision & Mission */}
+      <SectionHeader w="w-2/5" />
+      <div className="space-y-2">
+        <div className="h-5 bg-gray-200 rounded w-24" />
+        <Paragraph lines={2} />
+      </div>
+      <div className="space-y-2">
+        <div className="h-5 bg-gray-200 rounded w-24" />
+        <Paragraph lines={2} />
+      </div>
+
+      {/* Our Products list */}
+      <SectionHeader w="w-1/4" />
+      <ListItems items={6} />
+
+      {/* Brands */}
+      <SectionHeader w="w-1/3" />
+      <Paragraph lines={2} />
+
+      {/* Core Values list */}
+      <SectionHeader w="w-1/3" />
+      <ListItems items={5} />
+
+      {/* Branch Network */}
+      <SectionHeader w="w-1/3" />
+      <Paragraph lines={3} />
+
+      {/* Closing */}
+      <SectionHeader w="w-1/4" />
+      <Paragraph lines={2} />
+    </div>
+  );
+
+  // Without a hero, just return the body — page.tsx wraps it with its own
+  // body container so we don't double-nest the max-width / padding.
+  if (!hero) return Body;
+
+  return (
+    <div className="min-h-screen bg-white">
+      {/* Hero banner placeholder — matches the real hero's pb-[17.7%] aspect
+          ratio (340/1920) so the swap-in causes zero CLS. */}
+      <div className="w-full pb-[17.7%] bg-slate-100 animate-pulse" />
+
+      <div className="max-w-[1000px] mx-auto px-5 sm:px-8 md:px-12 py-10 sm:py-16 md:py-20 pb-28">
+        {Body}
+      </div>
+    </div>
+  );
+}
+
+// ─── Locations / Branch-Locations Skeleton ───────────────────────────────────
+// Mirrors app/locations/page.tsx — full-width map banner above, title, then a
+// 4/8 grid on lg+ with an address card and the contact form. Heights match
+// the real components so the swap-in causes no layout shift.
+export function LocationsSkeleton() {
+  return (
+    <div className="min-h-screen bg-white">
+      {/* Full-width map placeholder — same responsive height as real <MapSection> wrapper */}
+      <div className="w-full h-[300px] sm:h-[420px] border-b border-gray-100 bg-gray-100 animate-pulse" />
+
+      <div className="max-w-[1170px] mx-auto px-4 sm:px-6 lg:px-8 py-14 sm:py-20">
+        {/* Title pulse — real h1 text-2xl sm:text-3xl × 1.5 ≈ 36/45px */}
+        <div className="flex justify-center mb-14">
+          <Pulse className="h-9 sm:h-[45px] w-64 sm:w-80" />
+        </div>
+
+        {/* Address + Form grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16">
+          {/* Address Card */}
+          <div className="lg:col-span-4">
+            <div className="border border-gray-100 p-6 sm:p-8 shadow-sm space-y-3">
+              <Pulse className="h-5 w-40" />
+              <Pulse className="h-4 w-full" />
+              <Pulse className="h-4 w-5/6" />
+              <Pulse className="h-4 w-3/4" />
+              <div className="pt-4">
+                <Pulse className="h-4 w-32" />
+              </div>
+            </div>
+          </div>
+
+          {/* Contact Form */}
+          <div className="lg:col-span-8">
+            <div className="space-y-4">
+              <Pulse className="h-9 sm:h-10 w-full !rounded-none" />
+              <Pulse className="h-9 sm:h-10 w-full !rounded-none" />
+              <Pulse className="h-9 sm:h-10 w-full !rounded-none" />
+              <Pulse className="h-28 w-full !rounded-none" />
+              <Pulse className="h-10 sm:h-[46px] w-full sm:w-40 rounded-sm" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 // ─── Route Aware Skeleton ───────────────────────────────────────────────────

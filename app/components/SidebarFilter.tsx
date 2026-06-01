@@ -321,8 +321,21 @@ function SidebarFilter({
                 <div className={`flex-1 flex flex-col bg-white transition-opacity duration-300 ${isCollapsed ? 'opacity-0' : 'opacity-100'}`}>
                     <div className="w-full">
                         {loading ? (
-                            <div className="p-10 flex flex-col gap-3 items-center">
-                                <div className="w-6 h-6 bg-gray-200 rounded animate-pulse"></div>
+                            // Mirrors real FilterGroup rows pixel-for-pixel so the swap-in
+                            // doesn't shift layout: same px-6 py-4 padding, same h-[15px]
+                            // label rendered height, same chevron position, same border.
+                            <div>
+                                {Array.from({ length: 6 }).map((_, i) => {
+                                    const widths = ["w-20", "w-24", "w-16", "w-28", "w-20", "w-24"];
+                                    return (
+                                        <div key={i} className="border-b border-gray-100 last:border-b-0">
+                                            <div className="w-full flex items-center justify-between px-6 py-4">
+                                                <div className={`h-[15px] bg-gray-200 rounded animate-pulse ${widths[i]}`} />
+                                                <div className="w-4 h-4 bg-gray-200 rounded animate-pulse" />
+                                            </div>
+                                        </div>
+                                    );
+                                })}
                             </div>
                         ) : error ? (
                             <div className="p-5 text-red-500 text-xs">{error}</div>
