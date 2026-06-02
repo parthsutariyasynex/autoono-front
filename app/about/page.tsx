@@ -415,7 +415,7 @@ export default function AboutPage() {
                   • onLoad fade-in → swap from "loader" placeholder to real image
                   • aspect-custom + relative reserves space (no CLS)              */}
             <div
-                className={`image-wrap picture aspect-custom ${!loaded ? "loader" : ""}`}
+                className={`image-wrap picture pb-[68%] md:pb-[17.7%] ${!loaded ? "loader" : ""}`}
             >
                 <Image
                     src="/images/about-tyresonline-uae.jpg"
@@ -424,13 +424,24 @@ export default function AboutPage() {
                     priority
                     fetchPriority="high"
                     sizes="100vw"
-                    className={`object-cover transition-opacity duration-300 ${loaded ? "opacity-100" : "opacity-0"}`}
+                    className={`object-cover transition-opacity duration-300 hidden md:block ${loaded ? "opacity-100" : "opacity-0"}`}
+                    onLoad={() => setLoaded(true)}
+                />
+
+                 <Image
+                    src="/images/about-tyresonline-uae-mobile.jpg"
+                    alt="About Autoono"
+                    fill
+                    priority
+                    fetchPriority="high"
+                    sizes="100vw"
+                    className={`object-cover transition-opacity duration-300 block md:hidden ${loaded ? "opacity-100" : "opacity-0"}`}
                     onLoad={() => setLoaded(true)}
                 />
             </div>
 
             <div
-                className="max-w-[1000px] mx-auto px-5 sm:px-8 md:px-12 py-10 sm:py-16 md:py-20 pb-28"
+                className="max-w-[1170px] mx-auto px-3 py-10 sm:py-12 md:py-14"
                 dir={isRtl ? "rtl" : "ltr"}
             >
                 {isLoading ? (
@@ -449,10 +460,10 @@ export default function AboutPage() {
                     />
                 ) : (
                     /* Plain text — parse sections and render cleanly exactly as in image */
-                    <div className={`space-y-6 text-[15px] leading-[1.9] text-black/75 font-medium ${isRtl ? "text-right" : "text-left"}`}>
+                    <div className={`space-y-3 text-[16px] text-black font-normal text-left ${isRtl ? "text-right" : "text-left"}`}>
 
                         {title && (
-                            <h1 className="text-2xl sm:text-3xl md:text-[2rem] font-black text-center mb-10 sm:mb-14 tracking-tight text-black uppercase">
+                            <h1 className="text-2xl sm:text-3xl md:text-[2rem] font-black text-center mb-4 md:mb-6 text-black uppercase font-bold tracking-[0.6px]">
                                 {title}
                             </h1>
                         )}
@@ -464,15 +475,15 @@ export default function AboutPage() {
 
                         {/* Vision & Mission Heading */}
                         {(parsed.vision || parsed.mission) && (
-                            <h2 className="text-base font-black text-black uppercase tracking-widest mb-2 mt-4">
+                            <h2 className="text-xl font-bold tracking-[0.6px] font-black text-black uppercase tracking-widest mb-2 mt-4">
                                 {isRtl ? "الرؤية والرسالة" : "Vision and Mission:"}
                             </h2>
                         )}
 
                         {/* Vision Section */}
                         {parsed.vision && (
-                            <div className="space-y-4">
-                                <h3 className="font-black text-black">{isRtl ? "الرؤية:" : "Vision:"}</h3>
+                            <div className="space-y-3">
+                                <h3 className="font-black text-black font-bold">{isRtl ? "الرؤية:" : "Vision:"}</h3>
                                 {visionItems.map((item, idx) => (
                                     <p key={idx}>{item}</p>
                                 ))}
@@ -481,16 +492,16 @@ export default function AboutPage() {
 
                         {/* Mission Section */}
                         {parsed.mission && (
-                            <p>
-                                <span className="font-black text-black">{isRtl ? "الرسالة:" : "Mission:"}</span>{" "}
+                            <h3>
+                                <span className="font-black text-black font-bold">{isRtl ? "الرسالة:" : "Mission:"}</span>{" "}
                                 {parsed.mission}
-                            </p>
+                            </h3>
                         )}
 
                         {/* Our Products Section */}
                         {productList.length > 0 && (
                             <div className="space-y-2">
-                                <h2 className="text-base font-black text-black uppercase tracking-widest mb-2 mt-4">
+                                <h2 className="text-xl font-bold tracking-[0.6px] font-black text-black uppercase mb-2 mt-4 font-bold">
                                     {isRtl ? "منتجاتنا:" : "Our Products:"}
                                 </h2>
                                 <ul className={`list-disc ${isRtl ? "pr-5" : "pl-5"} space-y-1`}>
@@ -504,7 +515,7 @@ export default function AboutPage() {
                         {/* Brands Section */}
                         {parsed.brands && (
                             <div className="space-y-2">
-                                <h2 className="text-base font-black text-black uppercase tracking-widest mb-2 mt-4">
+                                <h2 className="text-xl font-bold tracking-[0.6px] font-black text-black uppercase mb-2 mt-4 font-bold">
                                     {isRtl ? "العلامات التجارية المعتمدة" : "Brands Owned"}
                                 </h2>
                                 <p>{parsed.brands}</p>
@@ -514,7 +525,7 @@ export default function AboutPage() {
                         {/* Core Values Section */}
                         {valuesList.length > 0 && (
                             <div className="space-y-2">
-                                <h2 className="text-base font-black text-black uppercase tracking-widest mb-2 mt-4">
+                                <h2 className="text-xl font-bold tracking-[0.6px] font-black text-black uppercase mb-2 mt-4 font-bold">
                                     {isRtl ? "القيم الأساسية:" : "Autoono Core Values:"}
                                 </h2>
                                 <ul className={`list-disc ${isRtl ? "pr-5" : "pl-5"} space-y-1`}>
@@ -528,7 +539,7 @@ export default function AboutPage() {
                         {/* Branch Network Section */}
                         {parsed.network && (
                             <div className="space-y-2">
-                                <h2 className="text-base font-black text-black uppercase tracking-widest mb-2 mt-4">
+                                <h2 className="text-xl font-bold tracking-[0.6px] font-black text-black uppercase mb-2 mt-4 font-bold">
                                     {isRtl ? "فروعنا وانتشارنا" : "Branch Network:"}
                                 </h2>
                                 {networkParagraphs.map((para, idx) => (
@@ -540,7 +551,7 @@ export default function AboutPage() {
                         {/* Closing Section */}
                         {parsed.closing && (
                             <div className="space-y-2">
-                                <h2 className="text-base font-black text-black uppercase tracking-widest mb-2 mt-4">
+                                <h2 className="text-xl font-bold tracking-[0.6px] font-black text-black uppercase mb-2 mt-4 font-bold">
                                     {isRtl ? "كلمة ختامية" : "Closing Statement:"}
                                 </h2>
                                 <p>{parsed.closing.replace(/[“”"”]/g, "")}</p>

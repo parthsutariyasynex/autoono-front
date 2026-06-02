@@ -682,7 +682,7 @@ export default function Navbar() {
                             setLocaleCookie(targetLocale);
                             i18n.changeLanguage(targetLocale);
                           }}
-                          className="flex items-center gap-1.5 rounded px-3 py-1.5 text-body font-semibold text-black hover:bg-primary transition-colors"
+                          className="flex items-center gap-1.5 rounded px-3 py-1.5 text-body font-semibold text-black hover:bg-primary transition-colors hover:text-white"
                           title={`Switch to ${oppositeEntry.store_name || oppositeCode}`}
                         >
                           <span>{buttonLabel}</span>
@@ -706,7 +706,7 @@ export default function Navbar() {
                             setLocaleCookie(targetLocale);
                             i18n.changeLanguage(targetLocale);
                           }}
-                          className="flex items-center gap-1.5 rounded px-3 py-1.5 text-body font-semibold text-black hover:bg-primary transition-colors"
+                          className="flex items-center gap-1.5 rounded px-3 py-1.5 text-body font-semibold text-black hover:bg-primary transition-colors hover:text-white"
                           title={`Switch to ${oppositeCode}`}
                         >
                           <span>{friendlyName}</span>
@@ -731,7 +731,7 @@ export default function Navbar() {
                         setLocaleCookie(targetLocale);
                         i18n.changeLanguage(targetLocale);
                       }}
-                      className="flex items-center gap-1.5 rounded px-3 py-1.5 text-body font-semibold text-black hover:bg-primary transition-colors"
+                      className="flex items-center gap-1.5 rounded px-3 py-1.5 text-body font-semibold text-black hover:bg-primary transition-colors hover:text-white"
                     >
                       <span>{targetLabel}</span>
                     </Link>
@@ -807,7 +807,7 @@ export default function Navbar() {
             measures ~16px during loading and jumps to ~40px after
             hydration, pushing every page section below it down. */}
         <nav ref={warehouseNavRef} className="bg-primary w-full hidden md:block h-9">
-          <div className="flex items-center justify-center w-full h-full px-2 lg:px-4">
+          <div className="flex items-center justify-center w-full h-full px-4">
             {navLoading ? (
               <div className="flex items-center gap-6">
                 {[1, 2, 3, 4, 5].map(i => (
@@ -843,7 +843,7 @@ export default function Navbar() {
                     {hasChildren ? (
                       <span
                         onClick={() => setOpenWarehouseMenu(isOpen ? null : item.href)}
-                        className={`py-3 flex items-center h-full px-2.5 lg:px-7 text-body font-semibold capitalize transition-all duration-200 whitespace-nowrap cursor-pointer select-none ${isActive
+                        className={`py-3 flex items-center h-full px-2.5 lg:px-7 text-base font-medium capitalize transition-all duration-200 whitespace-nowrap cursor-pointer select-none ${isActive
                           ? "bg-black text-white"
                           : "text-black hover:bg-black hover:text-white"
                           }`}
@@ -853,7 +853,7 @@ export default function Navbar() {
                     ) : (
                       <Link
                         href={href}
-                        className={`py-3 flex items-center h-full px-2.5 lg:px-7 text-body font-semibold capitalize transition-all duration-200 whitespace-nowrap ${isActive
+                        className={`py-3 flex items-center h-full px-2.5 lg:px-7 text-base font-medium capitalize transition-all duration-200 whitespace-nowrap ${isActive
                           ? "bg-black text-white"
                           : "text-black hover:bg-black hover:text-white"
                           }`}
@@ -895,7 +895,7 @@ export default function Navbar() {
                                       document.cookie = `NEXT_STORE=${w.code};path=/;max-age=${60 * 60 * 24 * 365};samesite=lax`;
                                       setOpenWarehouseMenu(null);
                                     }}
-                                    className={`text-start px-6 py-2.5 text-body font-bold transition-colors cursor-pointer !text-black ${isSelected ? "bg-primary  border-l-2 border-black" : "hover:bg-primary"}`}
+                                    className={`text-start px-6 py-2.5 text-body font-bold transition-colors cursor-pointer hover:!text-white !text-black ${isSelected ? "bg-primary  border-l-2 border-black" : "hover:bg-primary"}`}
                                   >
                                     {w.label}
                                   </Link>
